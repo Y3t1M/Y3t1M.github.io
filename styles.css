@@ -25,24 +25,35 @@ p {
 
 /* Header */
 header {
-  background-color: rgba(11, 12, 13, 0.8); /* Transparent dark grey */
-  color: #fff;
-  padding: 20px 0;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
+  background-color: rgba(11, 12, 13, 0.95);
   position: fixed;
   top: 0;
   width: 100%;
   z-index: 1000;
+  padding: 10px 0;
+}
+
+nav {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 10px 0;
+}
+
+/* Logo positioning */
+.logo-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: 60px; /* Space below fixed header */
+  margin-bottom: 30px;
 }
 
 .logo {
   position: relative;
   width: 300px;
   height: 150px;
-  margin: auto;
-  right: 75px;
+  margin: 0 auto;
 }
 
 .logo img {
@@ -149,18 +160,25 @@ section h2 {
   align-items: flex-start;
 }
 
-.card {
+.card, .project {
   background-color: #151617;
   border: 1px solid #222;
   border-radius: 15px;
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-  margin: 20px;
+  margin: 20px auto;
   padding: 30px;
-  flex: 1 1 calc(33% - 60px);
-  text-align: center;
+  width: 100%;
+  max-width: 800px;
   transition: transform 0.3s ease-in-out;
-  max-width: 300px;
-  color: #e6e6e6;
+}
+
+.card img, .project img {
+  width: 100%;
+  max-width: 600px;
+  height: auto;
+  border-radius: 10px;
+  margin: 20px 0;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .card:hover {
