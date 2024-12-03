@@ -1,9 +1,9 @@
 /* Body and Fonts */
 body {
   margin: 0;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: linear-gradient(to right, #e0eafc, #cfdef3);
-  color: #333;
+  font-family: 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+  background-color: #0b0c0d;
+  color: #e6e6e6;
 }
 
 h1,
@@ -12,14 +12,19 @@ h3 {
   font-weight: normal;
 }
 
+h1 {
+  font-size: 3em;
+  font-weight: 300;
+  color: #ffffff;
+}
+
 p {
   line-height: 1.6;
 }
 
 /* Header */
 header {
-  background: #4b79a1;
-  background: linear-gradient(to right, #283e51, #4b79a1);
+  background-color: #0b0c0d;
   color: #fff;
   padding: 20px 0;
   text-align: center;
@@ -64,11 +69,41 @@ header {
 section {
   padding: 60px 20px;
   text-align: center;
+  background-color: #0b0c0d;
+}
+
+section h2 {
+  display: flex;
+  justify-content: center;
+  margin: 0;
+}
+
+nav li {
+  margin: 0 15px;
+}
+
+nav a {
+  color: #e6e6e6;
+  text-decoration: none;
+  font-size: 1.1em;
+  transition: color 0.3s ease;
+}
+
+nav a:hover {
+  color: #ffffff;
+}
+
+/* Sections */
+section {
+  padding: 80px 20px;
+  text-align: center;
+  background-color: #0b0c0d;
 }
 
 section h2 {
   font-size: 2.5em;
   margin-bottom: 20px;
+  color: #ffffff;
 }
 
 /* Cards */
@@ -80,7 +115,8 @@ section h2 {
 }
 
 .card {
-  background: #fff;
+  background-color: #151617;
+  border: 1px solid #222;
   border-radius: 15px;
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
   margin: 20px auto;
@@ -91,24 +127,21 @@ section h2 {
   width: 100%;
   box-sizing: border-box;
   max-width: 600px;
+  color: #e6e6e6;
 }
 
 .card:hover {
-  transform: scale(1.05);
+  transform: translateY(-10px);
 }
 
 .card h3 {
   margin-top: 0;
 }
 
-.card p {
-  color: #666;
-}
-
-.card-link {
-  text-decoration: none;
-  color: inherit;
-  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  max-width: 600px;
+  color: #e6e6e6;
 }
 
 /* Badges */
@@ -119,9 +152,9 @@ section h2 {
 }
 
 .badge {
-  background: #4b79a1;
-  background: linear-gradient(to right, #283e51, #4b79a1);
-  color: #fff;
+  background-color: #151617;
+  border: 1px solid #222;
+  color: #e6e6e6;
   padding: 10px 20px;
   margin: 10px auto;
   border-radius: 30px;
@@ -144,13 +177,13 @@ section h2 {
 }
 
 .badge:hover {
-  transform: scale(1.05);
+  transform: translateY(-10px);
 }
 
 /* Footer */
 footer {
-  background: #283e51;
-  color: #fff;
+  background-color: #0b0c0d;
+  color: #888;
   padding: 10px 0;
   text-align: center;
 }
@@ -165,12 +198,14 @@ footer {
 /* tiles */
 .tile-left,
 .tile-right {
-  background: linear-gradient(to left, #283e51, #4b79a1);
+
+  background-color: #151617;
+  border: 1px solid #222;
   border-radius: 10px;
   padding: 15px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   margin: 20px auto;
-  color: #f0f0f0;
+  color: #e6e6e6;
   font-size: 1em;
   text-align: justify;
   transition: transform 0.3s ease-in-out;
@@ -180,10 +215,37 @@ footer {
 }
 
 .tile-right {
-  background: linear-gradient(to right, #283e51, #4b79a1);
+  background-color: #151617;
 }
 
 .tile-left:hover,
 .tile-right:hover {
-  transform: scale(1.05);
+  transform: translateY(-10px);
+}
+
+/* tiles */
+.tile-left,
+.tile-right {
+  background-color: #151617;
+  border: 1px solid #222;
+  border-radius: 10px;
+  padding: 15px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin: 20px auto;
+  color: #e6e6e6;
+  font-size: 1em;
+  text-align: justify;
+  transition: transform 0.3s ease-in-out;
+  width: 100%;
+  box-sizing: border-box;
+  max-width: 600px;
+}
+
+.tile-right {
+  background-color: #151617;
+}
+
+.tile-left:hover,
+.tile-right:hover {
+  transform: translateY(-10px);
 }
