@@ -246,14 +246,14 @@ footer {
 /* Project Images */
 .project-image, .card img {
   width: 100%;
-  max-width: 600px; /* Increased from 500px */
+  max-width: 500px;  /* Reduced from 600px */
   height: auto;
   object-fit: cover;
   border-radius: 10px;
   margin: 20px auto;
   display: block;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  object-position: center; /* Changed back to center */
+  object-position: center;
   aspect-ratio: 1 / 1;
 }
 
