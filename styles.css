@@ -4,6 +4,7 @@ body {
   font-family: 'Roboto', 'Helvetica Neue', Arial, sans-serif;
   background-color: #0b0c0d;
   color: #e6e6e6;
+  padding-top: 220px; /* Adjust this value based on the header height */
 }
 
 h1,
@@ -24,12 +25,16 @@ p {
 
 /* Header */
 header {
-  background-color: #0b0c0d;
+  background-color: rgba(11, 12, 13, 0.8); /* Transparent dark grey */
   color: #fff;
   padding: 20px 0;
   text-align: center;
   display: flex;
   flex-direction: column;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 1000;
 }
 
 .logo {
