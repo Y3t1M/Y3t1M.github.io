@@ -144,9 +144,9 @@ section h2 {
 /* Cards */
 .cards {
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
-  flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
 }
 
 .card {
@@ -154,14 +154,12 @@ section h2 {
   border: 1px solid #222;
   border-radius: 15px;
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-  margin: 20px auto;
+  margin: 20px;
   padding: 30px;
-  flex: 1;
+  flex: 1 1 calc(33% - 60px);
   text-align: center;
   transition: transform 0.3s ease-in-out;
-  width: 100%;
-  box-sizing: border-box;
-  max-width: 600px;
+  max-width: 300px;
   color: #e6e6e6;
 }
 
@@ -222,6 +220,10 @@ footer {
   .cards {
     flex-direction: column;
   }
+  .card {
+    flex: 1 1 100%;
+    max-width: none;
+  }
 }
 
 /* tiles */
@@ -249,4 +251,26 @@ footer {
 .tile-left:hover,
 .tile-right:hover {
   transform: translateY(-10px);
+}
+
+/* Project Sections */
+.project {
+  margin: 60px auto;
+  max-width: 800px;
+  text-align: center;
+}
+
+.project h2 {
+  font-size: 2em;
+  margin-bottom: 20px;
+  color: #ffffff;
+}
+
+.project-image {
+  width: 100%;
+  max-width: 600px;
+  height: auto;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
