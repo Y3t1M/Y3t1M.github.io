@@ -262,6 +262,11 @@ footer {
   aspect-ratio: 1 / 1;
 }
 
+.avr-drone-image {
+  object-fit: contain;
+  background-color: #151617;
+}
+
 /* Completely remove scrollbar */
 ::-webkit-scrollbar {
   display: none;
