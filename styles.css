@@ -257,7 +257,7 @@ footer {
 }
 
 .ironman-image {
-  object-position: center; /* Changed from top to center */
+  object-position: top;
 }
 
 /* Completely remove scrollbar */
