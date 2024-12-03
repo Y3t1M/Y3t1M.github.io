@@ -247,17 +247,19 @@ footer {
 .project-image, .card img {
   width: 100%;
   max-width: 600px; /* Increased from 500px */
-  height: 350px; /* Increased from 300px */
+  height: auto;
   object-fit: cover;
   border-radius: 10px;
   margin: 20px auto;
   display: block;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   object-position: center; /* Changed back to center */
+  aspect-ratio: 1 / 1;
 }
 
 .ironman-image {
   object-position: top;
+  aspect-ratio: 1 / 1;
 }
 
 /* Completely remove scrollbar */
