@@ -4,7 +4,9 @@ body {
   font-family: 'Roboto', 'Helvetica Neue', Arial, sans-serif;
   background-color: #0b0c0d;
   color: #e6e6e6;
-  padding-top: 60px;
+  padding-top: 40px; /* Reduced from 60px */
+  overflow-x: hidden;
+  scroll-behavior: smooth;
 }
 
 h1,
@@ -25,7 +27,7 @@ p {
 
 /* Header and Navigation */
 header {
-  background-color: rgba(11, 12, 13, 0.95);
+  background-color: rgba(32, 33, 36, 0.95); /* Lighter dark grey */
   position: fixed;
   top: 0;
   left: 0;
@@ -219,24 +221,40 @@ footer {
   color: #ffffff;
 }
 
-/* Profile Images */
+/* Profile Section */
+.profile-container {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin: 40px auto 20px;
+}
+
 .profile-image {
-  width: 150px;
-  height: 150px;
+  width: 180px; /* Slightly larger */
+  height: 180px;
   border-radius: 50%;
   object-fit: cover;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  margin: 10px;
+  transition: transform 0.3s ease;
+}
+
+.profile-image:hover {
+  transform: scale(1.05);
 }
 
 /* Project Images */
 .project-image, .card img {
   width: 100%;
-  max-width: 500px;
-  height: 300px;
+  max-width: 600px; /* Increased from 500px */
+  height: 350px; /* Increased from 300px */
   object-fit: cover;
   border-radius: 10px;
   margin: 20px auto;
   display: block;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Hide any automatic navigation elements */
+::-webkit-scrollbar-button {
+  display: none;
 }
