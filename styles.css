@@ -116,15 +116,6 @@ section h2 {
   transition: transform 0.3s ease-in-out;
 }
 
-.card img, .project img {
-  width: 100%;
-  max-width: 600px;
-  height: auto;
-  border-radius: 10px;
-  margin: 20px 0;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
 .card:hover {
   transform: translateY(-10px);
 }
@@ -228,11 +219,24 @@ footer {
   color: #ffffff;
 }
 
-.project-image {
+/* Profile Images */
+.profile-image {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  margin: 10px;
+}
+
+/* Project Images */
+.project-image, .card img {
   width: 100%;
-  max-width: 600px;
-  height: auto;
+  max-width: 500px;
+  height: 300px;
+  object-fit: cover;
   border-radius: 10px;
-  margin-bottom: 20px;
+  margin: 20px auto;
+  display: block;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
