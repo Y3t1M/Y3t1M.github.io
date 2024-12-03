@@ -65,6 +65,36 @@ header {
   transform: translateX(-60%);
 }
 
+/* Navigation Menu */
+nav {
+  background-color: #0b0c0d;
+  display: flex;
+  justify-content: center;
+  padding: 10px 0;
+}
+
+nav ul {
+  list-style: none;
+  display: flex;
+  margin: 0;
+  padding: 0;
+}
+
+nav li {
+  margin: 0 15px;
+}
+
+nav a {
+  color: #e6e6e6;
+  text-decoration: none;
+  font-size: 1.1em;
+  transition: color 0.3s ease;
+}
+
+nav a:hover {
+  color: #ffffff;
+}
+
 /* Sections */
 section {
   padding: 60px 20px;
@@ -138,12 +168,6 @@ section h2 {
   margin-top: 0;
 }
 
-  width: 100%;
-  box-sizing: border-box;
-  max-width: 600px;
-  color: #e6e6e6;
-}
-
 /* Badges */
 .badges {
   display: flex;
@@ -193,34 +217,6 @@ footer {
   .cards {
     flex-direction: column;
   }
-}
-
-/* tiles */
-.tile-left,
-.tile-right {
-
-  background-color: #151617;
-  border: 1px solid #222;
-  border-radius: 10px;
-  padding: 15px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  margin: 20px auto;
-  color: #e6e6e6;
-  font-size: 1em;
-  text-align: justify;
-  transition: transform 0.3s ease-in-out;
-  width: 100%;
-  box-sizing: border-box;
-  max-width: 600px;
-}
-
-.tile-right {
-  background-color: #151617;
-}
-
-.tile-left:hover,
-.tile-right:hover {
-  transform: translateY(-10px);
 }
 
 /* tiles */
