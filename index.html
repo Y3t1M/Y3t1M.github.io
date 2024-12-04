@@ -71,8 +71,26 @@
       let timeLeft = 5;
       let gameActive = false;
       let timerInterval;
+      let gameEndTimeout;
       let highScore = localStorage.getItem('clickerHighScore') || 0;
       highScoreDisplay.textContent = 'High Score: ' + highScore;
+
+      function endGame() {
+        gameActive = false;
+        clearInterval(timerInterval);
+        clickerArea.classList.add('disabled');
+        scoreDisplay.textContent = 'Time is up!';
+        
+        setTimeout(function() {
+          if (clicks > highScore) {
+            highScore = clicks;
+            localStorage.setItem('clickerHighScore', highScore);
+            highScoreDisplay.textContent = 'New High Score: ' + highScore;
+          }
+          scoreDisplay.textContent = 'Your score: ' + clicks;
+          setTimeout(() => clickerArea.classList.remove('disabled'), 500);
+        }, 1000);
+      }
 
       clickerArea.addEventListener('click', function() {
         if (!gameActive) {
@@ -81,25 +99,23 @@
           timeLeft = 5;
           clickerArea.classList.remove('disabled');
           scoreDisplay.textContent = 'Time left: ' + timeLeft + 's | Clicks: ' + clicks;
+          
+          // Set exact end time
+          const gameEndTime = Date.now() + (timeLeft * 1000);
+          
           timerInterval = setInterval(function() {
-            timeLeft--;
-            scoreDisplay.textContent = 'Time left: ' + timeLeft + 's | Clicks: ' + clicks;
-            if (timeLeft <= 0) {
-              clearInterval(timerInterval);
-              gameActive = false;
-              clickerArea.classList.add('disabled');
-              scoreDisplay.textContent = 'Time is up!';
-              setTimeout(function() {
-                if (clicks > highScore) {
-                  highScore = clicks;
-                  localStorage.setItem('clickerHighScore', highScore);
-                  highScoreDisplay.textContent = 'New High Score: ' + highScore;
-                }
-                scoreDisplay.textContent = 'Your score: ' + clicks;
-                setTimeout(() => clickerArea.classList.remove('disabled'), 500);
-              }, 1000);
+            const remaining = Math.ceil((gameEndTime - Date.now()) / 1000);
+            if (remaining <= 0) {
+              endGame();
+            } else {
+              timeLeft = remaining;
+              scoreDisplay.textContent = 'Time left: ' + timeLeft + 's | Clicks: ' + clicks;
             }
-          }, 1000);
+          }, 100);
+
+          // Force end game after exact duration
+          gameEndTimeout = setTimeout(endGame, timeLeft * 1000);
+          
         } else if (gameActive && timeLeft > 0) {
           clicks++;
           scoreDisplay.textContent = 'Time left: ' + timeLeft + 's | Clicks: ' + clicks;
