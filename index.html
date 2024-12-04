@@ -37,13 +37,16 @@
     <div class="tile-right">
       <p>Beyond robotics, I have a deep enthusiasm for creating physical objects, particularly through 3D printing. From prototyping intricate designs to building functional components, I thrive on the process of transforming digital concepts into real-world objects. For me, the intersection of engineering and creativity is where the magic happens, and I'm constantly exploring new ways to bring ideas to life.</p>
     </div>
-    <div class="clicker-game">
-      <div id="clicker-area" class="clicker-area">
-        <h3>Click Here</h3>
-      </div>
-      <div id="score-display" class="score-display"></div>
-    </div>
   </section>
+
+  <!-- Moved clicker game here -->
+  <div class="clicker-game">
+    <div id="clicker-area" class="clicker-area">
+      <h3>Click Here</h3>
+    </div>
+    <div id="score-display" class="score-display"></div>
+  </div>
+
   <footer>
     <p>Y3t1M.github.io</p>
   </footer>
@@ -65,24 +68,30 @@
       let clicks = 0;
       let timeLeft = 5;
       let gameActive = false;
+      let timerInterval;
+      let delayTimeout;
 
       clickerArea.addEventListener('click', function() {
         if (!gameActive) {
           gameActive = true;
           clicks = 0;
           timeLeft = 5;
-          scoreDisplay.textContent = 'Time left: ' + timeLeft + 's';
-          const timer = setInterval(function() {
+          scoreDisplay.textContent = 'Time left: ' + timeLeft + 's | Clicks: ' + clicks;
+          timerInterval = setInterval(function() {
             timeLeft--;
-            scoreDisplay.textContent = 'Time left: ' + timeLeft + 's';
+            scoreDisplay.textContent = 'Time left: ' + timeLeft + 's | Clicks: ' + clicks;
             if (timeLeft <= 0) {
-              clearInterval(timer);
+              clearInterval(timerInterval);
               gameActive = false;
-              scoreDisplay.textContent = 'Your score: ' + clicks;
+              scoreDisplay.textContent = 'Time is up!';
+              delayTimeout = setTimeout(function() {
+                scoreDisplay.textContent = 'Your score: ' + clicks;
+              }, 1000); // 1-second delay before showing the final score
             }
           }, 1000);
         } else {
           clicks++;
+          scoreDisplay.textContent = 'Time left: ' + timeLeft + 's | Clicks: ' + clicks;
         }
       });
     });

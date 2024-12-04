@@ -308,7 +308,7 @@ footer {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 300px; /* Increase height to make it taller */
+  height: 400px; /* Increased height */
 }
 
 .clicker-area h3 {
