@@ -29,6 +29,13 @@ document.addEventListener('DOMContentLoaded', function() {
     // Ground properties
     const groundHeight = 5;
 
+    // Preload Images
+    const dinoImage = new Image();
+    dinoImage.src = 'assets/img/dino.png';
+
+    const cactusImage = new Image();
+    cactusImage.src = 'assets/img/cactus.png';
+
     // Obstacle class
     class Obstacle {
         constructor() {
@@ -44,8 +51,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         draw() {
-            ctx.fillStyle = '#888';
-            ctx.fillRect(this.x, this.y, this.width, this.height);
+            ctx.drawImage(cactusImage, this.x, this.y, this.width, this.height);
         }
     }
 
@@ -81,8 +87,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         draw() {
-            ctx.fillStyle = '#555';
-            ctx.fillRect(this.x, this.y, this.width, this.height);
+            ctx.drawImage(dinoImage, this.x, this.y, this.width, this.height);
         }
     }
 
