@@ -308,7 +308,7 @@ footer {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 400px; /* Increased height */
+  height: 450px; /* Increased height */
 }
 
 .clicker-area h3 {
@@ -323,6 +323,12 @@ footer {
 
 .score-display {
   font-size: 1.5em;
+  margin-top: 10px;
+}
+
+.high-score {
+  font-size: 1.2em;
+  color: #ff416c;
   margin-top: 10px;
 }
 

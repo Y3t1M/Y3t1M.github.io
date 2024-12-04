@@ -45,6 +45,7 @@
       <h3>Click Here</h3>
     </div>
     <div id="score-display" class="score-display"></div>
+    <div id="high-score" class="high-score">High Score: 0</div>
   </div>
 
   <footer>
@@ -65,11 +66,14 @@
     document.addEventListener('DOMContentLoaded', function() {
       const clickerArea = document.getElementById('clicker-area');
       const scoreDisplay = document.getElementById('score-display');
+      const highScoreDisplay = document.getElementById('high-score');
       let clicks = 0;
       let timeLeft = 5;
       let gameActive = false;
       let timerInterval;
       let delayTimeout;
+      let highScore = localStorage.getItem('clickerHighScore') || 0;
+      highScoreDisplay.textContent = 'High Score: ' + highScore;
 
       clickerArea.addEventListener('click', function() {
         if (!gameActive) {
@@ -85,6 +89,11 @@
               gameActive = false;
               scoreDisplay.textContent = 'Time is up!';
               delayTimeout = setTimeout(function() {
+                if (clicks > highScore) {
+                  highScore = clicks;
+                  localStorage.setItem('clickerHighScore', highScore);
+                  highScoreDisplay.textContent = 'New High Score: ' + highScore;
+                }
                 scoreDisplay.textContent = 'Your score: ' + clicks;
               }, 1000); // 1-second delay before showing the final score
             }
