@@ -29,6 +29,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const JUMP_FORCE = -12; // Changed from -15 to make jump less high
     const GROUND_HEIGHT = 50;
     
+    // Define minimum spacing between obstacles
+    const MIN_OBSTACLE_SPACING = 200; // Minimum pixels between obstacles
+    
     // Load images
     const dinoImg = new Image();
     const cactusImg = new Image();
@@ -196,30 +199,34 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Spawn obstacles even less frequently
-    if (Math.random() < 0.005) { // Changed from 0.007 to spawn enemies less frequently
-    const isFirewall = Math.random() < 0.3; // 30% chance for firewall
-    obstacles.push({
-    x: canvas.width,
-    y: canvas.height - GROUND_HEIGHT - (isFirewall ? 60 : 40),
-    width: isFirewall ? 40 : 30,
-    height: isFirewall ? 60 : 40,
-    type: isFirewall ? 'firewall' : 'cactus'
-    });
+    if (Math.random() < 0.002) { // Changed from 0.005 to spawn enemies less frequently
+        // Check spacing to prevent overlapping
+        const lastObstacle = obstacles[obstacles.length - 1];
+        if (!lastObstacle || lastObstacle.x < canvas.width - MIN_OBSTACLE_SPACING) {
+            const isFirewall = Math.random() < 0.3; // 30% chance for firewall
+            obstacles.push({
+                x: canvas.width,
+                y: canvas.height - GROUND_HEIGHT - (isFirewall ? 60 : 40),
+                width: isFirewall ? 40 : 30,
+                height: isFirewall ? 60 : 40,
+                type: isFirewall ? 'firewall' : 'cactus'
+            });
+        }
     }
     
-    // Update obstacles even more slowly
+    // Update obstacles even more quickly
     obstacles.forEach((obstacle, index) => {
-    obstacle.x -= 1; // Changed from 2 to slow down scrolling speed
+        obstacle.x -= 3; // Changed from 1 to 3 to move obstacles faster
     
-    // Remove off-screen obstacles
-    if (obstacle.x + obstacle.width < 0) {
-    obstacles.splice(index, 1);
-    }
+        // Remove off-screen obstacles
+        if (obstacle.x + obstacle.width < 0) {
+            obstacles.splice(index, 1);
+        }
     
-    // Collision detection
-    if (collision(dino, obstacle)) {
-    gameOver = true;
-    }
+        // Collision detection
+        if (collision(dino, obstacle)) {
+            gameOver = true;
+        }
     });
     }
     

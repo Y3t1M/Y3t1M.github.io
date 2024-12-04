@@ -101,7 +101,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
   function handleProfileClick(side) {
     userSequence.push(side);
-    // Check if the current sequence matches the required sequence so far
+    // Limit the userSequence length to the required sequence length
+    if (userSequence.length > requiredSequence.length) {
+      userSequence.shift();
+    }
+
+    // Check if the current userSequence matches the requiredSequence so far
     for (let i = 0; i < userSequence.length; i++) {
       if (userSequence[i] !== requiredSequence[i]) {
         // Incorrect sequence, reset
@@ -109,6 +114,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
       }
     }
+
     // If the entire sequence is matched
     if (userSequence.length === requiredSequence.length) {
       clickerGame.classList.remove('hidden'); // Reveal the Clicker Game
