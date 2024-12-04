@@ -345,12 +345,6 @@ footer {
   animation: rainbow 2s linear infinite;
 }
 
-.high-score {
-  font-size: 1.2em;
-  color: #ff416c;
-  margin-top: 10px;
-}
-
 /* Enhanced button appearance */
 .clicker-button {
   background: linear-gradient(135deg, #ff416c, #ff4b2b);
