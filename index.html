@@ -26,10 +26,8 @@
     <img src="assets/img/profile2.jpg" alt="Profile Image 2" class="profile-image">
   </div>
 
-  <section class="banner-image">
-    <!-- Background image will be applied via CSS -->
-  </section>
-
+  <!-- Removed banner image section -->
+  
   <section id="about">
     <h2>About Me</h2>
     <h3>Hi! I'm Hudson Tinch, a robotics enthusiast and maker with a passion for turning ideas into tangible creations.</h3>
@@ -44,6 +42,16 @@
     <p>Y3t1M.github.io</p>
   </footer>
 
+  <script>
+    window.addEventListener('scroll', function() {
+      const header = document.querySelector('header');
+      if (window.scrollY > 0) {
+        header.classList.add('header-scrolled');
+      } else {
+        header.classList.remove('header-scrolled');
+      }
+    });
+  </script>
 </body>
 
 </html>

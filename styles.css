@@ -27,7 +27,7 @@ p {
 
 /* Header and Navigation */
 header {
-  background-color: rgba(32, 33, 36, 0.95); /* Lighter dark grey */
+  background-color: #000000; /* Flush black color */
   position: fixed;
   top: 0;
   left: 0;
@@ -35,6 +35,11 @@ header {
   z-index: 1000;
   padding: 15px 0;
   border-bottom: 1px solid #222;
+  transition: background-color 0.3s ease;
+}
+
+header.header-scrolled {
+  background-color: #d3d3d3; /* Light grey color */
 }
 
 nav ul {
@@ -276,26 +281,4 @@ footer {
 * {
   scrollbar-width: none;
   -ms-overflow-style: none;
-}
-
-/* Banner Image */
-.banner-image {
-  width: 100%;
-  height: 60vh; /* Adjust height as needed */
-  background-image: url('C:\Users\Hudson Tinch\Downloads\VSC\Y3t1M.github.io\assets\img\goat.jpg'); /* Replace with your image path */
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  position: relative;
-}
-
-/* Optional overlay for a professional look */
-.banner-image::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(11, 12, 13, 0.5); /* Semi-transparent overlay */
 }
