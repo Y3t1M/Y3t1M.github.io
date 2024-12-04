@@ -15,15 +15,15 @@ document.addEventListener('DOMContentLoaded', function() {
     canvas.width = 1000;
     canvas.height = 400;
     
-    // Preload floor image
-    const floorImg = new Image();
-    floorImg.onload = function() {
-        console.log('Floor image loaded successfully');
-    };
-    floorImg.onerror = function() {
-        console.error('Error loading floor image');
-    };
-    floorImg.src = 'assets/img/new_floor.png';
+    // Remove the redundant floorImg loading outside loadImages
+    // const floorImg = new Image();
+    // floorImg.onload = function() {
+    //     console.log('Floor image loaded successfully');
+    // };
+    // floorImg.onerror = function() {
+    //     console.error('Error loading floor image');
+    // };
+    // floorImg.src = 'assets/img/new_floor.png';
 
     // Game state
     let gameStarted = false;
@@ -60,10 +60,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const dinoImg = new Image();
     const cactusImg = new Image();
     const firewallImg = new Image();
-    const backgroundImg = new Image();
-    // const floorImg = new Image(); // Updated floor image
+    const floorImg = new Image(); // Ensure floorImg is loaded inside loadImages
     let loadedImages = 0;
-    const totalImages = 5; // Updated total images to include new floor
+    const totalImages = 4; // Updated total images to include dinoImg, cactusImg, firewallImg, floorImg
     
     function loadImages() {
     function handleImageLoad() {
