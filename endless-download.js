@@ -350,4 +350,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Start loading images
     loadImages();
     
-    // Start game loop    gameLoop();    });// Ensure the game functions correctly on the Projects page
+    // Start game loop
+    gameLoop();
+});

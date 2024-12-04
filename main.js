@@ -131,4 +131,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Ensure background color is set to light grey
     document.body.style.backgroundColor = '#e0e0e0'; // Set to light grey
+
+    // Properly close the DOMContentLoaded event listener
 });
