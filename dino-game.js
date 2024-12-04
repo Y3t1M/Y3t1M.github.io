@@ -40,31 +40,58 @@ document.addEventListener('DOMContentLoaded', function() {
     function loadImages() {
         function handleImageLoad() {
             loadedImages++;
+            console.log('Loaded image:', loadedImages);
             if (loadedImages === totalImages) {
                 imagesLoaded = true;
                 draw(); // Initial draw once images are loaded
             }
         }
 
-        function handleImageError() {
+        function handleImageError(e) {
+            console.error('Error loading image:', e.target.src);
             loadingError = true;
             draw(); // Show error message
         }
 
+        // Create backup images if the detailed ones fail to load
+        const backupDino = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
+        const backupCactus = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
+        const backupFirewall = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
+        const backupBackground = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
+
         dinoImg.onload = handleImageLoad;
-        dinoImg.onerror = handleImageError;
+        dinoImg.onerror = (e) => {
+            console.warn('Using backup dino image');
+            dinoImg.src = backupDino;
+        };
+
         cactusImg.onload = handleImageLoad;
-        cactusImg.onerror = handleImageError;
+        cactusImg.onerror = (e) => {
+            console.warn('Using backup cactus image');
+            cactusImg.src = backupCactus;
+        };
+
         firewallImg.onload = handleImageLoad;
-        firewallImg.onerror = handleImageError;
+        firewallImg.onerror = (e) => {
+            console.warn('Using backup firewall image');
+            firewallImg.src = backupFirewall;
+        };
+
         backgroundImg.onload = handleImageLoad;
-        backgroundImg.onerror = handleImageError;
+        backgroundImg.onerror = (e) => {
+            console.warn('Using backup background image');
+            backgroundImg.src = backupBackground;
+        };
 
         // Set image sources after setting up handlers
-        dinoImg.src = 'assets/img/dino.png';
-        cactusImg.src = 'assets/img/cactus.png';
-        firewallImg.src = 'assets/img/firewall.jpg';
-        backgroundImg.src = 'assets/img/background.jpg';
+        try {
+            dinoImg.src = './assets/img/dino.png';
+            cactusImg.src = './assets/img/cactus.png';
+            firewallImg.src = './assets/img/firewall.jpg';
+            backgroundImg.src = './assets/img/background.jpg';
+        } catch (error) {
+            console.error('Error setting image sources:', error);
+        }
     }
 
     // Draw loading screen or error message
