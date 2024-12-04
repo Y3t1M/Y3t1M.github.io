@@ -78,16 +78,24 @@
       function endGame() {
         gameActive = false;
         clearInterval(timerInterval);
+        clearTimeout(gameEndTimeout);
         clickerArea.classList.add('disabled');
         scoreDisplay.textContent = 'Time is up!';
         
         setTimeout(function() {
+          const cps = clicks / 5; // Calculate clicks per second
           if (clicks > highScore) {
             highScore = clicks;
             localStorage.setItem('clickerHighScore', highScore);
             highScoreDisplay.textContent = 'New High Score: ' + highScore;
+            // Add rainbow effect if CPS is above 100
+            if (cps > 20) {
+              highScoreDisplay.classList.add('rainbow');
+            } else {
+              highScoreDisplay.classList.remove('rainbow');
+            }
           }
-          scoreDisplay.textContent = 'Your score: ' + clicks;
+          scoreDisplay.textContent = 'Your score: ' + clicks + ' (CPS: ' + cps.toFixed(1) + ')';
           setTimeout(() => clickerArea.classList.remove('disabled'), 500);
         }, 1000);
       }

@@ -90,13 +90,6 @@ nav a:hover {
   color: #ffffff;
 }
 
-/* Sections */
-section {
-  padding: 80px 20px;
-  text-align: center;
-  background-color: #0b0c0d;
-}
-
 section h2 {
   font-size: 2.5em;
   margin-bottom: 20px;
@@ -332,6 +325,26 @@ footer {
   margin-top: 10px;
 }
 
+@keyframes rainbow {
+  0% { color: #ff0000; }
+  17% { color: #ff8000; }
+  33% { color: #ffff00; }
+  50% { color: #00ff00; }
+  67% { color: #0000ff; }
+  83% { color: #8000ff; }
+  100% { color: #ff0000; }
+}
+
+.high-score {
+  font-size: 1.2em;
+  color: #BFA100;
+  margin-top: 10px;
+}
+
+.high-score.rainbow {
+  animation: rainbow 2s linear infinite;
+}
+
 .high-score {
   font-size: 1.2em;
   color: #ff416c;
@@ -359,4 +372,22 @@ footer {
 .clicker-button:active {
   transform: translateY(0);
   box-shadow: 0 4px 15px rgba(255, 65, 108, 0.5);
+}
+
+/* Styles for the Dino game */
+#dino-game {
+  margin: 60px auto;
+  text-align: center;
+}
+
+#dino-game h2 {
+  font-size: 2em;
+  margin-bottom: 20px;
+  color: #ffffff;
+}
+
+#gameCanvas {
+  background-color: #f7f7f7;
+  border: 1px solid #222;
+  border-radius: 10px;
 }
