@@ -112,6 +112,6 @@ document.addEventListener('DOMContentLoaded', function() {
         scoreDisplay.textContent = `Final Score: ${clicks} (${cps} clicks per second)`;
     }
 
-    // Update any background color manipulations from pink to light grey
-    document.body.style.backgroundColor = '#e0e0e0'; // Set to light grey
+    // Remove or comment out the following line:
+    // document.body.style.backgroundColor = '#e0e0e0'; // Set to light grey
 });

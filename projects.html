@@ -54,6 +54,14 @@ Designed and built a functional Iron Man helmet using 3D printing and electronic
   </div>
 </div>
 
+<!-- Hidden clicker game that appears after correct sequence -->
+<div class="clicker-game hidden">
+  <div id="clicker-area" class="clicker-area">
+    <h3>Click!</h3> <!-- This text now uses 90s text style -->
+  </div>
+  <div id="score-display" class="score-display"></div>
+</div>
+
 </section>
 
 <!-- Ensure the title is larger -->
@@ -61,6 +69,21 @@ Designed and built a functional Iron Man helmet using 3D printing and electronic
   #projects h2 {
     font-size: 4em; /* Increased font size for prominence */
     font-family: 'Press Start 2P', cursive; /* Applied font */
+  }
+  
+  .clicker-game.hidden {
+    display: none;
+  }
+  
+  .clicker-game {
+    /* Existing styles... */
+    margin: 0 auto; /* Center horizontally */
+    /* Add flex properties to center vertically */
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #151617; /* Ensure dark grey background */
   }
 </style>
 

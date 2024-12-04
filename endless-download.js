@@ -154,8 +154,8 @@ document.addEventListener('DOMContentLoaded', function() {
     return;
     }
     
-    // Clear canvas with light grey background
-    ctx.fillStyle = '#e0e0e0';  // Light grey background
+    // Clear canvas with dark grey background
+    ctx.fillStyle = '#151617';  // Dark grey background
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     
     // Draw background image
