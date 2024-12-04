@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     let obstacles = [];
     let obstacleTimer = 0;
-    let obstacleInterval = 90; // frames
+    let obstacleInterval = 120; // Increased obstacle interval from 90 to 120 frames
     let score = 0;
     let gameOver = false;
 
@@ -39,21 +39,27 @@ document.addEventListener('DOMContentLoaded', function() {
     const birdImage = new Image(); // New enemy image
     birdImage.src = 'assets/img/bird.png';
 
+    const newEnemyImage = new Image(); // New enemy image
+    newEnemyImage.src = 'assets/img/new_enemy.png'; // Replace with actual image path
+
     // Obstacle class
     class Obstacle {
         constructor() {
-            this.type = Math.random() < 0.7 ? 'cactus' : 'bird'; // 70% cactus, 30% bird
+            this.type = Math.random() < 0.33 ? 'cactus' : (Math.random() < 0.5 ? 'bird' : 'newEnemy'); // 1/3 each
+
+            this.width = 40; // Fixed width for all enemies
+            this.height = 40; // Fixed height for all enemies
+
             if (this.type === 'cactus') {
-                this.width = 30 + Math.random() * 20; // Increased width
-                this.height = 20 + Math.random() * 50;
                 this.y = canvas.height - this.height - groundHeight;
             } else if (this.type === 'bird') {
-                this.width = 40;
-                this.height = 30;
                 this.y = canvas.height - this.height - groundHeight - 50; // Flying height
+            } else if (this.type === 'newEnemy') {
+                this.y = canvas.height - this.height - groundHeight - 50; // Adjust as needed
             }
+
             this.x = canvas.width;
-            this.speed = 6;
+            this.speed = 4; // Reduced speed from 6 to 4 to slow down the game
         }
 
         update() {
@@ -65,6 +71,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 ctx.drawImage(cactusImage, this.x, this.y, this.width, this.height);
             } else if (this.type === 'bird') {
                 ctx.drawImage(birdImage, this.x, this.y, this.width, this.height);
+            } else if (this.type === 'newEnemy') {
+                ctx.drawImage(newEnemyImage, this.x, this.y, this.width, this.height);
             }
         }
     }
