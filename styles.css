@@ -433,23 +433,34 @@ footer {
   height: 400px; /* Increased from 300px to 400px */
   image-rendering: pixelated;
   cursor: pointer;
+  position: relative;
+  z-index: 1;
 }
 
 /* Update floor styling */
 .floor {
   position: absolute;
   bottom: 0;
+  left: 0;
   width: 100%;
   height: 70px;
-  background-image: url('assets/img/new_floor.png');
-  background-repeat: repeat-x;
-  background-size: auto 100%;
+  background-color: #a0a0a0;
+  border-top: 2px solid #808080;
 }
 
-#endless-download h2 { /* Changed from #dino-game h2 */
-  font-family: 'Press Start 2P', 'Roboto', 'Helvetica Neue', Arial;
-  color: #ffffff; /* Neon magenta for 90s tech vibe */
-  text-shadow: 2px 2px #000; /* Retro text shadow */
+#gameCanvas {
+  background-color: #ffffff;
+  border: 2px solid #333;
+  border-radius: 10px;
+  display: block;
+  margin: 0 auto;
+  width: 100%;
+  max-width: 1000px;
+  height: 400px;
+  image-rendering: pixelated;
+  cursor: pointer;
+  position: relative;
+  z-index: 1;
 }
 
 /* Ensure other text uses the normal font */

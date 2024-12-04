@@ -40,6 +40,10 @@ document.addEventListener('DOMContentLoaded', function() {
         y: canvas.height - 70, // Adjusted y-position for larger height
         width: 100, // Increased width from 80 to 100
         height: 100, // Increased height from 80 to 100
+        hitboxWidth: 60, // Smaller hitbox width
+        hitboxHeight: 60, // Smaller hitbox height
+        hitboxOffsetX: 20, // Center the hitbox
+        hitboxOffsetY: 20, // Center the hitbox
         velocityY: 0,
         jumping: false
     };
@@ -286,10 +290,11 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Collision detection
     function collision(dino, obstacle) {
-    return dino.x < obstacle.x + obstacle.width &&
-    dino.x + dino.width > obstacle.x &&
-    dino.y < obstacle.y + obstacle.height &&
-    dino.y + dino.height > obstacle.y;
+    // Use hitbox dimensions for collision
+    return (dino.x + dino.hitboxOffsetX) < (obstacle.x + obstacle.width) &&
+           (dino.x + dino.hitboxOffsetX + dino.hitboxWidth) > obstacle.x &&
+           (dino.y + dino.hitboxOffsetY) < (obstacle.y + obstacle.height) &&
+           (dino.y + dino.hitboxOffsetY + dino.hitboxHeight) > obstacle.y;
     }
     
     // Game loop
