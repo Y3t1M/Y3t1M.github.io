@@ -37,6 +37,11 @@
     <div class="tile-right">
       <p>Beyond robotics, I have a deep enthusiasm for creating physical objects, particularly through 3D printing. From prototyping intricate designs to building functional components, I thrive on the process of transforming digital concepts into real-world objects. For me, the intersection of engineering and creativity is where the magic happens, and I'm constantly exploring new ways to bring ideas to life.</p>
     </div>
+    <div class="clicker-game">
+      <h3>Click Here</h3>
+      <button id="clicker-button" class="clicker-button">Start Clicking!</button>
+      <div id="score-display" class="score-display"></div>
+    </div>
   </section>
   <footer>
     <p>Y3t1M.github.io</p>
@@ -50,6 +55,37 @@
       } else {
         header.classList.remove('header-scrolled');
       }
+    });
+
+    // Clicker game functionality
+    document.addEventListener('DOMContentLoaded', function() {
+      const clickerButton = document.getElementById('clicker-button');
+      const scoreDisplay = document.getElementById('score-display');
+      let clicks = 0;
+      let timeLeft = 5;
+      let gameActive = false;
+
+      clickerButton.addEventListener('click', function() {
+        if (!gameActive) {
+          gameActive = true;
+          clicks = 0;
+          timeLeft = 5;
+          scoreDisplay.textContent = 'Time left: ' + timeLeft + 's';
+          clickerButton.textContent = 'Click Me!';
+          const timer = setInterval(function() {
+            timeLeft--;
+            scoreDisplay.textContent = 'Time left: ' + timeLeft + 's';
+            if (timeLeft <= 0) {
+              clearInterval(timer);
+              gameActive = false;
+              scoreDisplay.textContent = 'Your score: ' + clicks;
+              clickerButton.textContent = 'Play Again';
+            }
+          }, 1000);
+        } else {
+          clicks++;
+        }
+      });
     });
   </script>
 </body>

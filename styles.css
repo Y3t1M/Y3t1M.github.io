@@ -39,7 +39,7 @@ header {
 }
 
 header.header-scrolled {
-  background-color: #d3d3d3; /* Light grey color */
+  background-color: rgba(50, 50, 50, 0.8); /* Darker grey, slightly translucent */
 }
 
 nav ul {
@@ -281,4 +281,37 @@ footer {
 * {
   scrollbar-width: none;
   -ms-overflow-style: none;
+}
+
+/* Styles for the clicker game */
+.clicker-game {
+  background-color: #151617;
+  color: #e6e6e6;
+  padding: 20px;
+  border-radius: 10px;
+  margin: 40px auto;
+  width: 100%;
+  max-width: 600px;
+  text-align: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.clicker-button {
+  background-color: #e6e6e6;
+  color: #151617;
+  border: none;
+  padding: 15px 30px;
+  font-size: 1.2em;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.clicker-button:hover {
+  background-color: #ffffff;
+}
+
+.score-display {
+  font-size: 1.5em;
+  margin-top: 20px;
 }
