@@ -2,7 +2,7 @@
 body {
   margin: 0;
   font-family: 'Roboto', 'Helvetica Neue', Arial; /* Set to Roboto for modern text */
-  background-color: #0b0c0d;
+  background-color: #d3d3d3; /* Changed to light grey */
   color: #00FF00; /* Neon green for 90s tech vibe */
   padding-top: 60px; /* Increased from 20px to add space below fixed header */
   overflow-x: hidden;
@@ -434,6 +434,13 @@ footer {
   background-position: bottom;
 }
 
+/* Floor Styling */
+.floor {
+  background-image: url('assets/img/floor.jpg'); /* Set floor image */
+  background-size: cover;
+  // ...existing code...
+}
+
 #endless-download h2 { /* Changed from #dino-game h2 */
   font-family: 'Press Start 2P', 'Roboto', 'Helvetica Neue', Arial;
   color: #ffffff; /* Neon magenta for 90s tech vibe */
@@ -492,4 +499,11 @@ footer p {
   /* ...existing styles... */
   /* Example of using CSS variable for ground height */
   --ground-height: 50px;
+}
+
+/* Jump Instruction Text */
+.game-instructions {
+  color: #ffffff; /* Set text color to white */
+  font-family: 'Press Start 2P', cursive; /* Apply 'Press Start 2P' font */
+  // ...existing code...
 }

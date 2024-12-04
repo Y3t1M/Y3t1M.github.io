@@ -321,6 +321,13 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     });
     
+    // Update jump instruction text styling
+    const instructions = document.querySelector('.game-instructions');
+    if (instructions) {
+        instructions.style.color = '#ffffff'; // White text
+        instructions.style.fontFamily = "'Press Start 2P', cursive"; // 'Press Start 2P' font
+    }
+
     // Start loading images
     loadImages();
     
