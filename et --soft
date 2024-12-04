@@ -1,0 +1,395 @@
+[33mcommit f52cc4e428a62bebcd869e2fb6fd569b2647505a[m[33m ([m[1;36mHEAD -> [m[1;32mmain[m[33m)[m
+Author: Hudson Tinch <yetimaster4321@gmail.com>
+Date:   Wed Dec 4 02:52:52 2024 -0600
+
+    Update Endless Download project: remove backup floor image, ensure single floor image reference, and change background color to light grey for consistency across styles.
+
+[33mcommit b9f2a5ed878079c1df37f26673e736ea7a816513[m
+Author: Hudson Tinch <yetimaster4321@gmail.com>
+Date:   Wed Dec 4 02:45:05 2024 -0600
+
+    Refactor Endless Download hitbox dimensions and update canvas styles: reduce hitbox size for improved collision detection, adjust hitbox centering, and change background color to light grey for better visual consistency.
+
+[33mcommit 42fe61fc7f61dd4ecabc178a09524a5bbbd7cc73[m
+Author: Hudson Tinch <yetimaster4321@gmail.com>
+Date:   Wed Dec 4 02:40:37 2024 -0600
+
+    Enhance Endless Download game mechanics and styling: update hitbox dimensions for collision detection, add floor element in HTML, and improve canvas and floor styles for better visual presentation.
+
+[33mcommit c918759497664a648a8a8f92cf8ef060dcfa36da[m
+Author: Hudson Tinch <yetimaster4321@gmail.com>
+Date:   Wed Dec 4 02:35:47 2024 -0600
+
+    Remove Dino Game functionality and update Endless Download project: delete dino-game.js, adjust canvas dimensions in projects.html, and enhance image loading in endless-download.js with error handling. Update styles for consistency across sections.
+
+[33mcommit b7d67f1e0080c89745e58a547f72e34aa4e8fadd[m
+Author: Hudson Tinch <yetimaster4321@gmail.com>
+Date:   Wed Dec 4 02:28:37 2024 -0600
+
+    Update script references and enhance loading behavior: switch to main.js for the primary script and add defer attribute to endless-download.js for improved DOM loading
+
+[33mcommit 67e8ed1b15ae974bd57fe685bf26e869ae79aeda[m
+Author: Hudson Tinch <yetimaster4321@gmail.com>
+Date:   Wed Dec 4 02:26:55 2024 -0600
+
+    Refactor clicker game logic and enhance sequence handling: streamline click tracking, improve timeout management, and update game display functionality
+
+[33mcommit 9c6e5ff168a46d30df5678bfacbed42e1fe03631[m
+Author: Hudson Tinch <yetimaster4321@gmail.com>
+Date:   Wed Dec 4 02:23:10 2024 -0600
+
+    Refactor clicker game functionality and enhance sequence detection: streamline game logic, improve click handling, and implement sequence tracking with timeout management
+
+[33mcommit 801c1d823e5260dfe7a2fd06d4c1ad24e3f418ff[m
+Author: Hudson Tinch <yetimaster4321@gmail.com>
+Date:   Wed Dec 4 02:17:09 2024 -0600
+
+    Refactor game card layout and enhance click sequence logic: remove inline styles for CSS classes, improve game card content alignment, and implement detailed click sequence tracking with timeout handling
+
+[33mcommit 6fdd89e7047f89fbbf28f4c81c387298c35f4749[m
+Author: Hudson Tinch <yetimaster4321@gmail.com>
+Date:   Wed Dec 4 02:10:07 2024 -0600
+
+    Enhance click sequence logic and update project titles: improve user interaction with sequence timing, reveal clicker game on correct sequence, and update project section titles for clarity
+
+[33mcommit 36656753f07651535b27689d3e2d9f5234e72f8d[m
+Author: Hudson Tinch <yetimaster4321@gmail.com>
+Date:   Wed Dec 4 02:03:40 2024 -0600
+
+    Refactor game project structure: update script loading, enhance project visibility, and improve styling for dark mode
+
+[33mcommit ab1643284dbfcfacdb38697be01e23f21fdd9b85[m
+Author: Hudson Tinch <yetimaster4321@gmail.com>
+Date:   Wed Dec 4 01:57:15 2024 -0600
+
+    Update game styling and structure: change background color to light grey, update jump instruction text styling, rename sections to "The Endless Download", and enhance project title visibility
+
+[33mcommit 97602edf0db392761cae8adf99814af85bd14567[m
+Author: Hudson Tinch <yetimaster4321@gmail.com>
+Date:   Wed Dec 4 01:50:59 2024 -0600
+
+    Refactor game structure: remove high score display, rename game section to "The Endless Download", update canvas dimensions, and change script source for improved gameplay experience
+
+[33mcommit 13929e768177013bb0c8bd2cdd0332aa48a8259d[m
+Author: Hudson Tinch <yetimaster4321@gmail.com>
+Date:   Wed Dec 4 01:39:10 2024 -0600
+
+    Add level tracking and dynamic obstacle spawning: implement level progression, adjust obstacle speed and spawn interval based on score, and enhance game reset functionality
+
+[33mcommit 99ce1935f2b8a7a9f2ca8de5856e21b7fee0301e[m
+Author: Hudson Tinch <yetimaster4321@gmail.com>
+Date:   Wed Dec 4 01:35:08 2024 -0600
+
+    Enhance gameplay mechanics: adjust obstacle spawning frequency and spacing, increase obstacle speed, and limit user sequence length for improved game flow
+
+[33mcommit ef276a45aa1b9791319eae1fa61e744f14eb2c3e[m
+Author: Hudson Tinch <yetimaster4321@gmail.com>
+Date:   Wed Dec 4 01:29:57 2024 -0600
+
+    konami code
+
+[33mcommit b49a010902c6a8963a91d0cfa7efa48e0babfe72[m
+Author: Hudson Tinch <yetimaster4321@gmail.com>
+Date:   Wed Dec 4 01:27:08 2024 -0600
+
+    Refactor gameplay mechanics: adjust high score retrieval, reduce gravity and jump height, and slow score updates for improved gameplay experience
+
+[33mcommit 2c3aff065e6f427753830c6e160fd82246422ddc[m
+Author: Hudson Tinch <yetimaster4321@gmail.com>
+Date:   Wed Dec 4 01:24:43 2024 -0600
+
+    Adjust jump force and obstacle spawn rates for improved gameplay balance
+
+[33mcommit fddf8d0b06087a7158c8fc020f673bc57671a4eb[m
+Author: Hudson Tinch <yetimaster4321@gmail.com>
+Date:   Wed Dec 4 01:21:06 2024 -0600
+
+    rewind time
+
+[33mcommit 01e441f1ff3105a22bad7fe86eda03d1266073da[m
+Author: Hudson Tinch <yetimaster4321@gmail.com>
+Date:   Wed Dec 4 01:14:14 2024 -0600
+
+    Revert gameplay mechanics: restore original jump height, score update speed, gravity effect, and obstacle spawning frequency for consistent gameplay experience
+
+[33mcommit 2410627c90162b9b4eeab5848f9bd567d5402b9b[m
+Author: Hudson Tinch <yetimaster4321@gmail.com>
+Date:   Wed Dec 4 01:10:36 2024 -0600
+
+    Adjust jump height and obstacle spawning frequency for improved gameplay balance
+
+[33mcommit 8fcde5549da92d5f1496dcb8103da27823c2c7ba[m
+Author: Hudson Tinch <yetimaster4321@gmail.com>
+Date:   Wed Dec 4 01:07:49 2024 -0600
+
+    Remove duplicate script tag for Dino game in projects.html
+
+[33mcommit 30802420a952a5115f253c1d616d9c1a500dc0e9[m
+Author: Hudson Tinch <yetimaster4321@gmail.com>
+Date:   Wed Dec 4 01:01:25 2024 -0600
+
+    Improve Dino Game setup: adjust image source paths, ensure script loads after DOM is ready, and set canvas dimensions for better display
+
+[33mcommit f11b55a85d9350c1b8a1c54cd13aefc8e7e67e80[m
+Author: Hudson Tinch <yetimaster4321@gmail.com>
+Date:   Wed Dec 4 00:58:32 2024 -0600
+
+    Enhance image loading in Dino Game: add error handling, implement backup images, and adjust canvas dimensions for better responsiveness
+
+[33mcommit 51cca91c0c6a0bc74a3111ba3e68cbec2870c16a[m
+Author: Hudson Tinch <yetimaster4321@gmail.com>
+Date:   Wed Dec 4 00:53:36 2024 -0600
+
+    Adjust game mechanics: modify background color, reduce score update speed, and spawn obstacles less frequently for a smoother gameplay experience
+
+[33mcommit acf30ce6181aaf331d2fe9950389f969b06e2641[m
+Author: Hudson Tinch <yetimaster4321@gmail.com>
+Date:   Wed Dec 4 00:51:05 2024 -0600
+
+    Enhance Dino Game: add firewall and background images, improve obstacle spawning and scoring mechanics
+
+[33mcommit 397f67727ad03361cadd42f6d9c87b9fcfcc782e[m
+Author: Hudson Tinch <yetimaster4321@gmail.com>
+Date:   Wed Dec 4 00:47:59 2024 -0600
+
+    Implement image loading with error handling and loading screen in Dino Game
+
+[33mcommit f273f1c005b2995b555098f834e9ab0ae1882f8e[m
+Author: Hudson Tinch <yetimaster4321@gmail.com>
+Date:   Wed Dec 4 00:42:31 2024 -0600
+
+    Update Dino Game section: modify title, add instructions, and adjust styles for improved visuals
+
+[33mcommit fda50295a4c4e04ad3f45872e25679f8314cc0a0[m
+Author: Hudson Tinch <yetimaster4321@gmail.com>
+Date:   Wed Dec 4 00:27:39 2024 -0600
+
+    Enhance game visuals and mechanics: adjust footer height, implement responsive canvas resizing, add new enemy type, and improve obstacle spawning logic
+
+[33mcommit 13363f7be8f0e33b7898efc6661315eab2a9accb[m
+Author: Hudson Tinch <yetimaster4321@gmail.com>
+Date:   Wed Dec 4 00:19:08 2024 -0600
+
+    Refactor font settings to remove redundant 'sans-serif' and update colors for a consistent 90s theme across various sections
+
+[33mcommit 60326f61cf5ab60da3abca474e15b30153431a0b[m
+Author: Hudson Tinch <yetimaster4321@gmail.com>
+Date:   Wed Dec 4 00:15:29 2024 -0600
+
+    Refactor text styles to modern font; remove inline styles from project titles and ensure consistent styling across sections
+
+[33mcommit e3be3033cf5fbcda3dbfe96e5bc1e5c48da2d583[m
+Author: Hudson Tinch <yetimaster4321@gmail.com>
+Date:   Wed Dec 4 00:11:37 2024 -0600
+
+    Update footer text style to 90s theme and adjust body font settings
+
+[33mcommit ad13a9c7976084ed891f819a094974b25b8dce09[m
+Author: Hudson Tinch <yetimaster4321@gmail.com>
+Date:   Wed Dec 4 00:05:38 2024 -0600
+
+    Update text styles to 90s theme for 'About Me' and clicker game sections
+
+[33mcommit b6e4122ecff8c1b00588cebcda4edb623d93707e[m
+Author: Hudson Tinch <yetimaster4321@gmail.com>
+Date:   Wed Dec 4 00:00:45 2024 -0600
+
+    Increase obstacle interval and introduce new enemy type; adjust enemy speeds and dimensions
+
+[33mcommit 4fb025179a73b787b5cef682727a009778c0ab1e[m
+Author: Hudson Tinch <yetimaster4321@gmail.com>
+Date:   Tue Dec 3 23:54:51 2024 -0600
+
+    Add 'Press Start 2P' font and update styles for retro theme; introduce bird enemy in dino game
+
+[33mcommit 70306503c460f7ff73783aa3f95f76852e421ca4[m
+Author: Hudson Tinch <yetimaster4321@gmail.com>
+Date:   Tue Dec 3 23:49:45 2024 -0600
+
+    Implement game reset functionality to restart the game on click after game over
+
+[33mcommit e65c90a626833a89900b604484e30cfc7a20e7d8[m
+Author: Hudson Tinch <yetimaster4321@gmail.com>
+Date:   Tue Dec 3 23:47:16 2024 -0600
+
+    Add game restart functionality on click after game over
+
+[33mcommit ecea67d09195481902ee70b20ecb2cf6029a6e4c[m
+Author: Hudson Tinch <yetimaster4321@gmail.com>
+Date:   Tue Dec 3 23:42:45 2024 -0600
+
+    Preload and use images for Dino and cactus in the game
+
+[33mcommit 3121af50c84495dc7909d7c99f6799b0e3e08608[m
+Author: Hudson Tinch <yetimaster4321@gmail.com>
+Date:   Tue Dec 3 23:39:57 2024 -0600
+
+    dope sprites
+
+[33mcommit fa88e26f0e83e1498daaa4fa1f348582bdb27387[m
+Author: Hudson Tinch <yetimaster4321@gmail.com>
+Date:   Tue Dec 3 23:35:01 2024 -0600
+
+    Update rainbow effect trigger in clicker game to activate at 70 clicks
+
+[33mcommit 89ca812dc024e34d66342cbbfbb7cf7279dc459c[m
+Author: Hudson Tinch <yetimaster4321@gmail.com>
+Date:   Tue Dec 3 23:29:11 2024 -0600
+
+    Remove Dino game and clicker game implementations from JavaScript files
+
+[33mcommit 0c0fcfda4f5036ca3549b18f11f8428db0da1b0c[m
+Author: Hudson Tinch <yetimaster4321@gmail.com>
+Date:   Tue Dec 3 23:17:05 2024 -0600
+
+    Implement basic Dino game with collision detection, scoring, and jump mechanics; update favicon link in HTML
+
+[33mcommit 555fef3b0c7ed1c802bc6be01acdb0b19554d99b[m
+Author: Hudson Tinch <yetimaster4321@gmail.com>
+Date:   Tue Dec 3 23:12:31 2024 -0600
+
+    Enhance Dino game UI with improved canvas size and styling; add game logic in new JavaScript file
+
+[33mcommit b311d46b92f90e1fe0422e934f325ed3ac3217bd[m
+Author: Hudson Tinch <yetimaster4321@gmail.com>
+Date:   Tue Dec 3 23:03:55 2024 -0600
+
+    rewind time
+
+[33mcommit 079b5a8de3ba0c9c2adbe443997b92e2759d893c[m
+Author: Hudson Tinch <yetimaster4321@gmail.com>
+Date:   Tue Dec 3 23:01:01 2024 -0600
+
+    Refactor Dino game logic and improve gameplay mechanics
+
+[33mcommit b7d0dc6090d29ec78a9ecc6fccbbd3fd473582de[m
+Author: Hudson Tinch <yetimaster4321@gmail.com>
+Date:   Tue Dec 3 22:55:31 2024 -0600
+
+    Implement Dino game and refactor clicker game score display
+    
+    please god dont fuck everything up
+
+[33mcommit 0504f58e400e709859f9963b8a90a37dfa21bd6a[m[33m ([m[1;33mtag: Working[m[33m)[m
+Author: Hudson Tinch <yetimaster4321@gmail.com>
+Date:   Tue Dec 3 22:43:50 2024 -0600
+
+    Add Dino game implementation and enhance clicker game score display
+
+[33mcommit 58dc65f6d4ba853adbd0bde73f487c6fff93e119[m
+Author: Hudson Tinch <yetimaster4321@gmail.com>
+Date:   Tue Dec 3 22:37:17 2024 -0600
+
+    Implement game timer and end game functionality with high score tracking
+
+[33mcommit 3444620d475eb32ff1109145dcc1497d5575bdcd[m
+Author: Hudson Tinch <yetimaster4321@gmail.com>
+Date:   Tue Dec 3 22:30:48 2024 -0600
+
+    Enhance clicker game interactivity by updating button text and adding disabled state
+
+[33mcommit 844d7e3eb1819f5e740f7fec7c371183c988840a[m
+Author: Hudson Tinch <yetimaster4321@gmail.com>
+Date:   Tue Dec 3 22:27:17 2024 -0600
+
+    Add high score display and functionality to clicker game
+
+[33mcommit 722cf63f5cea65bc3c9fcb6b978d8156d0f3600a[m
+Author: Hudson Tinch <yetimaster4321@gmail.com>
+Date:   Tue Dec 3 22:23:06 2024 -0600
+
+    Reorganize clicker game section and enhance score display functionality
+
+[33mcommit 164b2b85607bf71f10ea3f14951bc60daf8b5077[m
+Author: Hudson Tinch <yetimaster4321@gmail.com>
+Date:   Tue Dec 3 22:00:22 2024 -0600
+
+    Update footer and clicker area styles for improved visibility and user interaction
+
+[33mcommit b1411a16cf71fb8907584211e9b029c7b0bbc75b[m
+Author: Hudson Tinch <yetimaster4321@gmail.com>
+Date:   Tue Dec 3 21:54:49 2024 -0600
+
+    Refactor clicker game structure and enhance styling for improved user experience
+
+[33mcommit 6f5fb93cb52f08feb91669b68acf6fab9628e6dc[m
+Author: Hudson Tinch <yetimaster4321@gmail.com>
+Date:   Tue Dec 3 21:51:08 2024 -0600
+
+    Add clicker game feature with score display and styling
+
+[33mcommit 99c3a89111bf520af35a076e46bb68249b66b9bf[m
+Author: Hudson Tinch <yetimaster4321@gmail.com>
+Date:   Tue Dec 3 21:47:17 2024 -0600
+
+    Remove banner image section and add scroll effect to header
+
+[33mcommit 6c1a324a1868cdb0550acff6a0721f9fd1ad58cb[m
+Author: Hudson Tinch <yetimaster4321@gmail.com>
+Date:   Tue Dec 3 21:44:19 2024 -0600
+
+    Update banner image path to use absolute path for local development
+
+[33mcommit 27976d66917e05b7d7074f4f51602c62b571abc7[m
+Author: Hudson Tinch <yetimaster4321@gmail.com>
+Date:   Tue Dec 3 21:42:16 2024 -0600
+
+    Fix banner image path to use forward slashes for consistency
+
+[33mcommit 78cb78bae760dc22567c76a2d842dd99c9b2f3d9[m
+Author: Hudson Tinch <yetimaster4321@gmail.com>
+Date:   Tue Dec 3 21:39:32 2024 -0600
+
+    Fix banner image path to use backslashes for compatibility
+
+[33mcommit 63b0e51466a451290086e8fa74fa155036869a79[m
+Author: Hudson Tinch <yetimaster4321@gmail.com>
+Date:   Tue Dec 3 21:37:49 2024 -0600
+
+    Update banner image to use goat.jpg for improved visual appeal
+
+[33mcommit f1200e844bb973a18a78f2bc9777ab41e0b12342[m
+Author: Hudson Tinch <yetimaster4321@gmail.com>
+Date:   Tue Dec 3 21:32:21 2024 -0600
+
+    Add banner image section with background styling and optional overlay
+
+[33mcommit f1df01511dca4e44f6c236c803f52465764319d5[m
+Author: Hudson Tinch <yetimaster4321@gmail.com>
+Date:   Mon Dec 2 22:46:41 2024 -0600
+
+    Add styles for AVR drone image to enhance display and background
+
+[33mcommit 3359e7cf1f444df29f6f043f74e3f929f1d9bb96[m
+Author: Hudson Tinch <yetimaster4321@gmail.com>
+Date:   Mon Dec 2 22:40:15 2024 -0600
+
+    Reduce max-width of project images from 600px to 500px for better layout consistency
+
+[33mcommit 4ccf90c0b522897b1026f34bd2429885a5cf327e[m
+Author: Hudson Tinch <yetimaster4321@gmail.com>
+Date:   Mon Dec 2 22:36:55 2024 -0600
+
+    Increase top padding for body to add space below fixed header
+
+[33mcommit 98e821815db87a92d98e747813d47d77f53c82bd[m
+Author: Hudson Tinch <yetimaster4321@gmail.com>
+Date:   Mon Dec 2 22:33:28 2024 -0600
+
+    Add top margin to footer for improved spacing
+
+[33mcommit 750c97e993fcc3ccb90baf15b5ad7bf19d4894db[m
+Author: Hudson Tinch <yetimaster4321@gmail.com>
+Date:   Mon Dec 2 22:30:22 2024 -0600
+
+    Update image styles for improved responsiveness and layout
+
+[33mcommit ab439dd60562e7a07080eac1b6dc0c2cdd9a6532[m
+Author: Hudson Tinch <yetimaster4321@gmail.com>
+Date:   Mon Dec 2 22:26:36 2024 -0600
+
+    Update Iron Man helmet image to reflect new design
+
+[33mcommit 32732f865e8f4f4d012e8673e16cf374507ecbf7[m
+Author: Hudson Tinch <yetimaster4321@gmail.com>
+Date:  
