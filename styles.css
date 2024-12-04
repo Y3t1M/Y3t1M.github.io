@@ -423,7 +423,7 @@ footer {
 }
 
 #endless-download #gameCanvas { /* Changed from #dino-game #gameCanvas */
-  background-color: #ffffff;
+  background-color: #e0e0e0; /* Light grey background */
   border: 2px solid #333;
   border-radius: 10px;
   display: block;
@@ -449,7 +449,7 @@ footer {
 }
 
 #gameCanvas {
-  background-color: #ffffff;
+  background-color: #e0e0e0; /* Light grey background */
   border: 2px solid #333;
   border-radius: 10px;
   display: block;

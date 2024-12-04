@@ -40,10 +40,10 @@ document.addEventListener('DOMContentLoaded', function() {
         y: canvas.height - 70, // Adjusted y-position for larger height
         width: 100, // Increased width from 80 to 100
         height: 100, // Increased height from 80 to 100
-        hitboxWidth: 60, // Smaller hitbox width
-        hitboxHeight: 60, // Smaller hitbox height
-        hitboxOffsetX: 20, // Center the hitbox
-        hitboxOffsetY: 20, // Center the hitbox
+        hitboxWidth: 40, // Reduced from 60 to 40
+        hitboxHeight: 40, // Reduced from 60 to 40
+        hitboxOffsetX: 30, // Adjusted to center the smaller hitbox
+        hitboxOffsetY: 30, // Adjusted to center the smaller hitbox
         velocityY: 0,
         jumping: false
     };
@@ -168,7 +168,7 @@ document.addEventListener('DOMContentLoaded', function() {
         ctx.fillRect(0, 0, canvas.width, canvas.height - GROUND_HEIGHT);
     }
 
-    // Draw floor image
+    // Draw floor image - stretch to fit
     if (floorImg.complete && floorImg.naturalHeight !== 0) {
         ctx.drawImage(floorImg, 0, canvas.height - GROUND_HEIGHT, canvas.width, GROUND_HEIGHT);
     } else {
