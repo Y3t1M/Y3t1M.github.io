@@ -76,7 +76,17 @@ document.addEventListener('DOMContentLoaded', function() {
     let gameActive = false;
     let timerInterval;
 
+    // High Score Initialization
+    let highScore = parseInt(localStorage.getItem('clickerHighScore')) || 0;
+
+    // Update high score display on load
+    updateHighScoreDisplay();
+
+    // Add a cooldown flag
+    let isCooldown = false;
+
     clickerArea.addEventListener('click', function() {
+        if (isCooldown) return; // Ignore clicks during cooldown
         if (!gameActive) {
             startGame();
         } else if (gameActive && timeLeft > 0) {
@@ -110,7 +120,62 @@ document.addEventListener('DOMContentLoaded', function() {
         clearInterval(timerInterval);
         const cps = (clicks / 5).toFixed(1);
         scoreDisplay.textContent = `Final Score: ${clicks} (${cps} clicks per second)`;
+
+        if (clicks > highScore) {
+            highScore = clicks;
+            localStorage.setItem('clickerHighScore', highScore);
+            updateHighScoreDisplay();
+        }
+
+        // Start cooldown period
+        isCooldown = true;
+        clickerGame.classList.add('disabled'); // Apply disabled styling
+
+        setTimeout(() => {
+            isCooldown = false;
+            clickerGame.classList.remove('disabled'); // Remove disabled styling
+        }, 2000); // 2 seconds cooldown
     }
+
+    // Function to update high score display
+    function updateHighScoreDisplay() {
+        const highScoreDisplay = document.getElementById('high-score');
+        if (highScoreDisplay) {
+            highScoreDisplay.textContent = `High Score: ${highScore}`;
+            if (highScore > 69) {
+                highScoreDisplay.classList.add('rainbow');
+            } else {
+                highScoreDisplay.classList.remove('rainbow');
+            }
+        }
+    }
+
+    // Reset game function
+    function resetGame() {
+        gameOver = false;
+        clicks = 0;
+        timeLeft = 5;
+        gameActive = false;
+        score = 0;
+        updateDisplay();
+        updateHighScoreDisplay();
+    }
+
+    // Update keydown event handler to respect cooldown
+    document.addEventListener('keydown', function(event) {
+        if (event.code === 'Space') {
+            event.preventDefault();
+            if (isCooldown) return; // Ignore key presses during cooldown
+            if (!gameStarted) {
+                gameStarted = true;
+            } else if (gameOver) {
+                resetGame();
+            } else if (!dino.jumping) {
+                dino.velocityY = JUMP_FORCE;
+                dino.jumping = true;
+            }
+        }
+    });
 
     // Remove or comment out the following line:
     // document.body.style.backgroundColor = '#e0e0e0'; // Set to light grey
