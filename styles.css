@@ -71,6 +71,15 @@ nav a:hover {
   color: #ffffff;
 }
 
+/* Set modern font for header text */
+header nav a {
+  font-family: 'Roboto', 'Helvetica Neue', Arial, sans-serif; /* Use Roboto for navigation links */
+  color: #e6e6e6;
+  text-decoration: none;
+  font-size: 1.2em;
+  transition: color 0.3s ease;
+}
+
 /* Sections */
 section {
   padding: 60px 20px;
@@ -131,6 +140,13 @@ section h2 {
 
 .card h3 {
   margin-top: 0;
+}
+
+/* Ensure project titles use the modern font */
+.card h3 {
+  font-family: 'Roboto', 'Helvetica Neue', Arial, sans-serif; /* Use Roboto for project titles */
+  color: #e6e6e6;
+  text-shadow: none; /* Remove text shadow */
 }
 
 /* Badges */
@@ -433,6 +449,22 @@ footer p {
   font-family: 'Press Start 2P', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
   color: #FF00FF; /* Neon magenta for 90s tech vibe */
   text-shadow: 2px 2px #000; /* Retro text shadow */
+}
+
+/* Ensure bio headings use the modern font */
+#about h3 {
+  font-family: 'Roboto', 'Helvetica Neue', Arial, sans-serif; /* Use Roboto for bio headings */
+  color: #e6e6e6;
+  text-shadow: none; /* Remove text shadow */
+}
+
+/* Apply white color to elements using 'Press Start 2P' font */
+.clicker-game h3,
+.high-score,
+#about h3,
+#dino-game h2,
+footer p {
+  color: #ffffff; /* Set text color to white */
 }
 
 /* Add any specific styles for the new enemy if needed */
