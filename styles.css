@@ -415,7 +415,10 @@ footer {
 
 /* Styles for The Endless Download game */
 #endless-download {
-  background-color: #e0e0e0; /* Changed from #151617 to light grey */
+  background-color: #e0e0e0; /* Set to light grey as fallback */
+  /* background-image: url('assets/img/background.jpg'); */ /* Removed background image */
+  /* background-size: cover; */
+  /* background-repeat: no-repeat; */
   margin: 20px auto;
   text-align: center;
   padding: 20px;
