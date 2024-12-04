@@ -488,3 +488,7 @@ footer p {
 /* .new-enemy-class {
     /* Example styles *
 } */
+
+.hidden {
+  display: none;
+}
