@@ -372,6 +372,10 @@ footer {
 #dino-game {
   margin: 60px auto;
   text-align: center;
+  padding: 20px;
+  background-color: #151617;
+  border-radius: 15px;
+  max-width: 850px;
 }
 
 #dino-game h2 {
@@ -381,7 +385,11 @@ footer {
 }
 
 #gameCanvas {
-  background-color: #f7f7f7;
-  border: 1px solid #222;
+  background-color: #f0f0f0;
+  border: 2px solid #222;
   border-radius: 10px;
+  image-rendering: pixelated;
+  display: block;
+  margin: 0 auto;
+  height: 300px;
 }
