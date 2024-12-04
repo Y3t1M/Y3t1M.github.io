@@ -25,8 +25,8 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     let obstacles = [];
-    const GRAVITY = 0.6;
-    const JUMP_FORCE = -10; // Reduced from -15 to make the jump less high
+    const GRAVITY = 0.6; // Original gravity value
+    const JUMP_FORCE = -15; // Original jump force value
     const GROUND_HEIGHT = 50;
 
     // Load images
@@ -176,12 +176,12 @@ document.addEventListener('DOMContentLoaded', function() {
     function update() {
         if (!gameStarted || gameOver) return;
 
-        // Update score even more slowly
-        score += 0.02;  // Reduced from 0.05
+        // Update score
+        score += 0.05;  // Original score increment
         if (score > highScore) highScore = score;
 
-        // Update dino position with reduced gravity
-        dino.velocityY += GRAVITY * 0.8;  // Reduced gravity by 20%
+        // Update dino position
+        dino.velocityY += GRAVITY;
         dino.y += dino.velocityY;
 
         // Ground collision
@@ -191,8 +191,8 @@ document.addEventListener('DOMContentLoaded', function() {
             dino.jumping = false;
         }
 
-        // Spawn obstacles less frequently
-        if (Math.random() < 0.005) {  // Reduced from 0.007
+        // Spawn obstacles with original frequency
+        if (Math.random() < 0.007) {  // Original spawning probability
             const isFirewall = Math.random() < 0.3; // 30% chance for firewall
             obstacles.push({
                 x: canvas.width,
@@ -203,9 +203,9 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
 
-        // Update obstacles even more slowly
+        // Update obstacles
         obstacles.forEach((obstacle, index) => {
-            obstacle.x -= 2;  // Reduced from 3
+            obstacle.x -= 3;  // Original obstacle speed
             
             // Remove off-screen obstacles
             if (obstacle.x + obstacle.width < 0) {
