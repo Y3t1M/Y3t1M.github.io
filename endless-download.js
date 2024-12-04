@@ -334,3 +334,4 @@ document.addEventListener('DOMContentLoaded', function() {
     // Start game loop
     gameLoop();
     });
+// Ensure the game functions correctly on the Projects page

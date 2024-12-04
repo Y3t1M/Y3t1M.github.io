@@ -10,10 +10,10 @@ window.addEventListener('scroll', function() {
   }
 });
 
-// Ensure endless-download.js is loaded after the DOM is ready
+// Ensure 'endless-download.js' is loaded after the DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
   const gameScript = document.createElement('script');
-  gameScript.src = 'endless-download.js'; // Changed from 'dino-game.js' to 'endless-download.js'
+  gameScript.src = 'endless-download.js'; // Updated script source
   gameScript.onload = () => {
     console.log('The Endless Download script loaded successfully.');
   };

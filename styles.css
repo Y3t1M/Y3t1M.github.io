@@ -1,9 +1,9 @@
 /* Body and Fonts */
 body {
   margin: 0;
-  font-family: 'Roboto', 'Helvetica Neue', Arial; /* Set to Roboto for modern text */
-  background-color: #d3d3d3; /* Changed to light grey */
-  color: #00FF00; /* Neon green for 90s tech vibe */
+  background-color: #121212; /* Standard dark background */
+  color: #ffffff; /* Light text for dark mode */
+  font-family: 'Roboto', 'Helvetica Neue', Arial, sans-serif;
   padding-top: 60px; /* Increased from 20px to add space below fixed header */
   overflow-x: hidden;
   scroll-behavior: smooth;
@@ -36,7 +36,7 @@ p {
 
 /* Header and Navigation */
 header {
-  background-color: rgba(30, 30, 30, 0.7); /* Darker grey, translucent */
+  background-color: rgba(30, 30, 30, 0.9); /* Darker grey, less translucent */
   position: fixed;
   top: 0;
   left: 0;
@@ -187,8 +187,8 @@ section h2 {
 
 /* Footer */
 footer {
-  background-color: #0b0c0d;
-  color: #888;
+  background-color: #1e1e1e; /* Darker footer background */
+  color: #cccccc; /* Lighter footer text */
   padding: 10px 0;
   text-align: center;
 }
