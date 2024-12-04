@@ -1,11 +1,30 @@
 document.addEventListener('DOMContentLoaded', function() {
     const canvas = document.getElementById('gameCanvas');
+    if (!canvas) {
+        console.error('Canvas element not found');
+        return;
+    }
+    
     const ctx = canvas.getContext('2d');
+    if (!ctx) {
+        console.error('Could not get 2D context');
+        return;
+    }
+
+    // Set canvas dimensions explicitly
+    canvas.width = 1000;
+    canvas.height = 400;
     
-    // Set fixed canvas size
-    canvas.width = 1000; // Increased width from 800 to 1000
-    canvas.height = 400; // Increased height from 300 to 400
-    
+    // Preload floor image
+    const floorImg = new Image();
+    floorImg.onload = function() {
+        console.log('Floor image loaded successfully');
+    };
+    floorImg.onerror = function() {
+        console.error('Error loading floor image');
+    };
+    floorImg.src = 'assets/img/new_floor.png';
+
     // Game state
     let gameStarted = false;
     let gameOver = false;
@@ -38,7 +57,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const cactusImg = new Image();
     const firewallImg = new Image();
     const backgroundImg = new Image();
-    const floorImg = new Image(); // Updated floor image
+    // const floorImg = new Image(); // Updated floor image
     let loadedImages = 0;
     const totalImages = 5; // Updated total images to include new floor
     
