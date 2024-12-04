@@ -264,6 +264,7 @@ footer {
   object-fit: cover;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   transition: transform 0.3s ease;
+  cursor: pointer;
 }
 
 .profile-image:hover {
@@ -491,7 +492,11 @@ footer p {
 } */
 
 .hidden {
-  display: none;
+  display: none !important;
+}
+
+.profile-image {
+  cursor: pointer;
 }
 
 /* Optional: Adjust GROUND_HEIGHT if the new floor image has different dimensions */

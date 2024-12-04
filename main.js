@@ -1,74 +1,71 @@
-// Header scroll effect and Clicker game functionality
-
-// Header scroll effect
-window.addEventListener('scroll', function() {
-  const header = document.querySelector('header');
-  if (window.scrollY > 0) {
-    header.classList.add('header-scrolled');
-  } else {
-    header.classList.remove('header-scrolled');
-  }
-});
-
-// Ensure 'endless-download.js' is loaded after the DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
-  const gameScript = document.createElement('script');
-  gameScript.src = 'endless-download.js'; // Updated script source
-  gameScript.onload = () => {
-    console.log('The Endless Download script loaded successfully.');
-  };
-  gameScript.onerror = () => {
-    console.error('Failed to load The Endless Download script.');
-  };
-  document.body.appendChild(gameScript);
-});
-
-// Clicker game and sequence detection
-document.addEventListener('DOMContentLoaded', function() {
+    // Get DOM elements
     const profile1 = document.getElementById('profile1');
     const profile2 = document.getElementById('profile2');
     const clickerGame = document.querySelector('.clicker-game');
     
-    // Sequence variables
-    const CORRECT_SEQUENCE = ['left', 'right', 'left', 'right', 'left'];
-    let currentSequence = [];
+    // Initialize sequence tracking
+    let clickSequence = [];
+    const correctSequence = ['left', 'right', 'left', 'right', 'left'];
     let lastClickTime = Date.now();
-    const SEQUENCE_TIMEOUT = 2000; // 2 seconds timeout
 
-    // Profile click handlers
-    profile1.addEventListener('click', () => handleProfileClick('left'));
-    profile2.addEventListener('click', () => handleProfileClick('right'));
+    // Add click handlers to profile images
+    profile1.addEventListener('click', function() {
+        handleClick('left');
+    });
 
-    function handleProfileClick(direction) {
+    profile2.addEventListener('click', function() {
+        handleClick('right');
+    });
+
+    function handleClick(direction) {
         const currentTime = Date.now();
         
-        // Reset sequence if too much time has passed
-        if (currentTime - lastClickTime > SEQUENCE_TIMEOUT) {
-            currentSequence = [];
+        // Reset sequence if more than 3 seconds have passed
+        if (currentTime - lastClickTime > 3000) {
+            clickSequence = [];
             console.log('Sequence reset (timeout)');
         }
         lastClickTime = currentTime;
 
-        // Add click to sequence
-        currentSequence.push(direction);
-        console.log('Current sequence:', currentSequence);
+        // Add this click to the sequence
+        clickSequence.push(direction);
+        console.log('Click:', direction);
+        console.log('Current sequence:', clickSequence);
 
-        // Keep only the last 5 clicks
-        if (currentSequence.length > 5) {
-            currentSequence.shift();
+        // Only keep the last 5 clicks
+        if (clickSequence.length > 5) {
+            clickSequence.shift();
         }
 
         // Check if sequence matches
-        if (arraysEqual(currentSequence, CORRECT_SEQUENCE)) {
+        if (checkSequence()) {
             console.log('Correct sequence! Showing game.');
-            clickerGame.classList.remove('hidden');
-            currentSequence = []; // Reset sequence
+            showClickerGame();
         }
     }
 
-    function arraysEqual(arr1, arr2) {
-        if (arr1.length !== arr2.length) return false;
-        return arr1.every((value, index) => value === arr2[index]);
+    function checkSequence() {
+        if (clickSequence.length !== correctSequence.length) {
+            return false;
+        }
+        
+        for (let i = 0; i < clickSequence.length; i++) {
+            if (clickSequence[i] !== correctSequence[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    function showClickerGame() {
+        clickerGame.classList.remove('hidden');
+        
+        // Scroll to the game
+        clickerGame.scrollIntoView({ behavior: 'smooth' });
+        
+        // Reset sequence
+        clickSequence = [];
     }
 
     // Clicker game functionality
@@ -78,13 +75,13 @@ document.addEventListener('DOMContentLoaded', function() {
     let timeLeft = 5;
     let gameActive = false;
     let timerInterval;
-    let gameEndTimeout;
 
     clickerArea.addEventListener('click', function() {
         if (!gameActive) {
             startGame();
         } else if (gameActive && timeLeft > 0) {
-            incrementClicks();
+            clicks++;
+            updateDisplay();
         }
     });
 
@@ -92,27 +89,16 @@ document.addEventListener('DOMContentLoaded', function() {
         gameActive = true;
         clicks = 0;
         timeLeft = 5;
-        clickerArea.classList.remove('disabled');
         updateDisplay();
-        
-        const gameEndTime = Date.now() + (timeLeft * 1000);
-        
-        timerInterval = setInterval(() => {
-            const remaining = Math.ceil((gameEndTime - Date.now()) / 1000);
-            if (remaining <= 0) {
+
+        timerInterval = setInterval(function() {
+            timeLeft--;
+            updateDisplay();
+            
+            if (timeLeft <= 0) {
                 endGame();
-            } else {
-                timeLeft = remaining;
-                updateDisplay();
             }
-        }, 100);
-
-        gameEndTimeout = setTimeout(endGame, timeLeft * 1000);
-    }
-
-    function incrementClicks() {
-        clicks++;
-        updateDisplay();
+        }, 1000);
     }
 
     function updateDisplay() {
@@ -122,14 +108,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function endGame() {
         gameActive = false;
         clearInterval(timerInterval);
-        clearTimeout(gameEndTimeout);
-        clickerArea.classList.add('disabled');
-        scoreDisplay.textContent = 'Time is up!';
-
-        setTimeout(() => {
-            const cps = (clicks / 5).toFixed(1);
-            scoreDisplay.textContent = `Your score: ${clicks} (CPS: ${cps})`;
-            setTimeout(() => clickerArea.classList.remove('disabled'), 500);
-        }, 1000);
+        const cps = (clicks / 5).toFixed(1);
+        scoreDisplay.textContent = `Final Score: ${clicks} (${cps} clicks per second)`;
     }
 });
