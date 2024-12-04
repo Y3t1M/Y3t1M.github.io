@@ -1,2 +1,4 @@
 .venv
 # Add any new files or directories to ignore if necessary
+# Example:
+# /assets/img/another_floor.png

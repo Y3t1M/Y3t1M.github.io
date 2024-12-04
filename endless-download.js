@@ -86,7 +86,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const backupCactus = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
     const backupFirewall = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
     const backupBackground = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
-    const backupFloor = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=='; // Added backup floor
     
     dinoImg.onload = handleImageLoad;
     dinoImg.onerror = (e) => {
@@ -115,7 +114,7 @@ document.addEventListener('DOMContentLoaded', function() {
     floorImg.onload = handleImageLoad; // Added load handler for floor
     floorImg.onerror = (e) => {
     console.warn('Using backup floor image');
-    floorImg.src = backupFloor;
+    floorImg.src = 'assets/img/new_floor.png'; // Ensure only the primary floor image is loaded
     };
     
     // Set image sources after setting up handlers

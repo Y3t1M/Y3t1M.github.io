@@ -111,4 +111,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const cps = (clicks / 5).toFixed(1);
         scoreDisplay.textContent = `Final Score: ${clicks} (${cps} clicks per second)`;
     }
+
+    // Update any background color manipulations from pink to light grey
+    document.body.style.backgroundColor = '#e0e0e0'; // Set to light grey
 });
