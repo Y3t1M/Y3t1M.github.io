@@ -11,6 +11,8 @@ document.addEventListener('DOMContentLoaded', function() {
     let gameOver = false;
     let score = 0;
     let highScore = 0;
+    let imagesLoaded = false;
+    let loadingError = false;
 
     // Game objects
     const dino = {
@@ -29,13 +31,58 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Load images
     const dinoImg = new Image();
-    dinoImg.src = 'assets/img/dino.png';
-    
     const cactusImg = new Image();
-    cactusImg.src = 'assets/img/cactus.png';
+    let loadedImages = 0;
+    const totalImages = 2;
 
-    // Draw game objects
+    function loadImages() {
+        function handleImageLoad() {
+            loadedImages++;
+            if (loadedImages === totalImages) {
+                imagesLoaded = true;
+                draw(); // Initial draw once images are loaded
+            }
+        }
+
+        function handleImageError() {
+            loadingError = true;
+            draw(); // Show error message
+        }
+
+        dinoImg.onload = handleImageLoad;
+        dinoImg.onerror = handleImageError;
+        cactusImg.onload = handleImageLoad;
+        cactusImg.onerror = handleImageError;
+
+        // Set image sources after setting up handlers
+        dinoImg.src = 'assets/img/dino.png';
+        cactusImg.src = 'assets/img/cactus.png';
+    }
+
+    // Draw loading screen or error message
+    function drawLoadingScreen() {
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#000000';
+        ctx.font = '20px "Press Start 2P"';
+        ctx.textAlign = 'center';
+        
+        if (loadingError) {
+            ctx.fillText('Error loading game assets!', canvas.width / 2, canvas.height / 2);
+            ctx.fillText('Please check console for details', canvas.width / 2, canvas.height / 2 + 40);
+        } else {
+            ctx.fillText('Loading...', canvas.width / 2, canvas.height / 2);
+        }
+        ctx.textAlign = 'left';
+    }
+
+    // Modified draw function
     function draw() {
+        if (!imagesLoaded) {
+            drawLoadingScreen();
+            return;
+        }
+
         // Clear canvas
         ctx.fillStyle = '#ffffff';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -44,12 +91,24 @@ document.addEventListener('DOMContentLoaded', function() {
         ctx.fillStyle = '#333333';
         ctx.fillRect(0, canvas.height - GROUND_HEIGHT, canvas.width, GROUND_HEIGHT);
 
-        // Draw dino
-        ctx.drawImage(dinoImg, dino.x, dino.y, dino.width, dino.height);
+        // Draw dino (with error handling)
+        if (dinoImg.complete && dinoImg.naturalHeight !== 0) {
+            ctx.drawImage(dinoImg, dino.x, dino.y, dino.width, dino.height);
+        } else {
+            // Fallback rectangle if image fails
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(dino.x, dino.y, dino.width, dino.height);
+        }
 
         // Draw obstacles
         obstacles.forEach(obstacle => {
-            ctx.drawImage(cactusImg, obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+            if (cactusImg.complete && cactusImg.naturalHeight !== 0) {
+                ctx.drawImage(cactusImg, obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+            } else {
+                // Fallback rectangle if image fails
+                ctx.fillStyle = '#000000';
+                ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+            }
         });
 
         // Draw score
@@ -173,6 +232,9 @@ document.addEventListener('DOMContentLoaded', function() {
             dino.jumping = true;
         }
     });
+
+    // Start loading images
+    loadImages();
 
     // Start game loop
     gameLoop();
