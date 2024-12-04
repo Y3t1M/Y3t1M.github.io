@@ -10,6 +10,19 @@ window.addEventListener('scroll', function() {
     }
 });
 
+// Ensure dino-game.js is loaded after the DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+    const dinoGameScript = document.createElement('script');
+    dinoGameScript.src = 'dino-game.js';
+    dinoGameScript.onload = () => {
+        console.log('Dino Game script loaded successfully.');
+    };
+    dinoGameScript.onerror = () => {
+        console.error('Failed to load Dino Game script.');
+    };
+    document.body.appendChild(dinoGameScript);
+});
+
 // Clicker game functionality
 document.addEventListener('DOMContentLoaded', function() {
     const clickerArea = document.getElementById('clicker-area');

@@ -85,10 +85,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Set image sources after setting up handlers
         try {
-            dinoImg.src = './assets/img/dino.png';
-            cactusImg.src = './assets/img/cactus.png';
-            firewallImg.src = './assets/img/firewall.jpg';
-            backgroundImg.src = './assets/img/background.jpg';
+            dinoImg.src = 'assets/img/dino.png'; // Removed './'
+            cactusImg.src = 'assets/img/cactus.png'; // Removed './'
+            firewallImg.src = 'assets/img/firewall.jpg';
+            backgroundImg.src = 'assets/img/background.jpg';
         } catch (error) {
             console.error('Error setting image sources:', error);
         }
