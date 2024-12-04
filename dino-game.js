@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let gameStarted = false;
     let gameOver = false;
     let score = 0;
-    let highScore = 0;
+    let highScore = parseInt(localStorage.getItem('dinoHighScore')) || 0;
     let imagesLoaded = false;
     let loadingError = false;
     
@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', function() {
     };
     
     let obstacles = [];
-    const GRAVITY = 0.6;
+    const GRAVITY = 0.4; // Reduced from 0.6 to make falling slower
     const JUMP_FORCE = -12; // Changed from -15 to make jump less high
     const GROUND_HEIGHT = 50;
     
@@ -179,10 +179,13 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Update score even more slowly
     score += 0.02;  // Reduced from 0.05
-    if (score > highScore) highScore = score;
+    if (score > highScore) {
+        highScore = score;
+        localStorage.setItem('dinoHighScore', highScore);
+    }
     
     // Update dino position with reduced gravity
-    dino.velocityY += GRAVITY * 0.8;  // Reduced gravity by 20%
+    dino.velocityY += GRAVITY;  // Applied reduced gravity
     dino.y += dino.velocityY;
     
     // Ground collision
