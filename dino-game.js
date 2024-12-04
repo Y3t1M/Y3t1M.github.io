@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let gameOver = false;
     let score = 0;
     let highScore = parseInt(localStorage.getItem('dinoHighScore')) || 0;
+    let level = 1; // Added level tracking
     let imagesLoaded = false;
     let loadingError = false;
     
@@ -154,41 +155,48 @@ document.addEventListener('DOMContentLoaded', function() {
     // Draw score
     ctx.fillStyle = '#000000';
     ctx.font = '20px "Press Start 2P"';
-    ctx.fillText(`Score: ${Math.floor(score)}`, 20, 30);
-    ctx.fillText(`High Score: ${Math.floor(highScore)}`, canvas.width - 240, 30);
     
     if (!gameStarted) {
-    ctx.fillStyle = '#000000';
-    ctx.font = '20px "Press Start 2P"';
-    ctx.textAlign = 'center';
-    ctx.fillText('Press SPACE to Start', canvas.width / 2, canvas.height / 2);
-    ctx.textAlign = 'left';
+        ctx.textAlign = 'center';
+        ctx.fillText(`High Score: ${Math.floor(highScore)}`, canvas.width / 2, 50); // Show high score on start
+        ctx.fillText('Press SPACE to Start', canvas.width / 2, canvas.height / 2);
+    } else {
+        ctx.fillText(`Score: ${Math.floor(score)}`, 20, 30);
     }
     
     if (gameOver) {
-    ctx.fillStyle = '#000000';
-    ctx.font = '40px "Press Start 2P"';
-    ctx.textAlign = 'center';
-    ctx.fillText('GAME OVER', canvas.width / 2, canvas.height / 2);
-    ctx.font = '20px "Press Start 2P"';
-    ctx.fillText('Press SPACE to Restart', canvas.width / 2, canvas.height / 2 + 40);
-    ctx.textAlign = 'left';
-    }
+        ctx.textAlign = 'center';
+        ctx.fillText('GAME OVER', canvas.width / 2, canvas.height / 2);
+        ctx.fillText(`Your Score: ${Math.floor(score)}`, canvas.width / 2, canvas.height / 2 + 40);
+        ctx.fillText(`High Score: ${Math.floor(highScore)}`, canvas.width / 2, canvas.height / 2 + 80); // Show high score on end
     }
     
-    // Update game state with slower speeds
+    ctx.textAlign = 'left';
+    }
+    
+    // Update game state with dynamic enemy spawning
     function update() {
     if (!gameStarted || gameOver) return;
     
-    // Update score even more slowly
-    score += 0.02;  // Reduced from 0.05
+    // Update score
+    score += 0.02;
     if (score > highScore) {
         highScore = score;
         localStorage.setItem('dinoHighScore', highScore);
     }
     
-    // Update dino position with reduced gravity
-    dino.velocityY += GRAVITY;  // Applied reduced gravity
+    // Increase level every 100 points
+    const newLevel = Math.floor(score / 100) + 1;
+    if (newLevel > level) {
+        level = newLevel;
+        // Increase obstacle speed
+        obstacleSpeed += 1; // Define and initialize obstacleSpeed
+        // Decrease spawn interval
+        spawnInterval = Math.max(0.001, spawnInterval - 0.0005); // Prevent spawnInterval from becoming too low
+    }
+    
+    // Update dino position with gravity
+    dino.velocityY += GRAVITY;
     dino.y += dino.velocityY;
     
     // Ground collision
@@ -198,12 +206,12 @@ document.addEventListener('DOMContentLoaded', function() {
     dino.jumping = false;
     }
     
-    // Spawn obstacles even less frequently
-    if (Math.random() < 0.002) { // Changed from 0.005 to spawn enemies less frequently
+    // Spawn obstacles based on dynamic spawnInterval
+    if (Math.random() < spawnInterval) {
         // Check spacing to prevent overlapping
         const lastObstacle = obstacles[obstacles.length - 1];
         if (!lastObstacle || lastObstacle.x < canvas.width - MIN_OBSTACLE_SPACING) {
-            const isFirewall = Math.random() < 0.3; // 30% chance for firewall
+            const isFirewall = Math.random() < 0.3;
             obstacles.push({
                 x: canvas.width,
                 y: canvas.height - GROUND_HEIGHT - (isFirewall ? 60 : 40),
@@ -214,9 +222,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // Update obstacles even more quickly
+    // Update obstacles
     obstacles.forEach((obstacle, index) => {
-        obstacle.x -= 3; // Changed from 1 to 3 to move obstacles faster
+        obstacle.x -= obstacleSpeed; // Use dynamic obstacleSpeed
     
         // Remove off-screen obstacles
         if (obstacle.x + obstacle.width < 0) {
@@ -229,6 +237,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     }
+    
+    // Initialize obstacle speed and spawn interval
+    let obstacleSpeed = 3; // Starting obstacle speed
+    let spawnInterval = 0.002; // Starting spawn probability
     
     // Collision detection
     function collision(dino, obstacle) {
@@ -245,6 +257,18 @@ document.addEventListener('DOMContentLoaded', function() {
     requestAnimationFrame(gameLoop);
     }
     
+    // Reset game function
+    function resetGame() {
+        gameOver = false;
+        score = 0;
+        level = 1;
+        obstacleSpeed = 3;
+        spawnInterval = 0.002;
+        obstacles = [];
+        dino.y = canvas.height - GROUND_HEIGHT - dino.height;
+        dino.velocityY = 0;
+    }
+    
     // Controls
     document.addEventListener('keydown', function(event) {
     if (event.code === 'Space') {
@@ -252,12 +276,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (!gameStarted) {
     gameStarted = true;
     } else if (gameOver) {
-    // Reset game
-    gameOver = false;
-    score = 0;
-    obstacles = [];
-    dino.y = canvas.height - GROUND_HEIGHT - dino.height;
-    dino.velocityY = 0;
+    resetGame(); // Use resetGame to reset parameters
     } else if (!dino.jumping) {
     dino.velocityY = JUMP_FORCE;
     dino.jumping = true;
@@ -270,12 +289,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (!gameStarted) {
     gameStarted = true;
     } else if (gameOver) {
-    // Reset game
-    gameOver = false;
-    score = 0;
-    obstacles = [];
-    dino.y = canvas.height - GROUND_HEIGHT - dino.height;
-    dino.velocityY = 0;
+    resetGame(); // Use resetGame to reset parameters
     } else if (!dino.jumping) {
     dino.velocityY = JUMP_FORCE;
     dino.jumping = true;
