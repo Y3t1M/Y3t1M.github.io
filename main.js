@@ -77,42 +77,43 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
-  // Add Click Sequence Logic
+  // Enhanced Click Sequence Logic
   const profile1 = document.getElementById('profile1');
   const profile2 = document.getElementById('profile2');
   const clickerGame = document.querySelector('.clicker-game');
-
+  
   const requiredSequence = ['left', 'right', 'left', 'right', 'left'];
   let userSequence = [];
+  let lastClickTime = 0;
+  const SEQUENCE_TIMEOUT = 2000; // 2 seconds timeout between clicks
 
   function handleProfileClick(side) {
+    const currentTime = Date.now();
+    
+    // Reset sequence if too much time has passed
+    if (currentTime - lastClickTime > SEQUENCE_TIMEOUT) {
+      userSequence = [];
+    }
+    lastClickTime = currentTime;
+
     userSequence.push(side);
-    // Limit the userSequence length to the required sequence length
-    if (userSequence.length > requiredSequence.length) {
+    console.log('Current sequence:', userSequence); // Debug logging
+
+    // Keep only the last 5 clicks
+    if (userSequence.length > 5) {
       userSequence.shift();
     }
 
-    // Check if the current userSequence matches the requiredSequence so far
-    for (let i = 0; i < userSequence.length; i++) {
-      if (userSequence[i] !== requiredSequence[i]) {
-        // Incorrect sequence, reset
-        userSequence = [];
-        return;
-      }
-    }
-
-    // If the entire sequence is matched
-    if (userSequence.length === requiredSequence.length) {
-      clickerGame.classList.remove('hidden'); // Reveal the Clicker Game
-      userSequence = []; // Reset the sequence
+    // Check if sequence matches
+    const isMatch = userSequence.every((click, index) => click === requiredSequence[index]);
+    
+    if (isMatch && userSequence.length === requiredSequence.length) {
+      clickerGame.classList.remove('hidden');
+      userSequence = []; // Reset sequence
+      console.log('Correct sequence! Showing clicker game.'); // Debug logging
     }
   }
 
-  profile1.addEventListener('click', function() {
-    handleProfileClick('left');
-  });
-
-  profile2.addEventListener('click', function() {
-    handleProfileClick('right');
-  });
+  profile1.addEventListener('click', () => handleProfileClick('left'));
+  profile2.addEventListener('click', () => handleProfileClick('right'));
 });

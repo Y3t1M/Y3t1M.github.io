@@ -19,7 +19,7 @@
 </header>
 
 <section id="projects">
-<h2>The Endless Download</h2> <!-- Updated title -->
+<h2>Projects</h2> <!-- Updated title -->
 <div class="card">
 <h3>Arduino R4 Controller</h3> <!-- Removed inline style -->
 <img src="assets/img/arduino_r4.jpg" alt="Arduino R4 Controller" class="project-image">
@@ -45,11 +45,15 @@ Designed and built a functional Iron Man helmet using 3D printing and electronic
 </div>
 
 <!-- Added "The Endless Download" Game card -->
-<div class="card">
+<div class="card game-card">
 <h3>The Endless Download</h3>
-<img src="assets/img/endless_download.jpg" alt="The Endless Download" class="project-image">
+<div class="game-container">
+<div class="game-instructions">Press SPACE or Click to Jump</div>
+<canvas id="gameCanvas"></canvas>
+</div>
 <p>
-A web-based interface for controlling multiple servos and electromagnets remotely via WiFi. Accessible without additional apps, featuring real-time status updates and a user-friendly layout.
+Navigate through digital obstacles in this endless runner game. 
+Avoid firewalls and collect data packets to increase your score.
 </p>
 </div>
 
@@ -69,8 +73,9 @@ A web-based interface for controlling multiple servos and electromagnets remotel
 <p>Y3t1M.github.io</p>
 </footer>
 
-<!-- Include external JavaScript file for the Dino game -->
-<script src="dino-game.js"></script>
+<!-- Update script reference -->
+<script src="endless-download.js"></script>
+<!-- Remove dino-game.js reference -->
 </body>
 
 </html>
