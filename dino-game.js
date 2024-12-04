@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     let obstacles = [];
     const GRAVITY = 0.6;
-    const JUMP_FORCE = -15;
+    const JUMP_FORCE = -10; // Reduced from -15 to make the jump less high
     const GROUND_HEIGHT = 50;
 
     // Load images
@@ -191,14 +191,14 @@ document.addEventListener('DOMContentLoaded', function() {
             dino.jumping = false;
         }
 
-        // Spawn obstacles even less frequently
-        if (Math.random() < 0.007) {  // Reduced from 0.01
+        // Spawn obstacles less frequently
+        if (Math.random() < 0.005) {  // Reduced from 0.007
             const isFirewall = Math.random() < 0.3; // 30% chance for firewall
             obstacles.push({
                 x: canvas.width,
-                y: canvas.height - GROUND_HEIGHT - (isFirewall ? 60 : 40),
-                width: isFirewall ? 40 : 30,
-                height: isFirewall ? 60 : 40,
+                y: canvas.height - GROUND_HEIGHT - (isFirewall ? 80 : 50), // Increased heights
+                width: isFirewall ? 50 : 40, // Increased widths
+                height: isFirewall ? 80 : 50, // Increased heights
                 type: isFirewall ? 'firewall' : 'cactus'
             });
         }
