@@ -1,3 +1,4 @@
+// Header scroll effect and Clicker game functionality
 
 // Header scroll effect
 window.addEventListener('scroll', function() {
@@ -7,10 +8,10 @@ window.addEventListener('scroll', function() {
     } else {
       header.classList.remove('header-scrolled');
     }
-  });
-  
-  // Clicker game functionality
-  document.addEventListener('DOMContentLoaded', function() {
+});
+
+// Clicker game functionality
+document.addEventListener('DOMContentLoaded', function() {
     const clickerArea = document.getElementById('clicker-area');
     const scoreDisplay = document.getElementById('score-display');
     const highScoreDisplay = document.getElementById('high-score');
@@ -19,9 +20,9 @@ window.addEventListener('scroll', function() {
     let gameActive = false;
     let timerInterval;
     let gameEndTimeout;
-    let highScore = localStorage.getItem('clickerHighScore') || 0;
+    let highScore = parseInt(localStorage.getItem('clickerHighScore')) || 0;
     highScoreDisplay.textContent = 'High Score: ' + highScore;
-  
+
     function endGame() {
       gameActive = false;
       clearInterval(timerInterval);
@@ -30,7 +31,7 @@ window.addEventListener('scroll', function() {
       scoreDisplay.textContent = 'Time is up!';
       
       setTimeout(function() {
-        const cps = clicks / 5; // Calculate clicks per second
+        const cps = (clicks / 5).toFixed(1); // Calculate clicks per second
         if (clicks > highScore) {
           highScore = clicks;
           localStorage.setItem('clickerHighScore', highScore);
@@ -42,11 +43,11 @@ window.addEventListener('scroll', function() {
             highScoreDisplay.classList.remove('rainbow');
           }
         }
-        scoreDisplay.textContent = 'Your score: ' + clicks + ' (CPS: ' + cps.toFixed(1) + ')';
+        scoreDisplay.textContent = 'Your score: ' + clicks + ' (CPS: ' + cps + ')';
         setTimeout(() => clickerArea.classList.remove('disabled'), 500);
       }, 1000);
     }
-  
+
     clickerArea.addEventListener('click', function() {
       if (!gameActive) {
         gameActive = true;
@@ -76,4 +77,4 @@ window.addEventListener('scroll', function() {
         scoreDisplay.textContent = 'Time left: ' + timeLeft + 's | Clicks: ' + clicks;
       }
     });
-  });
+});
