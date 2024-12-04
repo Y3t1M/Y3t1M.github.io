@@ -36,8 +36,8 @@ document.addEventListener('DOMContentLoaded', function() {
           highScore = clicks;
           localStorage.setItem('clickerHighScore', highScore);
           highScoreDisplay.textContent = 'New High Score: ' + highScore;
-          // Add rainbow effect if CPS is above 20
-          if (cps > 20) {
+          // Add rainbow effect if clicks are above 69
+          if (clicks > 69) {
             highScoreDisplay.classList.add('rainbow');
           } else {
             highScoreDisplay.classList.remove('rainbow');
