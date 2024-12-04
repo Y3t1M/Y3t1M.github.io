@@ -89,6 +89,12 @@ document.addEventListener('DOMContentLoaded', function() {
         draw() {
             ctx.drawImage(dinoImage, this.x, this.y, this.width, this.height);
         }
+
+        reset() {
+            this.y = canvas.height - this.height - groundHeight;
+            this.vy = 0;
+            this.grounded = true;
+        }
     }
 
     const player = new Dino();
@@ -103,14 +109,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Restart game on click if game over
     canvas.addEventListener('click', function() {
         if (gameOver) {
-            // Reset game variables
-            obstacles = [];
-            score = 0;
-            gameOver = false;
-            player.y = canvas.height - player.height - groundHeight;
-            player.vy = 0;
-            // Restart the game loop
-            requestAnimationFrame(loop);
+            resetGame();
         }
     });
 
@@ -122,6 +121,16 @@ document.addEventListener('DOMContentLoaded', function() {
             rect1.y < rect2.y + rect2.height &&
             rect1.y + rect1.height > rect2.y
         );
+    }
+
+    // Reset game variables
+    function resetGame() {
+        obstacles = [];
+        obstacleTimer = 0;
+        score = 0;
+        gameOver = false;
+        player.reset();
+        requestAnimationFrame(loop);
     }
 
     // Game loop
