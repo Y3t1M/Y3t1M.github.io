@@ -114,4 +114,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Update any background color manipulations from pink to light grey
     document.body.style.backgroundColor = '#e0e0e0'; // Set to light grey
+
+    // Remove or comment out any code that creates grey rectangles
+    /*
+    // Example of removing dynamic grey rectangle creation
+    const greyRectangle = document.createElement('div');
+    greyRectangle.classList.add('unwanted-grey-rectangle');
+    document.body.appendChild(greyRectangle);
+    */
 });

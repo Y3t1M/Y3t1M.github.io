@@ -439,7 +439,7 @@ footer {
 
 /* Update floor styling */
 .floor {
-  background-color: #a0a0a0; /* Changed from pink to light grey */
+  /* background-color: #a0a0a0; */ /* Removed light grey background */
   border-top: 2px solid #808080;
 }
 
