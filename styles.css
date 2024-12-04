@@ -315,6 +315,7 @@ footer {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  transform: translateZ(0); /* Prevent container shift during hover */
 }
 
 .clicker-area {
@@ -326,13 +327,14 @@ footer {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 450px; /* Increased height */
+  height: 600px; /* Increased height */
 }
 
 .clicker-area h3 {
   margin: 0;
   font-size: 2em;
   color: #b0b0b0; /* Slightly lighter grey for "Click Here" text */
+  line-height: 600px; /* Match the new height */
 }
 
 .clicker-area:active {
@@ -346,8 +348,10 @@ footer {
 }
 
 .score-display {
-  font-size: 1.5em;
-  margin-top: 10px;
+  font-family: 'Press Start 2P', 'Roboto', 'Helvetica Neue', Arial;
+  font-size: 1.2em; /* Reduced from 1.5em to accommodate new font */
+  margin-top: 20px;
+  min-height: 2em; /* Fixed height to prevent container shift */
 }
 
 @keyframes rainbow {
@@ -419,7 +423,10 @@ footer {
   image-rendering: pixelated;
   display: block;
   margin: 0 auto;
-  height: 300px;
+  width: 100%;
+  max-width: 800px;
+  height: auto;
+  cursor: pointer;
 }
 
 #dino-game canvas {

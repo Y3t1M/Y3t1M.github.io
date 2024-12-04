@@ -4,9 +4,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
 
-    // Set canvas dimensions
-    canvas.width = 800;
-    canvas.height = 300;
+    // Set canvas size based on container width
+    function resizeCanvas() {
+        canvas.width = Math.min(800, canvas.parentElement.offsetWidth - 40);
+        canvas.height = 300;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
 
     // Game variables
     let dino = {
@@ -21,10 +25,10 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     let obstacles = [];
-    let obstacleTimer = 0;
-    let obstacleInterval = 120; // Increased obstacle interval from 90 to 120 frames
     let score = 0;
     let gameOver = false;
+    let gameSpeed = 5;
+    let lastObstacleTime = 0;
 
     // Ground properties
     const groundHeight = 5;
@@ -41,6 +45,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const newEnemyImage = new Image(); // New enemy image
     newEnemyImage.src = 'assets/img/new_enemy.png'; // Replace with actual image path
+
+    // Add floor image
+    const floorImage = new Image();
+    floorImage.src = 'assets/img/floor.png';
 
     // Obstacle class
     class Obstacle {
@@ -123,14 +131,21 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Handle key press for jumping
     document.addEventListener('keydown', function(e) {
-        if (e.code === 'Space' || e.code === 'ArrowUp') {
+        if ((e.code === 'Space' || e.code === 'ArrowUp') && !gameOver) {
             player.jump();
+            e.preventDefault();
+        }
+        if (e.code === 'Space' && gameOver) {
+            resetGame();
+            e.preventDefault();
         }
     });
 
     // Restart game on click if game over
     canvas.addEventListener('click', function() {
-        if (gameOver) {
+        if (!gameOver) {
+            player.jump();
+        } else {
             resetGame();
         }
     });
@@ -169,6 +184,14 @@ document.addEventListener('DOMContentLoaded', function() {
         // Clear canvas
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+        // Draw repeating floor
+        const floorPattern = ctx.createPattern(floorImage, 'repeat-x');
+        ctx.fillStyle = floorPattern;
+        ctx.save();
+        ctx.translate(-performance.now() / 50 % floorImage.width, 0); // Scroll effect
+        ctx.fillRect(0, canvas.height - groundHeight, canvas.width + floorImage.width, groundHeight);
+        ctx.restore();
+
         // Draw ground
         ctx.fillStyle = '#555';
         ctx.fillRect(0, canvas.height - groundHeight, canvas.width, groundHeight);
@@ -178,10 +201,10 @@ document.addEventListener('DOMContentLoaded', function() {
         player.draw();
 
         // Handle obstacles
-        obstacleTimer++;
-        if (obstacleTimer >= obstacleInterval) {
+        const now = performance.now();
+        if (now - lastObstacleTime > 1500) {
             obstacles.push(new Obstacle());
-            obstacleTimer = 0;
+            lastObstacleTime = now;
         }
 
         obstacles.forEach((obs, index) => {
@@ -196,14 +219,17 @@ document.addEventListener('DOMContentLoaded', function() {
             // Remove off-screen obstacles and update score
             if (obs.x + obs.width < 0) {
                 obstacles.splice(index, 1);
-                score++;
+                score += 10;
+                if (score % 100 === 0) {
+                    gameSpeed += 0.5;
+                }
             }
         });
 
         // Draw score
         ctx.fillStyle = '#000';
         ctx.font = '20px Arial';
-        ctx.fillText('Score: ' + score, 10, 30);
+        ctx.fillText('Score: ' + Math.floor(score), 10, 30);
 
         requestAnimationFrame(loop);
     }
