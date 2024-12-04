@@ -91,11 +91,12 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        // Draw background
-        ctx.drawImage(backgroundImg, 0, 0, canvas.width, canvas.height);
+        // Clear canvas with light grey background
+        ctx.fillStyle = '#e0e0e0';  // Light grey background
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // Draw ground (semi-transparent overlay)
-        ctx.fillStyle = 'rgba(51, 51, 51, 0.7)';
+        // Draw ground (darker grey)
+        ctx.fillStyle = '#a0a0a0';  // Darker grey for ground
         ctx.fillRect(0, canvas.height - GROUND_HEIGHT, canvas.width, GROUND_HEIGHT);
 
         // Draw dino (with error handling)
@@ -144,16 +145,16 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Update game state
+    // Update game state with slower speeds
     function update() {
         if (!gameStarted || gameOver) return;
 
-        // Update score more slowly
-        score += 0.05;
+        // Update score even more slowly
+        score += 0.02;  // Reduced from 0.05
         if (score > highScore) highScore = score;
 
-        // Update dino position
-        dino.velocityY += GRAVITY;
+        // Update dino position with reduced gravity
+        dino.velocityY += GRAVITY * 0.8;  // Reduced gravity by 20%
         dino.y += dino.velocityY;
 
         // Ground collision
@@ -163,8 +164,8 @@ document.addEventListener('DOMContentLoaded', function() {
             dino.jumping = false;
         }
 
-        // Spawn obstacles less frequently
-        if (Math.random() < 0.01) {  // Reduced from 0.02
+        // Spawn obstacles even less frequently
+        if (Math.random() < 0.007) {  // Reduced from 0.01
             const isFirewall = Math.random() < 0.3; // 30% chance for firewall
             obstacles.push({
                 x: canvas.width,
@@ -175,9 +176,9 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
 
-        // Update obstacles more slowly
+        // Update obstacles even more slowly
         obstacles.forEach((obstacle, index) => {
-            obstacle.x -= 3; // Reduced from 5
+            obstacle.x -= 2;  // Reduced from 3
             
             // Remove off-screen obstacles
             if (obstacle.x + obstacle.width < 0) {
