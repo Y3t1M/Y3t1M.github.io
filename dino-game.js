@@ -36,13 +36,23 @@ document.addEventListener('DOMContentLoaded', function() {
     const cactusImage = new Image();
     cactusImage.src = 'assets/img/cactus.png';
 
+    const birdImage = new Image(); // New enemy image
+    birdImage.src = 'assets/img/bird.png';
+
     // Obstacle class
     class Obstacle {
         constructor() {
-            this.width = 20 + Math.random() * 20; // random width between 20-40
-            this.height = 20 + Math.random() * 50; // random height between 20-70
+            this.type = Math.random() < 0.7 ? 'cactus' : 'bird'; // 70% cactus, 30% bird
+            if (this.type === 'cactus') {
+                this.width = 30 + Math.random() * 20; // Increased width
+                this.height = 20 + Math.random() * 50;
+                this.y = canvas.height - this.height - groundHeight;
+            } else if (this.type === 'bird') {
+                this.width = 40;
+                this.height = 30;
+                this.y = canvas.height - this.height - groundHeight - 50; // Flying height
+            }
             this.x = canvas.width;
-            this.y = canvas.height - this.height - groundHeight;
             this.speed = 6;
         }
 
@@ -51,7 +61,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         draw() {
-            ctx.drawImage(cactusImage, this.x, this.y, this.width, this.height);
+            if (this.type === 'cactus') {
+                ctx.drawImage(cactusImage, this.x, this.y, this.width, this.height);
+            } else if (this.type === 'bird') {
+                ctx.drawImage(birdImage, this.x, this.y, this.width, this.height);
+            }
         }
     }
 

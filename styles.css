@@ -1,9 +1,9 @@
 /* Body and Fonts */
 body {
   margin: 0;
-  font-family: 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+  font-family: 'Press Start 2P', 'Roboto', 'Helvetica Neue', Arial, sans-serif; /* Changed to pixel art font */
   background-color: #0b0c0d;
-  color: #e6e6e6;
+  color: #00FF00; /* Neon green for 90s tech vibe */
   padding-top: 60px; /* Increased from 20px to add space below fixed header */
   overflow-x: hidden;
   scroll-behavior: smooth;
@@ -13,6 +13,9 @@ h1,
 h2,
 h3 {
   font-weight: normal;
+  font-family: 'Press Start 2P', 'Roboto', 'Helvetica Neue', Arial, sans-serif; /* Apply pixel art font to headings */
+  color: #FF00FF; /* Neon magenta for headings */
+  text-shadow: 2px 2px #000; /* Add text shadow for a retro look */
 }
 
 h1 {
@@ -376,12 +379,7 @@ footer {
   background-color: #151617;
   border-radius: 15px;
   max-width: 850px;
-}
-
-#dino-game h2 {
-  font-size: 2em;
-  margin-bottom: 20px;
-  color: #ffffff;
+  position: relative; /* Added to position score consistently */
 }
 
 #gameCanvas {
@@ -392,4 +390,8 @@ footer {
   display: block;
   margin: 0 auto;
   height: 300px;
+}
+
+#dino-game canvas {
+  position: relative;
 }
