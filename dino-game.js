@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     let obstacles = [];
     const GRAVITY = 0.6;
-    const JUMP_FORCE = -15;
+    const JUMP_FORCE = -12; // Changed from -15 to make jump less high
     const GROUND_HEIGHT = 50;
     
     // Load images
@@ -193,7 +193,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Spawn obstacles even less frequently
-    if (Math.random() < 0.007) {  // Reduced from 0.01
+    if (Math.random() < 0.005) { // Changed from 0.007 to spawn enemies less frequently
     const isFirewall = Math.random() < 0.3; // 30% chance for firewall
     obstacles.push({
     x: canvas.width,
@@ -206,7 +206,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Update obstacles even more slowly
     obstacles.forEach((obstacle, index) => {
-    obstacle.x -= 2;  // Reduced from 3
+    obstacle.x -= 1; // Changed from 2 to slow down scrolling speed
     
     // Remove off-screen obstacles
     if (obstacle.x + obstacle.width < 0) {
