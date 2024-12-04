@@ -85,7 +85,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const backupDino = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
     const backupCactus = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
     const backupFirewall = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
-    const backupBackground = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
+    // const backupBackground = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=='; // Removed backup background
     
     dinoImg.onload = handleImageLoad;
     dinoImg.onerror = (e) => {
@@ -105,12 +105,6 @@ document.addEventListener('DOMContentLoaded', function() {
     firewallImg.src = backupFirewall;
     };
     
-    backgroundImg.onload = handleImageLoad;
-    backgroundImg.onerror = (e) => {
-    console.warn('Using backup background image');
-    backgroundImg.src = backupBackground;
-    };
-    
     floorImg.onload = handleImageLoad; // Added load handler for floor
     floorImg.onerror = (e) => {
     console.warn('Using backup floor image');
@@ -123,7 +117,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 dinoImg.src = 'assets/img/dino.png'; // Removed './'
                 cactusImg.src = 'assets/img/cactus.png'; // Removed './'
                 firewallImg.src = 'assets/img/firewall.jpg';
-                backgroundImg.src = 'assets/img/background.jpg';
+                // backgroundImg.src = 'assets/img/background.jpg'; // Removed background image loading
                 floorImg.src = 'assets/img/new_floor.png'; // Updated floor image source
     } catch (error) {
     console.error('Error setting image sources:', error);
@@ -158,14 +152,16 @@ document.addEventListener('DOMContentLoaded', function() {
     ctx.fillStyle = '#e0e0e0';  // Light grey background
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     
-    // Draw background image
+    // Removed background image drawing
+    /*
     if (backgroundImg.complete && backgroundImg.naturalHeight !== 0) {
         ctx.drawImage(backgroundImg, 0, 0, canvas.width, canvas.height - GROUND_HEIGHT);
     } else {
-        // Fallback if background image fails
+        // Fallback to light grey if background image fails
         ctx.fillStyle = '#e0e0e0';
         ctx.fillRect(0, 0, canvas.width, canvas.height - GROUND_HEIGHT);
     }
+    */
 
     // Draw floor image - stretch to fit
     if (floorImg.complete && floorImg.naturalHeight !== 0) {
@@ -356,5 +352,4 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Start game loop
     gameLoop();
-    });
-// Ensure the game functions correctly on the Projects page
+});

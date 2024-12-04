@@ -2,3 +2,6 @@
 # Add any new files or directories to ignore if necessary
 # Example:
 # /assets/img/another_floor.png
+
+# Ensure the background image is ignored since it's removed
+/assets/img/background.jpg
