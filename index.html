@@ -20,13 +20,13 @@
     </nav>
   </header>
 
-  <!-- Remove style attribute to use CSS class styling -->
+  <!-- Ensure no inline styles add borders or margins -->
   <div class="profile-container">
     <img src="assets/img/profile1.jpg" alt="Profile Image 1" class="profile-image" id="profile1"> <!-- Added id="profile1" -->
     <img src="assets/img/profile2.jpg" alt="Profile Image 2" class="profile-image" id="profile2"> <!-- Added id="profile2" -->
   </div>
 
-  <!-- Ensure the new enemy image is placed in the assets/img directory -->
+  <!-- Ensure the new enemy image is placed correctly -->
   <!-- Example:
   <img src="assets/img/new_enemy.png" alt="New Enemy" class="profile-image">
   -->
@@ -67,6 +67,18 @@
 
   <!-- Include only the main JavaScript file -->
   <script src="main.js"></script>
+  
+  <style>
+    /* ...existing styles... */
+    
+    /* Ensure body has a solid grey background */
+    body {
+      background-color: #e0e0e0; /* Set to light grey */
+      /* Removed any background-image properties if present */
+    }
+    
+    /* ...existing styles... */
+  </style>
 </body>
 
 </html>
