@@ -42,7 +42,7 @@
   <!-- Moved clicker game here -->
   <div class="clicker-game">
     <div id="clicker-area" class="clicker-area">
-      <h3>Click Here</h3>
+      <h3>Click</h3>
     </div>
     <div id="score-display" class="score-display"></div>
     <div id="high-score" class="high-score">High Score: 0</div>
@@ -71,7 +71,6 @@
       let timeLeft = 5;
       let gameActive = false;
       let timerInterval;
-      let delayTimeout;
       let highScore = localStorage.getItem('clickerHighScore') || 0;
       highScoreDisplay.textContent = 'High Score: ' + highScore;
 
@@ -80,6 +79,7 @@
           gameActive = true;
           clicks = 0;
           timeLeft = 5;
+          clickerArea.classList.remove('disabled');
           scoreDisplay.textContent = 'Time left: ' + timeLeft + 's | Clicks: ' + clicks;
           timerInterval = setInterval(function() {
             timeLeft--;
@@ -87,18 +87,20 @@
             if (timeLeft <= 0) {
               clearInterval(timerInterval);
               gameActive = false;
+              clickerArea.classList.add('disabled');
               scoreDisplay.textContent = 'Time is up!';
-              delayTimeout = setTimeout(function() {
+              setTimeout(function() {
                 if (clicks > highScore) {
                   highScore = clicks;
                   localStorage.setItem('clickerHighScore', highScore);
                   highScoreDisplay.textContent = 'New High Score: ' + highScore;
                 }
                 scoreDisplay.textContent = 'Your score: ' + clicks;
-              }, 1000); // 1-second delay before showing the final score
+                setTimeout(() => clickerArea.classList.remove('disabled'), 500);
+              }, 1000);
             }
           }, 1000);
-        } else {
+        } else if (gameActive && timeLeft > 0) {
           clicks++;
           scoreDisplay.textContent = 'Time left: ' + timeLeft + 's | Clicks: ' + clicks;
         }
