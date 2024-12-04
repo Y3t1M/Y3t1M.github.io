@@ -100,6 +100,20 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    // Restart game on click if game over
+    canvas.addEventListener('click', function() {
+        if (gameOver) {
+            // Reset game variables
+            obstacles = [];
+            score = 0;
+            gameOver = false;
+            player.y = canvas.height - player.height - groundHeight;
+            player.vy = 0;
+            // Restart the game loop
+            requestAnimationFrame(loop);
+        }
+    });
+
     // Collision detection between two rectangles
     function checkCollision(rect1, rect2) {
         return (
