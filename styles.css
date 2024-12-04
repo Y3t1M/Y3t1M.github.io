@@ -1,7 +1,7 @@
 /* Body and Fonts */
 body {
   margin: 0;
-  /* font-family: 'Press Start 2P', 'Roboto', 'Helvetica Neue', Arial, sans-serif; */ /* Removed */
+  font-family: 'Roboto', 'Helvetica Neue', Arial, sans-serif; /* Set to Roboto for modern text */
   background-color: #0b0c0d;
   color: #00FF00; /* Neon green for 90s tech vibe */
   padding-top: 60px; /* Increased from 20px to add space below fixed header */
@@ -426,6 +426,13 @@ p,
   font-family: 'Roboto', 'Helvetica Neue', Arial, sans-serif; /* Normal font */
   color: #e6e6e6; /* Standard text color */
   text-shadow: none; /* Remove text shadow */
+}
+
+/* Y3t1M.github.io footer text */
+footer p {
+  font-family: 'Press Start 2P', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+  color: #FF00FF; /* Neon magenta for 90s tech vibe */
+  text-shadow: 2px 2px #000; /* Retro text shadow */
 }
 
 /* Add any specific styles for the new enemy if needed */
