@@ -49,15 +49,21 @@
       <h3>Click</h3> <!-- This text now uses 90s text style -->
     </div>
     <div id="score-display" class="score-display"></div>
-    <div id="high-score" class="high-score">High Score: 0</div> <!-- This text now uses 90s text style -->
   </div>
+
+  <!-- Removed High Score Display from Dino Game Section -->
+  <section id="endless-download"> <!-- Changed from id="dino-game" -->
+    <h2>The Endless Download</h2> <!-- Changed from <h2>Dino Game</h2> -->
+    <div class="game-instructions">Press SPACE or Click to Jump</div>
+    <canvas id="gameCanvas" width="1000" height="400"></canvas> <!-- Increased width to 1000 and height to 400 -->
+  </section>
 
   <footer>
     <p>Y3t1M.github.io</p> <!-- This text now uses 'Press Start 2P' font and is white -->
   </footer>
 
   <!-- Include external JavaScript files -->
-  <script src="main.js"></script>
+  <script src="endless-download.js"></script> <!-- Changed from dino-game.js to endless-download.js -->
 </body>
 
 </html>

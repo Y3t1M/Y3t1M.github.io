@@ -3,8 +3,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const ctx = canvas.getContext('2d');
     
     // Set fixed canvas size
-    canvas.width = 800;
-    canvas.height = 300;
+    canvas.width = 1000; // Increased width from 800 to 1000
+    canvas.height = 400; // Increased height from 300 to 400
     
     // Game state
     let gameStarted = false;
@@ -17,21 +17,21 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Game objects
     const dino = {
-    x: 50,
-    y: canvas.height - 60,
-    width: 80, // Increased width from 50 to 80
-    height: 80, // Increased height from 50 to 80
-    velocityY: 0,
-    jumping: false
+        x: 50,
+        y: canvas.height - 70, // Adjusted y-position for larger height
+        width: 100, // Increased width from 80 to 100
+        height: 100, // Increased height from 80 to 100
+        velocityY: 0,
+        jumping: false
     };
     
     let obstacles = [];
     const GRAVITY = 0.4; // Reduced from 0.6 to make falling slower
-    const JUMP_FORCE = -12; // Changed from -15 to make jump less high
-    const GROUND_HEIGHT = 50;
+    const JUMP_FORCE = -15; // Adjusted jump force for larger dino
+    const GROUND_HEIGHT = 70; // Increased from 50 to accommodate larger dino
     
     // Define minimum spacing between obstacles
-    const MIN_OBSTACLE_SPACING = 200; // Minimum pixels between obstacles
+    const MIN_OBSTACLE_SPACING = 250; // Increased from 200 to prevent overlap with larger obstacles
     
     // Load images
     const dinoImg = new Image();
@@ -234,10 +234,10 @@ document.addEventListener('DOMContentLoaded', function() {
             for (let i = 0; i < obstaclesPerSpawn; i++) {
                 const isFirewall = Math.random() < 0.3;
                 obstacles.push({
-                    x: canvas.width + i * 50, // Offset position for multiple obstacles
-                    y: canvas.height - GROUND_HEIGHT - (isFirewall ? 60 : 40),
-                    width: isFirewall ? 60 : 45, // Increased width for enemies
-                    height: isFirewall ? 60 : 45, // Increased height for enemies
+                    x: canvas.width + i * 70, // Offset position for multiple obstacles
+                    y: canvas.height - GROUND_HEIGHT - (isFirewall ? 80 : 60), // Increased height for larger obstacles
+                    width: isFirewall ? 80 : 60, // Increased width for enemies
+                    height: isFirewall ? 80 : 60, // Increased height for enemies
                     type: isFirewall ? 'firewall' : 'cactus'
                 });
             }

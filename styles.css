@@ -364,11 +364,12 @@ footer {
   100% { color: #ff0000; }
 }
 
-.high-score {
-  font-size: 1.2em;
-  color: #BFA100;
-  margin-top: 10px;
-}
+/* Removed High Score Styles */
+/* .high-score {
+    font-size: 1.2em;
+    color: #BFA100;
+    margin-top: 10px;
+} */
 
 .high-score.rainbow {
   animation: rainbow 2s linear infinite;
@@ -405,46 +406,35 @@ footer {
   box-shadow: 0 4px 15px rgba(255, 65, 108, 0.5);
 }
 
-/* Styles for the Dino game */
-#dino-game {
+/* Styles for The Endless Download game */
+#endless-download {
   margin: 20px auto;
   text-align: center;
   padding: 20px;
   background-color: #151617;
   border-radius: 15px;
-  max-width: 850px;
+  max-width: 1000px; /* Increased from 850px to 1000px */
   position: relative; /* Added to position score consistently */
 }
 
-#gameCanvas {
+#endless-download #gameCanvas { /* Changed from #dino-game #gameCanvas */
   background-color: #ffffff;
   border: 2px solid #333;
   border-radius: 10px;
   display: block;
   margin: 0 auto;
   width: 100%;
-  max-width: 800px;
-  height: 300px; /* Fixed height */
+  max-width: 1000px; /* Increased from 800px to 1000px */
+  height: 400px; /* Increased from 300px to 400px */
   image-rendering: pixelated;
   cursor: pointer;
+  background-image: url('assets/img/new_floor.png'); /* Updated floor image as background */
+  background-size: cover; /* Ensure the image covers the entire floor area */
+  background-repeat: no-repeat;
+  background-position: bottom;
 }
 
-#dino-game h2 {
-  font-family: 'Press Start 2P', sans-serif;
-  color: #ffffff;
-  margin-bottom: 20px;
-  font-size: 24px;
-}
-
-.game-instructions {
-  color: #ffffff;
-  font-family: 'Press Start 2P', sans-serif;
-  font-size: 12px;
-  margin: 10px 0;
-}
-
-/* Apply 90s font to Dino Game title */
-#dino-game h2 {
+#endless-download h2 { /* Changed from #dino-game h2 */
   font-family: 'Press Start 2P', 'Roboto', 'Helvetica Neue', Arial;
   color: #ffffff; /* Neon magenta for 90s tech vibe */
   text-shadow: 2px 2px #000; /* Retro text shadow */
@@ -479,7 +469,7 @@ footer p {
 .clicker-game h3,
 .high-score,
 #about h3,
-#dino-game h2,
+#endless-download h2,
 footer p {
   color: #ffffff; /* Set text color to white */
 }
@@ -491,4 +481,15 @@ footer p {
 
 .hidden {
   display: none;
+}
+
+/* Optional: Adjust GROUND_HEIGHT if the new floor image has different dimensions */
+:root {
+  --ground-height: 50px; /* Update this value if necessary */
+}
+
+#gameCanvas {
+  /* ...existing styles... */
+  /* Example of using CSS variable for ground height */
+  --ground-height: 50px;
 }
