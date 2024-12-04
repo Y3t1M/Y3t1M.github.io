@@ -20,8 +20,8 @@
     </nav>
   </header>
 
-  <!-- Remove style attribute to use CSS class styling -->
-  <div class="profile-container" style="margin: 0; padding: 0;">
+  <!-- Remove inline styles to use CSS class styling -->
+  <div class="profile-container">
     <img src="assets/img/profile1.jpg" alt="Profile Image 1" class="profile-image" id="profile1"> <!-- Added id="profile1" -->
     <img src="assets/img/profile2.jpg" alt="Profile Image 2" class="profile-image" id="profile2"> <!-- Added id="profile2" -->
   </div>
@@ -45,19 +45,21 @@
   </section>
 
   <!-- Hidden clicker game that appears after correct sequence -->
-  <div class="clicker-game hidden">
-    <div id="clicker-area" class="clicker-area">
-      <h3>Click!</h3> <!-- This text now uses 90s text style -->
+  <section id="clicker-game-section">
+    <div class="clicker-game hidden">
+      <div id="clicker-area" class="clicker-area">
+        <h3>Click!</h3> <!-- This text now uses 90s text style -->
+      </div>
+      <div id="score-display" class="score-display">
+        <p id="current-score">Clicks: 0</p>
+        <p id="high-score">High Score: 0</p>
+      </div>
     </div>
-    <div id="score-display" class="score-display">
-      <p id="current-score">Clicks: 0</p>
-      <p id="high-score">High Score: 0</p>
-    </div>
-  </div>
+  </section>
 
-  <footer>
-    <p>Y3t1M.github.io</p> <!-- This text now uses 'Press Start 2P' font and is white -->
-  </footer>
+      </div>
+    </div>
+  </section>
 
   <!-- Include only the main JavaScript file -->
   <script src="main.js"></script>

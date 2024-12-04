@@ -44,7 +44,7 @@ Designed and built a functional Iron Man helmet using 3D printing and electronic
 </p>
 </div>
 
-<!-- Update game card with centered content -->
+<!-- Removed inline styles to use CSS class styling -->
 <div class="card game-card">
   <h3 class="game-title">The Endless Download</h3>
   <div class="game-container">
@@ -54,17 +54,19 @@ Designed and built a functional Iron Man helmet using 3D printing and electronic
   </div>
 </div>
 
-<!-- Hidden clicker game that appears after correct sequence -->
-<div class="clicker-game hidden">
-  <div id="clicker-area" class="clicker-area">
-    <h3>Click!</h3> <!-- This text now uses 90s text style -->
-  </div>
-  <div id="score-display" class="score-display">
-    <p id="current-score">Clicks: 0</p>
-    <p id="high-score">High Score: 0</p>
-  </div>
-</div>
+</section>
 
+<!-- Hidden clicker game that appears after correct sequence -->
+<section id="clicker-game-section">
+  <div class="clicker-game hidden">
+    <div id="clicker-area" class="clicker-area">
+      <h3>Click!</h3> <!-- This text now uses 90s text style -->
+    </div>
+    <div id="score-display" class="score-display">
+      <p id="current-score">Clicks: 0</p>
+      <p id="high-score">High Score: 0</p>
+    </div>
+  </div>
 </section>
 
 <!-- Ensure the title is larger -->
@@ -79,15 +81,39 @@ Designed and built a functional Iron Man helmet using 3D printing and electronic
   }
   
   .clicker-game {
-    /* Existing styles... */
-    margin: 0 auto; /* Center horizontally */
-    /* Add flex properties to center vertically */
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    /* Remove conflicting styles */
+    /* position: fixed; */
+    /* top: 50%; */
+    /* left: 50%; */
+    /* transform: translate(-50%, -50%); */
     background-color: #151617; /* Ensure dark grey background */
+    /* ...existing styles... */
   }
+
+  /* Additional styling for clicker-game section if needed */
+  #clicker-game-section {
+    position: relative;
+    width: 100%;
+    /* ...other styles... */
+  }
+
+  /* Remove 'Press Start 2P' from general elements */
+  .card h3,
+  .card p {
+    font-family: 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+    color: #ffffff;
+    text-shadow: none;
+  }
+
+  /* Keep 'Press Start 2P' font only for endless downloads */
+  .game-title,
+  .game-instructions,
+  #endless-download h2 {
+    font-family: 'Press Start 2P', cursive;
+    color: #ffffff;
+    text-shadow: 2px 2px #000;
+  }
+
 </style>
 
 <!-- Removed "Dino Game" section -->

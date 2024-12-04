@@ -319,11 +319,16 @@ footer {
   padding: 20px;
   border-radius: 10px;
   margin: 0 auto; /* Center horizontally */
-  position: fixed; /* Position fixed to center on screen */
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 100%;
+  /* Remove fixed positioning and related properties */
+  /* position: fixed; */
+  /* top: 50%; */
+  /* left: 50%; */
+  /* transform: translate(-50%, -50%); */
+  
+  /* Add styles to position at the bottom of its container */
+  margin-top: 40px; /* Adjust spacing as needed */
+  /* Ensure width and other styles remain consistent */
+  width: 90%;
   max-width: 600px;
   text-align: center;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
@@ -370,13 +375,13 @@ footer {
 }
 
 @keyframes rainbow {
-  0% { color: #ff0000; }
-  17% { color: #ff8000; }
-  33% { color: #ffff00; }
-  50% { color: #00ff00; }
-  67% { color: #0000ff; }
-  83% { color: #8000ff; }
-  100% { color: #ff0000; }
+  0% { color: red; }
+  16% { color: orange; }
+  33% { color: yellow; }
+  50% { color: green; }
+  66% { color: blue; }
+  83% { color: indigo; }
+  100% { color: violet; }
 }
 
 .high-score.rainbow {
@@ -572,4 +577,26 @@ footer p {
     opacity: 0.6; /* Make the game appear dimmed */
     pointer-events: none; /* Disable pointer interactions */
     cursor: not-allowed; /* Change cursor to indicate disabled state */
+}
+
+/* Remove global 'Press Start 2P' font application */
+body, h1, h2, h3, p, nav a, .card h3, .badge h3, .badge p, footer p {
+  font-family: 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+  color: #ffffff;
+  text-shadow: 2px 2px #000;
+}
+
+/* Add 'Press Start 2P' font to specific sections */
+.clicker-game h3,
+.high-score,
+#about h2,
+#about h3,
+.game-instructions,
+.game-title,
+#endless-download h2,
+#projects h2,  /* Add this line */
+footer p {
+  font-family: 'Press Start 2P', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+  color: #ffffff;
+  text-shadow: 2px 2px #000;
 }
