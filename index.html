@@ -20,13 +20,13 @@
     </nav>
   </header>
 
-  <!-- Ensure no inline styles add borders or margins -->
+  <!-- Remove style attribute to use CSS class styling -->
   <div class="profile-container">
     <img src="assets/img/profile1.jpg" alt="Profile Image 1" class="profile-image" id="profile1"> <!-- Added id="profile1" -->
     <img src="assets/img/profile2.jpg" alt="Profile Image 2" class="profile-image" id="profile2"> <!-- Added id="profile2" -->
   </div>
 
-  <!-- Ensure the new enemy image is placed correctly -->
+  <!-- Ensure the new enemy image is placed in the assets/img directory -->
   <!-- Example:
   <img src="assets/img/new_enemy.png" alt="New Enemy" class="profile-image">
   -->
@@ -57,11 +57,6 @@
 
   <!-- Removed "The Endless Download" Game section -->
 
-  <!-- Add the game canvas -->
-  <section id="game">
-    <canvas id="gameCanvas"></canvas>
-  </section>
-
   <div class="floor">
     <!-- ...existing code... -->
   </div>
@@ -72,18 +67,6 @@
 
   <!-- Include only the main JavaScript file -->
   <script src="main.js"></script>
-  
-  <style>
-    /* ...existing styles... */
-    
-    /* Ensure body has a solid grey background */
-    body {
-      background-color: #e0e0e0; /* Set to light grey */
-      /* Removed any background-image properties if present */
-    }
-    
-    /* ...existing styles... */
-  </style>
 </body>
 
 </html>
