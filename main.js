@@ -87,8 +87,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     clickerArea.addEventListener('click', function() {
         if (isCooldown) return; // Ignore clicks during cooldown
-        if (!gameActive) {
+        if (!gameActive && !gameOver) {
             startGame();
+        } else if (!gameActive && gameOver) {
+            resetGame(); // Reset the game when clicked after game over
         } else if (gameActive && timeLeft > 0) {
             clicks++;
             updateDisplay();
@@ -129,7 +131,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Display final score and high score together
         scoreDisplay.innerHTML = `
             Final Score: ${clicks} (${cps} clicks per second)<br>
-            High Score: <span id="high-score-text">${highScore}</span>
+            High Score: <span id="high-score-text" class="high-score">${highScore}</span>
         `;
 
         // Apply rainbow effect if high score is 69 or higher
@@ -140,6 +142,8 @@ document.addEventListener('DOMContentLoaded', function() {
             highScoreText.classList.remove('rainbow');
         }
 
+        // Remove automatic reset
+        /*
         // Start cooldown period
         isCooldown = true;
         clickerGame.classList.add('disabled'); // Apply disabled styling
@@ -149,6 +153,11 @@ document.addEventListener('DOMContentLoaded', function() {
             clickerGame.classList.remove('disabled'); // Remove disabled styling
             resetGame(); // Reset the game after cooldown
         }, 2000); // 2 seconds cooldown
+        */
+
+        // Allow game to be reset on next click
+        isCooldown = false;
+        clickerGame.classList.remove('disabled');
     }
 
     // Function to update high score display

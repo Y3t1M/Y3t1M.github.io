@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Game objects
     const dino = {
         x: 50,
-        y: canvas.height - 70, // Adjusted y-position for larger height
+        y: canvas.height - 55 - 100, // Adjusted y-position for new floor height
         width: 100, // Increased width from 80 to 100
         height: 100, // Increased height from 80 to 100
         hitboxWidth: 40, // Reduced from 60 to 40
@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let obstacles = [];
     const GRAVITY = 0.4; // Reduced from 0.6 to make falling slower
     const JUMP_FORCE = -15; // Adjusted jump force for larger dino
-    const GROUND_HEIGHT = 70; // Increased from 50 to accommodate larger dino
+    const GROUND_HEIGHT = 55; // Decreased from 70 to 55 to raise the floor by 15 pixels
     
     // Define minimum spacing between obstacles
     const MIN_OBSTACLE_SPACING = 250; // Increased from 200 to prevent overlap with larger obstacles
@@ -154,18 +154,12 @@ document.addEventListener('DOMContentLoaded', function() {
     return;
     }
     
-    // Clear canvas with dark grey background
-    ctx.fillStyle = '#151617';  // Dark grey background
+    // Clear canvas with light grey background
+    ctx.fillStyle = '#e0e0e0';  // Light grey background
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     
-    // Draw background image
-    if (backgroundImg.complete && backgroundImg.naturalHeight !== 0) {
-        ctx.drawImage(backgroundImg, 0, 0, canvas.width, canvas.height - GROUND_HEIGHT);
-    } else {
-        // Fallback if background image fails
-        ctx.fillStyle = '#e0e0e0';
-        ctx.fillRect(0, 0, canvas.width, canvas.height - GROUND_HEIGHT);
-    }
+    // Comment out the background image drawing to prevent any tint
+    // ctx.drawImage(backgroundImg, 0, 0, canvas.width, canvas.height - GROUND_HEIGHT);
 
     // Draw floor image - stretch to fit
     if (floorImg.complete && floorImg.naturalHeight !== 0) {
@@ -257,7 +251,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const isFirewall = Math.random() < 0.3;
                 obstacles.push({
                     x: canvas.width + i * 70, // Offset position for multiple obstacles
-                    y: canvas.height - GROUND_HEIGHT - (isFirewall ? 80 : 60), // Increased height for larger obstacles
+                    y: canvas.height - GROUND_HEIGHT - (isFirewall ? 80 : 60), // Adjust based on new GROUND_HEIGHT
                     width: isFirewall ? 80 : 60, // Increased width for enemies
                     height: isFirewall ? 80 : 60, // Increased height for enemies
                     type: isFirewall ? 'firewall' : 'cactus'
