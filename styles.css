@@ -294,7 +294,6 @@ footer {
   max-width: 600px;
   text-align: center;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  height: 50vh; /* Make the click area half of the viewport height */
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -302,19 +301,20 @@ footer {
 
 .clicker-area {
   flex: 1;
-  background-color: #1e1f20;
+  background-color: #2e2f30; /* Dark grey to highlight clickable area */
   border-radius: 10px;
   margin: 20px 0;
   cursor: pointer;
   display: flex;
   justify-content: center;
   align-items: center;
+  height: 300px; /* Increase height to make it taller */
 }
 
 .clicker-area h3 {
   margin: 0;
   font-size: 2em;
-  color: #e6e6e6;
+  color: #b0b0b0; /* Slightly lighter grey for "Click Here" text */
 }
 
 .clicker-area:active {
