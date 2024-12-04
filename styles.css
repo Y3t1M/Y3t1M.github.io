@@ -1,7 +1,7 @@
 /* Body and Fonts */
 body {
   margin: 0;
-  font-family: 'Roboto', 'Helvetica Neue', Arial, sans-serif; /* Set to Roboto for modern text */
+  font-family: 'Roboto', 'Helvetica Neue', Arial; /* Set to Roboto for modern text */
   background-color: #0b0c0d;
   color: #00FF00; /* Neon green for 90s tech vibe */
   padding-top: 60px; /* Increased from 20px to add space below fixed header */
@@ -12,8 +12,8 @@ body {
 h1,
 h2,
 h3 {
-  /* font-family: 'Press Start 2P', 'Roboto', 'Helvetica Neue', Arial, sans-serif; */ /* Removed */
-  color: #FF00FF; /* Neon magenta for headings */
+  /* font-family: 'Press Start 2P', 'Roboto', 'Helvetica Neue', Arial; */ /* Removed */
+  color: #ffffff; /* Neon magenta for headings */
   text-shadow: 2px 2px #000; /* Add text shadow for a retro look */
 }
 
@@ -29,8 +29,8 @@ p {
 
 /* Apply 90s font to About Me title */
 #about h2 {
-  font-family: 'Press Start 2P', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
-  color: #FF00FF; /* Neon magenta for 90s tech vibe */
+  font-family: 'Press Start 2P', 'Roboto', 'Helvetica Neue', Arial;
+  color: #ffffff; /* Neon magenta for 90s tech vibe */
   text-shadow: 2px 2px #000; /* Retro text shadow */
 }
 
@@ -73,7 +73,7 @@ nav a:hover {
 
 /* Set modern font for header text */
 header nav a {
-  font-family: 'Roboto', 'Helvetica Neue', Arial, sans-serif; /* Use Roboto for navigation links */
+  font-family: 'Roboto', 'Helvetica Neue', Arial; /* Use Roboto for navigation links */
   color: #e6e6e6;
   text-decoration: none;
   font-size: 1.2em;
@@ -144,7 +144,7 @@ section h2 {
 
 /* Ensure project titles use the modern font */
 .card h3 {
-  font-family: 'Roboto', 'Helvetica Neue', Arial, sans-serif; /* Use Roboto for project titles */
+  font-family: 'Roboto', 'Helvetica Neue', Arial; /* Use Roboto for project titles */
   color: #e6e6e6;
   text-shadow: none; /* Remove text shadow */
 }
@@ -373,8 +373,8 @@ footer {
 /* Apply 90s font to Clicker Game and High Score */
 .clicker-game h3,
 .high-score {
-  font-family: 'Press Start 2P', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
-  color: #FF00FF; /* Neon magenta for 90s tech vibe */
+  font-family: 'Press Start 2P', 'Roboto', 'Helvetica Neue', Arial;
+  color: #ffffff; /* Neon magenta for 90s tech vibe */
   text-shadow: 2px 2px #000; /* Retro text shadow */
 }
 
@@ -428,8 +428,8 @@ footer {
 
 /* Apply 90s font to Dino Game title */
 #dino-game h2 {
-  font-family: 'Press Start 2P', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
-  color: #FF00FF; /* Neon magenta for 90s tech vibe */
+  font-family: 'Press Start 2P', 'Roboto', 'Helvetica Neue', Arial;
+  color: #ffffff; /* Neon magenta for 90s tech vibe */
   text-shadow: 2px 2px #000; /* Retro text shadow */
 }
 
@@ -439,21 +439,21 @@ p,
 .card h3,
 .badge h3,
 .badge p {
-  font-family: 'Roboto', 'Helvetica Neue', Arial, sans-serif; /* Normal font */
+  font-family: 'Roboto', 'Helvetica Neue', Arial; /* Normal font */
   color: #e6e6e6; /* Standard text color */
   text-shadow: none; /* Remove text shadow */
 }
 
 /* Y3t1M.github.io footer text */
 footer p {
-  font-family: 'Press Start 2P', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
-  color: #FF00FF; /* Neon magenta for 90s tech vibe */
+  font-family: 'Press Start 2P', 'Roboto', 'Helvetica Neue', Arial;
+  color: #ffffff; /* Neon magenta for 90s tech vibe */
   text-shadow: 2px 2px #000; /* Retro text shadow */
 }
 
 /* Ensure bio headings use the modern font */
 #about h3 {
-  font-family: 'Roboto', 'Helvetica Neue', Arial, sans-serif; /* Use Roboto for bio headings */
+  font-family: 'Roboto', 'Helvetica Neue', Arial; /* Use Roboto for bio headings */
   color: #e6e6e6;
   text-shadow: none; /* Remove text shadow */
 }
