@@ -74,6 +74,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let clicks = 0;
     let timeLeft = 5;
     let gameActive = false;
+    let gameOver = false; // Initialize gameOver flag
     let timerInterval;
 
     // High Score Initialization
@@ -119,6 +120,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function endGame() {
         gameActive = false;
+        gameOver = true; // Set gameOver to true when the game ends
         clearInterval(timerInterval);
         const cps = (clicks / 5).toFixed(1);
 
@@ -141,19 +143,6 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
             highScoreText.classList.remove('rainbow');
         }
-
-        // Remove automatic reset
-        /*
-        // Start cooldown period
-        isCooldown = true;
-        clickerGame.classList.add('disabled'); // Apply disabled styling
-
-        setTimeout(() => {
-            isCooldown = false;
-            clickerGame.classList.remove('disabled'); // Remove disabled styling
-            resetGame(); // Reset the game after cooldown
-        }, 2000); // 2 seconds cooldown
-        */
 
         // Allow game to be reset on next click
         isCooldown = false;
@@ -184,7 +173,7 @@ document.addEventListener('DOMContentLoaded', function() {
         updateHighScoreDisplay();
     }
 
-    // Update keydown event handler to respect cooldown
+    // Update keydown event handler to respect cooldown and handle gameOver state
     document.addEventListener('keydown', function(event) {
         if (event.code === 'Space') {
             event.preventDefault();
@@ -193,7 +182,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 gameStarted = true;
             } else if (gameOver) {
                 resetGame();
-            } else if (!dino.jumping) {
+            } else if (gameActive && !dino.jumping) {
                 dino.velocityY = JUMP_FORCE;
                 dino.jumping = true;
             }
