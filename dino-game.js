@@ -32,8 +32,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Load images
     const dinoImg = new Image();
     const cactusImg = new Image();
+    const firewallImg = new Image();
+    const backgroundImg = new Image();
     let loadedImages = 0;
-    const totalImages = 2;
+    const totalImages = 4;
 
     function loadImages() {
         function handleImageLoad() {
@@ -53,10 +55,16 @@ document.addEventListener('DOMContentLoaded', function() {
         dinoImg.onerror = handleImageError;
         cactusImg.onload = handleImageLoad;
         cactusImg.onerror = handleImageError;
+        firewallImg.onload = handleImageLoad;
+        firewallImg.onerror = handleImageError;
+        backgroundImg.onload = handleImageLoad;
+        backgroundImg.onerror = handleImageError;
 
         // Set image sources after setting up handlers
         dinoImg.src = 'assets/img/dino.png';
         cactusImg.src = 'assets/img/cactus.png';
+        firewallImg.src = 'assets/img/firewall.jpg';
+        backgroundImg.src = 'assets/img/background.jpg';
     }
 
     // Draw loading screen or error message
@@ -83,12 +91,11 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        // Clear canvas
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        // Draw background
+        ctx.drawImage(backgroundImg, 0, 0, canvas.width, canvas.height);
 
-        // Draw ground
-        ctx.fillStyle = '#333333';
+        // Draw ground (semi-transparent overlay)
+        ctx.fillStyle = 'rgba(51, 51, 51, 0.7)';
         ctx.fillRect(0, canvas.height - GROUND_HEIGHT, canvas.width, GROUND_HEIGHT);
 
         // Draw dino (with error handling)
@@ -102,8 +109,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Draw obstacles
         obstacles.forEach(obstacle => {
-            if (cactusImg.complete && cactusImg.naturalHeight !== 0) {
-                ctx.drawImage(cactusImg, obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+            const obstacleImg = obstacle.type === 'firewall' ? firewallImg : cactusImg;
+            if (obstacleImg.complete && obstacleImg.naturalHeight !== 0) {
+                ctx.drawImage(obstacleImg, obstacle.x, obstacle.y, obstacle.width, obstacle.height);
             } else {
                 // Fallback rectangle if image fails
                 ctx.fillStyle = '#000000';
@@ -140,8 +148,8 @@ document.addEventListener('DOMContentLoaded', function() {
     function update() {
         if (!gameStarted || gameOver) return;
 
-        // Update score
-        score += 0.1;
+        // Update score more slowly
+        score += 0.05;
         if (score > highScore) highScore = score;
 
         // Update dino position
@@ -155,19 +163,21 @@ document.addEventListener('DOMContentLoaded', function() {
             dino.jumping = false;
         }
 
-        // Spawn obstacles
-        if (Math.random() < 0.02) {
+        // Spawn obstacles less frequently
+        if (Math.random() < 0.01) {  // Reduced from 0.02
+            const isFirewall = Math.random() < 0.3; // 30% chance for firewall
             obstacles.push({
                 x: canvas.width,
-                y: canvas.height - GROUND_HEIGHT - 40,
-                width: 30,
-                height: 40
+                y: canvas.height - GROUND_HEIGHT - (isFirewall ? 60 : 40),
+                width: isFirewall ? 40 : 30,
+                height: isFirewall ? 60 : 40,
+                type: isFirewall ? 'firewall' : 'cactus'
             });
         }
 
-        // Update obstacles
+        // Update obstacles more slowly
         obstacles.forEach((obstacle, index) => {
-            obstacle.x -= 5;
+            obstacle.x -= 3; // Reduced from 5
             
             // Remove off-screen obstacles
             if (obstacle.x + obstacle.width < 0) {
