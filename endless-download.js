@@ -49,8 +49,8 @@ document.addEventListener('DOMContentLoaded', function() {
     };
     
     let obstacles = [];
-    const GRAVITY = 0.4; // Reduced from 0.6 to make falling slower
-    const JUMP_FORCE = -15; // Adjusted jump force for larger dino
+    const GRAVITY = 0.6; // Increased gravity from 0.4 to 0.6
+    const JUMP_FORCE = -12; // Decreased jump force from -15 to -12
     const GROUND_HEIGHT = 55; // Decreased from 70 to 55 to raise the floor by 15 pixels
     
     // Define minimum spacing between obstacles
@@ -217,23 +217,33 @@ document.addEventListener('DOMContentLoaded', function() {
     if (!gameStarted || gameOver) return;
     
     // Update score
-    score += 0.02;
+    score += 0.1; // Increased from 0.02 to make the score increment faster
     
     // Increase level every 100 points
     const newLevel = Math.floor(score / 100) + 1;
     if (newLevel > level) {
         level = newLevel;
-        // Increase obstacle speed
-        obstacleSpeed += 1; // Define and initialize obstacleSpeed
-        // Decrease spawn interval
-        spawnInterval = Math.max(0.001, spawnInterval - 0.0005); // Prevent spawnInterval from becoming too low
-        // Determine number of obstacles to spawn per interval based on level
-        obstaclesPerSpawn = Math.min(level, 5); // Cap the number of obstacles per spawn to 5
+        obstacleSpeed += 1; // Increase obstacle speed more significantly
+        spawnInterval = Math.min(0.05, spawnInterval + 0.005); // Increase spawn probability up to a maximum
     }
     
     // Update dino position with gravity
-    dino.velocityY += GRAVITY;
-    dino.y += dino.velocityY;
+    if (dino.jumping) {
+        if (spacePressed && dino.velocityY < 0) {
+            // While space is held and dino is moving upwards, apply reduced gravity
+            dino.velocityY += GRAVITY / 2; // Reduced gravity for a higher jump
+        } else {
+            // Apply normal gravity
+            dino.velocityY += GRAVITY;
+        }
+        dino.y += dino.velocityY;
+
+        // Prevent dino from moving above the top of the canvas
+        if (dino.y < 0) {
+            dino.y = 0;
+            dino.velocityY = 0;
+        }
+    }
     
     // Ground collision
     if (dino.y > canvas.height - GROUND_HEIGHT - dino.height) {
@@ -246,18 +256,20 @@ document.addEventListener('DOMContentLoaded', function() {
     if (Math.random() < spawnInterval) {
         // Check spacing to prevent overlapping
         const lastObstacle = obstacles[obstacles.length - 1];
-        if (!lastObstacle || lastObstacle.x < canvas.width - MIN_OBSTACLE_SPACING) {
-            for (let i = 0; i < obstaclesPerSpawn; i++) {
-                const isFirewall = Math.random() < 0.3;
-                obstacles.push({
-                    x: canvas.width + i * 70, // Offset position for multiple obstacles
-                    y: canvas.height - GROUND_HEIGHT - (isFirewall ? 80 : 60), // Adjust based on new GROUND_HEIGHT
-                    width: isFirewall ? 80 : 60, // Increased width for enemies
-                    height: isFirewall ? 80 : 60, // Increased height for enemies
-                    type: isFirewall ? 'firewall' : 'cactus'
-                });
-            }
+        let spawnX = canvas.width;
+        if (lastObstacle) {
+            spawnX = Math.max(canvas.width, lastObstacle.x + lastObstacle.width + MIN_OBSTACLE_SPACING);
         }
+
+        // Spawn a single obstacle
+        const isFirewall = Math.random() < 0.3;
+        obstacles.push({
+            x: spawnX,
+            y: canvas.height - GROUND_HEIGHT - (isFirewall ? 80 : 60), // Adjust based on new GROUND_HEIGHT
+            width: isFirewall ? 80 : 60, // Increased width for enemies
+            height: isFirewall ? 80 : 60, // Increased height for enemies
+            type: isFirewall ? 'firewall' : 'cactus'
+        });
     }
     
     // Update obstacles
@@ -276,10 +288,9 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     }
     
-    // Initialize obstacle speed and spawn interval
-    let obstacleSpeed = 3; // Starting obstacle speed
-    let spawnInterval = 0.002; // Starting spawn probability
-    let obstaclesPerSpawn = 1; // Starting with one obstacle per spawn
+    // Initialize obstacle speed and spawn interval with higher values
+    let obstacleSpeed = 6; // Increased starting obstacle speed from 4 to 6
+    let spawnInterval = 0.01; // Increased spawn probability from 0.005 to 0.01
     
     // Collision detection
     function collision(dino, obstacle) {
@@ -302,15 +313,17 @@ document.addEventListener('DOMContentLoaded', function() {
         gameOver = false;
         score = 0;
         level = 1;
-        obstacleSpeed = 3;
-        spawnInterval = 0.002;
-        obstaclesPerSpawn = 1; // Reset obstaclesPerSpawn
+        obstacleSpeed = 6; // Reset obstacle speed
+        spawnInterval = 0.01; // Reset spawn interval
         obstacles = [];
         dino.y = canvas.height - GROUND_HEIGHT - dino.height;
         dino.velocityY = 0;
         // Reset floor position if necessary
     }
     
+    // Variable to track if space is pressed
+    let spacePressed = false;
+
     // Controls
     document.addEventListener('keydown', function(event) {
     if (event.code === 'Space') {
@@ -323,9 +336,17 @@ document.addEventListener('DOMContentLoaded', function() {
     dino.velocityY = JUMP_FORCE;
     dino.jumping = true;
     }
+    spacePressed = true;
     }
     });
     
+    document.addEventListener('keyup', function(event) {
+        if (event.code === 'Space') {
+            event.preventDefault();
+            spacePressed = false;
+        }
+    });
+
     // Mouse/touch controls
     canvas.addEventListener('click', function() {
     if (!gameStarted) {
