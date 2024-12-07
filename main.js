@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Add click handlers to profile images
     profile1.addEventListener('click', function() {
         handleClick('left');
-    });
+    });``
 
     profile2.addEventListener('click', function() {
         handleClick('right');
@@ -191,4 +191,99 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Remove or comment out the following line:
     // document.body.style.backgroundColor = '#e0e0e0'; // Set to light grey
+
+    // Make windows draggable
+    const windows = document.querySelectorAll('.window');
+    windows.forEach(window => {
+        let isDragging = false;
+        let startX, startY, initialX, initialY;
+
+        const titleBar = window.querySelector('.window-titlebar');
+        titleBar.addEventListener('mousedown', (e) => {
+            e.preventDefault(); // Prevent default behavior
+
+            isDragging = true;
+            window.style.zIndex = getNextZIndex(); // Bring window to front
+
+            // Record the initial mouse position
+            startX = e.clientX;
+            startY = e.clientY;
+
+            // Record the initial window position
+            const rect = window.getBoundingClientRect();
+            initialX = rect.left;
+            initialY = rect.top;
+
+            function onMouseMove(e) {
+                if (isDragging) {
+                    // Calculate the distance moved
+                    const dx = e.clientX - startX;
+                    const dy = e.clientY - startY;
+
+                    // Update window position
+                    window.style.left = (initialX + dx) + 'px';
+                    window.style.top = (initialY + dy) + 'px';
+                }
+            }
+
+            function onMouseUp() {
+                isDragging = false;
+                document.removeEventListener('mousemove', onMouseMove);
+                document.removeEventListener('mouseup', onMouseUp);
+            }
+
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('mouseup', onMouseUp);
+        });
+
+        // Bring window to front when clicked
+        window.addEventListener('mousedown', () => {
+            window.style.zIndex = getNextZIndex();
+        });
+
+        // Window control buttons
+        const closeButton = window.querySelector('.close');
+        closeButton.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevent event bubbling
+            window.style.display = 'none';
+        });
+
+        // Add functionality for minimize and maximize buttons if desired
+    });
+
+    // Remove specific event listeners for individual icons
+    // document.getElementById('my-computer-icon').addEventListener('dblclick', ...);
+    // document.getElementById('recycle-bin-icon').addEventListener('dblclick', ...);
+
+    // Open windows when icons are double-clicked
+    const icons = document.querySelectorAll('.icon');
+    icons.forEach(icon => {
+        icon.addEventListener('dblclick', () => {
+            const windowId = icon.getAttribute('data-window');
+            const windowElement = document.getElementById(windowId);
+            if (windowElement) {
+                windowElement.style.display = 'block';
+                windowElement.style.zIndex = getNextZIndex(); // Bring window to front
+            }
+        });
+    });
+
+    // zIndex management
+    let zIndexCounter = 1000;
+    function getNextZIndex() {
+        return ++zIndexCounter;
+    }
+
+    // Open window when icon is double-clicked
+    const icons = document.querySelectorAll('.icon');
+    icons.forEach(icon => {
+        icon.addEventListener('dblclick', () => {
+            const windowId = icon.getAttribute('data-window');
+            const windowElement = document.getElementById(windowId);
+            if (windowElement) {
+                windowElement.style.display = 'block';
+                windowElement.style.zIndex = getNextZIndex();
+            }
+        });
+    });
 });

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Old Windows Desktop</title>
+    <link rel="stylesheet" href="desktop.css">
+</head>
+<body>
+    <div class="desktop">
+
+        <!-- Desktop Icons -->
+        <div class="icon" id="my-computer-icon" data-window="my-computer-window" style="left: 20px; top: 20px;">
+            <img src="assets/icons/my_computer.png" alt="My Computer">
+            <span>My Computer</span>
+        </div>
+        <div class="icon" id="recycle-bin-icon" data-window="recycle-bin-window" style="left: 20px; top: 100px;">
+            <img src="assets/icons/recycle_bin.png" alt="Recycle Bin">
+            <span>Recycle Bin</span>
+        </div>
+        <!-- Add more icons as needed -->
+
+        <!-- Taskbar -->
+        <div class="taskbar">
+            <div class="start-button">
+                <img src="assets/icons/start_button.png" alt="Start">
+                <span>Start</span>
+            </div>
+            <!-- Other taskbar items -->
+        </div>
+
+        <!-- My Computer Window -->
+        <div class="window" id="my-computer-window" style="display: none; left: 150px; top: 80px;">
+            <div class="window-titlebar">
+                <span>My Computer</span>
+                <div class="window-controls">
+                    <button class="minimize">_</button>
+                    <button class="maximize">[ ]</button>
+                    <button class="close">X</button>
+                </div>
+            </div>
+            <div class="window-content">
+                <p>This is the test window for My Computer.</p>
+            </div>
+        </div>
+
+        <!-- Recycle Bin Window -->
+        <div class="window" id="recycle-bin-window" style="display: none; left: 200px; top: 120px;">
+            <div class="window-titlebar">
+                <span>Recycle Bin</span>
+                <div class="window-controls">
+                    <button class="minimize">_</button>
+                    <button class="maximize">[ ]</button>
+                    <button class="close">X</button>
+                </div>
+            </div>
+            <div class="window-content">
+                <p>This is the test window for Recycle Bin.</p>
+            </div>
+        </div>
+
+        <!-- Example Window -->
+        <div class="window" id="window1" style="left: 200px; top: 100px;">
+            <div class="window-titlebar">
+                <span>Example Window</span>
+                <div class="window-controls">
+                    <button class="minimize">_</button>
+                    <button class="maximize">[ ]</button>
+                    <button class="close">X</button>
+                </div>
+            </div>
+            <div class="window-content">
+                <!-- Window content goes here -->
+            </div>
+        </div>
+
+    </div>
+    <!-- Include the main.js script -->
+    <script src="main.js"></script>
+</body>
+</html>
