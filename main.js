@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Add click handlers to profile images
     profile1.addEventListener('click', function() {
         handleClick('left');
-    });``
+    });
 
     profile2.addEventListener('click', function() {
         handleClick('right');
@@ -173,25 +173,7 @@ document.addEventListener('DOMContentLoaded', function() {
         updateHighScoreDisplay();
     }
 
-    // Update keydown event handler to respect cooldown and handle gameOver state
-    document.addEventListener('keydown', function(event) {
-        if (event.code === 'Space') {
-            event.preventDefault();
-            if (isCooldown) return; // Ignore key presses during cooldown
-            if (!gameStarted) {
-                gameStarted = true;
-            } else if (gameOver) {
-                resetGame();
-            } else if (gameActive && !dino.jumping) {
-                dino.velocityY = JUMP_FORCE;
-                dino.jumping = true;
-            }
-        }
-    });
-
-    // Remove or comment out the following line:
-    // document.body.style.backgroundColor = '#e0e0e0'; // Set to light grey
-
+    // Remove the duplicated 'icons.forEach' block and ensure single event listener setup
     // Make windows draggable
     const windows = document.querySelectorAll('.window');
     windows.forEach(window => {
@@ -248,12 +230,8 @@ document.addEventListener('DOMContentLoaded', function() {
             window.style.display = 'none';
         });
 
-        // Add functionality for minimize and maximize buttons if desired
+        // Remove functionality for minimize and maximize buttons as they no longer exist
     });
-
-    // Remove specific event listeners for individual icons
-    // document.getElementById('my-computer-icon').addEventListener('dblclick', ...);
-    // document.getElementById('recycle-bin-icon').addEventListener('dblclick', ...);
 
     // Open windows when icons are double-clicked
     const icons = document.querySelectorAll('.icon');
@@ -273,17 +251,4 @@ document.addEventListener('DOMContentLoaded', function() {
     function getNextZIndex() {
         return ++zIndexCounter;
     }
-
-    // Open window when icon is double-clicked
-    const icons = document.querySelectorAll('.icon');
-    icons.forEach(icon => {
-        icon.addEventListener('dblclick', () => {
-            const windowId = icon.getAttribute('data-window');
-            const windowElement = document.getElementById(windowId);
-            if (windowElement) {
-                windowElement.style.display = 'block';
-                windowElement.style.zIndex = getNextZIndex();
-            }
-        });
-    });
 });

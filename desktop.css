@@ -1,31 +1,41 @@
 body {
     margin: 0;
     padding: 0;
-    background-color: #008080; /* Teal background color */
-    background-image: url('assets/images/desktop_background.png'); /* Replace with your own background image */
-    background-size: cover;
-    background-position: center;
-    font-family: 'MS Sans Serif', Arial, sans-serif;
+    height: 100vh;
+    background: #008080;
+    font-family: 'MS Sans Serif', 'Segoe UI', Tahoma, sans-serif;
+    overflow: hidden;
 }
 
 .desktop {
+    height: calc(100vh - 40px);
     position: relative;
-    width: 100%;
-    height: 100vh;
 }
 
 .icon {
     position: absolute;
-    width: 80px;
+    width: 80px;  /* Increased from 64px */
     text-align: center;
     color: white;
-    font-size: 12px;
     cursor: pointer;
+    padding: 5px;
 }
 
+.icon:first-child { top: 20px; left: 20px; }
+.icon:nth-child(2) { top: 140px; left: 20px; } /* Increased top spacing */
+.icon:nth-child(3) { top: 260px; left: 20px; } /* Position for About Me icon */
+
 .icon img {
-    width: 48px;
-    height: 48px;
+    width: 48px;  /* Increased from 32px */
+    height: 48px;  /* Increased from 32px */
+    margin-bottom: 4px;
+}
+
+.icon span {
+    display: block;
+    font-family: 'MS Sans Serif', 'Segoe UI', Tahoma, sans-serif;
+    font-size: 11px;
+    margin-top: 5px;
 }
 
 .taskbar {
@@ -34,74 +44,266 @@ body {
     left: 0;
     right: 0;
     height: 40px;
-    background-color: #c0c0c0;
+    background: #c0c0c0;
     border-top: 2px solid #ffffff;
-    border-bottom: 2px solid #808080;
-    display: flex;
-    align-items: center;
-    padding: 0 5px;
-}
-
-.start-button {
     display: flex;
     align-items: center;
     padding: 0 10px;
-    background-color: #c0c0c0;
+}
+
+.start-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 10px;
+    background: #c0c0c0;
     border: 2px solid #808080;
     cursor: pointer;
-    margin-right: 5px;
+    font-family: 'MS Sans Serif', 'Segoe UI', Tahoma, sans-serif;
+    font-size: 11px;
+    font-weight: bold;
 }
 
-.start-button:hover {
-    background-color: #ffffff;
-}
-
-.start-button img {
-    width: 20px;
-    height: 20px;
-    margin-right: 5px;
-}
-
-.start-button span {
-    font-size: 14px;
+.start-btn img {
+    width: 16px;  /* Adjusted size for taskbar */
+    height: 16px;
 }
 
 .window {
     position: absolute;
-    width: 400px;
-    border: 2px solid #000000;
-    background-color: #c0c0c0;
-    z-index: 1000; /* Ensure windows appear above other elements */
+    min-width: 500px;  /* Increased from 300px */
+    min-height: 300px;  /* Increased from 200px */
+    background: #c0c0c0;
+    border: 2px solid #dfdfdf;
+    border-radius: 3px;
+    display: none;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.window.active {
+    display: block;
 }
 
 .window-titlebar {
-    background-color: #000080;
-    color: #ffffff;
-    padding: 2px 5px;
+    background: #000080;
+    color: white;
+    padding: 5px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    cursor: move; /* Change cursor to indicate draggable area */
+    cursor: move;
+    font-family: 'MS Sans Serif', 'Segoe UI', Tahoma, sans-serif;
+    font-size: 11px;
+    font-weight: bold;
 }
 
-.window-controls button {
-    background-color: #c0c0c0;
-    border: 1px solid #808080;
+.close-btn {
+    background: #ff0000;
+    color: white;
+    border: none;
     width: 20px;
     height: 20px;
+    font-size: 16px;
     cursor: pointer;
-    margin-left: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 2px;
+}
+
+.close-btn:hover {
+    background: #cc0000;
 }
 
 .window-content {
     padding: 10px;
-    background-color: #ffffff;
+    background: white;
+    font-family: 'MS Sans Serif', 'Segoe UI', Tahoma, sans-serif;
+    font-size: 11px;
+}
+
+.folder-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));  /* Increased from 100px */
+    gap: 25px;  /* Increased from 20px */
+    padding: 15px;  /* Increased from 10px */
+}
+
+.folder {
+    text-align: center;
+    cursor: pointer;
+}
+
+.folder img {
+    width: 48px;  /* Increased from 32px */
+    height: 48px;  /* Increased from 32px */
+}
+
+.folder span {
+    display: block;
+    font-family: 'MS Sans Serif', 'Segoe UI', Tahoma, sans-serif;
+    font-size: 11px;
+    margin-top: 5px;
+}
+
+/* About Me Window Styles */
+.about-content {
+    padding: 20px;
+}
+
+.profile-section {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.profile-pic {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    margin-bottom: 10px;
+}
+
+.profile-section h2 {
+    font-family: 'MS Sans Serif', 'Segoe UI', Tahoma, sans-serif;
     font-size: 14px;
-    color: #000000;
+    margin: 0;
 }
 
-.window-controls button:hover {
-    background-color: #ffffff;
+.bio-section {
+    margin-bottom: 20px;
+    text-align: justify;
 }
 
-/* ...existing code... */
+.bio-section p {
+    margin: 12px 0;  /* Increased margin for better paragraph spacing */
+    line-height: 1.5;  /* Increased line height for better readability */
+    font-size: 11px;
+}
+
+.skills-section h3 {
+    font-size: 12px;
+    margin-bottom: 8px;
+}
+
+.skills-section ul {
+    list-style-type: disc;
+    margin: 0;
+    padding-left: 20px;
+}
+
+.skills-section li {
+    margin-bottom: 4px;
+}
+
+/* Make About Me window slightly larger */
+#about-window {
+    width: 650px;  /* Slightly wider to accommodate the text better */
+    min-height: 400px;  /* Taller to fit all content comfortably */
+}
+
+/* Start Menu Styles */
+.start-menu {
+    position: fixed;
+    bottom: 40px;
+    left: 0;
+    background: #c0c0c0;
+    border: 2px solid #ffffff;
+    border-bottom: none;
+    width: 200px;
+    padding: 2px;
+    display: none;
+}
+
+.start-menu.visible {
+    display: block;
+}
+
+.start-menu-items {
+    border: 1px solid #808080;
+    background: #c0c0c0;
+}
+
+.start-item {
+    padding: 8px 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+}
+
+.start-item:hover {
+    background: #000080;
+    color: white;
+}
+
+.start-item img {
+    width: 16px;
+    height: 16px;
+}
+
+/* Lock Screen Styles */
+.lock-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #000000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+}
+
+.lock-screen.visible {
+    display: flex;
+}
+
+.lock-content {
+    text-align: center;
+    color: white;
+}
+
+.lock-avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    margin-bottom: 20px;
+}
+
+.password-input {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+}
+
+.password-input input {
+    padding: 8px;
+    border: 1px solid #808080;
+    background: #000000;
+    color: white;
+}
+
+.password-input button {
+    padding: 8px 15px;
+    background: #000080;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.error-message {
+    color: red;
+    margin-top: 10px;
+}
+
+/* Shutdown Animation */
+@keyframes shutdown {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 0; }
+}
+
+.shutting-down {
+    animation: shutdown 2s forwards;
+}

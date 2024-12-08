@@ -2,79 +2,133 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Old Windows Desktop</title>
+    <title>Windows Desktop</title>
     <link rel="stylesheet" href="desktop.css">
+    <style>
+        @font-face {
+            font-family: 'MS Sans Serif';
+            src: local('MS Sans Serif'),
+                 local('Microsoft Sans Serif'),
+                 local('Tahoma');
+        }
+    </style>
 </head>
 <body>
     <div class="desktop">
-
         <!-- Desktop Icons -->
-        <div class="icon" id="my-computer-icon" data-window="my-computer-window" style="left: 20px; top: 20px;">
-            <img src="assets/icons/my_computer.png" alt="My Computer">
-            <span>My Computer</span>
+        <div class="icon" data-window="computer-window">
+            <img src="assets/icons/my_computer.png" alt="Computer">
+            <span>Computer</span>
         </div>
-        <div class="icon" id="recycle-bin-icon" data-window="recycle-bin-window" style="left: 20px; top: 100px;">
+        <div class="icon" data-window="recycle-window">
             <img src="assets/icons/recycle_bin.png" alt="Recycle Bin">
             <span>Recycle Bin</span>
         </div>
-        <!-- Add more icons as needed -->
+        <div class="icon" data-window="about-window">
+            <img src="assets/icons/file.png" alt="About Me">
+            <span>About Me</span>
+        </div>
+
+        <!-- Windows -->
+        <div class="window" id="computer-window">
+            <div class="window-titlebar">
+                <span>Computer</span>
+                <button class="close-btn">×</button>
+            </div>
+            <div class="window-content">
+                <div class="folder-grid">
+                    <div class="folder">
+                        <img src="assets/icons/drive.png" alt="C Drive">
+                        <span>Local Disk (C:)</span>
+                    </div>
+                    <div class="folder">
+                        <img src="assets/icons/drive.png" alt="D Drive">
+                        <span>Local Disk (D:)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="window" id="recycle-window">
+            <div class="window-titlebar">
+                <span>Recycle Bin</span>
+                <button class="close-btn">×</button>
+            </div>
+            <div class="window-content">
+                <p>Recycle Bin is empty</p>
+            </div>
+        </div>
+
+        <!-- About Me Window -->
+        <div class="window" id="about-window">
+            <div class="window-titlebar">
+                <span>About Me</span>
+                <button class="close-btn">×</button>
+            </div>
+            <div class="window-content">
+                <div class="about-content">
+                    <div class="profile-section">
+                        <img src="assets/img/profile1.jpg" alt="Hudson Tinch" class="profile-pic">
+                        <h2>Hudson Tinch</h2>
+                    </div>
+                    <div class="bio-section">
+                        <p>Hi! I'm Hudson Tinch, a robotics enthusiast and maker with a passion for turning ideas into tangible creations.</p>
+                        
+                        <p>As the captain of the HP robotics team, I combined my love for hands-on building with advanced technology, leading my team in challenging competitions and innovative projects.</p>
+                        
+                        <p>Beyond robotics, I have a deep enthusiasm for creating physical objects, particularly through 3D printing. From prototyping intricate designs to building functional components, I thrive on the process of transforming digital concepts into real-world objects. For me, the intersection of engineering and creativity is where the magic happens, and I'm constantly exploring new ways to bring ideas to life.</p>
+                    </div>
+                    <div class="skills-section">
+                        <h3>Technical Skills:</h3>
+                        <ul>
+                            <li>Programming Languages: C++, Python, JavaScript</li>
+                            <li>Hardware: PCB Design, Microcontrollers, Electronics</li>
+                            <li>Tools: AutoCAD, KiCad, Git</li>
+                            <li>Additional: 3D Printing, Robotics, Web Development</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <!-- Taskbar -->
         <div class="taskbar">
-            <div class="start-button">
+            <button class="start-btn">
                 <img src="assets/icons/start_button.png" alt="Start">
-                <span>Start</span>
-            </div>
-            <!-- Other taskbar items -->
-        </div>
-
-        <!-- My Computer Window -->
-        <div class="window" id="my-computer-window" style="display: none; left: 150px; top: 80px;">
-            <div class="window-titlebar">
-                <span>My Computer</span>
-                <div class="window-controls">
-                    <button class="minimize">_</button>
-                    <button class="maximize">[ ]</button>
-                    <button class="close">X</button>
+                Start
+            </button>
+            <!-- Add Start Menu -->
+            <div class="start-menu hidden">
+                <div class="start-menu-items">
+                    <div class="start-item" data-action="lock">
+                        <img src="assets/icons/lock.png" alt="Lock">
+                        <span>Lock</span>
+                    </div>
+                    <div class="start-item" data-action="restart">
+                        <img src="assets/icons/restart.png" alt="Restart">
+                        <span>Restart</span>
+                    </div>
+                    <div class="start-item" data-action="shutdown">
+                        <img src="assets/icons/shutdown.png" alt="Shut Down">
+                        <span>Shut Down</span>
+                    </div>
                 </div>
             </div>
-            <div class="window-content">
-                <p>This is the test window for My Computer.</p>
-            </div>
         </div>
 
-        <!-- Recycle Bin Window -->
-        <div class="window" id="recycle-bin-window" style="display: none; left: 200px; top: 120px;">
-            <div class="window-titlebar">
-                <span>Recycle Bin</span>
-                <div class="window-controls">
-                    <button class="minimize">_</button>
-                    <button class="maximize">[ ]</button>
-                    <button class="close">X</button>
+        <!-- Add Lock Screen -->
+        <div class="lock-screen hidden">
+            <div class="lock-content">
+                <img src="assets/img/profile1.jpg" alt="User" class="lock-avatar">
+                <h2>Hudson Tinch</h2>
+                <div class="password-input">
+                    <input type="password" placeholder="Enter Password" id="password-field">
+                    <button id="login-btn">→</button>
                 </div>
-            </div>
-            <div class="window-content">
-                <p>This is the test window for Recycle Bin.</p>
+                <div class="error-message"></div>
             </div>
         </div>
-
-        <!-- Example Window -->
-        <div class="window" id="window1" style="left: 200px; top: 100px;">
-            <div class="window-titlebar">
-                <span>Example Window</span>
-                <div class="window-controls">
-                    <button class="minimize">_</button>
-                    <button class="maximize">[ ]</button>
-                    <button class="close">X</button>
-                </div>
-            </div>
-            <div class="window-content">
-                <!-- Window content goes here -->
-            </div>
-        </div>
-
     </div>
-    <!-- Include the main.js script -->
-    <script src="main.js"></script>
+    <script src="desktop.js"></script>
 </body>
 </html>
