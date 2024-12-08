@@ -20,30 +20,83 @@
             <img src="assets/icons/my_computer.png" alt="Computer">
             <span>Computer</span>
         </div>
-        <div class="icon" data-window="recycle-window">
-            <img src="assets/icons/recycle_bin.png" alt="Recycle Bin">
-            <span>Recycle Bin</span>
-        </div>
         <div class="icon" data-window="about-window">
             <img src="assets/icons/file.png" alt="About Me">
             <span>About Me</span>
+        </div>
+        <div class="icon" data-window="recycle-window">
+            <img src="assets/icons/recycle_bin.png" alt="Recycle Bin">
+            <span>Recycle Bin</span>
         </div>
 
         <!-- Windows -->
         <div class="window" id="computer-window">
             <div class="window-titlebar">
                 <span>Computer</span>
-                <button class="close-btn">×</button>
+                <div class="window-controls">
+                    <button class="minimize-btn">−</button>
+                    <button class="maximize-btn">□</button>
+                    <button class="close-btn">×</button>
+                </div>
             </div>
             <div class="window-content">
                 <div class="folder-grid">
-                    <div class="folder">
-                        <img src="assets/icons/drive.png" alt="C Drive">
-                        <span>Local Disk (C:)</span>
+                    <div class="folder" data-window="projects-window">
+                        <img src="assets/icons/folder.png" alt="Projects">
+                        <span>Projects</span>
                     </div>
-                    <div class="folder">
-                        <img src="assets/icons/drive.png" alt="D Drive">
-                        <span>Local Disk (D:)</span>
+                    <div class="folder" data-window="games-window">
+                        <img src="assets/icons/folder.png" alt="Games">
+                        <span>Games</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add new windows for Projects and Games -->
+        <div class="window" id="projects-window">
+            <div class="window-titlebar">
+                <span>Projects</span>
+                <div class="window-controls">
+                    <button class="minimize-btn">−</button>
+                    <button class="maximize-btn">□</button>
+                    <button class="close-btn">×</button>
+                </div>
+            </div>
+            <div class="window-content">
+                <div class="project-list">
+                    <div class="project-item">
+                        <h3>Arduino R4 Controller</h3>
+                        <img src="assets/img/arduino_r4.jpg" alt="Arduino R4 Controller">
+                        <p>Web-based interface for remote control of servos and electromagnets...</p>
+                    </div>
+                    <div class="project-item">
+                        <h3>AVR Drone</h3>
+                        <img src="assets/img/avr_drone.jpg" alt="AVR Drone">
+                        <p>Autonomous drone with A* pathfinding...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="window" id="games-window">
+            <div class="window-titlebar">
+                <span>Games</span>
+                <div class="window-controls">
+                    <button class="minimize-btn">−</button>
+                    <button class="maximize-btn">□</button>
+                    <button class="close-btn">×</button>
+                </div>
+            </div>
+            <div class="window-content">
+                <div class="games-list">
+                    <div class="game-item" data-game="endless-download">
+                        <img src="assets/icons/game.png" alt="Endless Download">
+                        <span>Endless Download</span>
+                    </div>
+                    <div class="game-item" data-game="clicker">
+                        <img src="assets/icons/game.png" alt="Clicker Game">
+                        <span>Clicker Game</span>
                     </div>
                 </div>
             </div>
@@ -91,25 +144,28 @@
             </div>
         </div>
 
-        <!-- Taskbar -->
+        <!-- Modified Taskbar -->
         <div class="taskbar">
             <button class="start-btn">
                 <img src="assets/icons/start_button.png" alt="Start">
                 Start
             </button>
+            <div class="taskbar-items">
+                <!-- Minimized windows will appear here -->
+            </div>
             <!-- Add Start Menu -->
             <div class="start-menu hidden">
                 <div class="start-menu-items">
                     <div class="start-item" data-action="lock">
-                        <img src="assets/icons/lock.png" alt="Lock">
+                        <img src="assets/icons/lockbw.png" alt="Lock">
                         <span>Lock</span>
                     </div>
                     <div class="start-item" data-action="restart">
-                        <img src="assets/icons/restart.png" alt="Restart">
+                        <img src="assets\icons\resetbw.png" alt="Restart">
                         <span>Restart</span>
                     </div>
                     <div class="start-item" data-action="shutdown">
-                        <img src="assets/icons/shutdown.png" alt="Shut Down">
+                        <img src="assets\icons\shutoffbw.png" alt="Shut Down">
                         <span>Shut Down</span>
                     </div>
                 </div>
@@ -119,8 +175,8 @@
         <!-- Add Lock Screen -->
         <div class="lock-screen hidden">
             <div class="lock-content">
-                <img src="assets/img/profile1.jpg" alt="User" class="lock-avatar">
-                <h2>Hudson Tinch</h2>
+                <img src="assets/icons/start_button.png" alt="User" class="lock-avatar">
+                <h2>Power User</h2>
                 <div class="password-input">
                     <input type="password" placeholder="Enter Password" id="password-field">
                     <button id="login-btn">→</button>
