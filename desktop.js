@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
         window.style.top = '50%';
         window.style.transform = 'translate(-50%, -50%)';
 
-        // Make window draggable
+        // Make window dragable needs work still
         let isDragging = false;
         let currentX;
         let currentY;
