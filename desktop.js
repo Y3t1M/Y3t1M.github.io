@@ -37,12 +37,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const titlebar = window.querySelector('.window-titlebar');
         const closeBtn = window.querySelector('.close-btn');
         
-        // Set initial position
+        // Remove initial transform and use specific coordinates
         window.style.left = '50%';
         window.style.top = '50%';
         window.style.transform = 'translate(-50%, -50%)';
 
-        // Make window dragable needs work still
         let isDragging = false;
         let currentX;
         let currentY;
@@ -62,13 +61,25 @@ document.addEventListener('DOMContentLoaded', () => {
         // Close button
         closeBtn.addEventListener('click', () => {
             window.style.display = 'none';
+            // Reset offset when closing windows
+            folderOffset = {x: 0, y: 0};
         });
 
         function dragStart(e) {
-            initialX = e.clientX - window.offsetLeft;
-            initialY = e.clientY - window.offsetTop;
-
             if (e.target === titlebar) {
+                // Calculate offset from current position
+                const rect = window.getBoundingClientRect();
+                initialX = e.clientX - rect.left;
+                initialY = e.clientY - rect.top;
+                
+                // Store current transform
+                const transform = window.style.transform;
+                
+                // Remove transform temporarily to get true position
+                window.style.transform = 'none';
+                window.style.left = rect.left + 'px';
+                window.style.top = rect.top + 'px';
+                
                 isDragging = true;
                 bringToFront(window);
             }
@@ -82,7 +93,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 window.style.left = `${currentX}px`;
                 window.style.top = `${currentY}px`;
-                window.style.transform = 'none';
             }
         }
 
@@ -91,8 +101,26 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Add folder creation offset tracking
+    let folderOffset = {x: 0, y: 0};
+    const OFFSET_INCREMENT = 20;
+
     function showWindow(window) {
         window.style.display = 'block';
+        
+        // Add offset to new windows
+        window.style.left = `calc(50% + ${folderOffset.x}px)`;
+        window.style.top = `calc(50% + ${folderOffset.y}px)`;
+        
+        // Increment offset for next window
+        folderOffset.x += OFFSET_INCREMENT;
+        folderOffset.y += OFFSET_INCREMENT;
+        
+        // Reset offset if it gets too large
+        if (folderOffset.x > 100 || folderOffset.y > 100) {
+            folderOffset = {x: 0, y: 0};
+        }
+        
         bringToFront(window);
     }
 
@@ -131,10 +159,32 @@ document.addEventListener('DOMContentLoaded', () => {
             
             switch(action) {
                 case 'shutdown':
-                    document.body.classList.add('shutting-down');
+                    // Create black background
+                    const blackScreen = document.createElement('div');
+                    blackScreen.className = 'black-screen';
+                    document.body.appendChild(blackScreen);
+
+                    // Create CRT effect overlay
+                    const overlay = document.createElement('div');
+                    overlay.className = 'screen-overlay';
+                    document.body.appendChild(overlay);
+
+                    // Play shutdown sound
+                    const shutdownSound = new Audio('assets/audio/Microsoft Windows XP Shutdown Sound.mp3');
+                    shutdownSound.play();
+
+                    // Add shutdown class to body
+                    document.body.classList.add('shutdown-active');
+
+                    // Complete shutdown
                     setTimeout(() => {
-                        document.body.style.background = '#000000';
+                        document.body.style.background = '#000';
                         document.body.innerHTML = '';
+                    }, 1500);
+
+                    // Listen for mouse movement after shutdown
+                    setTimeout(() => {
+                        document.addEventListener('mousemove', handleWakeUp);
                     }, 2000);
                     break;
                     
@@ -248,25 +298,45 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Remove the initial lock screen display
     // lockScreen.classList.add('visible');
+
+    // Add trash button functionality
+    const trashBtn = document.getElementById('trash-btn');
+    if (trashBtn) {
+        trashBtn.addEventListener('click', () => {
+            const errorSound = new Audio('assets/audio/Windows XP Error Sound.mp3');
+            errorSound.play();
+        });
+    }
 });
 
 function initializeGames() {
-    // Initialize Endless Download game
+    // Initialize Endless Download game first
     initEndlessDownload();
 
-    // Initialize Clicker game
+    // Initialize Clicker game with proper styling
     const clickerArea = document.querySelector('.clicker-area');
     const scoreDisplay = document.querySelector('#current-score');
     const highScoreDisplay = document.querySelector('#high-score');
+    
+    // Reset game state
     let clicks = 0;
     let highScore = parseInt(localStorage.getItem('clickerHighScore')) || 0;
     let gameActive = false;
     let timeLeft = 5;
     let timer;
 
+    // Update initial display
     highScoreDisplay.textContent = `High Score: ${highScore}`;
+    scoreDisplay.textContent = 'Click to start new game';
 
-    clickerArea.addEventListener('click', () => {
+    // Make sure click area is enabled
+    clickerArea.style.pointerEvents = 'auto';
+    
+    // Reset event listeners
+    clickerArea.replaceWith(clickerArea.cloneNode(true));
+    const newClickerArea = document.querySelector('.clicker-area');
+    
+    newClickerArea.addEventListener('click', () => {
         if (!gameActive) {
             startClickerGame();
         } else if (gameActive && timeLeft > 0) {
@@ -300,126 +370,36 @@ function initializeGames() {
             highScoreDisplay.textContent = `High Score: ${highScore}`;
         }
         scoreDisplay.textContent = `Game Over! Clicks: ${clicks}`;
+        newClickerArea.style.pointerEvents = 'none';
+        
+        setTimeout(() => {
+            scoreDisplay.textContent = 'Click to start new game';
+            newClickerArea.style.pointerEvents = 'auto';
+        }, 3000);
     }
 }
 
-// Add this function to initialize the Endless Download game
 function initEndlessDownload() {
-    const canvas = document.getElementById('gameCanvas');
-    if (!canvas) return;
+    const script = document.createElement('script');
+    script.src = 'endless-download.js';
+    document.body.appendChild(script);
+}
 
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+/* Add wake up handler */
+function handleWakeUp(e) {
+    document.removeEventListener('mousemove', handleWakeUp);
+    
+    // Create boot elements
+    const bootOverlay = document.createElement('div');
+    bootOverlay.className = 'screen-overlay';
+    document.body.appendChild(bootOverlay);
+    
+    // Play startup sound
+    const startupSound = new Audio('assets/audio/Microsoft Windows XP Startup Sound.mp3');
+    startupSound.play();
 
-    let gameStarted = false;
-    let gameOver = false;
-    let score = 0;
-    let playerY = canvas.height - 60;
-    let playerVelocity = 0;
-    const gravity = 0.5;
-    const jumpStrength = -10;
-    const obstacles = [];
-
-    function update() {
-        if (!gameStarted || gameOver) return;
-
-        // Update player
-        playerVelocity += gravity;
-        playerY += playerVelocity;
-        if (playerY > canvas.height - 60) {
-            playerY = canvas.height - 60;
-            playerVelocity = 0;
-        }
-
-        // Update obstacles
-        if (Math.random() < 0.02) {
-            obstacles.push({
-                x: canvas.width,
-                width: 30,
-                height: 50
-            });
-        }
-
-        for (let i = obstacles.length - 1; i >= 0; i--) {
-            obstacles[i].x -= 5;
-            if (obstacles[i].x < -30) {
-                obstacles.splice(i, 1);
-                score++;
-            }
-
-            // Collision detection
-            if (checkCollision(obstacles[i])) {
-                gameOver = true;
-            }
-        }
-    }
-
-    function draw() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        // Draw player
-        ctx.fillStyle = '#000';
-        ctx.fillRect(50, playerY, 30, 30);
-
-        // Draw obstacles
-        obstacles.forEach(obstacle => {
-            ctx.fillRect(obstacle.x, canvas.height - obstacle.height, obstacle.width, obstacle.height);
-        });
-
-        // Draw score
-        ctx.fillStyle = '#000';
-        ctx.font = '20px Arial';
-        ctx.fillText(`Score: ${score}`, 10, 30);
-
-        if (!gameStarted) {
-            ctx.fillText('Press SPACE to Start', canvas.width/2 - 100, canvas.height/2);
-        }
-        if (gameOver) {
-            ctx.fillText('Game Over! Press SPACE to restart', canvas.width/2 - 150, canvas.height/2);
-        }
-    }
-
-    function checkCollision(obstacle) {
-        return (50 < obstacle.x + obstacle.width &&
-                80 > obstacle.x &&
-                playerY < canvas.height - obstacle.height + 30 &&
-                playerY + 30 > canvas.height - obstacle.height);
-    }
-
-    function gameLoop() {
-        update();
-        draw();
-        requestAnimationFrame(gameLoop);
-    }
-
-    document.addEventListener('keydown', (e) => {
-        if (e.code === 'Space') {
-            e.preventDefault();
-            if (!gameStarted) {
-                gameStarted = true;
-            } else if (gameOver) {
-                gameOver = false;
-                score = 0;
-                obstacles.length = 0;
-                playerY = canvas.height - 60;
-            } else {
-                playerVelocity = jumpStrength;
-            }
-        }
-    });
-
-    canvas.addEventListener('click', () => {
-        if (!gameStarted) {
-            gameStarted = true;
-        } else if (gameOver) {
-            gameOver = false;
-            score = 0;
-            obstacles.length = 0;
-            playerY = canvas.height - 60;
-        } else {
-            playerVelocity = jumpStrength;
-        }
-    });
-
-    gameLoop();
+    // Reload the page to restore content
+    setTimeout(() => {
+        location.reload();
+    }, 2000);
 }

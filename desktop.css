@@ -1,8 +1,10 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
 body {
     margin: 0;
     padding: 0;
     height: 100vh;
-    background: url('assets/img/winxppix.png') center/cover no-repeat;
+    background: url('assets/img/winxppix.png') center/cover no-repeat;  /* Restore Windows XP background */
     font-family: 'MS Sans Serif', 'Segoe UI', Tahoma, sans-serif;
     overflow: hidden;
 }
@@ -46,15 +48,17 @@ body {
 
 .taskbar {
     position: fixed;
-    bottom: 0;
+    bottom: -4px; /* Increased negative value to fully overlap any gap */
     left: 0;
     right: 0;
-    height: 40px;
+    height: 44px; /* Increased height to compensate for negative bottom */
     background: #c0c0c0;
-    border-top: 2px solid #ffffff;
+    /* border-top: 2px solid #ffffff; */ /* Removed white border */
     display: flex;
     align-items: center;
     padding: 0 10px;
+    margin: 0; /* Ensure no margin */
+    z-index: 1000;
 }
 
 .start-btn {
@@ -179,6 +183,7 @@ body {
     box-sizing: border-box;
     font-family: 'MS Sans Serif', 'Segoe UI', Tahoma, sans-serif;
     font-size: 11px;
+    color: #000000;
 }
 
 #projects-window .window-content {
@@ -189,7 +194,7 @@ body {
 
 .project-item {
     background: #f0eacd;
-    border: 1px solid #a0a0a0;
+    border: 1px solid #808080;
     border-radius: 5px;
     padding: 15px;
     margin-bottom: 15px;
@@ -197,7 +202,7 @@ body {
 
 .project-item h3 {
     margin-top: 0;
-    color: #0A246A;
+    color: #000000;
     font-size: 14px;
 }
 
@@ -211,7 +216,7 @@ body {
 
 .project-item p {
     margin: 10px 0 0;
-    color: #333;
+    color: #000000;
 }
 
 .folder-grid {
@@ -219,6 +224,7 @@ body {
     grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));  /* Increased from 100px */
     gap: 25px;  /* Increased from 20px */
     padding: 15px;  /* Increased from 10px */
+    background: #f0eacd;
 }
 
 .folder {
@@ -408,13 +414,62 @@ body {
 
 /* Shutdown Animation */
 @keyframes shutdown {
-    0% { opacity: 1; }
-    50% { opacity: 0.5; }
-    100% { opacity: 0; }
+    0% {
+        transform: scaleY(1);
+        opacity: 1;
+        filter: brightness(1);
+    }
+    50% {
+        transform: scaleY(0.5);
+        opacity: 0.7;
+        filter: brightness(0.7);
+    }
+    75% {
+        transform: scaleY(0.1);
+        opacity: 0.3;
+        filter: brightness(0.3);
+    }
+    100% {
+        transform: scaleY(0.001);
+        opacity: 0;
+        filter: brightness(0);
+    }
 }
 
 .shutting-down {
-    animation: shutdown 2s forwards;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: #000;
+    z-index: 99999;
+    animation: fadeToBlack 2s forwards;
+}
+
+@keyframes fadeToBlack {
+    0% {
+        opacity: 0;
+    }
+    50% {
+        opacity: 0.5;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+@keyframes scanline {
+    0% { opacity: 0; }
+    30% { opacity: 0.5; }
+    60% { opacity: 1; }
+    100% { opacity: 1; }
+}
+
+@keyframes fadeOut {
+    0% { opacity: 1; }
+    60% { opacity: 0.3; }
+    100% { opacity: 0; }
 }
 
 /* Restart Animation */
@@ -468,7 +523,7 @@ body {
 /* Update maximize behavior */
 .window.maximized {
     width: 100% !important;
-    height: calc(100vh - 40px) !important; /* Account for taskbar */
+    height: calc(100vh - 44px) !important; /* Match new taskbar height */
 }
 
 /* Ensure content areas use the correct background */
@@ -496,39 +551,66 @@ body {
 /* Games Window Styles */
 .game-section {
     background: #f0eacd;
-    border: 1px solid #a0a0a0;
-    border-radius: 5px;
+    border: 1px solid #404040;
     padding: 15px;
     margin-bottom: 20px;
 }
 
 .game-title {
     font-family: 'Press Start 2P', cursive;
-    color: #000;
+    color: #000000;
     font-size: 16px;
     margin-bottom: 15px;
     text-align: center;
+    text-shadow: none;
 }
 
 .game-container {
     text-align: center;
+    position: relative;
 }
 
 #gameCanvas {
-    background: #fff;
-    border: 1px solid #a0a0a0;
+    background: #f0eacd;
+    border: 1px solid #404040;
     margin: 10px 0;
 }
 
 .game-instructions {
     font-family: 'Press Start 2P', cursive;
-    color: #000;
+    color: #000000;
     font-size: 12px;
     margin: 10px 0;
+    text-shadow: none;
+}
+
+.floor {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 55px;
+    background: url('assets/img/new_floor.png') repeat-x;
+    background-size: auto 100%;
+}
+
+/* Make sure window is large enough for the game */
+#games-window {
+    width: 1100px;
+    height: 600px;
+    min-width: 1100px;
+    min-height: 600px;
+}
+
+/* Update clicker game styles */
+#clicker-game {
+    background: #f0eacd;
+    padding: 20px;
+    font-family: 'Press Start 2P', cursive;
 }
 
 .clicker-area {
-    background: #d4d0c8;
+    background: #e0d6b9;  /* Slightly darker shade of tan */
     height: 200px;
     display: flex;
     align-items: center;
@@ -536,18 +618,241 @@ body {
     cursor: pointer;
     border: 1px solid #808080;
     margin: 10px 0;
+    transition: background-color 0.2s;
+}
+
+.clicker-area:hover {
+    background: #d6ccaf;  /* Even darker shade of tan for hover */
 }
 
 .clicker-area h3 {
     font-family: 'Press Start 2P', cursive;
-    color: #000;
+    color: #000000;
     font-size: 24px;
+    text-shadow: none;
 }
 
 .score-display {
     font-family: 'Press Start 2P', cursive;
-    color: #000;
+    color: #000000;
     font-size: 12px;
     text-align: center;
     margin-top: 10px;
+    text-shadow: none;
+}
+
+/* Add CRT shutdown effects */
+@keyframes shutdown {
+    0% { 
+        transform: scale(1, 1);
+        opacity: 1;
+        filter: brightness(1);
+    }
+    60% { 
+        transform: scale(1, 0.002);
+        opacity: 0.8;
+        filter: brightness(0.6);
+    }
+    100% { 
+        transform: scale(0, 0);
+        opacity: 0;
+        filter: brightness(0);
+    }
+}
+
+.shutting-down {
+    animation: shutdown 1.5s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+    transform-origin: center center;
+}
+
+/* Add CRT scan lines effect */
+.shutting-down::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(0deg, rgba(0,0,0,0.2) 50%, transparent 50%);
+    background-size: 100% 4px;
+    pointer-events: none;
+    z-index: 9999;
+    animation: flicker 0.15s infinite linear;
+}
+
+@keyframes flicker {
+    0% { opacity: 0.7; }
+    50% { opacity: 0.3; }
+    100% { opacity: 0.7; }
+}
+
+.trash-button {
+    padding: 8px 16px;
+    background: #d4d0c8;
+    border: 2px solid #808080;
+    font-family: 'MS Sans Serif', 'Segoe UI', Tahoma, sans-serif;
+    font-size: 11px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.trash-button:hover {
+    background: #c0c0c0;
+}
+
+.trash-button:active {
+    border-color: #404040;
+    background: #d4d0c8;
+}
+
+/* New CRT shutdown animation */
+@keyframes crtShutdown {
+    0% {
+        transform: scaleY(1);
+        filter: brightness(1) contrast(1);
+    }
+    40% {
+        transform: scaleY(0.8) translateY(10%);
+        filter: brightness(0.8) contrast(1.2);
+    }
+    70% {
+        transform: scaleY(0.05) translateY(45%);
+        filter: brightness(0.4) contrast(1.5);
+    }
+    100% {
+        transform: scaleY(0.001) translateY(50%);
+        filter: brightness(0) contrast(2);
+    }
+}
+
+/* Add boot animation */
+@keyframes crtBoot {
+    0% {
+        transform: scaleY(0.001) translateY(50%);
+        filter: brightness(0) contrast(2);
+    }
+    30% {
+        transform: scaleY(0.05) translateY(45%);
+        filter: brightness(0.4) contrast(1.5);
+    }
+    60% {
+        transform: scaleY(0.8) translateY(10%);
+        filter: brightness(0.8) contrast(1.2);
+    }
+    100% {
+        transform: scaleY(1) translateY(0);
+        filter: brightness(1) contrast(1);
+    }
+}
+
+.screen-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: transparent;
+    pointer-events: none;
+    z-index: 99999;
+    transform-origin: center top;
+}
+
+.screen-overlay.shutting-down {
+    display: block;
+    animation: crtShutdown 1.5s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+}
+
+.screen-overlay.booting {
+    display: block;
+    animation: crtBoot 2s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+}
+
+/* Update CRT shutdown animation */
+@keyframes crtShutdown {
+    0% {
+        transform: scaleY(1);
+        filter: brightness(1);
+        background: inherit;
+    }
+    40% {
+        transform: scaleY(0.6);
+        filter: brightness(0.8);
+        background: #000;
+    }
+    100% {
+        transform: scaleY(0.001);
+        filter: brightness(0);
+        background: #000;
+    }
+}
+
+.screen-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 99999;
+    transform-origin: center center;
+    background: transparent;
+}
+
+.screen-off {
+    background: #000 !important;
+    z-index: 100000;
+}
+
+/* Completely new shutdown animation */
+@keyframes crtShutdown {
+    0% {
+        height: 100vh;
+        opacity: 1;
+        background: #000;
+    }
+    75% {
+        height: 2px;
+        opacity: 1;
+        background: #000;
+    }
+    100% {
+        height: 0;
+        opacity: 1;
+        background: #000;
+    }
+}
+
+.screen-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 99999;
+    pointer-events: none;
+    background: transparent;
+}
+
+.black-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #000;
+    z-index: 99998;
+    opacity: 0;
+    transition: opacity 0.5s;
+}
+
+.shutdown-active .screen-overlay {
+    animation: crtShutdown 1s cubic-bezier(.23,1,.32,1) forwards;
+}
+
+.shutdown-active .black-screen {
+    opacity: 1;
+}
+
+#endless-download {
+    font-family: 'Press Start 2P', cursive;
 }

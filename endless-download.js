@@ -66,73 +66,49 @@ document.addEventListener('DOMContentLoaded', function() {
     const totalImages = 5; // Updated total images to include new floor
     
     function loadImages() {
-    function handleImageLoad() {
-    loadedImages++;
-    console.log('Loaded image:', loadedImages);
-    if (loadedImages === totalImages) {
-    imagesLoaded = true;
-    draw(); // Initial draw once images are loaded
-    }
-    }
+        function handleImageLoad() {
+            loadedImages++;
+            console.log('Loaded image:', loadedImages);
+            if (loadedImages === totalImages) {
+                imagesLoaded = true;
+                draw();
+            }
+        }
+
+        function handleImageError(e) {
+            console.error('Failed to load image:', e.target.src);
+            loadedImages++; // Still increment to avoid getting stuck
+            if (loadedImages === totalImages) {
+                imagesLoaded = true;
+                draw();
+            }
+        }
     
-    function handleImageError(e) {
-    console.error('Error loading image:', e.target.src);
-    loadingError = true;
-    draw(); // Show error message
-    }
+        // Update image paths to be relative and add error handlers
+        dinoImg.onload = handleImageLoad;
+        dinoImg.onerror = handleImageError;
+        dinoImg.src = 'assets/img/dino.png'; // Remove leading slash
     
-    // Create backup images if the detailed ones fail to load
-    const backupDino = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
-    const backupCactus = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
-    const backupFirewall = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
-    const backupBackground = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
+        cactusImg.onload = handleImageLoad;
+        cactusImg.onerror = handleImageError;
+        cactusImg.src = 'assets/img/cactus.png'; // Remove leading slash
     
-    dinoImg.onload = handleImageLoad;
-    dinoImg.onerror = (e) => {
-    console.warn('Using backup dino image');
-    dinoImg.src = backupDino;
-    };
+        firewallImg.onload = handleImageLoad;
+        firewallImg.onerror = handleImageError;
+        firewallImg.src = 'assets/img/firewall.jpg'; // Remove leading slash
     
-    cactusImg.onload = handleImageLoad;
-    cactusImg.onerror = (e) => {
-    console.warn('Using backup cactus image');
-    cactusImg.src = backupCactus;
-    };
+        backgroundImg.onload = handleImageLoad;
+        backgroundImg.onerror = handleImageError;
+        backgroundImg.src = 'assets/img/background.jpg'; // Remove leading slash
     
-    firewallImg.onload = handleImageLoad;
-    firewallImg.onerror = (e) => {
-    console.warn('Using backup firewall image');
-    firewallImg.src = backupFirewall;
-    };
-    
-    backgroundImg.onload = handleImageLoad;
-    backgroundImg.onerror = (e) => {
-    console.warn('Using backup background image');
-    backgroundImg.src = backupBackground;
-    };
-    
-    floorImg.onload = handleImageLoad; // Added load handler for floor
-    floorImg.onerror = (e) => {
-    console.warn('Using backup floor image');
-    floorImg.src = 'assets/img/new_floor.png'; // Ensure only the primary floor image is loaded
-    };
-    
-    // Set image sources after setting up handlers
-    try {
- 
-                dinoImg.src = 'assets/img/dino.png'; // Removed './'
-                cactusImg.src = 'assets/img/cactus.png'; // Removed './'
-                firewallImg.src = 'assets/img/firewall.jpg';
-                backgroundImg.src = 'assets/img/background.jpg';
-                floorImg.src = 'assets/img/new_floor.png'; // Updated floor image source
-    } catch (error) {
-    console.error('Error setting image sources:', error);
-    }
+        floorImg.onload = handleImageLoad;
+        floorImg.onerror = handleImageError;
+        floorImg.src = 'assets/img/new_floor.png'; // Remove leading slash
     }
     
     // Draw loading screen or error message
     function drawLoadingScreen() {
-    ctx.fillStyle = '#ffffff';
+    ctx.fillStyle = '#f0eacd';  // Tan background
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = '#000000';
     ctx.font = '20px "Press Start 2P"';
@@ -154,8 +130,8 @@ document.addEventListener('DOMContentLoaded', function() {
     return;
     }
     
-    // Clear canvas with light grey background
-    ctx.fillStyle = '#e0e0e0';  // Light grey background
+    // Clear canvas with tan background
+    ctx.fillStyle = '#f0eacd';  // Tan background color
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     
     // Comment out the background image drawing to prevent any tint
@@ -166,7 +142,7 @@ document.addEventListener('DOMContentLoaded', function() {
         ctx.drawImage(floorImg, 0, canvas.height - GROUND_HEIGHT, canvas.width, GROUND_HEIGHT);
     } else {
         // Fallback rectangle if floor image fails
-        ctx.fillStyle = '#a0a0a0';  // Darker grey for ground
+        ctx.fillStyle = '#e0d6b9';  // Slightly darker tan for floor
         ctx.fillRect(0, canvas.height - GROUND_HEIGHT, canvas.width, GROUND_HEIGHT);
     }
     
@@ -203,10 +179,16 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     if (gameOver) {
-        // ctx.fillText(`High Score: ${Math.floor(highScore)}`, canvas.width / 2, canvas.height / 2 + 80); // Removed high score
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '30px "Press Start 2P"';
         ctx.textAlign = 'center';
-        ctx.fillText('GAME OVER', canvas.width / 2, canvas.height / 2);
-        ctx.fillText(`Your Score: ${Math.floor(score)}`, canvas.width / 2, canvas.height / 2 + 40);
+        ctx.fillText('Game Over!', canvas.width/2, canvas.height/2 - 30);
+        ctx.fillText(`Score: ${Math.floor(score)}`, canvas.width/2, canvas.height/2 + 20);
+        ctx.font = '20px "Press Start 2P"';
+        ctx.fillText('Press SPACE or Click to Restart', canvas.width/2, canvas.height/2 + 70);
+        ctx.textAlign = 'left';
     }
     
     ctx.textAlign = 'left';
@@ -372,4 +354,16 @@ document.addEventListener('DOMContentLoaded', function() {
     // Start game loop
     gameLoop();
     });
+
+// Update initialization to ensure canvas is ready
+document.addEventListener('DOMContentLoaded', function() {
+    // Wait a short moment to ensure canvas is fully initialized
+    setTimeout(() => {
+        const canvas = document.getElementById('gameCanvas');
+        if (canvas) {
+            loadImages();
+            gameLoop();
+        }
+    }, 100);
+});
 // Ensure the game functions correctly on the Projects page

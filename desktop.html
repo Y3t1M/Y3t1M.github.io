@@ -34,19 +34,19 @@
             <div class="window-titlebar">
                 <span>Computer</span>
                 <div class="window-controls">
-                    <button class="minimize-btn">−</button>
-                    <button class="maximize-btn">□</button>
-                    <button class="close-btn">×</button>
+                    <button class="minimize-btn">&#8722;</button>
+                    <button class="maximize-btn">&#9633;</button>
+                    <button class="close-btn">&#215;</button>
                 </div>
             </div>
             <div class="window-content">
                 <div class="folder-grid">
                     <div class="folder" data-window="projects-window">
-                        <img src="assets/icons/folder.png" alt="Projects">
+                        <img src="assets/icons/harddrivenobackground.png" alt="Projects">
                         <span>Projects</span>
                     </div>
                     <div class="folder" data-window="games-window">
-                        <img src="assets/icons/folder.png" alt="Games">
+                        <img src="assets/icons/controllernobg.png" alt="Games">
                         <span>Games</span>
                     </div>
                 </div>
@@ -58,9 +58,9 @@
             <div class="window-titlebar">
                 <span>Projects</span>
                 <div class="window-controls">
-                    <button class="minimize-btn">−</button>
-                    <button class="maximize-btn">□</button>
-                    <button class="close-btn">×</button>
+                    <button class="minimize-btn">&#8722;</button>
+                    <button class="maximize-btn">&#9633;</button>
+                    <button class="close-btn">&#215;</button>
                 </div>
             </div>
             <div class="window-content">
@@ -68,35 +68,50 @@
                     <div class="project-item">
                         <h3>Arduino R4 Controller</h3>
                         <img src="assets/img/arduino_r4.jpg" alt="Arduino R4 Controller">
-                        <p>Web-based interface for remote control of servos and electromagnets...</p>
+                        <p>A web-based interface hosted on an Arduino R4 WiFi board, enabling remote control of multiple servos and electromagnets. Users can access the control panel over WiFi without additional apps, operate servos individually or simultaneously, control electromagnets, and view real-time statuses.</p>
                     </div>
                     <div class="project-item">
                         <h3>AVR Drone</h3>
                         <img src="assets/img/avr_drone.jpg" alt="AVR Drone">
-                        <p>Autonomous drone with A* pathfinding...</p>
+                        <p>Led the development of an autonomous drone for the Bell Advanced Vertical Robotics Competition. Utilized A* pathfinding to navigate complex environments, pushing the boundaries of autonomous flight and showcasing innovative engineering solutions.</p>
+                    </div>
+                    <div class="project-item">
+                        <h3>Iron Man Helmet</h3>
+                        <img src="assets/img/ironman_helmettop.jpg" alt="Iron Man Helmet">
+                        <p>Designed and built a functional Iron Man helmet using 3D printing and electronics. This project combined engineering and creativity to bring a piece of fictional technology into the real world, complete with moving parts and a magnetic faceplate.</p>
                     </div>
                 </div>
             </div>
         </div>
 
+        <!-- Update games window size and content -->
         <div class="window" id="games-window">
             <div class="window-titlebar">
                 <span>Games</span>
                 <div class="window-controls">
-                    <button class="minimize-btn">−</button>
-                    <button class="maximize-btn">□</button>
-                    <button class="close-btn">×</button>
+                    <button class="minimize-btn">&#8722;</button>
+                    <button class="maximize-btn">&#9633;</button>
+                    <button class="close-btn">&#215;</button>
                 </div>
             </div>
             <div class="window-content">
-                <div class="games-list">
-                    <div class="game-item" data-game="endless-download">
-                        <img src="assets/icons/game.png" alt="Endless Download">
-                        <span>Endless Download</span>
+                <div id="endless-download" class="game-section">
+                    <h3 class="game-title">The Endless Download</h3>
+                    <div class="game-container">
+                        <div class="game-instructions">Press SPACE or Click to Jump</div>
+                        <canvas id="gameCanvas" width="1000" height="400"></canvas>
+                        <div class="floor"></div>
                     </div>
-                    <div class="game-item" data-game="clicker">
-                        <img src="assets/icons/game.png" alt="Clicker Game">
-                        <span>Clicker Game</span>
+                </div>
+                
+                <div id="clicker-game" class="game-section">
+                    <h3 class="game-title">Clicker Game</h3>
+                    <div class="clicker-area">
+                        <h3>Click!</h3>
+                    </div>
+                    <div class="score-display">
+                        <p id="current-score">Click to start new game</p>
+                        <p id="high-score">High Score: 0</p>
                     </div>
                 </div>
             </div>
@@ -105,10 +120,15 @@
         <div class="window" id="recycle-window">
             <div class="window-titlebar">
                 <span>Recycle Bin</span>
-                <button class="close-btn">×</button>
+                <div class="window-controls">
+                    <button class="minimize-btn">&#8722;</button>
+                    <button class="maximize-btn">&#9633;</button>
+                    <button class="close-btn">&#215;</button>
+                </div>
             </div>
             <div class="window-content">
                 <p>Recycle Bin is empty</p>
+                <button id="trash-btn" class="trash-button">Trash</button>
             </div>
         </div>
 
@@ -116,7 +136,11 @@
         <div class="window" id="about-window">
             <div class="window-titlebar">
                 <span>About Me</span>
-                <button class="close-btn">×</button>
+                <div class="window-controls">
+                    <button class="minimize-btn">&#8722;</button>
+                    <button class="maximize-btn">&#9633;</button> <!-- Fixed the entity -->
+                    <button class="close-btn">&#215;</button>
+                </div>
             </div>
             <div class="window-content">
                 <div class="about-content">
@@ -186,5 +210,6 @@
         </div>
     </div>
     <script src="desktop.js"></script>
+    <script src="endless-download.js"></script>
 </body>
 </html>
