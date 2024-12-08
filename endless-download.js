@@ -355,15 +355,28 @@ document.addEventListener('DOMContentLoaded', function() {
     gameLoop();
     });
 
-// Update initialization to ensure canvas is ready
 document.addEventListener('DOMContentLoaded', function() {
-    // Wait a short moment to ensure canvas is fully initialized
-    setTimeout(() => {
-        const canvas = document.getElementById('gameCanvas');
-        if (canvas) {
-            loadImages();
-            gameLoop();
-        }
-    }, 100);
+    const canvas = document.getElementById('gameCanvas');
+    if (!canvas) {
+        console.error('Game canvas not found!');
+        return;
+    }
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+        console.error('Unable to get canvas context!');
+        return;
+    }
+
+    // Initialize game variables
+    let gameRunning = true;
+
+    function gameLoop() {
+        if (!gameRunning) return;
+        // ...game rendering and logic...
+        requestAnimationFrame(gameLoop);
+    }
+
+    // Start the game loop
+    gameLoop();
 });
-// Ensure the game functions correctly on the Projects page

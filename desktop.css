@@ -124,7 +124,7 @@ body {
 }
 
 .window-titlebar {
-    background: #D4D0C8;
+    background: #0000FF; /* Blue background */
     padding: 3px;
     display: flex;
     justify-content: space-between;
@@ -133,7 +133,7 @@ body {
     font-family: 'Tahoma', sans-serif;
     font-size: 12px;
     font-weight: bold;
-    color: #000000;
+    color: #FFFFFF; /* White text for contrast */
 }
 
 .window-controls {
@@ -517,7 +517,14 @@ body {
 }
 
 .close-btn {
-    background: linear-gradient(to bottom, #F86458, #E72C1C);
+    background: #FF0000; /* Red background */
+    color: #FFFFFF; /* White color for the '×' symbol */
+}
+
+.close-btn:hover,
+.close-btn:active {
+    background: #FF0000; /* Keep red background on hover and active */
+    color: #FFFFFF; /* Maintain white color for the '×' symbol */
 }
 
 /* Update maximize behavior */
@@ -855,4 +862,174 @@ body {
 
 #endless-download {
     font-family: 'Press Start 2P', cursive;
+}
+
+/* ...existing code... */
+
+/* Style for Projects Window */
+#projects-window {
+    /* ...existing styles... */
+    display: none; /* Ensure it's hidden by default */
+}
+
+#projects-window.active {
+    display: block; /* Display when active */
+}
+
+/* Style for Contact Error Window */
+#contact-error-window {
+    /* ...existing styles... */
+    display: none; /* Hide by default */
+}
+
+#contact-error-window.active {
+    display: block; /* Show when triggered */
+}
+
+/* ...existing styles... */
+
+/* Update contact error window styles */
+#contact-error-window {
+    width: 225px;  /* Halved from 450px */
+    height: 125px; /* Halved from 250px */
+    background: #F1F1F1;
+}
+
+/* Ensure close button is always red */
+#contact-error-window .close-btn {
+    background: #FF0000;
+    color: #FFFFFF;
+}
+
+#contact-error-window .close-btn:hover,
+#contact-error-window .close-btn:active {
+    background: #FF0000;
+    color: #FFFFFF;
+}
+
+/* Update error text color to black */
+.error-message-text p {
+    margin: 5px 0;
+    color: #000000 !important; /* Force black color */
+    font-size: 12px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.error-dialog {
+    padding: 10px;
+    box-sizing: border-box;
+    width: 100%;
+    height: calc(100% - 25px);
+}
+
+/* ...existing code... */
+
+/* Update contact error window size and styling */
+#contact-error-window {
+    width: 450px;  /* 9 units */
+    height: 250px; /* 5 units */
+    background: #F1F1F1;
+}
+
+#contact-error-window .window-content {
+    padding: 0;
+    margin: 0;
+    height: calc(100% - 25px);
+    border: none;
+    background: #F1F1F1;
+}
+
+.error-dialog {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 20px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #F1F1F1;
+    border: none;
+}
+
+.error-message-text {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.error-message-text p {
+    margin: 5px 0;
+    color: #0000FF;
+    font-size: 12px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.ok-button {
+    margin-top: 20px;
+    padding: 5px 20px;
+}
+
+/* ...existing code... */
+
+#contact-error-window .window-content p {
+    margin: 10px 0;
+    color: #FF0000; /* Red color for error message */
+    font-weight: bold;
+    text-align: center;
+}
+
+/* Style for Error Dialog */
+.error-dialog {
+    display: flex;
+    align-items: center;
+    padding: 15px; /* Reduced padding */
+    background: #F1F1F1;
+    border: 2px solid #000080; /* Windows XP blue border */
+    border-radius: 4px;
+    width: 450px; /* Updated width for 9:5 ratio */
+    height: 250px; /* Updated height for 9:5 ratio */
+}
+
+.error-icon {
+    width: 32px;
+    height: 32px;
+    margin-right: 15px;
+}
+
+.error-message-text {
+    flex: 1;
+    font-family: 'MS Sans Serif', 'Segoe UI', Tahoma, sans-serif;
+    font-size: 12px;
+    color: #000000;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center horizontally */
+}
+
+.error-message-text p {
+    margin: 10px 0;
+    color: #0000FF; /* Blue color for error message */
+    font-weight: bold;
+    text-align: center;
+}
+
+.ok-button {
+    margin-top: 15px; /* Space above the button */
+    padding: 5px 20px;
+    background: #C0C0C0;
+    border: 2px solid #000080;
+    cursor: pointer;
+    font-family: 'MS Sans Serif', 'Segoe UI', Tahoma, sans-serif;
+    font-size: 12px;
+}
+
+.ok-button:hover {
+    background: #000080;
+    color: #FFFFFF;
 }

@@ -200,6 +200,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     passwordField.value = '';
                     errorMessage.textContent = '';
                     break;
+                case 'contact':
+                    const contactWindow = document.getElementById('contact-error-window');
+                    if (contactWindow) {
+                        showWindow(contactWindow);
+                    }
+                    break;
             }
         });
     });
@@ -306,6 +312,30 @@ document.addEventListener('DOMContentLoaded', () => {
             const errorSound = new Audio('assets/audio/Windows XP Error Sound.mp3');
             errorSound.play();
         });
+    }
+
+    // Ensure the contact-error-window is draggable and closable
+    const contactWindowElement = document.getElementById('contact-error-window');
+    if (contactWindowElement) {
+        const titlebar = contactWindowElement.querySelector('.window-titlebar');
+        const closeBtn = contactWindowElement.querySelector('.close-btn');
+
+        titlebar.addEventListener('mousedown', dragStart);
+        closeBtn.addEventListener('click', () => {
+            contactWindowElement.style.display = 'none';
+        });
+    }
+
+    // Handle OK button in contact error window
+    const okButton = document.querySelector('#contact-error-window .ok-button');
+    const contactWindow = document.getElementById('contact-error-window');
+
+    if (okButton && contactWindow) {
+        okButton.addEventListener('click', () => {
+            contactWindow.style.display = 'none';
+        });
+    } else {
+        console.error('OK button or contact error window not found!');
     }
 });
 

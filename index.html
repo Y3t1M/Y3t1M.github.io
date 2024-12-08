@@ -1,8 +1,10 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-  <title>Y3t1M.github.io</title>
+  <meta charset="UTF-8">
+  <title>Home</title>
+  <link rel="stylesheet" href="desktop.css">
   <link rel="stylesheet" href="styles.css">
   <!-- Updated favicon link to use a .ico file -->
   <link rel="icon" href="assets/img/mh_logo.ico" type="image/x-icon">
@@ -58,12 +60,27 @@
     </div>
   </section>
 
+  <div class="desktop">
+    <!-- Example: Include contact-error-window if not present -->
+    <div class="window" id="contact-error-window">
+      <div class="window-titlebar">
+        <span>System Error</span>
+        <div class="window-controls">
+          <button class="close-btn">&#215;</button>
+        </div>
+      </div>
+      <div class="window-content">
+        <div class="error-dialog">
+          <button class="ok-button">OK</button>
+        </div>
       </div>
     </div>
-  </section>
+  </div>
 
   <!-- Include only the main JavaScript file -->
   <script src="main.js"></script>
+  <script src="desktop.js"></script>
+  <script src="endless-download.js"></script>
 </body>
 
 </html>

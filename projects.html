@@ -2,8 +2,10 @@
 <html lang="en">
 
 <head>
-<title>Projects - Hudson Tinch</title>
+<meta charset="UTF-8">
+<title>Projects</title>
 <link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="desktop.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Roboto:wght@300;400&display=swap" rel="stylesheet"> <!-- Added 'Press Start 2P' -->
 </head>
@@ -19,56 +21,68 @@
 </nav>
 </header>
 
-<section id="projects">
-<h2>Projects</h2> <!-- Updated title -->
-<div class="card">
-<h3>Arduino R4 Controller</h3> <!-- Removed inline style -->
-<img src="assets/img/arduino_r4.jpg" alt="Arduino R4 Controller" class="project-image">
-<p>
-A web-based interface hosted on an Arduino R4 WiFi board, enabling remote control of multiple servos and electromagnets. Users can access the control panel over WiFi without additional apps, operate servos individually or simultaneously, control electromagnets, and view real-time statuses—all through a stylish and user-friendly layout.
-</p>
-</div>
-
-<div class="card">
-<h3>AVR Drone</h3> <!-- Removed inline style -->
-<img src="assets/img/avr_drone.jpg" alt="AVR Drone" class="project-image avr-drone-image">
-<p>
-Led the development of an autonomous drone for the Bell Advanced Vertical Robotics Competition. Utilized A* pathfinding to navigate complex environments, pushing the boundaries of autonomous flight and showcasing innovative engineering solutions.
-</p>
-</div>
-
-<div class="card">
-<h3>Iron Man Helmet</h3> <!-- Removed inline style -->
-<img src="assets/img/ironman_helmettop.jpg" alt="Iron Man Helmet" class="project-image ironman-image">
-<p>
-Designed and built a functional Iron Man helmet using 3D printing and electronics. This project combined engineering and creativity to bring a piece of fictional technology into the real world, complete with moving parts and a magnetic faceplate.
-</p>
-</div>
-
-<!-- Removed inline styles to use CSS class styling -->
-<div class="card game-card">
-  <h3 class="game-title">The Endless Download</h3>
-  <div class="game-container">
-    <div class="game-instructions">Press SPACE or Click to Jump</div>
-    <canvas id="gameCanvas" class="centered-game" width="1000" height="400"></canvas>
-    <div class="floor"></div>
-  </div>
-</div>
-
-</section>
-
-<!-- Hidden clicker game that appears after correct sequence -->
-<section id="clicker-game-section">
-  <div class="clicker-game hidden">
-    <div id="clicker-area" class="clicker-area">
-      <h3>Click!</h3> <!-- This text now uses 90s text style -->
+<div class="window" id="projects-window">
+    <div class="window-titlebar">
+        <span>Projects</span>
+        <div class="window-controls">
+            <button class="minimize-btn">&#8722;</button>
+            <button class="maximize-btn">&#9633;</button>
+            <button class="close-btn">&#215;</button>
+        </div>
     </div>
-    <div id="score-display" class="score-display">
-      <p id="current-score">Clicks: 0</p>
-      <p id="high-score">High Score: 0</p>
+    <div class="window-content">
+        <section id="projects">
+            <h2>Projects</h2> <!-- Updated title -->
+            <div class="card">
+                <h3>Arduino R4 Controller</h3> <!-- Removed inline style -->
+                <img src="assets/img/arduino_r4.jpg" alt="Arduino R4 Controller" class="project-image">
+                <p>
+                    A web-based interface hosted on an Arduino R4 WiFi board, enabling remote control of multiple servos and electromagnets. Users can access the control panel over WiFi without additional apps, operate servos individually or simultaneously, control electromagnets, and view real-time statuses—all through a stylish and user-friendly layout.
+                </p>
+            </div>
+
+            <div class="card">
+                <h3>AVR Drone</h3> <!-- Removed inline style -->
+                <img src="assets/img/avr_drone.jpg" alt="AVR Drone" class="project-image avr-drone-image">
+                <p>
+                    Led the development of an autonomous drone for the Bell Advanced Vertical Robotics Competition. Utilized A* pathfinding to navigate complex environments, pushing the boundaries of autonomous flight and showcasing innovative engineering solutions.
+                </p>
+            </div>
+
+            <div class="card">
+                <h3>Iron Man Helmet</h3> <!-- Removed inline style -->
+                <img src="assets/img/ironman_helmettop.jpg" alt="Iron Man Helmet" class="project-image ironman-image">
+                <p>
+                    Designed and built a functional Iron Man helmet using 3D printing and electronics. This project combined engineering and creativity to bring a piece of fictional technology into the real world, complete with moving parts and a magnetic faceplate.
+                </p>
+            </div>
+
+            <!-- Removed inline styles to use CSS class styling -->
+            <div class="card game-card">
+                <h3 class="game-title">The Endless Download</h3>
+                <div class="game-container">
+                    <div class="game-instructions">Press SPACE or Click to Jump</div>
+                    <canvas id="gameCanvas" class="centered-game" width="1000" height="400"></canvas>
+                    <div class="floor"></div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Hidden clicker game that appears after correct sequence -->
+        <section id="clicker-game-section">
+            <div class="clicker-game hidden">
+                <div id="clicker-area" class="clicker-area">
+                    <h3>Click!</h3> <!-- This text now uses 90s text style -->
+                </div>
+                <div id="score-display" class="score-display">
+                    <p id="current-score">Clicks: 0</p>
+                    <p id="high-score">High Score: 0</p>
+                </div>
+            </div>
+        </section>
     </div>
-  </div>
-</section>
+</div>
 
 <!-- Ensure the title is larger -->
 <style>
@@ -125,6 +139,7 @@ Designed and built a functional Iron Man helmet using 3D printing and electronic
 
 <!-- Add defer attribute to ensure DOM is loaded first -->
 <script src="endless-download.js" type="module" defer></script>
+<script src="desktop.js"></script>
 <!-- Remove dino-game.js reference -->
 
 <!-- Ensure only one floor image is referenced -->
