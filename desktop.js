@@ -91,6 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const passwordField = document.getElementById('password-field');
     const loginBtn = document.getElementById('login-btn');
     const errorMessage = document.querySelector('.error-message');
+    const errorSound = new Audio('assets/sounds/error.wav');
 
     // Toggle start menu
     startBtn.addEventListener('click', (e) => {
@@ -121,7 +122,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     break;
                     
                 case 'restart':
-                    location.reload();
+                    document.body.classList.add('restarting');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 2000);
                     break;
                     
                 case 'lock':
@@ -140,13 +144,14 @@ document.addEventListener('DOMContentLoaded', () => {
     function handleLogin() {
         const password = passwordField.value;
         
-        if (password === 'password') {
+        if (password === 'Password') {
             lockScreen.classList.remove('visible');
             passwordField.value = '';
             errorMessage.textContent = '';
         } else {
             errorMessage.textContent = 'X incorrect';
             passwordField.value = '';
+            errorSound.play();
         }
     }
 });

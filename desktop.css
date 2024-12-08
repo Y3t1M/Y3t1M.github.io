@@ -307,3 +307,15 @@ body {
 .shutting-down {
     animation: shutdown 2s forwards;
 }
+
+/* Restart Animation */
+@keyframes restart {
+    0% { opacity: 1; }
+    45% { opacity: 0; }
+    55% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+.restarting {
+    animation: restart 2s forwards;
+}
