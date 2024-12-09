@@ -1,0 +1,3 @@
+[submodule "PixOS"]
+	path = PixOS
+	url = https://github.com/Y3t1M/PixOS
