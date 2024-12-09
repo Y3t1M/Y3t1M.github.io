@@ -159,35 +159,9 @@ document.addEventListener('DOMContentLoaded', () => {
             
             switch(action) {
                 case 'shutdown':
-                    // Create black background
-                    const blackScreen = document.createElement('div');
-                    blackScreen.className = 'black-screen';
-                    document.body.appendChild(blackScreen);
-
-                    // Create CRT effect overlay
-                    const overlay = document.createElement('div');
-                    overlay.className = 'screen-overlay';
-                    document.body.appendChild(overlay);
-
-                    // Play shutdown sound
-                    const shutdownSound = new Audio('assets/audio/Microsoft Windows XP Shutdown Sound.mp3');
-                    shutdownSound.play();
-
-                    // Add shutdown class to body
-                    document.body.classList.add('shutdown-active');
-
-                    // Complete shutdown
-                    setTimeout(() => {
-                        document.body.style.background = '#000';
-                        document.body.innerHTML = '';
-                    }, 1500);
-
-                    // Listen for mouse movement after shutdown
-                    setTimeout(() => {
-                        document.addEventListener('mousemove', handleWakeUp);
-                    }, 2000);
+                    // Redirect to the home page
+                    window.location.href = 'index.html';
                     break;
-                    
                 case 'restart':
                     document.body.classList.add('restarting');
                     setTimeout(() => {
@@ -435,6 +409,12 @@ function handleWakeUp(e) {
 }
 
 // ...existing code...
+
+// If there's any initialization code needed for the desktop on page load
+document.addEventListener('DOMContentLoaded', () => {
+    // Initialize desktop features
+    // ...existing initialization code...
+});
 
 function handleShutdown() {
     // Trigger shutdown animation

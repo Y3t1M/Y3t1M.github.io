@@ -607,3 +607,24 @@ footer p {
   color: #ffffff;
   text-shadow: 2px 2px #000;
 }
+
+/* Ensure the #projects section has appropriate styling */
+#projects {
+    /* Add any necessary styles to maintain layout */
+    /* ...existing or new styles... */
+}
+
+
+/* Hide the desktop by default */
+.desktop {
+    display: none;
+}
+
+/* Show the desktop when the 'visible' class is added */
+.desktop.visible {
+    display: block;
+}
+/* Show the desktop by default */
+.desktop {
+    display: block;
+}

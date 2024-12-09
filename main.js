@@ -40,8 +40,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Check if sequence matches
         if (checkSequence()) {
-            console.log('Correct sequence! Showing game.');
-            showClickerGame();
+            console.log('Correct sequence! Showing desktop.');
+            triggerSecretFeature();
         }
     }
 
@@ -58,14 +58,21 @@ document.addEventListener('DOMContentLoaded', function() {
         return true;
     }
 
-    function showClickerGame() {
-        clickerGame.classList.remove('hidden');
-        
-        // Scroll to the game
-        clickerGame.scrollIntoView({ behavior: 'smooth' });
-        
-        // Reset sequence
-        clickSequence = [];
+    function triggerSecretFeature() {
+        // Show the desktop
+        showDesktop();
+
+        // Play the startup sound
+        const startupSound = new Audio('assets/audio/Microsoft Windows XP Startup Sound.mp3');
+        startupSound.play();
+    }
+
+    function showDesktop() {
+        // Add the 'visible' class to the desktop element to display it
+        const desktopElement = document.querySelector('.desktop');
+        if (desktopElement) {
+            desktopElement.classList.add('visible');
+        }
     }
 
     // Clicker game functionality
