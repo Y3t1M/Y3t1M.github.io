@@ -433,3 +433,21 @@ function handleWakeUp(e) {
         location.reload();
     }, 2000);
 }
+
+// ...existing code...
+
+function handleShutdown() {
+    // Trigger shutdown animation
+    const overlay = document.querySelector('.screen-overlay');
+    overlay.classList.add('shutting-down');
+
+    // Listen for animation end to redirect
+    overlay.addEventListener('animationend', () => {
+        window.location.href = 'index.html';
+    }, { once: true });
+}
+
+// Example shutdown button handler
+document.getElementById('shutdown-btn').addEventListener('click', handleShutdown);
+
+// ...existing code...

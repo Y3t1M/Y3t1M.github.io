@@ -1033,3 +1033,12 @@ body {
     background: #000080;
     color: #FFFFFF;
 }
+
+/* Style for Shutdown Button */
+.start-item[data-action="shutdown"] {
+    /* ...existing styles... */
+}
+
+.start-item[data-action="shutdown"]:hover {
+    /* ...existing hover styles... */
+}
