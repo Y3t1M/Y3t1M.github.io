@@ -3,14 +3,14 @@
 body {
     margin: 0;
     padding: 0;
-    height: 100vh;
     font-family: 'MS Sans Serif', 'Segoe UI', Tahoma, sans-serif;
-    overflow: hidden;
 }
 
 /* Only apply background to body when it contains the desktop class */
 body:has(.desktop) {
     background: url('assets/img/winxppix.png') center/cover no-repeat;
+    height: 100vh;          /* Applied height only when .desktop is present */
+    overflow: hidden;       /* Hide overflow only for desktop layout */
 }
 
 /* Update desktop container - remove nav adjustment */
@@ -1046,3 +1046,26 @@ body:has(.desktop) {
 .start-item[data-action="shutdown"]:hover {
     /* ...existing hover styles... */
 }
+
+/* Loading Overlay Styles */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: #000; /* Black background for old computer feel */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100000;
+    animation: fadeOut 3s forwards; /* Duration matches JavaScript timeout */
+}
+
+/* Keyframes for fade out effect */
+@keyframes fadeOut {
+    0% { opacity: 1; }
+    100% { opacity: 0; visibility: hidden; }
+}
+
+/* ...existing code... */

@@ -40,8 +40,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Check if sequence matches
         if (checkSequence()) {
-            console.log('Correct sequence! Showing desktop.');
-            triggerSecretFeature();
+            console.log('Correct sequence! Showing game.');
+            showClickerGame();
         }
     }
 
@@ -58,21 +58,14 @@ document.addEventListener('DOMContentLoaded', function() {
         return true;
     }
 
-    function triggerSecretFeature() {
-        // Show the desktop
-        showDesktop();
-
-        // Play the startup sound
-        const startupSound = new Audio('assets/audio/Microsoft Windows XP Startup Sound.mp3');
-        startupSound.play();
-    }
-
-    function showDesktop() {
-        // Add the 'visible' class to the desktop element to display it
-        const desktopElement = document.querySelector('.desktop');
-        if (desktopElement) {
-            desktopElement.classList.add('visible');
-        }
+    function showClickerGame() {
+        clickerGame.classList.remove('hidden');
+        
+        // Scroll to the game
+        clickerGame.scrollIntoView({ behavior: 'smooth' });
+        
+        // Reset sequence
+        clickSequence = [];
     }
 
     // Clicker game functionality
@@ -257,5 +250,17 @@ document.addEventListener('DOMContentLoaded', function() {
     let zIndexCounter = 1000;
     function getNextZIndex() {
         return ++zIndexCounter;
+    }
+
+    if (profile1) {
+        profile1.addEventListener('click', function() {
+            window.location.href = 'desktop.html';
+        });
+    }
+
+    if (profile2) {
+        profile2.addEventListener('click', function() {
+            window.location.href = 'desktop.html';
+        });
     }
 });

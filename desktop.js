@@ -159,9 +159,35 @@ document.addEventListener('DOMContentLoaded', () => {
             
             switch(action) {
                 case 'shutdown':
-                    // Redirect to the home page
-                    window.location.href = 'index.html';
+                    // Create black background
+                    const blackScreen = document.createElement('div');
+                    blackScreen.className = 'black-screen';
+                    document.body.appendChild(blackScreen);
+
+                    // Create CRT effect overlay
+                    const overlay = document.createElement('div');
+                    overlay.className = 'screen-overlay';
+                    document.body.appendChild(overlay);
+
+                    // Play shutdown sound
+                    const shutdownSound = new Audio('assets/audio/Microsoft Windows XP Shutdown Sound.mp3');
+                    shutdownSound.play();
+
+                    // Add shutdown class to body
+                    document.body.classList.add('shutdown-active');
+
+                    // Complete shutdown
+                    setTimeout(() => {
+                        document.body.style.background = '#000';
+                        document.body.innerHTML = '';
+                    }, 1500);
+
+                    // Listen for mouse movement after shutdown
+                    setTimeout(() => {
+                        document.addEventListener('mousemove', handleWakeUp);
+                    }, 2000);
                     break;
+                    
                 case 'restart':
                     document.body.classList.add('restarting');
                     setTimeout(() => {
@@ -311,6 +337,19 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
         console.error('OK button or contact error window not found!');
     }
+
+    // Handle Loading Animation
+    const loadingOverlay = document.getElementById('loading-overlay');
+    if (loadingOverlay) {
+        // Remove loading overlay after animation duration (3s)
+        setTimeout(() => {
+            loadingOverlay.style.display = 'none';
+        }, 3000); // Duration matches CSS animation
+    }
+
+    // Play Windows XP Startup Sound
+    const startupSound = new Audio('assets/audio/Microsoft Windows XP Startup Sound.mp3');
+    startupSound.play();
 });
 
 function initializeGames() {
@@ -410,24 +449,36 @@ function handleWakeUp(e) {
 
 // ...existing code...
 
-// If there's any initialization code needed for the desktop on page load
-document.addEventListener('DOMContentLoaded', () => {
-    // Initialize desktop features
-    // ...existing initialization code...
+// Add event listeners for shutdown actions
+document.querySelectorAll('.start-item[data-action="shutdown"]').forEach(item => {
+    item.addEventListener('click', handleShutdown);
 });
 
-function handleShutdown() {
-    // Trigger shutdown animation
-    const overlay = document.querySelector('.screen-overlay');
-    overlay.classList.add('shutting-down');
-
-    // Listen for animation end to redirect
-    overlay.addEventListener('animationend', () => {
-        window.location.href = 'index.html';
-    }, { once: true });
+// If there are other shutdown buttons, add event listeners here
+// For example, a shutdown button with ID 'shutdown-btn'
+const shutdownBtn = document.getElementById('shutdown-btn');
+if (shutdownBtn) {
+    shutdownBtn.addEventListener('click', handleShutdown);
 }
 
-// Example shutdown button handler
-document.getElementById('shutdown-btn').addEventListener('click', handleShutdown);
+function handleShutdown() {
+    // Play shutdown sound
+    const shutdownSound = new Audio('assets/audio/Microsoft Windows XP Shutdown Sound.mp3');
+    shutdownSound.play();
 
-// ...existing code...
+    // Add shutdown animation classes if applicable
+    document.body.classList.add('shutdown-active');
+
+    // Optionally, show a screen overlay for visual effect
+    const screenOverlay = document.querySelector('.screen-overlay');
+    if (screenOverlay) {
+        screenOverlay.classList.add('shutting-down');
+    }
+
+    // Redirect to home page after 1.2 seconds
+    setTimeout(() => {
+        window.location.href = 'index.html';
+    }, 1200);
+}
+
+/* ...existing code... */
