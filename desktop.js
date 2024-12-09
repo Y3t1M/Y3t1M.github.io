@@ -176,10 +176,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Add shutdown class to body
                     document.body.classList.add('shutdown-active');
 
-                    // Redirect to index.html after animation
+                    // Complete shutdown
                     setTimeout(() => {
-                        window.location.href = 'index.html';
+                        document.body.style.background = '#000';
+                        document.body.innerHTML = '';
                     }, 1500);
+
+                    // Listen for mouse movement after shutdown
+                    setTimeout(() => {
+                        document.addEventListener('mousemove', handleWakeUp);
+                    }, 2000);
                     break;
                     
                 case 'restart':

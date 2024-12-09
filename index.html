@@ -1,14 +1,86 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <title>Redirecting...</title>
-    <meta http-equiv="refresh" content="0; url=desktop.html">
+  <meta charset="UTF-8">
+  <title>Home</title>
+  <link rel="stylesheet" href="desktop.css">
+  <link rel="stylesheet" href="styles.css">
+  <!-- Updated favicon link to use a .ico file -->
+  <link rel="icon" href="assets/img/mh_logo.ico" type="image/x-icon">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Roboto:wght@300;400&display=swap" rel="stylesheet"> <!-- Added 'Press Start 2P' -->
 </head>
+
 <body>
-    <!-- Fallback for browsers that don't support meta refresh -->
-    <script>
-        window.location.href = 'desktop.html';
-    </script>
+  <header>
+    <nav>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="projects.html">Projects</a></li>
+        <li><a href="desktop.html">Desktop</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- Remove inline styles to use CSS class styling -->
+  <div class="profile-container">
+    <img src="assets/img/profile1.jpg" alt="Profile Image 1" class="profile-image" id="profile1"> <!-- Added id="profile1" -->
+    <img src="assets/img/profile2.jpg" alt="Profile Image 2" class="profile-image" id="profile2"> <!-- Added id="profile2" -->
+  </div>
+
+  <!-- Ensure the new enemy image is placed in the assets/img directory -->
+  <!-- Example:
+  <img src="assets/img/new_enemy.png" alt="New Enemy" class="profile-image">
+  -->
+
+  <!-- Removed banner image section -->
+
+  <section id="about">
+    <h2>About Me</h2> <!-- 90s text style -->
+    <h3>Hi! I'm Hudson Tinch, a robotics enthusiast and maker with a passion for turning ideas into tangible creations.</h3> <!-- Modern font -->
+    <div class="tile-left">
+      <p>As the captain of the HP robotics team, I combined my love for hands-on building with advanced technology, leading my team in challenging competitions and innovative projects.</p> <!-- Modern font -->
+    </div>
+    <div class="tile-right">
+      <p>Beyond robotics, I have a deep enthusiasm for creating physical objects, particularly through 3D printing. From prototyping intricate designs to building functional components, I thrive on the process of transforming digital concepts into real-world objects. For me, the intersection of engineering and creativity is where the magic happens, and I'm constantly exploring new ways to bring ideas to life.</p> <!-- Modern font -->
+    </div>
+  </section>
+
+  <!-- Hidden clicker game that appears after correct sequence -->
+  <section id="clicker-game-section">
+    <div class="clicker-game hidden">
+      <div id="clicker-area" class="clicker-area">
+        <h3>Click!</h3> <!-- This text now uses 90s text style -->
+      </div>
+      <div id="score-display" class="score-display">
+        <p id="current-score">Clicks: 0</p>
+        <p id="high-score">High Score: 0</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="desktop">
+    <!-- Example: Include contact-error-window if not present -->
+    <div class="window" id="contact-error-window">
+      <div class="window-titlebar">
+        <span>System Error</span>
+        <div class="window-controls">
+          <button class="close-btn">&#215;</button>
+        </div>
+      </div>
+      <div class="window-content">
+        <div class="error-dialog">
+          <button class="ok-button">OK</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Include only the main JavaScript file -->
+  <script src="main.js"></script>
+  <script src="desktop.js"></script>
+  <script src="endless-download.js"></script>
 </body>
+
 </html>

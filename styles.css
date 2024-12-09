@@ -2,6 +2,13 @@
 html, body {
   margin: 0;
   padding: 0;
+  background-color: #151617;  /* Ensure dark grey background */
+  color: #ffffff;
+  font-family: 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+  padding-top: 60px;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+  background-image: none !important;  /* Override any background image */
 }
 
 body {

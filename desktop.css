@@ -4,9 +4,13 @@ body {
     margin: 0;
     padding: 0;
     height: 100vh;
-    background: url('assets/img/winxppix.png') center/cover no-repeat;  /* Restore Windows XP background */
     font-family: 'MS Sans Serif', 'Segoe UI', Tahoma, sans-serif;
     overflow: hidden;
+}
+
+/* Only apply background to body when it contains the desktop class */
+body:has(.desktop) {
+    background: url('assets/img/winxppix.png') center/cover no-repeat;
 }
 
 /* Update desktop container - remove nav adjustment */
