@@ -482,3 +482,5 @@ function handleShutdown() {
 }
 
 /* ...existing code... */
+
+// Ensure that the data-window attribute and IDs use 'pixos-window' consistently

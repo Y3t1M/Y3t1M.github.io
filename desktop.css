@@ -1069,3 +1069,17 @@ body:has(.desktop) {
 }
 
 /* ...existing code... */
+
+/* Styles for PixOS icon */
+.icon[data-window="pixos-window"] {
+    /* Positioning and styling */
+}
+
+/* Ensure the iframe fills the window content area */
+#pixos-window .window-content iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+/* ...existing code... */
