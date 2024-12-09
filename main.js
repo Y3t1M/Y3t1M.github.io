@@ -258,22 +258,32 @@ document.addEventListener('DOMContentLoaded', function() {
         sound.play().catch(err => console.error('Error playing sound:', err));
     };
 
-    // Update profile click handlers
-    if (profile1) {
-        profile1.addEventListener('click', function() {
-            playSound('assets/audio/MicrosoftWindowsXPstartupSound.mp3');
-            setTimeout(() => {
+    // Update profile click handlers with proper audio handling
+    function handleProfileClick() {
+        const startupSound = new Audio('assets/audio/MicrosoftWindowsXPstartupSound.mp3');
+        startupSound.play()
+            .then(() => {
+                // Wait for sound to start playing before redirecting
+                setTimeout(() => {
+                    window.location.href = 'desktop.html';
+                }, 500);
+            })
+            .catch(err => {
+                console.error('Error playing startup sound:', err);
+                // Fallback - redirect even if sound fails
                 window.location.href = 'desktop.html';
-            }, 500);
-        });
+            });
+    }
+
+    // Add click handlers to both profile images
+    const profile1 = document.getElementById('profile1');
+    const profile2 = document.getElementById('profile2');
+
+    if (profile1) {
+        profile1.addEventListener('click', handleProfileClick);
     }
 
     if (profile2) {
-        profile2.addEventListener('click', function() {
-            playSound('assets/audio/MicrosoftWindowsXPstartupSound.mp3');
-            setTimeout(() => {
-                window.location.href = 'desktop.html';
-            }, 500);
-        });
+        profile2.addEventListener('click', handleProfileClick);
     }
 });

@@ -12,6 +12,10 @@
                  local('Tahoma');
         }
     </style>
+    <!-- Preload audio files -->
+    <link rel="preload" href="assets/audio/MicrosoftWindowsXPstartupSound.mp3" as="audio">
+    <link rel="preload" href="assets/audio/WindowsXPErrorSound.mp3" as="audio">
+    <link rel="preload" href="assets/audio/MicrosoftWindowsXPShutdownSound.mp3" as="audio">
 </head>
 <body>
     <div class="desktop">
@@ -192,6 +196,10 @@
             <!-- Add Start Menu -->
             <div class="start-menu hidden">
                 <div class="start-menu-items">
+                    <div class="start-item" data-action="contact">
+                        <img src="assets/icons/contactnb.png" alt="Contact">
+                        <span>Contact</span>
+                    </div>
                     <div class="start-item" data-action="lock">
                         <img src="assets/icons/lockbw.png" alt="Lock">
                         <span>Lock</span>
@@ -203,10 +211,6 @@
                     <div class="start-item" data-action="shutdown">
                         <img src="assets/icons/shutoffbw.png" alt="Shut Down">
                         <span>Shut Down</span>
-                    </div>
-                    <div class="start-item" data-action="contact">
-                        <img src="assets/icons/contactnb.png" alt="Contact">
-                        <span>Contact</span>
                     </div>
                 </div>
             </div>

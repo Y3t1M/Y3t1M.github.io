@@ -342,7 +342,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Play Windows XP Startup Sound
     const startupSound = new Audio('assets/audio/MicrosoftWindowsXPstartupSound.mp3');
-    startupSound.play();
+    startupSound.play().catch(err => console.error('Error playing startup sound:', err));
 });
 
 function initializeGames() {
@@ -486,10 +486,18 @@ const playSound = (soundPath) => {
 
 // Modify contact error window handling
 function showContactError() {
-    playSound('assets/audio/WindowsXPErrorSound.mp3');
     const contactWindow = document.getElementById('contact-error-window');
     if (contactWindow) {
-        showWindow(contactWindow);
+        // Play error sound
+        const errorSound = new Audio('assets/audio/WindowsXPErrorSound.mp3');
+        errorSound.play().catch(err => console.error('Error playing error sound:', err));
+        
+        // Show and position the window
+        contactWindow.style.display = 'block';
+        contactWindow.style.left = '50%';
+        contactWindow.style.top = '50%';
+        contactWindow.style.transform = 'translate(-50%, -50%)';
+        bringToFront(contactWindow);
     }
 }
 
