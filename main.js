@@ -252,15 +252,28 @@ document.addEventListener('DOMContentLoaded', function() {
         return ++zIndexCounter;
     }
 
+    // Audio utility
+    const playSound = (soundPath) => {
+        const sound = new Audio(soundPath);
+        sound.play().catch(err => console.error('Error playing sound:', err));
+    };
+
+    // Update profile click handlers
     if (profile1) {
         profile1.addEventListener('click', function() {
-            window.location.href = 'desktop.html';
+            playSound('assets/audio/MicrosoftWindowsXPstartupSound.mp3');
+            setTimeout(() => {
+                window.location.href = 'desktop.html';
+            }, 500);
         });
     }
 
     if (profile2) {
         profile2.addEventListener('click', function() {
-            window.location.href = 'desktop.html';
+            playSound('assets/audio/MicrosoftWindowsXPstartupSound.mp3');
+            setTimeout(() => {
+                window.location.href = 'desktop.html';
+            }, 500);
         });
     }
 });

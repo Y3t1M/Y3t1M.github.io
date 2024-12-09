@@ -169,23 +169,20 @@ document.addEventListener('DOMContentLoaded', () => {
                     overlay.className = 'screen-overlay';
                     document.body.appendChild(overlay);
 
-                    // Play shutdown sound
-                    const shutdownSound = new Audio('assets/audio/Microsoft Windows XP Shutdown Sound.mp3');
-                    shutdownSound.play();
+                    // Play shutdown sound and wait for it to finish
+                    playSound('assets/audio/MicrosoftWindowsXPShutdownSound.mp3')
+                        .then(() => {
+                            // Complete shutdown
+                            document.body.style.background = '#000';
+                            document.body.innerHTML = '';
+                            // Listen for mouse movement after shutdown
+                            setTimeout(() => {
+                                document.addEventListener('mousemove', handleWakeUp);
+                            }, 500);
+                        });
 
                     // Add shutdown class to body
                     document.body.classList.add('shutdown-active');
-
-                    // Complete shutdown
-                    setTimeout(() => {
-                        document.body.style.background = '#000';
-                        document.body.innerHTML = '';
-                    }, 1500);
-
-                    // Listen for mouse movement after shutdown
-                    setTimeout(() => {
-                        document.addEventListener('mousemove', handleWakeUp);
-                    }, 2000);
                     break;
                     
                 case 'restart':
@@ -201,10 +198,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     errorMessage.textContent = '';
                     break;
                 case 'contact':
-                    const contactWindow = document.getElementById('contact-error-window');
-                    if (contactWindow) {
-                        showWindow(contactWindow);
-                    }
+                    showContactError();
                     break;
             }
         });
@@ -309,8 +303,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const trashBtn = document.getElementById('trash-btn');
     if (trashBtn) {
         trashBtn.addEventListener('click', () => {
-            const errorSound = new Audio('assets/audio/Windows XP Error Sound.mp3');
-            errorSound.play();
+            playSound('assets/audio/Windows95ErrorSoundEffect.mp3');
         });
     }
 
@@ -348,7 +341,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Play Windows XP Startup Sound
-    const startupSound = new Audio('assets/audio/Microsoft Windows XP Startup Sound.mp3');
+    const startupSound = new Audio('assets/audio/MicrosoftWindowsXPstartupSound.mp3');
     startupSound.play();
 });
 
@@ -438,7 +431,7 @@ function handleWakeUp(e) {
     document.body.appendChild(bootOverlay);
     
     // Play startup sound
-    const startupSound = new Audio('assets/audio/Microsoft Windows XP Startup Sound.mp3');
+    const startupSound = new Audio('assets/audio/MicrosoftWindowsXPstartupSound.mp3');
     startupSound.play();
 
     // Reload the page to restore content
@@ -463,7 +456,7 @@ if (shutdownBtn) {
 
 function handleShutdown() {
     // Play shutdown sound
-    const shutdownSound = new Audio('assets/audio/Microsoft Windows XP Shutdown Sound.mp3');
+    const shutdownSound = new Audio('assets/audio/MicrosoftWindowsXPShutdownSound.mp3');
     shutdownSound.play();
 
     // Add shutdown animation classes if applicable
@@ -484,3 +477,25 @@ function handleShutdown() {
 /* ...existing code... */
 
 // Ensure that the data-window attribute and IDs use 'pixos-window' consistently
+
+// Audio utility
+const playSound = (soundPath) => {
+    const sound = new Audio(soundPath);
+    return sound.play().catch(err => console.error('Error playing sound:', err));
+};
+
+// Modify contact error window handling
+function showContactError() {
+    playSound('assets/audio/WindowsXPErrorSound.mp3');
+    const contactWindow = document.getElementById('contact-error-window');
+    if (contactWindow) {
+        showWindow(contactWindow);
+    }
+}
+
+// Update contact action in start menu
+document.querySelectorAll('.start-item[data-action="contact"]').forEach(item => {
+    item.addEventListener('click', showContactError);
+});
+
+// ...existing code...
