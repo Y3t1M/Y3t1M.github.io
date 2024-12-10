@@ -1610,3 +1610,69 @@ body:has(.desktop) {
 }
 
 /* ...existing code... */
+
+/* ...existing code... */
+
+/* Ensure Tetris window uses the same styles as other windows */
+/* ...existing code... */
+
+/* ...existing code... */
+/* Game Windows Styling */
+#tetris-window,
+#clicker-window,
+#infinite-download-window {
+    width: 800px;
+    height: 600px;
+}
+
+#tetris-window .window-content,
+#clicker-window .window-content,
+#infinite-download-window .window-content {
+    padding: 0;
+    background: #151617;
+}
+
+#tetris-window iframe,
+#clicker-window iframe,
+#infinite-download-window iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+/* ...existing code... */
+
+/* Define CRT shutdown keyframes */
+@keyframes crtPowerOff {
+    0% {
+        transform: scaleY(1);
+        opacity: 1;
+        filter: brightness(1);
+    }
+    50% {
+        transform: scaleY(0.5);
+        opacity: 0.7;
+        filter: brightness(0.7);
+    }
+    100% {
+        transform: scaleY(0);
+        opacity: 0;
+        filter: brightness(0);
+    }
+}
+
+/* Apply CRT shutdown effect */
+.shutting-down {
+    animation: crtPowerOff 1.5s forwards;
+}
+
+.shutdown-active .screen-overlay {
+    display: block;
+    animation: crtPowerOff 1.5s forwards;
+}
+
+.shutdown-active .black-screen {
+    opacity: 1;
+}
+
+/* ...existing code... */

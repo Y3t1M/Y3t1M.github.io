@@ -32,6 +32,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // Add event listener for Tetris icon in Computer folder
+    const tetrisIcon = document.querySelector('.folder[data-window="tetris-window"]');
+    if (tetrisIcon) {
+        tetrisIcon.addEventListener('dblclick', () => {
+            openWindow('tetris-window');
+        });
+    }
+
     // Window management
     windows.forEach(window => {
         const titlebar = window.querySelector('.window-titlebar');
@@ -389,6 +397,68 @@ document.addEventListener('DOMContentLoaded', () => {
             bringToFront(pixosWindow);
         });
     }
+
+    // Handle folder double-clicks
+    document.querySelectorAll('.folder').forEach(folder => {
+        folder.addEventListener('dblclick', () => {
+            const windowId = folder.dataset.window;
+            if (windowId) {
+                openWindow(windowId);
+            }
+        });
+    });
+
+    // Update Tetris window controls
+    const tetrisWindow = document.getElementById('tetris-window');
+    if (tetrisWindow) {
+        const minimizeBtn = tetrisWindow.querySelector('.minimize-btn');
+        const maximizeBtn = tetrisWindow.querySelector('.maximize-btn');
+        const closeBtn = tetrisWindow.querySelector('.close-btn');
+        let isMaximized = false;
+        let originalDimensions = {};
+
+        minimizeBtn.addEventListener('click', () => {
+            tetrisWindow.style.display = 'none';
+            // Optionally, handle taskbar item creation
+        });
+
+        maximizeBtn.addEventListener('click', () => {
+            if (!isMaximized) {
+                // Store original dimensions
+                originalDimensions = {
+                    width: tetrisWindow.style.width,
+                    height: tetrisWindow.style.height,
+                    left: tetrisWindow.style.left,
+                    top: tetrisWindow.style.top,
+                    transform: tetrisWindow.style.transform
+                };
+                // Maximize window
+                tetrisWindow.style.width = '100%';
+                tetrisWindow.style.height = 'calc(100vh - 40px)';
+                tetrisWindow.style.left = '0';
+                tetrisWindow.style.top = '0';
+                tetrisWindow.style.transform = 'none';
+                isMaximized = true;
+            } else {
+                // Restore original dimensions
+                Object.assign(tetrisWindow.style, originalDimensions);
+                isMaximized = false;
+            }
+            bringToFront(tetrisWindow);
+        });
+
+        closeBtn.addEventListener('click', () => {
+            tetrisWindow.style.display = 'none';
+        });
+    }
+
+    function openWindow(windowId) {
+        const windowElement = document.getElementById(windowId);
+        if (windowElement) {
+            windowElement.style.display = 'block';
+            bringToFront(windowElement);
+        }
+    }
 });
 
 function initializeGames() {
@@ -604,3 +674,36 @@ function shutdownComputer() {
     // Implement shutdown logic, possibly triggering CSS animations
     document.body.classList.add('shutdown-active');
 }
+
+function openWindow(windowId) {
+    const windowElement = document.getElementById(windowId);
+    if (windowElement) {
+        windowElement.style.display = 'block';
+        bringToFront(windowElement);
+    }
+}
+
+// Ensure folders open their corresponding windows
+document.querySelectorAll('.folder').forEach(folder => {
+    folder.addEventListener('dblclick', () => {
+        const windowId = folder.dataset.window;
+        if (windowId) {
+            openWindow(windowId);
+        }
+    });
+});
+
+// Bind shutdown button
+document.querySelector('.start-item[data-action="shutdown"]').addEventListener('click', () => {
+    triggerShutdown();
+});
+
+/* Create unified shutdown function */
+function triggerShutdown() {
+    // ...existing shutdown logic...
+
+    // Add CRT shutdown effect
+    document.body.classList.add('shutdown-active');
+}
+
+// ...existing code...
