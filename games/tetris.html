@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Classic Tetris</title>
+    <link rel="stylesheet" href="tetris.css">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="tetris-game">
+        <div class="game-container">
+            <canvas id="tetris" width="240" height="400"></canvas>
+            <div class="info-panel">
+                <div class="game-header">
+                    <div class="score-box">
+                        <div class="label">SCORE</div>
+                        <div id="score">0</div>
+                    </div>
+                    <div class="score-box">
+                        <div class="label">LEVEL</div>
+                        <div id="level">1</div>
+                    </div>
+                    <div class="score-box">
+                        <div class="label">LINES</div>
+                        <div id="lines">0</div>
+                    </div>
+                </div>
+                <div class="next-pieces">
+                    <div class="next-title">NEXT</div>
+                    <canvas class="next-piece" width="80" height="80"></canvas>
+                    <canvas class="next-piece" width="80" height="80"></canvas>
+                    <canvas class="next-piece" width="80" height="80"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="tetris-controls">
+            <h3>Controls</h3>
+            <ul>
+                <li>Move Left: 'A'</li>
+                <li>Move Right: 'D'</li>
+                <li>Rotate Clockwise: Right Arrow</li>
+                <li>Rotate Counter-Clockwise: Left Arrow</li>
+                <li>Hard Drop: 'S'</li>
+                <li>Soft Drop: 'W'</li>
+                <li>Pause: 'P'</li>
+            </ul>
+        </div>
+    </div>
+    <script src="tetris.js"></script>
+</body>
+</html>

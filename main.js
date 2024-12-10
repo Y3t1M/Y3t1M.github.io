@@ -1,4 +1,10 @@
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize desktop features
+    initializeDesktop();
+    
+    // Bind taskbar controls
+    bindTaskbarControls();
+    
     // Get DOM elements
     const profile1 = document.getElementById('profile1');
     const profile2 = document.getElementById('profile2');

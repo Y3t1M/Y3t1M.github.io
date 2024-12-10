@@ -607,10 +607,10 @@ body:has(.desktop) {
 
 /* Make sure window is large enough for the game */
 #games-window {
-    width: 1100px;
-    height: 600px;
-    min-width: 1100px;
-    min-height: 600px;
+    width: 1200px;
+    height: 800px;
+    min-width: 1200px;
+    min-height: 800px;
 }
 
 /* Update clicker game styles */
@@ -1126,6 +1126,487 @@ body:has(.desktop) {
     width: 100% !important;
     height: 100% !important;
     border: none;
+}
+
+/* ...existing code... */
+
+/* ...existing code... */
+
+#tetris-window {
+    width: 800px;
+    height: 600px;
+}
+
+#tetris-window .window-content {
+    padding: 0;
+    background: #151617;
+}
+
+#tetris-window iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+/* ...existing code... */
+
+/* ...existing code... */
+
+#tetris-game {
+    background: #f0eacd;  /* Match the desktop theme background */
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 20px;
+}
+
+#tetris-game .game-container {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 20px;
+    background-color: #f0eacd;  /* Match the desktop theme background */
+    border: 4px solid #444;
+    border-radius: 8px;
+}
+
+#tetris-game .game-header {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+#tetris-game .score-box {
+    background-color: #f0eacd;  /* Match the desktop theme background */
+    padding: 10px;
+    border: 2px solid #444;
+    text-align: center;
+    color: #0000FF;  /* Change to Windows blue */
+    font-family: 'Press Start 2P', cursive;
+}
+
+#tetris-game .label {
+    font-size: 12px;
+    margin-bottom: 5px;
+    color: #888;
+}
+
+#tetris-game canvas {
+    border: 2px solid #444;
+    background-color: #f0eacd;  /* Match the desktop theme background */
+}
+
+#tetris-game .next-piece {
+    background-color: #f0eacd;  /* Match the desktop theme background */
+    padding: 10px;
+    border: 2px solid #444;
+    text-align: center;
+}
+
+#tetris-game .controls {
+    color: #888;
+    font-size: 10px;
+    font-family: 'Press Start 2P', cursive;
+    line-height: 1.5;
+    margin-top: 20px;
+}
+
+#tetris-game .controls p {
+    margin: 5px 0;
+}
+
+/* Update games window size to accommodate Tetris */
+#games-window {
+    width: 1200px;
+    height: 800px;
+    min-width: 1200px;
+    min-height: 800px;
+}
+
+/* ...existing code... */
+
+/* Tetris Styles */
+.tetris-layout {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    background: #f0eacd;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.tetris-layout .game-header {
+    display: flex;
+    gap: 20px;
+}
+
+.tetris-layout .score-box {
+    background: #f0eacd;
+    padding: 10px 20px;
+    border: 2px solid #444;
+    text-align: center;
+}
+
+.tetris-layout .label {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 12px;
+    color: #0000FF;
+    margin-bottom: 5px;
+}
+
+.tetris-layout #tetris {
+    border: 2px solid #444;
+    background: #f0eacd;
+}
+
+.tetris-layout .next-piece {
+    background: #f0eacd;
+    padding: 10px;
+    border: 2px solid #444;
+    text-align: center;
+}
+
+.tetris-layout .controls {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 10px;
+    color: #0000FF;
+    text-align: center;
+}
+
+.tetris-layout .controls p {
+    margin: 5px 0;
+}
+
+/* ...existing code... */
+
+/* ...existing code... */
+
+#tetris-game {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: #f0eacd;
+    padding: 20px;
+}
+
+#tetris {
+    border: 2px solid #444;
+    background: #f0eacd;
+}
+
+.game-info {
+    margin-left: 20px;
+    font-family: 'Press Start 2P', cursive;
+    color: #0000FF;
+}
+
+/* ...existing code... */
+
+/* Styles for Tetris Controls */
+.tetris-controls {
+    /* Ensure consistency with other control sections */
+    background: #f0eacd;
+    padding: 15px;
+    border: 2px solid #0000FF;
+    border-radius: 5px;
+    margin: 20px;
+}
+
+.tetris-controls h3 {
+    font-family: 'Press Start 2P', cursive;
+    color: #0000FF;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.tetris-controls ul {
+    list-style: none;
+    padding: 0;
+}
+
+.tetris-controls li {
+    background: #c0c0c0;
+    margin: 5px 0;
+    padding: 8px;
+    border-radius: 3px;
+    text-align: center;
+    color: #000;
+    font-size: 10px;
+}
+
+/* ...existing styles... */
+
+/* Ensure the Tetris game window appears above desktop icons */
+#pixos-window, #tetris-window {
+    z-index: 1001;
+}
+
+/* Style window titlebars to match retro theme */
+.window-titlebar {
+    background: #0000FF; /* Classic blue */
+    color: #fff;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 0.8em;
+}
+
+/* Style window controls buttons */
+.window-controls button {
+    background: #C0C0C0;
+    border: none;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    font-family: 'Press Start 2P', cursive;
+}
+
+.window-controls button:hover {
+    background: #FFF;
+}
+
+/* ...existing styles... */
+
+/* Styles for Next Pieces Display */
+.next-pieces {
+    display: flex;
+    flex-direction: column; /* Changed from row to column */
+    gap: 10px; /* Adjust spacing as needed */
+    align-items: center; /* Center hold blocks horizontally */
+}
+
+.next-pieces canvas {
+    border: 2px solid #444;
+    background-color: #f0eacd;
+    width: 100px; /* Fixed width to prevent stretching */
+    height: 100px; /* Fixed height to maintain aspect ratio */
+}
+
+/* Ensure the game section has proper positioning and background */
+.tetris-game {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #000; /* Black background to match OG Tetris */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px #fff;
+    margin: 20px auto;
+    max-width: 800px;
+}
+
+/* Adjust h1 within tetris-game for better visibility */
+.tetris-game h1 {
+    font-size: 2em;
+    margin-bottom: 10px;
+}
+
+/* Style the game-container to center the game and next pieces */
+.game-container {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    align-items: flex-start;
+    margin-bottom: 20px;
+}
+
+/* Style the next-pieces container */
+.next-pieces {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Style individual next-piece canvases */
+.next-pieces canvas {
+    border: 2px solid #555;
+    background-color: #000;
+    width: 80px;
+    height: 80px;
+}
+
+/* Style the tetris controls */
+.tetris-controls {
+    background: #f0eacd;
+    padding: 15px;
+    border: 2px solid #555;
+    border-radius: 5px;
+    margin: 20px auto;
+    max-width: 300px;
+    font-family: 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+    color: #D2B48C; /* Dark tan color */
+    font-weight: 300; /* Lighter font weight */
+}
+
+.tetris-controls h3 {
+    color: #0ff;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.tetris-controls ul {
+    list-style: none;
+    padding: 0;
+    font-weight: normal; /* Lighter text */
+    font-family: 'Press Start 2P', cursive;
+}
+
+.tetris-controls li {
+    background: #444;
+    margin: 5px 0;
+    padding: 8px;
+    border-radius: 3px;
+    text-align: center;
+    color: #fff;
+    font-size: 0.8em;
+}
+
+/* ...existing code... */
+
+/* ...existing code... */
+
+/* Tetris Layout Styles */
+.game-container {
+    display: flex;
+    gap: 20px;
+    justify-content: flex-start;
+    align-items: flex-start;
+    padding: 20px;
+    background-color: #f0eacd;
+}
+
+/* Style the next-pieces container */
+.next-pieces {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-left: 20px;
+}
+
+.next-piece {
+    width: 80px;
+    height: 80px;
+    background: #D2B48C;
+    border: 2px solid #444;
+    margin-bottom: 10px;
+}
+
+/* Style the tetris controls */
+.tetris-controls {
+    background: #D2B48C;
+    padding: 15px;
+    border: 2px solid #444;
+    border-radius: 5px;
+    margin: 20px;
+    font-family: 'Roboto', sans-serif;
+    color: #444;
+    font-weight: 300;
+}
+
+.tetris-controls ul {
+    list-style: none;
+    padding: 0;
+}
+
+.tetris-controls li {
+    margin: 5px 0;
+    padding: 8px;
+    text-align: center;
+    font-size: 0.9em;
+}
+
+/* ...existing code... */
+
+/* Tetris Styles for Desktop Window */
+#games-window .tetris-game {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #f0eacd;
+    padding: 20px;
+}
+
+#games-window .game-container {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    align-items: flex-start;
+    margin-bottom: 20px;
+}
+
+#games-window .info-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+#games-window .game-header {
+    display: flex;
+    gap: 10px;
+    flex-direction: column;
+}
+
+#games-window .score-box {
+    background: #D2B48C;
+    padding: 10px;
+    text-align: center;
+    border: 2px solid #444;
+}
+
+#games-window .score-box .label {
+    font-family: 'Press Start 2P', cursive;
+    color: #000;
+    font-size: 12px;
+    margin-bottom: 5px;
+}
+
+#games-window .next-pieces {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+}
+
+#games-window .next-title {
+    font-family: 'Press Start 2P', cursive;
+    color: #000;
+    font-size: 14px;
+}
+
+#games-window .next-piece {
+    background: #D2B48C;
+    border: 2px solid #444;
+}
+
+#games-window .tetris-controls {
+    background: #D2B48C;
+    padding: 15px;
+    border: 2px solid #444;
+    border-radius: 5px;
+    margin-top: 20px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+#games-window .tetris-controls h3 {
+    font-family: 'Press Start 2P', cursive;
+    color: #000;
+    text-align: center;
+    margin-bottom: 10px;
+    font-size: 14px;
+}
+
+#games-window .tetris-controls ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+#games-window .tetris-controls li {
+    font-family: 'Press Start 2P', cursive;
+    color: #000;
+    font-size: 10px;
+    margin: 8px 0;
+    text-align: center;
 }
 
 /* ...existing code... */

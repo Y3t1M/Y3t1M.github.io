@@ -167,32 +167,11 @@ document.addEventListener('DOMContentLoaded', () => {
             
             switch(action) {
                 case 'shutdown':
-                    // Create black background
-                    const blackScreen = document.createElement('div');
-                    blackScreen.className = 'black-screen';
-                    document.body.appendChild(blackScreen);
-
-                    // Create CRT effect overlay
-                    const overlay = document.createElement('div');
-                    overlay.className = 'screen-overlay';
-                    document.body.appendChild(overlay);
-
-                    // Play shutdown sound and wait for it to finish
-                    playSound('assets/audio/MicrosoftWindowsXPShutdownSound.mp3')
-                        .then(() => {
-                            // Complete shutdown
-                            document.body.style.background = '#000';
-                            document.body.innerHTML = '';
-                            // Listen for mouse movement after shutdown
-                            setTimeout(() => {
-                                document.addEventListener('mousemove', handleWakeUp);
-                            }, 500);
-                        });
-
-                    // Add shutdown class to body
                     document.body.classList.add('shutdown-active');
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 1200);
                     break;
-                    
                 case 'restart':
                     document.body.classList.add('restarting');
                     setTimeout(() => {
@@ -413,73 +392,62 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function initializeGames() {
-    // Initialize Endless Download game first
+    // Initialize existing games
     initEndlessDownload();
-
-    // Initialize Clicker game with proper styling
-    const clickerArea = document.querySelector('.clicker-area');
-    const scoreDisplay = document.querySelector('#current-score');
-    const highScoreDisplay = document.querySelector('#high-score');
     
-    // Reset game state
-    let clicks = 0;
-    let highScore = parseInt(localStorage.getItem('clickerHighScore')) || 0;
-    let gameActive = false;
-    let timeLeft = 5;
-    let timer;
-
-    // Update initial display
-    highScoreDisplay.textContent = `High Score: ${highScore}`;
-    scoreDisplay.textContent = 'Click to start new game';
-
-    // Make sure click area is enabled
-    clickerArea.style.pointerEvents = 'auto';
+    // Initialize Tetris when games window is opened
+    const tetrisCanvas = document.querySelector('#tetris');
+    const nextPieces = document.querySelectorAll('.next-piece');
     
-    // Reset event listeners
-    clickerArea.replaceWith(clickerArea.cloneNode(true));
-    const newClickerArea = document.querySelector('.clicker-area');
-    
-    newClickerArea.addEventListener('click', () => {
-        if (!gameActive) {
-            startClickerGame();
-        } else if (gameActive && timeLeft > 0) {
-            clicks++;
-            scoreDisplay.textContent = `Time: ${timeLeft}s | Clicks: ${clicks}`;
-        }
+    if (tetrisCanvas && nextPieces.length > 0) {
+        // Load Tetris script dynamically
+        loadScript('games/tetris.js')
+            .then(() => {
+                // Initialize Tetris after script loads
+                new Tetris();
+            })
+            .catch(err => console.error('Error loading Tetris:', err));
+    }
+}
+
+// Add script loader utility
+function loadScript(src) {
+    return new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = src;
+        script.onload = resolve;
+        script.onerror = reject;
+        document.body.appendChild(script);
     });
+}
 
-    function startClickerGame() {
-        gameActive = true;
-        clicks = 0;
-        timeLeft = 5;
-        scoreDisplay.textContent = `Time: ${timeLeft}s | Clicks: 0`;
-        
-        timer = setInterval(() => {
-            timeLeft--;
-            scoreDisplay.textContent = `Time: ${timeLeft}s | Clicks: ${clicks}`;
-            
-            if (timeLeft <= 0) {
-                endClickerGame();
-            }
-        }, 1000);
+class Tetris {
+    constructor(mainCanvas, nextCanvas) {
+        this.canvas = mainCanvas;
+        this.nextCanvas = nextCanvas;
+        this.ctx = mainCanvas.getContext('2d');
+        this.nextCtx = nextCanvas.getContext('2d');
+        this.blockSize = 20;
+        this.init();
     }
-
-    function endClickerGame() {
-        clearInterval(timer);
-        gameActive = false;
-        if (clicks > highScore) {
-            highScore = clicks;
-            localStorage.setItem('clickerHighScore', highScore);
-            highScoreDisplay.textContent = `High Score: ${highScore}`;
-        }
-        scoreDisplay.textContent = `Game Over! Clicks: ${clicks}`;
-        newClickerArea.style.pointerEvents = 'none';
+    
+    init() {
+        // Initialize game board
+        this.board = Array(20).fill().map(() => Array(12).fill(0));
+        this.score = 0;
+        this.level = 1;
+        this.lines = 0;
         
-        setTimeout(() => {
-            scoreDisplay.textContent = 'Click to start new game';
-            newClickerArea.style.pointerEvents = 'auto';
-        }, 3000);
+        // Start game loop
+        this.spawnPiece();
+        this.gameLoop();
+        
+        // Add keyboard controls
+        document.addEventListener('keydown', this.handleInput.bind(this));
     }
+    
+    // Add rest of Tetris game logic here
+    /* ...add methods for piece movement, rotation, collision detection, etc... */
 }
 
 function initEndlessDownload() {
@@ -508,6 +476,46 @@ function handleWakeUp(e) {
 }
 
 // ...existing code...
+
+// Create unified shutdown function
+function triggerShutdown() {
+    // Create black background
+    const blackScreen = document.createElement('div');
+    blackScreen.className = 'black-screen';
+    document.body.appendChild(blackScreen);
+
+    // Create CRT effect overlay
+    const overlay = document.createElement('div');
+    overlay.className = 'screen-overlay';
+    document.body.appendChild(overlay);
+
+    // Play shutdown sound and wait for it to finish
+    playSound('assets/audio/MicrosoftWindowsXPShutdownSound.mp3')
+        .then(() => {
+            // Complete shutdown
+            document.body.style.background = '#000';
+            document.body.innerHTML = '';
+            // Listen for mouse movement after shutdown
+            setTimeout(() => {
+                document.addEventListener('mousemove', handleWakeUp);
+            }, 500);
+        });
+
+    // Add shutdown class to body
+    document.body.classList.add('shutdown-active');
+}
+
+// Bind both shutdown buttons
+document.querySelectorAll('.start-item[data-action="shutdown"], #shutdown-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        triggerShutdown();
+        // Close start menu if open
+        const startMenu = document.querySelector('.start-menu');
+        if (startMenu) {
+            startMenu.classList.remove('visible');
+        }
+    });
+});
 
 // Add event listeners for shutdown actions
 document.querySelectorAll('.start-item[data-action="shutdown"]').forEach(item => {
@@ -574,3 +582,25 @@ document.querySelectorAll('.start-item[data-action="contact"]').forEach(item => 
 });
 
 // ...existing code...
+
+function initializeDesktop() {
+    // Bind icon clicks to open respective windows
+    document.querySelectorAll('.icon').forEach(icon => {
+        icon.addEventListener('click', () => {
+            const windowId = icon.getAttribute('data-window');
+            const windowElement = document.getElementById(windowId);
+            windowElement.classList.add('active');
+        });
+    });
+}
+
+function bindTaskbarControls() {
+    // Bind taskbar buttons such as shutdown, restart, etc.
+    document.getElementById('shutdown-btn').addEventListener('click', shutdownComputer);
+    // ...other taskbar bindings...
+}
+
+function shutdownComputer() {
+    // Implement shutdown logic, possibly triggering CSS animations
+    document.body.classList.add('shutdown-active');
+}
