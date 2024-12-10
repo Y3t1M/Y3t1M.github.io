@@ -389,6 +389,19 @@ document.addEventListener('DOMContentLoaded', () => {
             bringToFront(pixosWindow);
         });
     }
+
+    // Tetris Folder in Computer Window
+    const tetrisFolder = document.querySelector('#computer-window .folder[data-file="tetris"]');
+    const computerWindow = document.getElementById('computer-window');
+    const folderGrid = computerWindow.querySelector('.folder-grid');
+    const tetrisContainer = document.getElementById('tetris-container');
+
+    tetrisFolder.addEventListener('dblclick', () => {
+        // Hide Folder Grid
+        folderGrid.style.display = 'none';
+        // Show Tetris Container
+        tetrisContainer.style.display = 'block';
+    });
 });
 
 function initializeGames() {
