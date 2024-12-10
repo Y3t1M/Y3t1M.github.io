@@ -125,7 +125,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function bringToFront(window) {
-        window.style.zIndex = ++zIndex;
+        if (window.classList.contains('maximized')) {
+            window.style.zIndex = zIndex++;
+            return;
+        }
+        if (activeWindow) {
+            activeWindow.classList.remove('active');
+        }
+        window.classList.add('active');
+        window.style.zIndex = zIndex++;
         activeWindow = window;
     }
 
@@ -343,6 +351,65 @@ document.addEventListener('DOMContentLoaded', () => {
     // Play Windows XP Startup Sound
     const startupSound = new Audio('assets/audio/MicrosoftWindowsXPstartupSound.mp3');
     startupSound.play().catch(err => console.error('Error playing startup sound:', err));
+
+    // Add event listeners for PixOS window buttons
+    const pixosWindow = document.getElementById('pixos-window');
+    const pixosMinimizeBtn = pixosWindow.querySelector('.minimize-btn');
+    const pixosMaximizeBtn = pixosWindow.querySelector('.maximize-btn');
+
+    pixosMinimizeBtn.addEventListener('click', () => {
+        pixosWindow.classList.toggle('minimized');
+        if (pixosWindow.classList.contains('minimized')) {
+            // Optionally, add PixOS to taskbar or hidden list
+        } else {
+            bringToFront(pixosWindow);
+        }
+    });
+
+    pixosMaximizeBtn.addEventListener('click', () => {
+        pixosWindow.classList.toggle('maximized');
+        bringToFront(pixosWindow);
+    });
+
+    if (pixosWindow) {
+        const maximizeBtn = pixosWindow.querySelector('.maximize-btn');
+        let isMaximized = false;
+        let originalDimensions = {};
+
+        maximizeBtn.addEventListener('click', () => {
+            if (!isMaximized) {
+                // Store original dimensions
+                originalDimensions = {
+                    width: pixosWindow.style.width,
+                    height: pixosWindow.style.height,
+                    left: pixosWindow.style.left,
+                    top: pixosWindow.style.top,
+                    transform: pixosWindow.style.transform
+                };
+
+                // Apply maximized state
+                pixosWindow.classList.add('maximized');
+                pixosWindow.style.width = '100%';
+                pixosWindow.style.height = 'calc(100vh - 44px)';
+                pixosWindow.style.left = '0';
+                pixosWindow.style.top = '0';
+                pixosWindow.style.transform = 'none';
+                
+                // Ensure iframe fills the space
+                const iframe = pixosWindow.querySelector('iframe');
+                if (iframe) {
+                    iframe.style.width = '100%';
+                    iframe.style.height = 'calc(100% - 25px)'; // Account for titlebar
+                }
+            } else {
+                // Restore original dimensions
+                pixosWindow.classList.remove('maximized');
+                Object.assign(pixosWindow.style, originalDimensions);
+            }
+            isMaximized = !isMaximized;
+            bringToFront(pixosWindow);
+        });
+    }
 });
 
 function initializeGames() {
