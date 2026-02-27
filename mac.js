@@ -257,6 +257,7 @@ function handleMacAction(action) {
     case 'open-simpletext':openWindow('simpletext-win');break;
     case 'open-netscape':  openWindow('netscape-win');  break;
     case 'open-tetris':    openWindow('tetris-win'); startMacTetris(); break;
+    case 'open-pixos':     openWindow('pixos-win');  break;
     case 'open-ctrlpanel': openWindow('ctrlpanel-win'); break;
     case 'close-front':
       if (activeWin) closeWindow(activeWin.id);
@@ -363,7 +364,7 @@ ctxMenu.querySelectorAll('.mac-drop-item[data-action]').forEach(function(item) {
 var FS = {
   'Macintosh HD': [
     { name:'System Folder', type:'folder', icon:'system', items:['System', 'Finder', 'Extensions', 'Fonts', 'Preferences'] },
-    { name:'Applications',  type:'folder', icon:'apps',   items:['SimpleText','Calculator','Stickies','Netscape Navigator','Tetris'] },
+    { name:'Applications',  type:'folder', icon:'apps',   items:['SimpleText','Calculator','Stickies','Netscape Navigator','Tetris','PixOS'] },
     { name:'Documents',     type:'folder', icon:'docs',   items:['Read Me.txt','Budget 1999.txt','My Journal.txt'] },
     { name:'Games',         type:'folder', icon:'games',  items:['Tetris','Minesweeper Demo'] },
     { name:'Internet',      type:'folder', icon:'net',    items:['Netscape Navigator','Bookmarks.html'] }
@@ -373,7 +374,8 @@ var FS = {
     { name:'Calculator',        type:'app', action:'open-calc'       },
     { name:'Stickies',          type:'app', action:'open-stickies'   },
     { name:'Netscape Navigator',type:'app', action:'open-netscape'   },
-    { name:'Tetris',            type:'app', action:'open-tetris'     }
+    { name:'Tetris',            type:'app', action:'open-tetris'     },
+    { name:'PixOS',              type:'app', action:'open-pixos'      }
   ],
   'Documents': [
     { name:'Read Me.txt',      type:'doc', action:'open-simpletext', content:'Welcome to Macintosh HD!\n\nThis is a Read Me file.\nEnjoy your Mac!' },

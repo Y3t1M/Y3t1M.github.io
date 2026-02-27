@@ -130,7 +130,7 @@ html, body {
 }
 .next-piece {
   display: block;
-  background: #1a1a1a;
+  background: #000;
   border: 1px solid var(--dk);
   image-rendering: pixelated;
 }

@@ -36,6 +36,7 @@
   <div class="mac-drop-item" data-action="open-simpletext">SimpleText</div>
   <div class="mac-drop-item" data-action="open-netscape">Netscape Navigator</div>
   <div class="mac-drop-item" data-action="open-tetris">Tetris</div>
+  <div class="mac-drop-item" data-action="open-pixos">PixOS</div>
   <div class="mac-drop-separator"></div>
   <div class="mac-drop-item" data-action="open-ctrlpanel">Control Panels</div>
   <div class="mac-drop-separator"></div>
@@ -326,7 +327,7 @@ This is a classic Mac OS text editor.
     <ul>
       <li><a href="https://github.com/Y3t1M" target="_blank">&#128279; GitHub — Y3t1M</a> — All my open source work</li>
       <li><a href="projects.html" target="_blank">&#128203; Projects Page</a> — A full list of what I've built</li>
-      <li><a onclick="document.getElementById('mac-desktop').dispatchEvent(new CustomEvent('open-pixos'))">&#127912; PixOS</a> — A pixel-art operating system concept</li>
+      <li><a onclick="document.dispatchEvent(new CustomEvent('mac-action',{detail:'open-pixos'}))">&#127912; PixOS</a> — A pixel-art operating system concept</li>
     </ul>
     <h2>&#127381; Fun Stuff</h2>
     <ul>
@@ -476,6 +477,19 @@ This is a classic Mac OS text editor.
     <button class="mac-btn" data-close="trash-alert">Cancel</button>
     <button class="mac-btn default-btn" id="empty-trash-ok">OK</button>
   </div>
+</div>
+
+<!-- ── PIXOS ── -->
+<div class="mac-window" id="pixos-win" style="width:720px;top:50px;left:80px;">
+  <div class="mac-titlebar" data-win="pixos-win">
+    <div class="mac-close-box" data-close="pixos-win"></div>
+    <div class="mac-titlebar-title">PixOS &#8212; Pixel Art Studio</div>
+    <div class="mac-zoom-box" data-zoom="pixos-win"></div>
+  </div>
+  <div class="mac-win-body" style="height:520px;padding:0;overflow:hidden;">
+    <iframe src="PixOS/PixOS.html" id="pixos-frame" style="width:100%;height:100%;border:none;display:block;" title="PixOS"></iframe>
+  </div>
+  <div class="mac-resize-handle"></div>
 </div>
 
 <!-- ── FINDER FOLDER VIEWER (opens subfolders) ── -->
