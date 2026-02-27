@@ -8,26 +8,45 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.icon').forEach(icon => {
         icon.addEventListener('dblclick', () => {
             const windowId = icon.dataset.window;
-            const window = document.getElementById(windowId);
-            if (window) {
-                showWindow(window);
-            }
+            const win = document.getElementById(windowId);
+            if (win) showWindow(win);
+            else if (icon.dataset.href) window.location.href = icon.dataset.href;
         });
     });
+
+    // Icon dragging
+    let dragIconEl = null, iconOffX = 0, iconOffY = 0;
+    document.querySelectorAll('.icon').forEach(icon => {
+        icon.addEventListener('mousedown', e => {
+            if (e.button !== 0) return;
+            const rect = icon.getBoundingClientRect();
+            iconOffX = e.clientX - rect.left;
+            iconOffY = e.clientY - rect.top;
+            dragIconEl = icon;
+            icon.style.zIndex = ++zIndex;
+            // Snap out of nth-child positioning
+            icon.style.left = rect.left + 'px';
+            icon.style.top  = rect.top  + 'px';
+            e.preventDefault();
+        });
+    });
+    document.addEventListener('mousemove', e => {
+        if (!dragIconEl) return;
+        dragIconEl.style.left = (e.clientX - iconOffX) + 'px';
+        dragIconEl.style.top  = (e.clientY - iconOffY) + 'px';
+    });
+    document.addEventListener('mouseup', () => { dragIconEl = null; });
 
     document.querySelectorAll('.folder').forEach(folder => {
         folder.addEventListener('dblclick', () => {
             const windowId = folder.dataset.window;
-            const window = document.getElementById(windowId);
-            if (windowId === 'games-window') {
-                initializeGames();
-            }
-            if (window) {
-                window.style.display = 'block';
-                window.style.left = '50%';
-                window.style.top = '50%';
-                window.style.transform = 'translate(-50%, -50%)';
-                bringToFront(window);
+            const win = document.getElementById(windowId);
+            if (win) {
+                win.style.display = 'flex';
+                win.style.left = '50%';
+                win.style.top = '50%';
+                win.style.transform = 'translate(-50%, -50%)';
+                bringToFront(win);
             }
         });
     });
@@ -114,21 +133,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const OFFSET_INCREMENT = 20;
 
     function showWindow(window) {
-        window.style.display = 'block';
-        
-        // Add offset to new windows
+        window.style.display = 'flex';
         window.style.left = `calc(50% + ${folderOffset.x}px)`;
-        window.style.top = `calc(50% + ${folderOffset.y}px)`;
-        
-        // Increment offset for next window
+        window.style.top  = `calc(50% + ${folderOffset.y}px)`;
+        window.style.transform = 'translate(-50%,-50%)';
         folderOffset.x += OFFSET_INCREMENT;
         folderOffset.y += OFFSET_INCREMENT;
-        
-        // Reset offset if it gets too large
-        if (folderOffset.x > 100 || folderOffset.y > 100) {
-            folderOffset = {x: 0, y: 0};
-        }
-        
+        if (folderOffset.x > 100 || folderOffset.y > 100) folderOffset = {x: 0, y: 0};
         bringToFront(window);
     }
 
@@ -189,6 +200,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     
                 case 'lock':
                     lockScreen.classList.add('visible');
+                    setTimeout(()=>{ passwordField.focus(); },80);
                     passwordField.value = '';
                     errorMessage.textContent = '';
                     break;
@@ -207,15 +219,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function handleLogin() {
         const password = passwordField.value;
-        const validPasswords = ['password', 'Password', 'PASSWORD'];
-        
-        if (validPasswords.includes(password)) {
+        if (password === 'password' || password === 'Password' || password === 'PASSWORD') {
             lockScreen.classList.remove('visible');
             errorMessage.textContent = '';
-            passwordField.value = ''; // Clear password field
+            passwordField.value = '';
         } else {
-            errorMessage.textContent = 'Please try Password again';
-            passwordField.value = ''; // Clear password field on error
+            errorMessage.textContent = 'The password is incorrect. Please try again.';
+            passwordField.classList.add('shake');
+            setTimeout(()=>{ passwordField.classList.remove('shake'); }, 400);
+            passwordField.value = '';
+            passwordField.focus();
         }
     }
 
@@ -227,7 +240,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let isMaximized = false;
         let originalDimensions = {};
 
-        minimizeBtn.addEventListener('click', () => {
+        if (minimizeBtn) minimizeBtn.addEventListener('click', () => {
             window.style.display = 'none';
             
             // Create taskbar item with proper styling
@@ -243,10 +256,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 bringToFront(window);
             });
             
-            taskbarItems.appendChild(taskbarItem);
+            if (taskbarItems) taskbarItems.appendChild(taskbarItem);
         });
 
-        maximizeBtn.addEventListener('click', () => {
+        if (maximizeBtn) maximizeBtn.addEventListener('click', () => {
             if (!isMaximized) {
                 // Store original dimensions
                 originalDimensions = {
@@ -326,18 +339,15 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error('OK button or contact error window not found!');
     }
 
-    // Handle Loading Animation
-    const loadingOverlay = document.getElementById('loading-overlay');
-    if (loadingOverlay) {
-        // Remove loading overlay after animation duration (3s)
-        setTimeout(() => {
-            loadingOverlay.style.display = 'none';
-        }, 3000); // Duration matches CSS animation
-    }
 
-    // Play Windows XP Startup Sound
-    const startupSound = new Audio('assets/audio/MicrosoftWindowsXPstartupSound.mp3');
-    startupSound.play().catch(err => console.error('Error playing startup sound:', err));
+
+    // Play Windows XP Startup Sound (on first interaction — autoplay is blocked by browsers)
+    const playStartupSound = () => {
+        const startupSound = new Audio('assets/audio/MicrosoftWindowsXPstartupSound.mp3');
+        startupSound.play().catch(() => {});
+        document.removeEventListener('click', playStartupSound);
+    };
+    document.addEventListener('click', playStartupSound);
 
     // Add event listeners for PixOS window buttons
     const pixosWindow = document.getElementById('pixos-window');
@@ -575,29 +585,7 @@ function triggerShutdown() {
     document.body.classList.add('shutdown-active');
 }
 
-// Bind both shutdown buttons
-document.querySelectorAll('.start-item[data-action="shutdown"], #shutdown-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-        triggerShutdown();
-        // Close start menu if open
-        const startMenu = document.querySelector('.start-menu');
-        if (startMenu) {
-            startMenu.classList.remove('visible');
-        }
-    });
-});
-
-// Add event listeners for shutdown actions
-document.querySelectorAll('.start-item[data-action="shutdown"]').forEach(item => {
-    item.addEventListener('click', handleShutdown);
-});
-
-// If there are other shutdown buttons, add event listeners here
-// For example, a shutdown button with ID 'shutdown-btn'
-const shutdownBtn = document.getElementById('shutdown-btn');
-if (shutdownBtn) {
-    shutdownBtn.addEventListener('click', handleShutdown);
-}
+// Shutdown buttons (safe — already handled inside DOMContentLoaded above)
 
 function handleShutdown() {
     // Play shutdown sound
@@ -693,17 +681,4 @@ document.querySelectorAll('.folder').forEach(folder => {
     });
 });
 
-// Bind shutdown button
-document.querySelector('.start-item[data-action="shutdown"]').addEventListener('click', () => {
-    triggerShutdown();
-});
-
-/* Create unified shutdown function */
-function triggerShutdown() {
-    // ...existing shutdown logic...
-
-    // Add CRT shutdown effect
-    document.body.classList.add('shutdown-active');
-}
-
-// ...existing code...
+// (shutdown already bound above)

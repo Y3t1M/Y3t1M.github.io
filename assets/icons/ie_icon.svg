@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" shape-rendering="crispEdges">
+  <!-- Blue globe body (pixel-circle approximation) -->
+  <rect x="10" y="1"  width="12" height="2" fill="#1050d0"/>
+  <rect x="6"  y="3"  width="20" height="2" fill="#1458d8"/>
+  <rect x="4"  y="5"  width="24" height="2" fill="#1460e0"/>
+  <rect x="2"  y="7"  width="28" height="2" fill="#1468e0"/>
+  <rect x="1"  y="9"  width="30" height="14" fill="#1060d8"/>
+  <rect x="2"  y="23" width="28" height="2" fill="#0e58c8"/>
+  <rect x="4"  y="25" width="24" height="2" fill="#0c50b8"/>
+  <rect x="6"  y="27" width="20" height="2" fill="#0848a8"/>
+  <rect x="10" y="29" width="12" height="2" fill="#042878"/>
+  <!-- Top-left highlight rects -->
+  <rect x="6"  y="4"  width="10" height="1" fill="#6098f8"/>
+  <rect x="4"  y="6"  width="8"  height="1" fill="#5888f0"/>
+  <rect x="2"  y="8"  width="6"  height="1" fill="#5080e8"/>
+  <rect x="2"  y="9"  width="4"  height="4" fill="#4878e0"/>
+  <!-- Pixel "e" in white -->
+  <!-- top bar -->
+  <rect x="10" y="9"  width="11" height="2" fill="#ffffff"/>
+  <!-- middle bar -->
+  <rect x="9"  y="14" width="13" height="2" fill="#ffffff"/>
+  <!-- bottom bar -->
+  <rect x="10" y="20" width="11" height="2" fill="#ffffff"/>
+  <!-- left stem -->
+  <rect x="8"  y="9"  width="2"  height="13" fill="#ffffff"/>
+  <!-- Gold orbit ring diagonal (back shadow half) -->
+  <rect x="1"  y="23" width="4" height="2" fill="#906800"/>
+  <rect x="4"  y="21" width="4" height="2" fill="#906800"/>
+  <rect x="8"  y="19" width="3" height="2" fill="#a87800"/>
+  <rect x="11" y="17" width="3" height="2" fill="#b88800"/>
+  <!-- Gold orbit ring (front bright half) -->
+  <rect x="14" y="15" width="3" height="2" fill="#ffd000"/>
+  <rect x="17" y="13" width="3" height="2" fill="#ffd800"/>
+  <rect x="20" y="11" width="3" height="2" fill="#ffe000"/>
+  <rect x="23" y="9"  width="3" height="2" fill="#ffe800"/>
+  <rect x="26" y="7"  width="4" height="2" fill="#fff000"/>
+  <!-- Ring top highlight -->
+  <rect x="14" y="14" width="3" height="1" fill="#fffba0"/>
+  <rect x="17" y="12" width="3" height="1" fill="#fffba0"/>
+  <rect x="20" y="10" width="3" height="1" fill="#fffba0"/>
+  <rect x="23" y="8"  width="3" height="1" fill="#fffba0"/>
+</svg>

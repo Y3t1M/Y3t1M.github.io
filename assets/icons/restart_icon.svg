@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" shape-rendering="crispEdges">
+  <!-- Circular arrow arc (pixel circle aproximation, opening top-right) -->
+  <!-- Top arc -->
+  <rect x="8"  y="2"  width="6"  height="2"  fill="#000080"/>
+  <rect x="5"  y="3"  width="3"  height="2"  fill="#000080"/>
+  <rect x="14" y="3"  width="3"  height="2"  fill="#000080"/>
+  <!-- Left arc -->
+  <rect x="3"  y="5"  width="2"  height="4"  fill="#000080"/>
+  <rect x="3"  y="9"  width="2"  height="4"  fill="#000080"/>
+  <!-- Bottom arc -->
+  <rect x="5"  y="17" width="3"  height="2"  fill="#000080"/>
+  <rect x="16" y="17" width="3"  height="2"  fill="#000080"/>
+  <rect x="8"  y="19" width="8"  height="2"  fill="#000080"/>
+  <!-- Right arc (short, opens at top-right for arrowhead gap) -->
+  <rect x="19" y="11" width="2"  height="3"  fill="#000080"/>
+  <rect x="19" y="14" width="2"  height="3"  fill="#000080"/>
+  <!-- Inner highlight (lighter blue) -->
+  <rect x="9"  y="3"  width="4"  height="1"  fill="#4060d0"/>
+  <rect x="6"  y="4"  width="2"  height="1"  fill="#4060d0"/>
+  <rect x="4"  y="6"  width="1"  height="3"  fill="#4060d0"/>
+  <rect x="4"  y="9"  width="1"  height="3"  fill="#4060d0"/>
+  <!-- Arrowhead pointing clockwise (down-right at top-right of arc) -->
+  <rect x="17" y="3"  width="2"  height="2"  fill="#000080"/>
+  <rect x="19" y="5"  width="2"  height="2"  fill="#000080"/>
+  <rect x="15" y="3"  width="2"  height="1"  fill="#000080"/>
+  <rect x="17" y="5"  width="2"  height="1"  fill="#000080"/>
+  <rect x="17" y="2"  width="4"  height="1"  fill="#000080"/>
+  <rect x="20" y="3"  width="1"  height="4"  fill="#000080"/>
+</svg>

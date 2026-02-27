@@ -3,87 +3,448 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>Home</title>
-  <link rel="stylesheet" href="desktop.css">
-  <link rel="stylesheet" href="styles.css">
-  <!-- Updated favicon link to use a .ico file -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hudson Tinch</title>
   <link rel="icon" href="assets/img/mh_logo.ico" type="image/x-icon">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Roboto:wght@300;400&display=swap" rel="stylesheet"> <!-- Added 'Press Start 2P' -->
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
-  <header>
-    <nav>
-      <ul>
-        <li><a href="index.html">Home</a></li>
-        <li><a href="projects.html">Projects</a></li>
-      </ul>
+
+  <!-- Ambient background blobs -->
+  <div class="bg-blob bg-blob-1"></div>
+  <div class="bg-blob bg-blob-2"></div>
+  <div class="bg-grid"></div>
+
+  <!-- Navigation -->
+  <header class="site-header">
+    <nav class="site-nav">
+      <div class="nav-logo">
+        <span class="nav-logo-text">HT</span>
+      </div>
+      <div class="nav-links">
+        <a href="index.html" class="nav-link active">Home</a>
+        <a href="projects.html" class="nav-link">Projects</a>
+      </div>
+      <div class="nav-cta"></div>
     </nav>
   </header>
 
-  <!-- Remove the main-nav section -->
-  <!-- <nav class="main-nav">
-    <ul>
-      <li><a href="index.html">Home</a></li>
-      <li><a href="projects.html">Projects</a></li>
-      <li><a href="games.html">Games</a></li>
-      <li><a href="contact.html">Contact</a></li>
-    </ul>
-  </nav> -->
-
-  <!-- Remove inline styles to use CSS class styling -->
-  <div class="profile-container">
-    <a href="desktop.html">
-      <img src="assets/img/profile1.jpg" alt="Profile Image 1" class="profile-image" id="profile1">
-    </a>
-    <a href="desktop.html">
-      <img src="assets/img/profile2.jpg" alt="Profile Image 2" class="profile-image" id="profile2">
-    </a>
-  </div>
-
-  <!-- Ensure the new enemy image is placed in the assets/img directory -->
-  <!-- Example:
-  <img src="assets/img/new_enemy.png" alt="New Enemy" class="profile-image">
-  -->
-
-  <!-- Removed banner image section -->
-
-  <section id="about">
-    <h2>About Me</h2> <!-- 90s text style -->
-    <h3>Hi! I'm Hudson Tinch, a robotics enthusiast and maker with a passion for turning ideas into tangible creations.</h3> <!-- Modern font -->
-    <div class="tile-left">
-      <p>As the captain of the HP robotics team, I combined my love for hands-on building with advanced technology, leading my team in challenging competitions and innovative projects.</p> <!-- Modern font -->
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-badge">Robotics &amp; Maker</div>
+    <h1 class="hero-title">
+      Building things<br>
+      that <span class="gradient-text">actually work</span>
+    </h1>
+    <p class="hero-subtitle">
+      Robotics captain, engineer, and maker. Turning digital ideas into real-world hardware — one prototype at a time.
+    </p>
+    <div class="hero-actions">
+      <a href="projects.html" class="btn-primary">View Projects</a>
     </div>
-    <div class="tile-right">
-      <p>Beyond robotics, I have a deep enthusiasm for creating physical objects, particularly through 3D printing. From prototyping intricate designs to building functional components, I thrive on the process of transforming digital concepts into real-world objects. For me, the intersection of engineering and creativity is where the magic happens, and I'm constantly exploring new ways to bring ideas to life.</p> <!-- Modern font -->
+
+    <!-- Profile avatars -->
+    <div class="hero-avatars">
+      <span class="avatar-link">
+        <img src="assets/img/profile1.jpg" alt="Hudson Tinch" class="hero-avatar" id="profile1">
+      </span>
+      <span class="avatar-link">
+        <img src="assets/img/profile2.jpg" alt="Hudson Tinch" class="hero-avatar" id="profile2">
+      </span>
     </div>
   </section>
 
+  <!-- Stats / highlight bar -->
+  <div class="stats-bar">
+    <div class="stat-item">
+      <span class="stat-number">3+</span>
+      <span class="stat-label">Major Projects</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="stat-number">C++ / Python / JS</span>
+      <span class="stat-label">Primary Languages</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="stat-number">Robotics Captain</span>
+      <span class="stat-label">HP Robotics Team</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="stat-number">3D Printing</span>
+      <span class="stat-label">Hardware Prototyping</span>
+    </div>
+  </div>
 
-  <div class="desktop">
-    <!-- Example: Include contact-error-window if not present -->
-    <div class="window" id="contact-error-window">
-      <div class="window-titlebar">
-        <span>System Error</span>
-        <div class="window-controls">
-          <button class="close-btn">&#215;</button>
+  <!-- About Section -->
+  <section id="about" class="about-section">
+    <div class="section-label">About</div>
+    <h2 class="section-title">Who I am</h2>
+    <p class="section-description">
+      Hi! I'm <strong>Hudson Tinch</strong> — a robotics enthusiast and maker with a passion for turning ideas into tangible creations.
+    </p>
+
+    <div class="about-grid">
+      <div class="about-card">
+        <div class="about-card-icon">&#9881;</div>
+        <h3>Robotics Leadership</h3>
+        <p>As captain of the HP robotics team, I combined hands-on building with advanced technology, leading my team through challenging competitions and innovative engineering projects.</p>
+      </div>
+      <div class="about-card">
+        <div class="about-card-icon">&#9996;</div>
+        <h3>Hardware & Making</h3>
+        <p>I have a deep enthusiasm for creating physical objects — particularly through 3D printing. From intricate prototypes to functional components, I thrive on transforming digital concepts into real-world objects.</p>
+      </div>
+      <div class="about-card">
+        <div class="about-card-icon">&#128187;</div>
+        <h3>Technical Skills</h3>
+        <p>Proficient in C++, Python, and JavaScript. Experienced with PCB design, microcontrollers, AutoCAD, KiCad, Git, and full-stack web development.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Featured Projects teaser -->
+  <section class="projects-teaser">
+    <div class="section-label">Featured Work</div>
+    <h2 class="section-title">Recent Projects</h2>
+    <div class="projects-row">
+      <a href="https://github.com/Y3t1M/Arduino-R4-Controller-Web-Interface" target="_blank" class="project-card">
+        <div class="project-card-tag">Hardware &middot; C++</div>
+        <h3>Arduino R4 Controller</h3>
+        <p>Web-based interface on an Arduino R4 WiFi board. Remotely controls multiple servos and electromagnets over WiFi &mdash; no extra apps needed, pure browser UI.</p>
+        <span class="project-card-arrow">&rarr;</span>
+      </a>
+      <a href="projects.html" class="project-card">
+        <div class="project-card-tag">Autonomous &middot; Robotics</div>
+        <h3>AVR Drone</h3>
+        <p>Autonomous drone for the Bell Advanced Vertical Robotics Competition using A* pathfinding through complex environments. Placed 8th nationally.</p>
+        <span class="project-card-arrow">&rarr;</span>
+      </a>
+      <a href="projects.html" class="project-card">
+        <div class="project-card-tag">3D Print &middot; Electronics</div>
+        <h3>Iron Man Helmet</h3>
+        <p>Functional 3D-printed helmet with moving parts, magnetic faceplate, and embedded electronics. Combines engineering precision with creative ambition.</p>
+        <span class="project-card-arrow">&rarr;</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- GitHub Repos -->
+  <section class="github-section">
+    <div class="section-label">Open Source</div>
+    <h2 class="section-title">GitHub Projects</h2>
+    <p class="section-description">A few things I've shipped publicly on <a href="https://github.com/Y3t1M" target="_blank" style="color:var(--accent2);">github.com/Y3t1M</a></p>
+    <div class="repo-grid">
+      <a href="https://github.com/Y3t1M/Y3t1M.github.io" target="_blank" class="repo-card">
+        <div class="repo-card-top">
+          <span class="repo-icon">&#128196;</span>
+          <span class="repo-lang js-lang">JavaScript</span>
+        </div>
+        <h3>Y3t1M.github.io</h3>
+        <p>Personal portfolio website &mdash; dark resend.com-inspired design with a hidden Windows 95 desktop, pixel art editor, and retro games.</p>
+        <div class="repo-meta">
+          <span>&#11088; Public</span>
+          <span class="repo-arrow">&rarr;</span>
+        </div>
+      </a>
+      <a href="https://github.com/Y3t1M/PixOS" target="_blank" class="repo-card">
+        <div class="repo-card-top">
+          <span class="repo-icon">&#127912;</span>
+          <span class="repo-lang js-lang">JavaScript</span>
+        </div>
+        <h3>PixOS</h3>
+        <p>Browser-based pixel art and sprite editor. Supports multi-frame GIF animation, onion skinning, fill, undo/redo, zoom, and color palette management.</p>
+        <div class="repo-meta">
+          <span>&#11088; Public</span>
+          <span class="repo-arrow">&rarr;</span>
+        </div>
+      </a>
+      <a href="https://github.com/Y3t1M/Arduino-R4-Controller-Web-Interface" target="_blank" class="repo-card">
+        <div class="repo-card-top">
+          <span class="repo-icon">&#128421;</span>
+          <span class="repo-lang cpp-lang">C++</span>
+        </div>
+        <h3>Arduino R4 Controller</h3>
+        <p>Firmware + web UI for the Arduino R4 WiFi. Controls servos and electromagnets wirelessly through a browser panel — no apps required.</p>
+        <div class="repo-meta">
+          <span>&#11088; Public</span>
+          <span class="repo-arrow">&rarr;</span>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <!-- Resume / Experience -->
+  <section class="resume-section">
+    <div class="resume-cols">
+      <!-- Left: Education + Experience -->
+      <div class="resume-col">
+        <div class="section-label">Background</div>
+        <h2 class="section-title">Experience</h2>
+
+        <div class="timeline">
+          <div class="tl-item">
+            <div class="tl-dot"></div>
+            <div class="tl-body">
+              <span class="tl-date">2019 &ndash; Present</span>
+              <h4>Back-End Web Developer</h4>
+              <span class="tl-org">Hollis Bloom</span>
+              <p>Building and maintaining back-end infrastructure for client web projects.</p>
+            </div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot"></div>
+            <div class="tl-body">
+              <span class="tl-date">2023 &ndash; Present</span>
+              <h4>C++ Programmer</h4>
+              <span class="tl-org">Farah Law Firm</span>
+              <p>Developing custom C++ software tools and automation solutions.</p>
+            </div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot"></div>
+            <div class="tl-body">
+              <span class="tl-date">2014 &ndash; 2020</span>
+              <h4>Founder</h4>
+              <span class="tl-org">Dimensional Design 3D</span>
+              <p>Founded and ran a 3D printing and design business from age 9.</p>
+            </div>
+          </div>
+          <div class="tl-item tl-edu">
+            <div class="tl-dot edu"></div>
+            <div class="tl-body">
+              <span class="tl-date">2024</span>
+              <h4>Wharton Global Youth Program</h4>
+              <span class="tl-org">University of Pennsylvania &mdash; CEO Track</span>
+              <p><span class="tl-badge">&#127942; Best Presentation Award</span></p>
+            </div>
+          </div>
+          <div class="tl-item tl-edu">
+            <div class="tl-dot edu"></div>
+            <div class="tl-body">
+              <span class="tl-date">2024</span>
+              <h4>Pre-College Program</h4>
+              <span class="tl-org">Duke University &mdash; CEO Track</span>
+              <p><span class="tl-badge">&#127942; Pitch Competition Winner</span></p>
+            </div>
+          </div>
+          <div class="tl-item tl-edu">
+            <div class="tl-dot edu"></div>
+            <div class="tl-body">
+              <span class="tl-date">2023</span>
+              <h4>Summer Institute</h4>
+              <span class="tl-org">Georgia Tech</span>
+              <p><span class="tl-badge">&#127942; Highest Presentation Score</span></p>
+            </div>
+          </div>
         </div>
       </div>
-      <div class="window-content">
-        <div class="error-dialog">
-          <button class="ok-button">OK</button>
+
+      <!-- Right: Skills + Awards -->
+      <div class="resume-col">
+        <div class="section-label">Skills &amp; Awards</div>
+        <h2 class="section-title">Toolkit</h2>
+
+        <div class="skills-groups">
+          <div class="skill-group">
+            <h4>Languages</h4>
+            <div class="skill-tags">
+              <span class="skill-tag">C++</span>
+              <span class="skill-tag">Python</span>
+              <span class="skill-tag">JavaScript</span>
+              <span class="skill-tag">HTML / CSS</span>
+            </div>
+          </div>
+          <div class="skill-group">
+            <h4>Hardware &amp; Electronics</h4>
+            <div class="skill-tags">
+              <span class="skill-tag">Arduino</span>
+              <span class="skill-tag">PCB Design</span>
+              <span class="skill-tag">KiCad</span>
+              <span class="skill-tag">Microcontrollers</span>
+              <span class="skill-tag">3D Printing</span>
+            </div>
+          </div>
+          <div class="skill-group">
+            <h4>Software &amp; Tools</h4>
+            <div class="skill-tags">
+              <span class="skill-tag">Git / GitHub</span>
+              <span class="skill-tag">AutoCAD</span>
+              <span class="skill-tag">Node.js</span>
+              <span class="skill-tag">Back-End Dev</span>
+            </div>
+          </div>
         </div>
+
+        <div class="awards-list">
+          <h4 style="color:#fff;font-size:13px;margin-bottom:14px;font-weight:700;">Awards &amp; Leadership</h4>
+          <div class="award-row"><span class="award-icon">&#127942;</span><span>Bell AVR Nationals &mdash; 8th Place</span></div>
+          <div class="award-row"><span class="award-icon">&#127942;</span><span>Robotics Best Design + Judges Choice</span></div>
+          <div class="award-row"><span class="award-icon">&#127942;</span><span>Presidential Service Award</span></div>
+          <div class="award-row"><span class="award-icon">&#127942;</span><span>HP MAPS Scots Tank Winner</span></div>
+          <div class="award-row"><span class="award-icon">&#128100;</span><span>HP Robotics Team &mdash; Captain</span></div>
+          <div class="award-row"><span class="award-icon">&#128100;</span><span>HP Service Team &mdash; Treasurer</span></div>
+          <div class="award-row"><span class="award-icon">&#128100;</span><span>MAPS Advisory Council Member</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <span class="footer-logo">HT</span>
+      <span class="footer-copy">Hudson Tinch &mdash; Y3t1M.github.io</span>
+      <div class="footer-links">
+        <a href="https://github.com/Y3t1M" target="_blank" class="footer-link">GitHub</a>
+        <a href="https://linkedin.com/in/hudsontinch" target="_blank" class="footer-link">LinkedIn</a>
+        <a href="mailto:hudson.tinch@gmail.com" class="footer-link">Email</a>
+      </div>
+    </div>
+    <p class="footer-secret">&uarr;&uarr;&darr;&darr;&larr;&rarr;&larr;&rarr;</p>
+  </footer>
+
+  <!-- Hidden desktop window for JS compatibility -->
+  <div style="display:none">
+    <div class="desktop">
+      <div class="window" id="contact-error-window">
+        <div class="window-titlebar"><span>System Error</span><div class="window-controls"><button class="close-btn">&#215;</button></div></div>
+        <div class="window-content"><div class="error-dialog"><button class="ok-button">OK</button></div></div>
       </div>
     </div>
   </div>
 
-  <!-- Include only the main JavaScript file -->
+  <!-- Boot screen overlay -->
+  <div id="boot-overlay" style="display:none;position:fixed;inset:0;background:#000;z-index:99999;font-family:'Courier New',monospace;color:#33ff33;padding:40px 60px;overflow:hidden;">
+    <div id="boot-lines"></div>
+    <div id="boot-cursor" style="display:inline-block;width:10px;height:16px;background:#33ff33;vertical-align:middle;animation:blink 0.7s step-end infinite;"></div>
+  </div>
+  <style>
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+    .footer-secret{
+      text-align:center;
+      font-size:11px;
+      color:rgba(255,255,255,0.07);
+      font-family:'Courier New',monospace;
+      letter-spacing:6px;
+      margin-top:14px;
+      user-select:none;
+    }
+    .footer-secret:hover{ color:rgba(255,255,255,0.18); transition:color 0.6s; }
+  </style>
+  <script>
+  (function(){
+    var KONAMI = [38,38,40,40,37,39,37,39,66,65];
+    var pos = 0;
+    document.addEventListener('keydown', function(e){
+      if(e.keyCode === KONAMI[pos]){
+        pos++;
+        if(pos === KONAMI.length){ pos=0; triggerBoot(); }
+      } else {
+        pos = (e.keyCode === KONAMI[0]) ? 1 : 0;
+      }
+    });
+    function triggerBoot(){
+      var overlay = document.getElementById('boot-overlay');
+      var lines = document.getElementById('boot-lines');
+      overlay.style.display = 'block';
+      lines.innerHTML = '';
+      var msgs = [
+        'BIOS v2.31  (C) 1995 Hudson Systems Ltd.',
+        'CPU: Pentium 133MHz',
+        'Memory Test: 8192K OK',
+        '',
+        'Detecting hardware...',
+        '  Primary Master: ST31276AS (1.2GB)',
+        '  Sound Blaster 16 detected on IRQ 5',
+        '  VGA adapter: Diamond Stealth 64',
+        '',
+        'Loading MS-DOS 6.22...',
+        'Starting Windows 95...',
+        '',
+        'C:\\> AUTOEXEC.BAT',
+        'C:\\WINDOWS> win.com',
+        '',
+        'Initializing desktop environment...',
+        '\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588  100%',
+        '',
+        'Welcome.',
+      ];
+      var i = 0;
+      var delays = [60,60,40,20,80,60,60,60,20,120,160,20,80,100,80,300,400,200];
+      function printNext(){
+        if(i >= msgs.length){
+          setTimeout(function(){ window.location.href='desktop.html'; }, 500);
+          return;
+        }
+        var el = document.createElement('div');
+        el.style.fontSize = '14px';
+        el.style.lineHeight = '1.7';
+        el.style.whiteSpace = 'pre';
+        el.textContent = msgs[i];
+        lines.appendChild(el);
+        i++;
+        setTimeout(printNext, delays[i-1] || 60);
+      }
+      printNext();
+    }
+  })();
+  (function(){
+    var macBuf = '';
+    document.addEventListener('keypress', function(e){
+      macBuf += e.key.toLowerCase();
+      if(macBuf.length > 3) macBuf = macBuf.slice(-3);
+      if(macBuf === 'mac'){ macBuf = ''; triggerMacBoot(); }
+    });
+    function triggerMacBoot(){
+      var overlay = document.getElementById('boot-overlay');
+      var lines = document.getElementById('boot-lines');
+      overlay.style.display = 'block';
+      lines.innerHTML = '';
+      var msgs = [
+        'Apple Macintosh',
+        '',
+        'Waking from sleep...',
+        'Extension Manager v4.0.3',
+        '  Loading QuickTime\u2122... \u2713',
+        '  Loading AppleTalk... \u2713',
+        '  Loading OpenTransport... \u2713',
+        '  Loading Appearance... \u2713',
+        '  Loading Greg\'s Buttons... \u2713',
+        '',
+        'Starting Mac OS 9.0.4...',
+        '',
+        '\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588  100%',
+        '',
+        'Welcome.',
+      ];
+      var i = 0;
+      var delays = [200,60,300,180,80,80,80,80,80,60,300,60,400,200];
+      function printNext(){
+        if(i >= msgs.length){
+          setTimeout(function(){ window.location.href='mac.html'; }, 600);
+          return;
+        }
+        var el = document.createElement('div');
+        el.style.fontSize = '14px';
+        el.style.lineHeight = '1.7';
+        el.style.whiteSpace = 'pre';
+        el.textContent = msgs[i];
+        lines.appendChild(el);
+        i++;
+        setTimeout(printNext, delays[i-1] || 60);
+      }
+      printNext();
+    }
+  })();
+  </script>
   <script src="main.js"></script>
-  <!-- Remove Clicker Game Scripts -->
-  <!-- <script src="clicker-game.js"></script> -->
   <script src="desktop.js"></script>
-  <script src="endless-download.js"></script>
 </body>
 
 </html>

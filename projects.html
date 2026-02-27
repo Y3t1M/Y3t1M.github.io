@@ -1,153 +1,98 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
-
 <head>
-<meta charset="UTF-8">
-<title>Projects</title>
-<link rel="stylesheet" href="styles.css">
-<link rel="stylesheet" href="desktop.css">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Roboto:wght@300;400&display=swap" rel="stylesheet"> <!-- Added 'Press Start 2P' -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Projects &mdash; Hudson Tinch</title>
+  <link rel="icon" href="assets/img/mh_logo.ico" type="image/x-icon">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
 </head>
-
 <body>
-<header>
-<nav>
-<ul>
-<li><a href="index.html">Home</a></li>
-<li><a href="projects.html">Projects</a></li>
-</ul>
-</nav>
-</header>
 
-<section id="projects">
-    <h2>Projects</h2> <!-- Updated title -->
-    <div class="card">
-        <h3>Arduino R4 Controller</h3> <!-- Removed inline style -->
-        <img src="assets/img/arduino_r4.jpg" alt="Arduino R4 Controller" class="project-image">
-        <p>
-            A web-based interface hosted on an Arduino R4 WiFi board, enabling remote control of multiple servos and electromagnets. Users can access the control panel over WiFi without additional apps, operate servos individually or simultaneously, control electromagnets, and view real-time statuses—all through a stylish and user-friendly layout.
-        </p>
-    </div>
+  <!-- Ambient background -->
+  <div class="bg-blob bg-blob-1"></div>
+  <div class="bg-blob bg-blob-2"></div>
+  <div class="bg-grid"></div>
 
-    <div class="card">
-        <h3>AVR Drone</h3> <!-- Removed inline style -->
-        <img src="assets/img/avr_drone.jpg" alt="AVR Drone" class="project-image avr-drone-image">
-        <p>
-            Led the development of an autonomous drone for the Bell Advanced Vertical Robotics Competition. Utilized A* pathfinding to navigate complex environments, pushing the boundaries of autonomous flight and showcasing innovative engineering solutions.
-        </p>
-    </div>
+  <!-- Navigation -->
+  <header class="site-header">
+    <nav class="site-nav">
+      <div class="nav-logo"><span class="nav-logo-text">HT</span></div>
+      <div class="nav-links">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="projects.html" class="nav-link active">Projects</a>
+      </div>
+      <div class="nav-cta">
+        <a href="desktop.html" class="btn-ghost">Enter Desktop &rarr;</a>
+      </div>
+    </nav>
+  </header>
+
+  <section id="projects">
+    <div class="section-label" style="margin-bottom: 16px;">Work</div>
+    <h2>Projects</h2>
 
     <div class="card">
-        <h3>Iron Man Helmet</h3> <!-- Removed inline style -->
-        <img src="assets/img/ironman_helmettop.jpg" alt="Iron Man Helmet" class="project-image ironman-image">
-        <p>
-            Designed and built a functional Iron Man helmet using 3D printing and electronics. This project combined engineering and creativity to bring a piece of fictional technology into the real world, complete with moving parts and a magnetic faceplate.
-        </p>
+      <div class="project-card-tag">Hardware &bull; WiFi</div>
+      <h3>Arduino R4 Controller</h3>
+      <img src="assets/img/arduino_r4.jpg" alt="Arduino R4 Controller" class="project-image">
+      <p>
+        A web-based interface hosted on an Arduino R4 WiFi board, enabling remote control of multiple servos and electromagnets.
+        Users can access the control panel over WiFi without additional apps, operate servos individually or simultaneously,
+        control electromagnets, and view real-time statuses &mdash; all through a stylish and user-friendly layout.
+      </p>
     </div>
 
-    <!-- Removed Endless Download Game -->
-    <!-- Removed New Project -->
-    
-</section>
-
-<!-- Projects Section -->
-<div class="projects-section">
-    <h2>My Projects</h2>
-    <div class="project-list">
-        <div class="project-item">
-            <h3>Project Title</h3>
-            <img src="path/to/image.png" alt="Project Image">
-            <p>Project description goes here.</p>
-        </div>
-        <!-- ...existing projects... -->
+    <div class="card">
+      <div class="project-card-tag">Robotics &bull; Autonomous</div>
+      <h3>AVR Drone</h3>
+      <img src="assets/img/avr_drone.jpg" alt="AVR Drone" class="project-image avr-drone-image">
+      <p>
+        Led the development of an autonomous drone for the Bell Advanced Vertical Robotics Competition.
+        Utilized A* pathfinding to navigate complex environments, pushing the boundaries of autonomous flight
+        and showcasing innovative engineering solutions.
+      </p>
     </div>
-</div>
 
-<!-- Hidden clicker game that appears after correct sequence -->
-<section id="clicker-game-section">
+    <div class="card">
+      <div class="project-card-tag">3D Print &bull; Electronics</div>
+      <h3>Iron Man Helmet</h3>
+      <img src="assets/img/ironman_helmettop.jpg" alt="Iron Man Helmet" class="project-image ironman-image">
+      <p>
+        Designed and built a functional Iron Man helmet using 3D printing and electronics. This project combined
+        engineering and creativity to bring a piece of fictional technology into the real world, complete with
+        moving parts and a magnetic faceplate.
+      </p>
+    </div>
+  </section>
+
+  <!-- Hidden clicker game -->
+  <section id="clicker-game-section" style="position:relative; z-index:1;">
     <div class="clicker-game hidden">
-        <div id="clicker-area" class="clicker-area">
-            <h3>Click!</h3> <!-- This text now uses 90s text style -->
-        </div>
-        <div id="score-display" class="score-display">
-            <p id="current-score">Clicks: 0</p>
-            <p id="high-score">High Score: 0</p>
-        </div>
+      <div id="clicker-area" class="clicker-area">
+        <h3>Click!</h3>
+      </div>
+      <div id="score-display" class="score-display">
+        <p id="current-score">Clicks: 0</p>
+        <p id="high-score">High Score: 0</p>
+      </div>
     </div>
-</section>
+  </section>
 
-<!-- Ensure the title is larger -->
-<style>
-  #projects h2 {
-    font-size: 4em; /* Increased font size for prominence */
-    font-family: 'Press Start 2P', cursive; /* Applied font */
-  }
-  
-  .clicker-game.hidden {
-    display: none;
-  }
-  
-  .clicker-game {
-    /* Remove conflicting styles */
-    /* position: fixed; */
-    /* top: 50%; */
-    /* left: 50%; */
-    /* transform: translate(-50%, -50%); */
-    background-color: #151617; /* Ensure dark grey background */
-    /* ...existing styles... */
-    /* Ensure it doesn't have a fixed height that restricts content */
-    /* height: auto; */ /* Uncomment if height is set */
-  }
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <span class="footer-logo">HT</span>
+      <span class="footer-copy">Hudson Tinch &mdash; Y3t1M.github.io</span>
+      <div class="footer-links">
+        <a href="https://github.com/Y3t1M" target="_blank" class="footer-link">GitHub</a>
+      </div>
+    </div>
+  </footer>
 
-  /* Additional styling for clicker-game section if needed */
-  #clicker-game-section {
-    position: relative;
-    width: 100%;
-    /* ...other styles... */
-  }
-
-  /* Remove 'Press Start 2P' from general elements */
-  .card h3,
-  .card p {
-    font-family: 'Roboto', 'Helvetica Neue', Arial, sans-serif;
-    color: #ffffff;
-    text-shadow: none;
-  }
-
-  /* Keep 'Press Start 2P' font only for endless downloads */
-  .game-title,
-  .game-instructions,
-  #endless-download h2 {
-    font-family: 'Press Start 2P', cursive;
-    color: #ffffff;
-    text-shadow: 2px 2px #000;
-  }
-
-</style>
-
-<!-- Removed "Dino Game" section -->
-
-<footer>
-<p>Y3t1M.github.io</p>
-</footer>
-
-<!-- Add defer attribute to ensure DOM is loaded first -->
-<script src="endless-download.js" type="module" defer></script>
-<script src="desktop.js"></script>
-<!-- Remove dino-game.js reference -->
-
-<!-- Ensure only one floor image is referenced -->
-<script>
-// Remove any scripts that add additional floor images
-// function addAnotherFloor() {
-//     const floor = document.createElement('div');
-//     floor.classList.add('floor');
-//     document.body.appendChild(floor);
-// }
-// addAnotherFloor();
-</script>
-
+  <script src="main.js"></script>
+  <script src="desktop.js"></script>
 </body>
-
 </html>

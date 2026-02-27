@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" shape-rendering="crispEdges">
+  <!-- Lid -->
+  <rect x="6" y="6" width="20" height="3" fill="#c0c0c0"/>
+  <rect x="6" y="6" width="1" height="3" fill="#ffffff"/>
+  <rect x="6" y="6" width="20" height="1" fill="#ffffff"/>
+  <rect x="25" y="6" width="1" height="3" fill="#808080"/>
+  <rect x="6" y="8" width="20" height="1" fill="#808080"/>
+  <!-- Lid handle -->
+  <rect x="13" y="4" width="6" height="3" fill="#c0c0c0"/>
+  <rect x="13" y="4" width="1" height="3" fill="#ffffff"/>
+  <rect x="13" y="4" width="6" height="1" fill="#ffffff"/>
+  <rect x="18" y="4" width="1" height="3" fill="#808080"/>
+  <!-- Bin body (trapezoid - wider at top) -->
+  <rect x="8" y="9" width="16" height="17" fill="#e0e0e0"/>
+  <rect x="7" y="10" width="1" height="15" fill="#e0e0e0"/>
+  <rect x="24" y="10" width="1" height="15" fill="#e0e0e0"/>
+  <!-- Body shading -->
+  <rect x="8" y="9" width="1" height="17" fill="#ffffff"/>
+  <rect x="8" y="9" width="16" height="1" fill="#ffffff"/>
+  <rect x="23" y="9" width="1" height="17" fill="#808080"/>
+  <rect x="8" y="25" width="16" height="1" fill="#808080"/>
+  <!-- Bottom converge -->
+  <rect x="9" y="26" width="14" height="1" fill="#c0c0c0"/>
+  <rect x="10" y="27" width="12" height="1" fill="#c0c0c0"/>
+  <rect x="10" y="27" width="12" height="1" fill="#808080"/>
+  <!-- Recycle arrows on body (green) -->
+  <!-- Arrow 1: top left going right-up -->
+  <rect x="11" y="14" width="4" height="2" fill="#008000"/>
+  <rect x="14" y="12" width="2" height="2" fill="#008000"/>
+  <rect x="15" y="13" width="1" height="1" fill="#008000"/>
+  <!-- Arrow 2: bottom going left -->
+  <rect x="12" y="19" width="4" height="2" fill="#008000"/>
+  <rect x="11" y="17" width="2" height="2" fill="#008000"/>
+  <rect x="11" y="18" width="1" height="1" fill="#008000"/>
+  <!-- Arrow 3: right going down -->
+  <rect x="18" y="15" width="2" height="4" fill="#008000"/>
+  <rect x="19" y="19" width="2" height="2" fill="#008000"/>
+  <!-- Vertical lines on bin -->
+  <rect x="12" y="10" width="1" height="15" fill="#c8c8c8"/>
+  <rect x="16" y="10" width="1" height="15" fill="#c8c8c8"/>
+  <rect x="20" y="10" width="1" height="15" fill="#c8c8c8"/>
+</svg>

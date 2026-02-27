@@ -1,304 +1,779 @@
-/* Body and Fonts */
-html, body {
+﻿/* ============================================================
+   MAIN SITE STYLES — Resend.com-inspired dark design
+   ============================================================ */
+
+/* ---------- Reset & Base ---------- */
+*, *::before, *::after {
+  box-sizing: border-box;
   margin: 0;
   padding: 0;
-  background-color: #151617;  /* Ensure dark grey background */
-  color: #ffffff;
-  font-family: 'Roboto', 'Helvetica Neue', Arial, sans-serif;
-  padding-top: 60px;
-  overflow-x: hidden;
-  scroll-behavior: smooth;
-  background-image: none !important;  /* Override any background image */
 }
 
-/* Ensure body can scroll normally on non-desktop pages */
+:root {
+  --bg:          #000000;
+  --bg-card:     rgba(255,255,255,0.03);
+  --bg-card-h:   rgba(255,255,255,0.06);
+  --border:      rgba(255,255,255,0.08);
+  --border-h:    rgba(255,255,255,0.16);
+  --text:        #ededed;
+  --text-muted:  #888;
+  --text-faint:  #444;
+  --accent:      #7c3aed;
+  --accent2:     #06b6d4;
+  --glow-purple: rgba(124,58,237,0.35);
+  --glow-cyan:   rgba(6,182,212,0.25);
+  --radius:      12px;
+  --radius-lg:   20px;
+  --font:        'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-pixel:  'Press Start 2P', monospace;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+}
+
 body {
-  margin: 0;
-  padding: 0;
-  background-color: #151617;  /* Ensure dark grey background */
-  color: #ffffff;
-  font-family: 'Roboto', 'Helvetica Neue', Arial, sans-serif;
-  padding-top: 60px;
-  /* Removed overflow-x since it's already handled */
-  overflow-x: hidden;
-  /* min-height remains to allow content expansion */
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
   min-height: 100vh;
-  scroll-behavior: smooth;
-}
-
-h1,
-h2,
-h3 {
-  color: #ffffff;
-  text-shadow: 2px 2px #000;
-}
-
-h1 {
-  font-size: 3em;
-  font-weight: 300;
-  color: #ffffff;
-}
-
-p {
+  overflow-x: hidden;
   line-height: 1.6;
 }
 
-/* Apply 90s font to About Me title */
-#about h2 {
-  font-family: 'Press Start 2P', 'Roboto', 'Helvetica Neue', Arial;
-  color: #ffffff;
-  text-shadow: 2px 2px #000;
+a { color: inherit; text-decoration: none; }
+
+/* ---------- Animated Background ---------- */
+.bg-blob {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0;
+  animation: blobFadeIn 2s ease forwards;
 }
 
-/* Header and Navigation */
-header {
-  background-color: rgba(30, 30, 30, 0.9);
+@keyframes blobFadeIn {
+  to { opacity: 1; }
+}
+
+.bg-blob-1 {
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(124,58,237,0.18) 0%, transparent 70%);
+  top: -200px;
+  left: -200px;
+}
+
+.bg-blob-2 {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(6,182,212,0.12) 0%, transparent 70%);
+  top: 300px;
+  right: -150px;
+}
+
+.bg-grid {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+  background-size: 64px 64px;
+  pointer-events: none;
+  -webkit-mask-image: radial-gradient(ellipse 80% 80% at 50% 0%, #000 60%, transparent 100%);
+  mask-image: radial-gradient(ellipse 80% 80% at 50% 0%, #000 60%, transparent 100%);
+}
+
+header, section, footer, .hero, .stats-bar, .about-section,
+.projects-teaser, .site-footer {
+  position: relative;
+  z-index: 1;
+}
+
+/* ---------- Navigation ---------- */
+.site-header {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
-  z-index: 1000;
-  padding: 15px 0;
-  border-bottom: 1px solid #222;
-  transition: background-color 0.3s ease;
+  z-index: 100;
+  padding: 0 24px;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border-bottom: 1px solid var(--border);
 }
 
-header.header-scrolled {
-  background-color: rgba(20, 20, 20, 0.9);
-}
-
-nav ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
+.site-nav {
   display: flex;
-  justify-content: center;
-  gap: 30px;
+  align-items: center;
+  height: 60px;
+  max-width: 1100px;
+  margin: 0 auto;
+  gap: 32px;
 }
 
-nav a {
-  color: #e6e6e6;
-  text-decoration: none;
-  font-size: 1.2em;
-  transition: color 0.3s ease;
+.nav-logo { display: flex; align-items: center; flex-shrink: 0; }
+
+.nav-logo-text {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
-nav a:hover {
-  color: #ffffff;
+.nav-links { display: flex; gap: 4px; flex: 1; }
+
+.nav-link {
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-muted);
+  transition: color 0.2s, background 0.2s;
 }
 
-/* Set modern font for header text */
-header nav a {
-  font-family: 'Roboto', 'Helvetica Neue', Arial;
-  color: #e6e6e6;
-  text-decoration: none;
-  font-size: 1.2em;
-  transition: color 0.3s ease;
+.nav-link:hover, .nav-link.active {
+  color: #fff;
+  background: rgba(255,255,255,0.06);
 }
 
-/* Sections */
-section {
-  padding: 60px 20px;
+.btn-ghost {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-muted);
+  padding: 7px 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+  white-space: nowrap;
+}
+
+.btn-ghost:hover {
+  color: #fff;
+  border-color: var(--border-h);
+  background: rgba(255,255,255,0.04);
+}
+
+/* ---------- Buttons ---------- */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 24px;
+  background: linear-gradient(135deg, var(--accent), #5b21b6);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.1);
+  transition: opacity 0.2s, transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 0 24px var(--glow-purple);
+}
+
+.btn-primary:hover {
+  opacity: 0.88;
+  transform: translateY(-1px);
+  box-shadow: 0 0 36px var(--glow-purple);
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 24px;
+  background: rgba(255,255,255,0.05);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  transition: background 0.2s, border-color 0.2s, transform 0.2s;
+}
+
+.btn-secondary:hover {
+  background: rgba(255,255,255,0.09);
+  border-color: var(--border-h);
+  transform: translateY(-1px);
+}
+
+/* ---------- Hero ---------- */
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   text-align: center;
-  background-color: #151617;
-  margin: 0;
-  /* Remove any fixed height if present */
-  /* height: auto; */ /* Uncomment if height is set */
+  padding: 160px 24px 80px;
+  max-width: 800px;
+  margin: 0 auto;
 }
 
-section h2 {
+.hero-badge {
+  display: inline-block;
+  padding: 5px 14px;
+  background: rgba(124,58,237,0.12);
+  border: 1px solid rgba(124,58,237,0.3);
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #a78bfa;
+  margin-bottom: 28px;
+  animation: fadeUp 0.6s ease forwards;
+  opacity: 0;
+}
+
+.hero-title {
+  font-size: clamp(2.8rem, 7vw, 5rem);
+  font-weight: 800;
+  line-height: 1.12;
+  letter-spacing: -0.03em;
+  color: #fff;
+  margin-bottom: 24px;
+  animation: fadeUp 0.6s 0.1s ease forwards;
+  opacity: 0;
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-subtitle {
+  font-size: 18px;
+  font-weight: 400;
+  color: var(--text-muted);
+  line-height: 1.6;
+  max-width: 520px;
+  margin-bottom: 36px;
+  animation: fadeUp 0.6s 0.2s ease forwards;
+  opacity: 0;
+}
+
+.hero-actions {
   display: flex;
-  justify-content: center;
-  margin: 0;
-}
-
-nav li {
-  margin: 0 15px;
-}
-
-nav a {
-  color: #e6e6e6;
-  text-decoration: none;
-  font-size: 1.1em;
-  transition: color 0.3s ease;
-}
-
-nav a:hover {
-  color: #ffffff;
-}
-
-section h2 {
-  font-size: 2.5em;
-  margin-bottom: 20px;
-  color: #ffffff;
-}
-
-/* Cards */
-.cards {
-  display: flex;
+  gap: 12px;
   flex-wrap: wrap;
   justify-content: center;
-  align-items: flex-start;
+  margin-bottom: 56px;
+  animation: fadeUp 0.6s 0.3s ease forwards;
+  opacity: 0;
 }
 
-.card, .project {
-  background-color: #151617;
-  border: 1px solid #222;
-  border-radius: 15px;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-  margin: 20px auto;
-  padding: 30px;
-  width: 100%;
-  max-width: 800px;
-  transition: transform 0.3s ease-in-out;
-}
-
-.card:hover {
-  transform: translateY(-10px);
-}
-
-.card h3 {
-  margin-top: 0;
-}
-
-/* Ensure project titles use the modern font */
-.card h3 {
-  font-family: 'Roboto', 'Helvetica Neue', Arial;
-  color: #e6e6e6;
-  text-shadow: none;
-}
-
-/* Styles for the new project card */
-.card.new-project {
-    /* Add any specific styles if needed */
-    /* Example: */
-    /* background-color: #f9f9f9; */
-}
-
-/* Badges */
-.badges {
+.hero-avatars {
   display: flex;
-  justify-content: center;
-  flex-direction: column;
-}
-
-.badge {
-  background-color: #151617;
-  border: 1px solid #222;
-  color: #e6e6e6;
-  padding: 10px 20px;
-  margin: 10px auto;
-  border-radius: 30px;
-  font-size: 1em;
-  text-align: center;
-  transition: transform 0.3s ease-in-out;
-  width: 100%;
-  box-sizing: border-box;
-  max-width: 600px;
-}
-
-.badge h3 {
-  margin-top: 0;
-  font-size: 1.2em;
-}
-
-.badge p {
-  margin: 0;
-  font-size: 0.9em;
-}
-
-.badge:hover {
-  transform: translateY(-10px);
-}
-
-/* Footer */
-footer {
-  background-color: #151617;
-  color: #cccccc;
-  padding: 10px 0;
-  text-align: center;
-  margin-top: 0;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  .cards {
-    flex-direction: column;
-  }
-  .card {
-    flex: 1 1 100%;
-    max-width: none;
-  }
-}
-
-/* tiles */
-.tile-left,
-.tile-right {
-  background-color: #151617;
-  border: 1px solid #222;
-  border-radius: 10px;
-  padding: 15px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  margin: 20px auto;
-  color: #e6e6e6;
-  font-size: 1em;
-  text-align: justify;
-  transition: transform 0.3s ease-in-out;
-  width: 100%;
-  box-sizing: border-box;
-  max-width: 600px;
-}
-
-.tile-right {
-  background-color: #151617;
-}
-
-.tile-left:hover,
-.tile-right:hover {
-  transform: translateY(-10px);
-}
-
-/* Project Sections */
-.project {
-  margin: 60px auto;
-  max-width: 800px;
-  text-align: center;
-}
-
-.project h2 {
-  font-size: 2em;
-  margin-bottom: 20px;
-  color: #ffffff;
-}
-
-/* Profile Section */
-.profile-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
   gap: 20px;
-  margin: 0;
-  background-color: #151617; /* Ensure dark grey background */
-  padding: 20px 0;
-  width: 100%;
-  box-sizing: border-box;
+  animation: fadeUp 0.6s 0.4s ease forwards;
+  opacity: 0;
 }
 
-.profile-image {
-  width: 180px;
-  height: 180px;
+.avatar-link {
+  display: inline-block;
+  border-radius: 50%;
+  padding: 3px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.avatar-link:hover {
+  transform: scale(1.06) translateY(-3px);
+  box-shadow: 0 8px 30px var(--glow-purple);
+}
+
+.hero-avatar {
+  width: 100px;
+  height: 100px;
   border-radius: 50%;
   object-fit: cover;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  transition: transform 0.3s ease;
+  display: block;
+  border: 3px solid var(--bg);
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ---------- Stats Bar ---------- */
+.stats-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 24px;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 0 40px;
+}
+
+.stat-number { font-size: 15px; font-weight: 700; color: #fff; white-space: nowrap; }
+.stat-label  { font-size: 12px; color: var(--text-muted); white-space: nowrap; }
+
+.stat-divider {
+  width: 1px;
+  height: 40px;
+  background: var(--border);
+  flex-shrink: 0;
+}
+
+/* ---------- Section helpers ---------- */
+.section-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.section-label::before {
+  content: '';
+  display: block;
+  width: 20px;
+  height: 1px;
+  background: var(--accent);
+}
+
+.section-title {
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  color: #fff;
+  line-height: 1.2;
+  margin-bottom: 16px;
+}
+
+.section-description {
+  font-size: 16px;
+  color: var(--text-muted);
+  max-width: 560px;
+  line-height: 1.7;
+  margin-bottom: 48px;
+}
+
+.section-description strong { color: #fff; font-weight: 600; }
+
+/* ---------- About Section ---------- */
+.about-section {
+  padding: 100px 24px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.about-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.about-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  transition: background 0.2s, border-color 0.2s, transform 0.2s;
+}
+
+.about-card:hover {
+  background: var(--bg-card-h);
+  border-color: var(--border-h);
+  transform: translateY(-4px);
+}
+
+.about-card-icon { font-size: 28px; margin-bottom: 16px; display: block; }
+.about-card h3 { font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 10px; }
+.about-card p  { font-size: 14px; color: var(--text-muted); line-height: 1.7; }
+
+/* ---------- Projects Teaser ---------- */
+.projects-teaser {
+  padding: 100px 24px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.projects-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.project-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 28px 32px;
+  transition: background 0.2s, border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.project-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.project-card:hover {
+  background: var(--bg-card-h);
+  border-color: rgba(124,58,237,0.3);
+  transform: translateY(-5px);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.4), 0 0 0 1px rgba(124,58,237,0.1);
+}
+
+.project-card:hover::before { opacity: 1; }
+
+.project-card-tag {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--accent2);
+  margin-bottom: 12px;
+}
+
+.project-card h3 { font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 10px; }
+.project-card p  { font-size: 14px; color: var(--text-muted); line-height: 1.6; flex: 1; }
+
+.project-card-arrow {
+  display: block;
+  margin-top: 20px;
+  font-size: 16px;
+  color: var(--accent);
+  transition: transform 0.2s;
+}
+
+.project-card:hover .project-card-arrow { transform: translateX(4px); }
+
+/* ---------- GitHub Repos Section ---------- */
+.github-section {
+  padding: 100px 24px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.repo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.repo-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  transition: background 0.2s, border-color 0.2s, transform 0.2s, box-shadow 0.2s;
   cursor: pointer;
 }
 
-.profile-image:hover {
-  transform: scale(1.05);
+.repo-card:hover {
+  background: var(--bg-card-h);
+  border-color: rgba(6,182,212,0.35);
+  transform: translateY(-5px);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.3), 0 0 0 1px rgba(6,182,212,0.08);
 }
 
-/* Project Images */
+.repo-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.repo-icon { font-size: 22px; }
+
+.repo-lang {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 100px;
+}
+
+.js-lang  { background: rgba(234,179,8,0.15); color: #eab308; border: 1px solid rgba(234,179,8,0.3); }
+.cpp-lang { background: rgba(6,182,212,0.12); color: var(--accent2); border: 1px solid rgba(6,182,212,0.3); }
+
+.repo-card h3 { font-size: 16px; font-weight: 700; color: #fff; }
+.repo-card p  { font-size: 13px; color: var(--text-muted); line-height: 1.65; flex: 1; }
+
+.repo-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--text-faint);
+  margin-top: 4px;
+}
+
+.repo-arrow {
+  color: var(--accent2);
+  transition: transform 0.2s;
+}
+
+.repo-card:hover .repo-arrow { transform: translateX(4px); }
+
+/* ---------- Resume Section ---------- */
+.resume-section {
+  padding: 100px 24px;
+  max-width: 1100px;
+  margin: 0 auto;
+  border-top: 1px solid var(--border);
+}
+
+.resume-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: start;
+}
+
+@media (max-width: 860px) {
+  .resume-cols { grid-template-columns: 1fr; gap: 60px; }
+}
+
+.resume-col { display: flex; flex-direction: column; }
+
+/* Timeline */
+.timeline { display: flex; flex-direction: column; gap: 0; margin-top: 8px; }
+
+.tl-item {
+  display: flex;
+  gap: 18px;
+  padding-bottom: 28px;
+  position: relative;
+}
+
+.tl-item:not(:last-child) .tl-dot::after {
+  content: '';
+  position: absolute;
+  left: 7px;
+  top: 16px;
+  bottom: 0;
+  width: 1px;
+  background: var(--border);
+}
+
+.tl-dot {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--bg);
+  box-shadow: 0 0 0 1px var(--accent);
+  flex-shrink: 0;
+  margin-top: 3px;
+  position: relative;
+}
+
+.tl-dot.edu {
+  background: var(--accent2);
+  box-shadow: 0 0 0 1px var(--accent2);
+}
+
+.tl-body { flex: 1; }
+
+.tl-date {
+  font-size: 11px;
+  color: var(--text-faint);
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.tl-body h4 {
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 2px;
+}
+
+.tl-org {
+  font-size: 12px;
+  color: var(--accent2);
+  font-weight: 500;
+  display: block;
+  margin-bottom: 5px;
+}
+
+.tl-body p { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+
+.tl-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 10px;
+  background: rgba(234,179,8,0.1);
+  border: 1px solid rgba(234,179,8,0.25);
+  border-radius: 100px;
+  color: #fbbf24;
+}
+
+/* Skills */
+.skills-groups { display: flex; flex-direction: column; gap: 22px; margin-bottom: 36px; }
+
+.skill-group h4 {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+
+.skill-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.skill-tag {
+  font-size: 12px;
+  font-weight: 500;
+  padding: 5px 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.skill-tag:hover {
+  border-color: var(--border-h);
+  background: var(--bg-card-h);
+}
+
+/* Awards */
+.awards-list {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.award-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  color: var(--text-muted);
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.award-row:last-child { border-bottom: none; padding-bottom: 0; }
+.award-icon { font-size: 15px; flex-shrink: 0; }
+
+/* ---------- Footer ---------- */
+.site-footer {
+  border-top: 1px solid var(--border);
+  padding: 32px 24px;
+  margin-top: 60px;
+}
+
+.footer-inner {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  max-width: 1100px;
+  margin: 0 auto;
+  flex-wrap: wrap;
+}
+
+.footer-logo {
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.footer-copy  { font-size: 12px; color: var(--text-faint); flex: 1; }
+.footer-links { display: flex; gap: 16px; }
+.footer-link  { font-size: 12px; color: var(--text-muted); transition: color 0.2s; }
+.footer-link:hover { color: #fff; }
+
+/* ---------- Scrollbar ---------- */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: #111; }
+::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #555; }
+* { scrollbar-width: thin; scrollbar-color: #333 #111; }
+
+/* ---------- Utilities ---------- */
+.hidden { display: none !important; }
+
+/* ---------- Projects Page ---------- */
+#projects {
+  padding: 120px 24px 80px;
+  max-width: 900px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+#projects h2 {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.03em;
+  margin-bottom: 48px;
+  background: linear-gradient(135deg, #fff 30%, var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 36px;
+  margin-bottom: 24px;
+  transition: background 0.2s, border-color 0.2s, transform 0.2s;
+}
+
+.card:hover {
+  background: var(--bg-card-h);
+  border-color: var(--border-h);
+  transform: translateY(-4px);
+}
+
+.card h3 { font-size: 20px; font-weight: 700; color: #fff; margin-bottom: 16px; }
+.card p   { font-size: 15px; color: var(--text-muted); line-height: 1.7; }
+
 .project-image, .card img {
   width: 100%;
   max-width: 500px;
@@ -307,170 +782,53 @@ footer {
   border-radius: 10px;
   margin: 20px auto;
   display: block;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  object-position: center;
-  aspect-ratio: 1 / 1;
+  border: 1px solid var(--border);
 }
 
-.ironman-image {
-  object-position: top;
-  aspect-ratio: 1 / 1;
-}
+.ironman-image   { object-position: top; }
+.avr-drone-image { object-fit: contain; background: #0a0a0a; }
 
-.avr-drone-image {
-  object-fit: contain;
-  background-color: #151617;
-}
-
-/* Add sleek, modern dark-themed scrollbar styling */
-
-/* WebKit Browsers */
-::-webkit-scrollbar {
-  width: 12px;
-}
-
-::-webkit-scrollbar-track {
-  background: #2c2c2c; /* Dark track background */
-  border-radius: 6px;
-}
-
-::-webkit-scrollbar-thumb {
-  background-color: #555; /* Dark thumb */
-  border-radius: 6px;
-  border: 3px solid #2c2c2c; /* Creates padding around thumb */
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background-color: #999; /* Lighter thumb on hover */
-}
-
-/* Firefox */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: #555 #2c2c2c; /* Thumb and track colors */
-}
-
-/* Styles for the clicker game */
+/* ---------- Clicker game ---------- */
 .clicker-game {
-  background-color: #151617;
-  color: #e6e6e6;
-  padding: 20px;
-  border-radius: 10px;
-  margin: 0 auto; /* Center horizontally */
-  /* Remove fixed positioning and related properties */
-  /* position: fixed; */
-  /* top: 50%; */
-  /* left: 50%; */
-  /* transform: translate(-50%, -50%); */
-  
-  /* Add styles to position at the bottom of its container */
-  margin-top: 40px; /* Adjust spacing as needed */
-  /* Ensure width and other styles remain consistent */
-  width: 90%;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
   max-width: 600px;
+  margin: 40px auto;
   text-align: center;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  transform: translateZ(0);
 }
 
 .clicker-area {
-  flex: 1;
-  background-color: #2e2f30;
-  border-radius: 10px;
-  margin: 20px 0;
-  cursor: pointer;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  height: 200px;
   display: flex;
-  justify-content: center;
   align-items: center;
-  height: 600px;
+  justify-content: center;
+  cursor: pointer;
+  margin: 16px 0;
+  transition: background 0.2s;
 }
 
-.clicker-area h3 {
-  margin: 0;
-  font-size: 2em;
-  color: #b0b0b0;
-  line-height: 600px;
-}
-
-.clicker-area:active {
-  background-color: #282a2b;
-}
-
-.clicker-area.disabled {
-  cursor: not-allowed;
-  opacity: 0.7;
-  pointer-events: none;
-}
+.clicker-area:hover  { background: rgba(255,255,255,0.06); }
+.clicker-area:active { background: rgba(124,58,237,0.1); }
+.clicker-area h3 { font-size: 1.4em; color: #fff; }
 
 .score-display {
-  font-family: 'Press Start 2P', 'Roboto', 'Helvetica Neue', Arial;
-  font-size: 1.2em;
-  margin-top: 20px;
-  min-height: 2em;
+  font-family: var(--font-pixel);
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 12px;
 }
 
-@keyframes rainbow {
-  0% { color: red; }
-  16% { color: orange; }
-  33% { color: yellow; }
-  50% { color: green; }
-  66% { color: blue; }
-  83% { color: indigo; }
-  100% { color: violet; }
-}
+.clicker-game.hidden { display: none !important; }
 
-.high-score.rainbow {
-  animation: rainbow 2s linear infinite;
-}
-
-/* Apply 90s font to Clicker Game and High Score */
-.clicker-game h3,
-.high-score {
-  font-family: 'Press Start 2P', 'Roboto', 'Helvetica Neue', Arial;
-  color: #ffffff;
-  text-shadow: 2px 2px #000;
-}
-
-/* Enhanced button appearance */
-.clicker-button {
-  background-color: #e0e0e0;
-  color: #ffffff;
-  border: none;
-  padding: 15px 30px;
-  font-size: 1.2em;
-  border-radius: 50px;
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  box-shadow: 0 4px 15px rgba(255, 65, 108, 0.5);
-}
-
-.clicker-button:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 20px rgba(255, 65, 108, 0.7);
-}
-
-.clicker-button:active {
-  transform: translateY(0);
-  box-shadow: 0 4px 15px rgba(255, 65, 108, 0.5);
-}
-
-/* Styles for The Endless Download game */
-#endless-download {
-  margin: 20px auto;
-  text-align: center;
-  padding: 20px;
-  background-color: #151617;
-  border-radius: 15px;
-  max-width: 1000px;
-  position: relative;
-}
-
-#endless-download #gameCanvas {
-  background-color: #151617; /* Changed from light grey to dark grey */
-  border: 2px solid #333;
+/* ---------- Canvas / Game ---------- */
+#gameCanvas {
+  background: #080808;
+  border: 1px solid var(--border);
   border-radius: 10px;
   display: block;
   margin: 0 auto;
@@ -479,439 +837,60 @@ footer {
   height: 400px;
   image-rendering: pixelated;
   cursor: pointer;
-  position: relative;
-  z-index: 1;
 }
 
-/* Update floor styling */
-.floor {
-  background-color: #a0a0a0;
-  border-top: 2px solid #808080;
-  margin: 0;
-  padding: 20px 0;
-  background-color: #151617;
+.game-instructions { font-family: var(--font-pixel); font-size: 11px; color: var(--text-muted); text-align: center; }
+.game-title { font-family: var(--font-pixel); font-size: 14px; color: #fff; text-align: center; margin-bottom: 16px; }
+
+/* ---------- Legacy nav (projects.html) ---------- */
+header {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
 }
 
-#gameCanvas {
-  background-color: #151617; /* Changed from light grey to dark grey */
-  border: 2px solid #333;
-  border-radius: 10px;
-  display: block;
-  margin: 0 auto;
-  width: 100%;
-  max-width: 1000px;
-  height: 400px;
-  image-rendering: pixelated;
-  cursor: pointer;
-  position: relative;
-  z-index: 1;
-}
-
-/* Ensure other text uses the normal font */
-p,
-.nav a,
-.card h3,
-.badge h3,
-.badge p {
-  font-family: 'Roboto', 'Helvetica Neue', Arial;
-  color: #e6e6e6;
-  text-shadow: none;
-}
-
-/* Y3t1M.github.io footer text */
-footer p {
-  font-family: 'Press Start 2P', 'Roboto', 'Helvetica Neue', Arial;
-  color: #ffffff;
-  text-shadow: 2px 2px #000;
-}
-
-/* Ensure bio headings use the modern font */
-#about h3 {
-  font-family: 'Roboto', 'Helvetica Neue', Arial;
-  color: #e6e6e6;
-  text-shadow: none;
-}
-
-/* Apply white color to elements using 'Press Start 2P' font */
-.clicker-game h3,
-.high-score,
-#about h3,
-#endless-download h2,
-footer p {
-  color: #ffffff;
-}
-
-/* Add any specific styles for the new enemy if needed */
-/* .new-enemy-class {
-    /* Example styles *
-} */
-
-.hidden {
-  display: none !important;
-}
-
-.profile-image {
-  cursor: pointer;
-}
-
-/* Optional: Adjust GROUND_HEIGHT if the new floor image has different dimensions */
-:root {
-  --ground-height: 50px;
-}
-
-#gameCanvas {
-  --ground-height: 50px;
-}
-
-/* Jump Instruction Text */
-.game-instructions {
-  color: #ffffff;
-  font-family: 'Press Start 2P', cursive;
-}
-
-/* Game Card Specific Styles */
-.game-card {
+header nav ul {
+  list-style: none;
   display: flex;
-  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  height: 60px;
   align-items: center;
-  max-width: 1200px !important;
-}
-
-.game-title {
-  font-family: 'Press Start 2P', cursive !important;
-  font-weight: bold;
-  font-size: 1.5em;
-  margin-bottom: 1.5em;
-  color: #ffffff !important;
-  text-shadow: 2px 2px #000 !important;
-}
-
-.game-container {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin: 20px 0;
-}
-
-.centered-game {
-  display: block;
+  max-width: 1100px;
   margin: 0 auto;
-  max-width: 1000px;
-  width: 100%;
-  height: 400px;
 }
 
-/* Ensure game instructions are properly styled */
-.game-instructions {
-  font-family: 'Press Start 2P', cursive;
-  color: #ffffff;
-  margin-bottom: 20px;
-  text-shadow: 1px 1px #000;
+header nav li { margin: 0; }
+
+header nav a {
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color 0.2s, background 0.2s;
 }
 
-/* Disabled state styling for clicker game */
-.clicker-game.disabled {
-    opacity: 0.6; /* Make the game appear dimmed */
-    pointer-events: none; /* Disable pointer interactions */
-    cursor: not-allowed; /* Change cursor to indicate disabled state */
-}
+header nav a:hover { color: #fff; background: rgba(255,255,255,0.06); }
 
-/* Remove global 'Press Start 2P' font application */
-body, h1, h2, h3, p, nav a, .card h3, .badge h3, .badge p, footer p {
-  font-family: 'Roboto', 'Helvetica Neue', Arial, sans-serif;
-  color: #ffffff;
-  text-shadow: 2px 2px #000;
-}
+section { position: relative; z-index: 1; }
 
-/* Add 'Press Start 2P' font to specific sections */
-.clicker-game h3,
-.high-score,
-#about h2,
-#about h3,
-.game-instructions,
-.game-title,
-#endless-download h2,
-#projects h2,  /* Add this line */
-footer p {
-  font-family: 'Press Start 2P', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
-  color: #ffffff;
-  text-shadow: 2px 2px #000;
-}
-
-/* Ensure the #projects section has appropriate styling */
-#projects {
-    /* Add any necessary styles to maintain layout */
-    /* ...existing or new styles... */
-}
-
-/* Styles for Controls Section */
-.tetris-controls {
-    background: #f0eacd;
-    padding: 15px;
-    border: 2px solid #0000FF;
-    border-radius: 5px;
-    margin: 20px;
-    font-family: 'Press Start 2P', cursive;
-}
-
-.tetris-controls h3 {
-    color: #0000FF;
-    text-align: center;
-    margin-bottom: 10px;
-}
-
-.tetris-controls ul {
-    list-style: none;
-    padding: 0;
-    color: #D2B48C; /* Dark tan color */
-    font-weight: normal; /* Lighter font weight */
-    font-family: 'Press Start 2P', cursive;
-}
-
-.tetris-controls li {
-    background: #c0c0c0;
-    margin: 5px 0;
-    padding: 8px;
-    border-radius: 3px;
-    text-align: center;
-    color: #000;
-    font-size: 10px;
-}
-
-/* Projects Section */
-.projects-section {
-    padding: 20px;
-    background: #f0eacd;
-}
-
-.projects-section h2 {
-    text-align: center;
-    font-family: 'Press Start 2P', cursive;
-    color: #0000FF;
-}
-
-.project-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    justify-content: center;
-}
-
-.project-item {
-    background: #c0c0c0;
-    border: 2px solid #444;
-    border-radius: 8px;
-    padding: 15px;
-    width: 300px;
-    text-align: center;
-}
-
-.project-item h3 {
-    font-family: 'Press Start 2P', cursive;
-    color: #0000FF;
-}
-
-.project-item img {
-    max-width: 100%;
-    height: auto;
-    border-radius: 4px;
-}
-
-.project-item p {
-    font-size: 12px;
-    color: #000;
-}
-
-/* Navigation Styles */
-.main-nav {
-    background: #c0c0c0;
-    padding: 10px;
-}
-
-.main-nav ul {
-    list-style: none;
-    display: flex;
-    gap: 15px;
-    justify-content: center;
-    margin: 0;
-    padding: 0;
-}
-
-.main-nav a {
-    text-decoration: none;
-    color: #0000FF;
-    font-family: 'Press Start 2P', cursive;
-    font-size: 14px;
-}
-
-.main-nav a:hover {
-    color: #FF0000;
-}
-
-/* Styles for Next Piece Display */
-#nextPiece {
-    border: 2px solid #444;
-    background-color: #f0eacd;
-    margin-left: 20px;
-}
-
-/* Ensure the game container aligns the main game and next piece */
-.game-container {
-    display: flex;
-    gap: 20px;
-    justify-content: center;
-    align-items: flex-start;
-    padding: 20px;
-    background-color: #f0eacd;
-    border: 4px solid #444;
-    border-radius: 8px;
-}
-
-/* Styles for Next Pieces Display */
-.next-pieces {
-    display: flex;
-    flex-direction: column; /* Changed from row to column */
-    gap: 10px; /* Adjust spacing as needed */
-    align-items: center; /* Center hold blocks horizontally */
-}
-
-.next-pieces canvas {
-    border: 2px solid #444;
-    background-color: #f0eacd;
-    width: 100px; /* Fixed width to prevent stretching */
-    height: 100px; /* Fixed height to maintain aspect ratio */
-}
-
-/* Ensure the game section has proper positioning and background */
-.tetris-game {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    background-color: #000; /* Black background to match OG Tetris */
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 0 10px #fff;
-    margin: 20px auto;
-    max-width: 800px;
-}
-
-/* Adjust h1 within tetris-game for better visibility */
-.tetris-game h1 {
-    font-size: 2em;
-    margin-bottom: 10px;
-}
-
-/* Style the game-container to center the game and next pieces */
-.game-container {
-    display: flex;
-    gap: 20px;
-    justify-content: center;
-    align-items: flex-start;
-    margin-bottom: 20px;
-}
-
-/* Style the next-pieces container */
-.next-pieces {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-/* Style individual next-piece canvases */
-.next-pieces canvas {
-    border: 2px solid #555;
-    background-color: #000;
-    width: 80px;
-    height: 80px;
-}
-
-/* Style the score-boxes */
-.score-box {
-    background-color: #222;
-    border: 2px solid #555;
-    border-radius: 5px;
-    padding: 10px 20px;
-    width: 100px;
-    text-align: center;
-}
-
-.score-box .label {
-    font-size: 0.8em;
-    color: #0ff;
-}
-
-.score-box div {
-    font-size: 1.2em;
-    color: #fff;
-}
-
-/* Style the controls section */
-.tetris-controls {
-    background: #333;
-    padding: 15px;
-    border: 2px solid #555;
-    border-radius: 5px;
-    margin: 20px auto;
-    max-width: 300px;
-    font-family: 'Press Start 2P', cursive;
-    color: #D2B48C; /* Dark tan color */
-    font-weight: 300; /* Lighter font weight */
-}
-
-.tetris-controls h3 {
-    color: #0ff;
-    text-align: center;
-    margin-bottom: 10px;
-}
-
-.tetris-controls ul {
-    list-style: none;
-    padding: 0;
-    font-weight: bold; /* Use thicker text */
-    font-family: 'Press Start 2P', cursive;
-}
-
-.tetris-controls li {
-    background: #444;
-    margin: 5px 0;
-    padding: 8px;
-    border-radius: 3px;
-    text-align: center;
-    color: #fff;
-    font-size: 0.8em;
-}
-
-/* Responsive Design */
-@media (max-width: 600px) {
-    .game-container {
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .score-box {
-        width: 80px;
-        padding: 8px 16px;
-    }
-
-    .tetris-controls {
-        max-width: 100%;
-    }
-}
-
-/* Change Play Space Background to Darker Tan */
-#tetris {
-    background-color: #D2B48C; /* Dark tan color */
-    /* ...existing styles... */
-}
-
-/* Center Tetriminos in Hold Blocks */
-.next-piece {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #D2B48C; /* Match the play space background */
-    padding: 10px;
-    border: 2px solid #444;
-    /* Ensure canvas is centered */
+/* ---------- Responsive ---------- */
+@media (max-width: 768px) {
+  .site-nav { gap: 12px; }
+  .nav-links { gap: 2px; }
+  .hero { padding: 130px 20px 60px; }
+  .hero-title { font-size: 2.4rem; }
+  .stats-bar { gap: 16px; padding: 20px 12px; }
+  .stat-item { padding: 0 16px; }
+  .stat-divider { display: none; }
+  .about-grid, .projects-row { grid-template-columns: 1fr; }
+  .footer-inner { flex-direction: column; text-align: center; }
+  .nav-cta { display: none; }
 }

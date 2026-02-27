@@ -1,349 +1,749 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Windows Desktop</title>
-    <link rel="stylesheet" href="desktop.css">
-    <style>
-        @font-face {
-            font-family: 'MS Sans Serif';
-            src: local('MS Sans Serif'),
-                 local('Microsoft Sans Serif'),
-                 local('Tahoma');
-        }
-    </style>
-    <!-- Preload audio files -->
-    <link rel="preload" href="assets/audio/MicrosoftWindowsXPstartupSound.mp3" as="audio">
-    <link rel="preload" href="assets/audio/WindowsXPErrorSound.mp3" as="audio">
-    <link rel="preload" href="assets/audio/MicrosoftWindowsXPShutdownSound.mp3" as="audio">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Y3t1M Desktop</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="desktop.css">
+
 </head>
 <body class="desktop">
-    <div class="desktop">
-        <!-- Desktop Icons -->
-        <div class="icon" data-window="computer-window">
-            <img src="assets/icons/my_computer.png" alt="Computer">
-            <span>Computer</span>
-        </div>
-        <div class="icon" data-window="about-window">
-            <img src="assets/icons/file.png" alt="About Me">
-            <span>About Me</span>
-        </div>
-        <div class="icon" data-window="recycle-window">
-            <img src="assets/icons/recycle_bin.png" alt="Recycle Bin">
-            <span>Recycle Bin</span>
-        </div>
-        <div class="icon" data-window="pixos-window">
-            <!--
-            <img src="assets/icons/pixos.png" alt="PixOS">
-            <span>PixOS</span>
-            -->
-        </div>
+<div class="desktop" id="desktop">
 
-        <!-- Windows -->
-        <div class="window" id="computer-window">
-            <div class="window-titlebar">
-                <span>Computer</span>
-                <div class="window-controls">
-                    <button class="minimize-btn">&#8722;</button>
-                    <button class="maximize-btn">&#9633;</button>
-                    <button class="close-btn">&#215;</button>
-                </div>
-            </div>
-            <div class="window-content">
-                <div class="folder-grid">
-                    <div class="folder" data-window="projects-window">
-                        <img src="assets/icons/harddrivenobackground.png" alt="Projects">
-                        <span>Projects</span>
-                    </div>
-                    <div class="folder" data-window="games-window">
-                        <img src="assets/icons/controllernobg.png" alt="Games">
-                        <span>Games</span>
-                    </div>
-                    <!-- Add PixOS folder inside the Computer window -->
-                    <div class="folder" data-window="pixos-window">
-                        <img src="assets/icons/artbw.png" alt="PixOS">
-                        <span>PixOS</span>
-                    </div>
-                    <!-- Add Tetris icon -->
-                    <div class="folder" data-window="tetris-window">
-                        <img src="assets/icons/tetris.png" alt="Tetris">
-                        <span>Tetris</span>
-                    </div>
-                    <!-- Add folders for Clicker Game and Infinite Download -->
-                    <!--
-                    <div class="folder" data-window="clicker-window">
-                        <img src="assets/icons/clicker.png" alt="Clicker Game">
-                        <span>Clicker Game</span>
-                    </div>
-                    <div class="folder" data-window="infinite-download-window">
-                        <img src="assets/icons/loading.png" alt="Infinite Download">
-                        <span>Infinite Download</span>
-                    </div>
-                    -->
-                </div>
-            </div>
+  <!-- ═══ DESKTOP ICONS ═══ -->
+  <div class="icon" data-window="computer-window">
+    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' shape-rendering='crispEdges'%3E%3Crect x='3' y='2' width='22' height='15' fill='%23c0c0c0'/%3E%3Crect x='4' y='3' width='20' height='12' fill='%23000080'/%3E%3Crect x='3' y='2' width='1' height='15' fill='%23fff'/%3E%3Crect x='3' y='2' width='22' height='1' fill='%23fff'/%3E%3Crect x='24' y='2' width='1' height='15' fill='%23808080'/%3E%3Crect x='3' y='16' width='22' height='1' fill='%23808080'/%3E%3Crect x='10' y='17' width='4' height='4' fill='%23808080'/%3E%3Crect x='7' y='21' width='10' height='2' fill='%23808080'/%3E%3C/svg%3E" alt=""><span>My Computer</span>
+  </div>
+  <div class="icon" data-window="mydocs-window">
+    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' shape-rendering='crispEdges'%3E%3Crect x='2' y='9' width='27' height='18' fill='%23ffcc44'/%3E%3Crect x='2' y='7' width='11' height='4' fill='%23ffcc44'/%3E%3Crect x='2' y='7' width='1' height='20' fill='%23fff'/%3E%3Crect x='2' y='7' width='11' height='1' fill='%23fff'/%3E%3Crect x='2' y='26' width='27' height='1' fill='%23808080'/%3E%3Crect x='28' y='9' width='1' height='18' fill='%23808080'/%3E%3C/svg%3E" alt=""><span>My Documents</span>
+  </div>
+  <div class="icon" data-window="recycle-window">
+    <img src="assets/icons/recycle_bin_icon.svg" alt=""><span>Recycle Bin</span>
+  </div>
+  <div class="icon" data-window="ie-window">
+    <img src="assets/icons/ie_icon.svg" alt=""><span>Internet Explorer</span>
+  </div>
+  <div class="icon" data-window="notepad-window">
+    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' shape-rendering='crispEdges'%3E%3Crect x='5' y='2' width='18' height='27' fill='white'/%3E%3Crect x='20' y='2' width='3' height='4' fill='%23c0c0c0'/%3E%3Crect x='5' y='28' width='18' height='1' fill='%23808080'/%3E%3Crect x='22' y='2' width='1' height='27' fill='%23808080'/%3E%3Crect x='7' y='8' width='13' height='1' fill='%23999'/%3E%3Crect x='7' y='12' width='13' height='1' fill='%23999'/%3E%3Crect x='7' y='16' width='10' height='1' fill='%23999'/%3E%3Crect x='7' y='20' width='13' height='1' fill='%23999'/%3E%3Crect x='7' y='24' width='8' height='1' fill='%23999'/%3E%3C/svg%3E" alt=""><span>Notepad</span>
+  </div>
+  <div class="icon" data-window="minesweeper-window">
+    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' shape-rendering='crispEdges'%3E%3Crect x='2' y='2' width='28' height='28' fill='%23c0c0c0'/%3E%3Ccircle cx='16' cy='17' r='8' fill='%23000'/%3E%3Crect x='14' y='7' width='4' height='5' fill='%23000'/%3E%3Crect x='14' y='22' width='4' height='5' fill='%23000'/%3E%3Crect x='7' y='15' width='5' height='4' fill='%23000'/%3E%3Crect x='22' y='15' width='5' height='4' fill='%23000'/%3E%3Crect x='11' y='10' width='3' height='3' fill='%23000'/%3E%3Crect x='20' y='10' width='3' height='3' fill='%23000'/%3E%3Crect x='13' y='14' width='2' height='2' fill='%23fff'/%3E%3C/svg%3E" alt=""><span>Minesweeper</span>
+  </div>
+  <div class="icon" data-window="pixos-window">
+    <img src="assets/icons/pixos_icon.svg" alt=""><span>PixOS Paint</span>
+  </div>
+  <div class="icon" data-window="tetris-window">
+    <img src="assets/icons/tetris_icon.svg" alt=""><span>Tetris</span>
+  </div>
+  <div class="icon" data-href="mac.html">
+    <img src="assets/icons/mac_icon.svg" alt=""><span>Mac OS 9</span>
+  </div>
+
+  <!-- ═══ WINDOWS ═══ -->
+
+  <!-- MY COMPUTER -->
+  <div class="window" id="computer-window" style="width:520px;height:380px;top:60px;left:200px;">
+    <div class="window-titlebar">
+      <span class="title-icon">🖥️</span>
+      <span>My Computer</span>
+      <div class="window-controls">
+        <button class="minimize-btn">_</button>
+        <button class="maximize-btn">□</button>
+        <button class="close-btn">✕</button>
+      </div>
+    </div>
+    <div class="window-content">
+      <div class="folder-grid">
+        <div class="folder" data-window="projects-window">
+          <img src="assets/icons/harddrivenobackground.png" alt="">
+          <span>Projects (C:)</span>
         </div>
-
-        <!-- Add new windows for Projects and Games -->
-        <div class="window" id="projects-window">
-            <div class="window-titlebar">
-                <span>Projects</span>
-                <div class="window-controls">
-                    <button class="minimize-btn">&#8722;</button>
-                    <button class="maximize-btn">&#9633;</button>
-                    <button class="close-btn">&#215;</button>
-                </div>
-            </div>
-            <div class="window-content">
-                <div class="project-list">
-                    <div class="project-item">
-                        <h3>Arduino R4 Controller</h3>
-                        <img src="assets/img/arduino_r4.jpg" alt="Arduino R4 Controller">
-                        <p>A web-based interface hosted on an Arduino R4 WiFi board, enabling remote control of multiple servos and electromagnets. Users can access the control panel over WiFi without additional apps, operate servos individually or simultaneously, control electromagnets, and view real-time statuses.</p>
-                    </div>
-                    <div class="project-item">
-                        <h3>AVR Drone</h3>
-                        <img src="assets/img/avr_drone.jpg" alt="AVR Drone">
-                        <p>Led the development of an autonomous drone for the Bell Advanced Vertical Robotics Competition. Utilized A* pathfinding to navigate complex environments, pushing the boundaries of autonomous flight and showcasing innovative engineering solutions.</p>
-                    </div>
-                    <div class="project-item">
-                        <h3>Iron Man Helmet</h3>
-                        <img src="assets/img/ironman_helmettop.jpg" alt="Iron Man Helmet">
-                        <p>Designed and built a functional Iron Man helmet using 3D printing and electronics. This project combined engineering and creativity to bring a piece of fictional technology into the real world, complete with moving parts and a magnetic faceplate.</p>
-                    </div>
-                </div>
-            </div>
+        <div class="folder" data-window="games-window">
+          <img src="assets/icons/controllernobg.png" alt="">
+          <span>Games (D:)</span>
         </div>
-
-        <!-- Update games window size and content -->
-        <div class="window" id="games-window">
-            <div class="window-titlebar">
-                <span>Games</span>
-                <div class="window-controls">
-                    <button class="minimize-btn">&#8722;</button>
-                    <button class="maximize-btn">&#9633;</button>
-                    <button class="close-btn">&#215;</button>
-                </div>
-            </div>
-            <div class="window-content">
-                <div id="endless-download" class="game-section">
-                    <h3 class="game-title">The Endless Download</h3>
-                    <div class="game-container">
-                        <canvas id="gameCanvas" width="1000" height="400"></canvas>
-                        <div class="floor"></div>
-                    </div>
-                </div>
-                
-                <div id="clicker-game" class="game-section">
-                    <h3 class="game-title">Clicker Game</h3>
-                    <div class="clicker-area">
-                        <h3>Click!</h3>
-                    </div>
-                    <div class="score-display">
-                        <p id="current-score">Click to start new game</p>
-                        <p id="high-score">High Score: 0</p>
-                    </div>
-                </div>
-
-            
-                </div>
-            </div>
+        <div class="folder" data-window="pixos-window">
+          <img src="assets/icons/artbw.png" alt="">
+          <span>PixOS Paint</span>
         </div>
-
-        <div class="window" id="recycle-window">
-            <div class="window-titlebar">
-                <span>Recycle Bin</span>
-                <div class="window-controls">
-                    <button class="minimize-btn">&#8722;</button>
-                    <button class="maximize-btn">&#9633;</button>
-                    <button class="close-btn">&#215;</button>
-                </div>
-            </div>
-            <div class="window-content">
-                <p>Recycle Bin is empty</p>
-                <button id="trash-btn" class="trash-button">Trash</button>
-            </div>
+        <div class="folder" data-window="tetris-window">
+          <img src="assets/icons/tetris.png" alt="">
+          <span>Tetris</span>
         </div>
-
-        <!-- About Me Window -->
-        <div class="window" id="about-window">
-            <div class="window-titlebar">
-                <span>About Me</span>
-                <div class="window-controls">
-                    <button class="minimize-btn">&#8722;</button>
-                    <button class="maximize-btn">&#9633;</button> <!-- Fixed the entity -->
-                    <button class="close-btn">&#215;</button>
-                </div>
-            </div>
-            <div class="window-content">
-                <div class="about-content">
-                    <div class="profile-section">
-                        <img src="assets/img/profile1.jpg" alt="Hudson Tinch" class="profile-pic">
-                        <h2>Hudson Tinch</h2>
-                    </div>
-                    <div class="bio-section">
-                        <p>Hi! I'm Hudson Tinch, a robotics enthusiast and maker with a passion for turning ideas into tangible creations.</p>
-                        
-                        <p>As the captain of the HP robotics team, I combined my love for hands-on building with advanced technology, leading my team in challenging competitions and innovative projects.</p>
-                        
-                        <p>Beyond robotics, I have a deep enthusiasm for creating physical objects, particularly through 3D printing. From prototyping intricate designs to building functional components, I thrive on the process of transforming digital concepts into real-world objects. For me, the intersection of engineering and creativity is where the magic happens, and I'm constantly exploring new ways to bring ideas to life.</p>
-                    </div>
-                    <div class="skills-section">
-                        <h3>Technical Skills:</h3>
-                        <ul>
-                            <li>Programming Languages: C++, Python, JavaScript</li>
-                            <li>Hardware: PCB Design, Microcontrollers, Electronics</li>
-                            <li>Tools: AutoCAD, KiCad, Git</li>
-                            <li>Additional: 3D Printing, Robotics, Web Development</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
+        <div class="folder" data-window="minesweeper-window">
+          <span class="icon-emoji">💣</span>
+          <span>Minesweeper</span>
         </div>
-
-        <!-- Modified Taskbar -->
-        <div class="taskbar">
-            <button class="start-btn">
-                <img src="assets/icons/start_button.png" alt="Start">
-                Start
-            </button>
-            <div class="taskbar-items">
-                <!-- Minimized windows will appear here -->
-            </div>
-            <!-- Removed shutdown-btn from taskbar -->
-            <!-- Add Start Menu -->
-            <div class="start-menu hidden">
-                <div class="start-menu-items">
-                    <div class="start-item" data-action="contact">
-                        <img src="assets/icons/contactnb.png" alt="Contact">
-                        <span>Contact</span>
-                    </div>
-                    <div class="start-item" data-action="lock">
-                        <img src="assets/icons/lockbw.png" alt="Lock">
-                        <span>Lock</span>
-                    </div>
-                    <div class="start-item" data-action="restart">
-                        <img src="assets/icons/resetbw.png" alt="Restart">
-                        <span>Restart</span>
-                    </div>
-                    <div class="start-item" data-action="shutdown">
-                        <img src="assets/icons/shutoffbw.png" alt="Shut Down">
-                        <span>Shut Down</span>
-                    </div>
-                </div>
-            </div>
+        <div class="folder" data-window="notepad-window">
+          <span class="icon-emoji">📝</span>
+          <span>Notepad</span>
         </div>
-
-        <!-- Add Lock Screen -->
-        <div class="lock-screen hidden">
-            <div class="lock-content">
-                <img src="assets/icons/start_button.png" alt="User" class="lock-avatar">
-                <h2>Power User</h2>
-                <div class="password-input">
-                    <input type="password" placeholder="Enter Password" id="password-field">
-                    <button id="login-btn">→</button>
-                </div>
-                <div class="error-message"></div>
-            </div>
+        <div class="folder" data-window="ie-window">
+          <span class="icon-emoji">🌐</span>
+          <span>Internet Explorer</span>
         </div>
-
-        <!-- Modify Contact Error Window -->
-        <div class="window" id="contact-error-window">
-            <div class="window-titlebar">
-                <span>System Error</span>
-                <div class="window-controls">
-                    <button class="close-btn">&#215;</button>
-                </div>
-            </div>
-            <div class="error-dialog">
-                <div class="error-message-text">
-                    <p>Access is denied.</p>
-                    <p>Email: Hudson.Tinch@gmail.com</p>
-                    <p>GitHub: Y3t1M</p>
-                    <button class="ok-button">OK</button>
-                </div>
-            </div>
+        <div class="folder" data-window="about-window">
+          <img src="assets/icons/file.png" alt="">
+          <span>About Me</span>
         </div>
+      </div>
+    </div>
+    <div class="window-statusbar">
+      <span class="statusbar-panel">8 objects</span>
+    </div>
+  </div>
 
-        <!-- PixOS Window -->
-        <div class="window" id="pixos-window">
-            <div class="window-titlebar">
-                <span>PixOS</span>
-                <div class="window-controls">
-                    <button class="minimize-btn">&#8722;</button>
-                    <button class="maximize-btn">&#9633;</button>
-                    <button class="close-btn">&#215;</button>
-                </div>
-            </div>
-            <div class="window-content">
-                <iframe src="PixOS/PixOS.html" frameborder="0"></iframe>
-            </div>
+  <!-- MY DOCUMENTS -->
+  <div class="window" id="mydocs-window" style="width:520px;height:460px;top:70px;left:210px;">
+    <div class="window-titlebar">
+      <span class="title-icon">📁</span>
+      <span>My Documents</span>
+      <div class="window-controls">
+        <button class="minimize-btn">_</button>
+        <button class="maximize-btn">□</button>
+        <button class="close-btn">✕</button>
+      </div>
+    </div>
+    <div class="window-content">
+      <div class="mydocs-content">
+        <h2>Hudson H. Tinch — Resume</h2>
+        <table class="info-table">
+          <tr class="section-header"><td colspan="2">📇 CONTACT</td></tr>
+          <tr><td>Email</td><td>hudson.tinch@gmail.com</td></tr>
+          <tr><td>Phone</td><td>817-808-2010</td></tr>
+          <tr><td>GitHub</td><td>github.com/Y3t1M</td></tr>
+          <tr><td>LinkedIn</td><td>linkedin.com/in/hudsontinch</td></tr>
+          <tr class="section-header"><td colspan="2">🎓 EDUCATION</td></tr>
+          <tr><td>2021–2025</td><td>Highland Park High School</td></tr>
+          <tr><td>2024</td><td>Wharton Global Youth Program — CEO</td></tr>
+          <tr><td>2024</td><td>Duke Pre-College — CEO</td></tr>
+          <tr><td>2023</td><td>Georgia Tech Summer Institute</td></tr>
+          <tr><td>2023–2025</td><td>Moody MAPS Program</td></tr>
+          <tr class="section-header"><td colspan="2">💼 EXPERIENCE</td></tr>
+          <tr><td>2019–Now</td><td>Back-End Web Dev — Hollis Bloom</td></tr>
+          <tr><td>2023–Now</td><td>C++ Programmer — Farah Law Firm</td></tr>
+          <tr><td>2014–2020</td><td>Founder — Dimensional Design 3d</td></tr>
+          <tr><td>2024</td><td>Tutor — HHTutoring</td></tr>
+          <tr class="section-header"><td colspan="2">🏆 AWARDS</td></tr>
+          <tr><td>Wharton</td><td>Best Presentation Award</td></tr>
+          <tr><td>Duke</td><td>Pitch Competition Winner</td></tr>
+          <tr><td>Georgia Tech</td><td>Highest Presentation Score</td></tr>
+          <tr><td>HP MAPS</td><td>Scots Tank Winner</td></tr>
+          <tr><td>Bell AVR</td><td>8th Place Nationals</td></tr>
+          <tr><td>Robotics</td><td>Best Design + Judges Choice</td></tr>
+          <tr><td>National</td><td>Presidential Service Award</td></tr>
+          <tr class="section-header"><td colspan="2">⚡ LEADERSHIP</td></tr>
+          <tr><td>Schools</td><td>HP Robotics Captain</td></tr>
+          <tr><td>Schools</td><td>HP Service Team Treasurer</td></tr>
+          <tr><td>Schools</td><td>MAPS Advisory Council Member</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- RECYCLE BIN -->
+  <div class="window" id="recycle-window" style="width:320px;height:220px;top:120px;left:240px;">
+    <div class="window-titlebar">
+      <span class="title-icon">🗑️</span>
+      <span>Recycle Bin</span>
+      <div class="window-controls">
+        <button class="minimize-btn">_</button>
+        <button class="maximize-btn">□</button>
+        <button class="close-btn">✕</button>
+      </div>
+    </div>
+    <div class="window-content" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;">
+      <span style="font-size:40px;">🗑️</span>
+      <p style="font-size:11px;">The Recycle Bin is empty.</p>
+      <button id="trash-btn" class="w95-btn">Empty Recycle Bin</button>
+    </div>
+  </div>
+
+  <!-- ABOUT ME -->
+  <div class="window" id="about-window" style="width:480px;height:400px;top:80px;left:180px;">
+    <div class="window-titlebar">
+      <span class="title-icon">👤</span>
+      <span>About Me — Hudson Tinch</span>
+      <div class="window-controls">
+        <button class="minimize-btn">_</button>
+        <button class="maximize-btn">□</button>
+        <button class="close-btn">✕</button>
+      </div>
+    </div>
+    <div class="window-content">
+      <div class="about-content">
+        <div class="profile-section">
+          <img src="assets/img/profile1.jpg" alt="Hudson Tinch" class="profile-pic">
+          <div>
+            <h2>Hudson Tinch</h2>
+            <p style="font-size:10px;color:#000080;font-weight:700;">Robotics Captain · Full-Stack Dev · Maker</p>
+            <p style="font-size:10px;margin-top:4px;">Dallas, TX · Class of 2025</p>
+          </div>
         </div>
-
-        <!-- Add Tetris window -->
-        <div class="window" id="tetris-window">
-            <div class="window-titlebar">
-                <span>Tetris</span>
-                <div class="window-controls">
-                    <button class="minimize-btn">&#8722;</button>
-                    <button class="maximize-btn">&#9633;</button>
-                    <button class="close-btn">&#215;</button>
-                </div>
-            </div>
-            <div class="window-content">
-                <!-- Embed Tetris game -->
-                <iframe src="games/tetris.html" frameborder="0"></iframe>
-            </div>
+        <div class="bio-section" style="margin-top:10px;">
+          <p>Hi! I'm Hudson Tinch — a robotics enthusiast and maker. As captain of the HP robotics team, I combine hands-on building with advanced technology.</p>
+          <p>I have a deep enthusiasm for 3D printing, electronics, and building things that actually work.</p>
         </div>
-
-        <!-- Create Clicker Game window -->
-        <div class="window" id="clicker-window">
-            <div class="window-titlebar">
-                <span>Clicker Game</span>
-                <div class="window-controls">
-                    <button class="minimize-btn">&#8722;</button>
-                    <button class="maximize-btn">&#9633;</button>
-                    <button class="close-btn">&#215;</button>
-                </div>
-            </div>
-            <div class="window-content">
-                <!-- Use the current implementation of the Clicker Game -->
-                <iframe src="games/clicker.html" frameborder="0"></iframe>
-            </div>
+        <div class="skills-section" style="margin-top:10px;">
+          <h3>Technical Skills:</h3>
+          <ul>
+            <li>Languages: C++, Python, JavaScript</li>
+            <li>Hardware: PCB Design, Arduino, Microcontrollers</li>
+            <li>Tools: AutoCAD, KiCad, Git, 3D Printing</li>
+            <li>Web: HTML, CSS, Node.js, Back-End Dev</li>
+          </ul>
         </div>
+      </div>
+    </div>
+  </div>
 
-        <!-- Create Infinite Download window -->
-        <div class="window" id="infinite-download-window">
-            <div class="window-titlebar">
-                <span>Infinite Download</span>
-                <div class="window-controls">
-                    <button class="minimize-btn">&#8722;</button>
-                    <button class="maximize-btn">&#9633;</button>
-                    <button class="close-btn">&#215;</button>
-                </div>
-            </div>
-            <div class="window-content">
-                <!-- Use the current implementation of the Infinite Download game -->
-                <iframe src="games/infinite-download.html" frameborder="0"></iframe>
-            </div>
+  <!-- PROJECTS -->
+  <div class="window" id="projects-window" style="width:680px;height:520px;top:60px;left:200px;">
+    <div class="window-titlebar">
+      <span class="title-icon">💾</span>
+      <span>Projects (C:) — Explorer</span>
+      <div class="window-controls">
+        <button class="minimize-btn">_</button>
+        <button class="maximize-btn">□</button>
+        <button class="close-btn">✕</button>
+      </div>
+    </div>
+    <div class="window-content">
+      <div class="project-list">
+        <div class="project-item">
+          <img src="assets/img/arduino_r4.jpg" alt="Arduino R4">
+          <div>
+            <h3>Arduino R4 WiFi Controller</h3>
+            <p>Web-based control panel on an Arduino R4 WiFi board. Remotely controls multiple servos and electromagnets over WiFi. No extra apps needed — pure browser UI.</p>
+            <p style="margin-top:4px;color:#000080;"><a href="https://github.com/Y3t1M/Arduino-R4-Controller-Web-Interface" target="_blank">github.com/Y3t1M/Arduino-R4-Controller-Web-Interface</a></p>
+          </div>
         </div>
+        <div class="project-item">
+          <img src="assets/img/avr_drone.jpg" alt="AVR Drone">
+          <div>
+            <h3>AVR Autonomous Drone</h3>
+            <p>Led development of an autonomous drone for the Bell Advanced Vertical Robotics National Competition. Used A* pathfinding to navigate complex environments. Placed 8th nationally.</p>
+          </div>
+        </div>
+        <div class="project-item">
+          <img src="assets/img/ironman_helmettop.jpg" alt="Iron Man Helmet">
+          <div>
+            <h3>Iron Man Helmet</h3>
+            <p>Fully functional 3D-printed Iron Man helmet. Moving parts, magnetic faceplate, embedded electronics. Combines engineering precision with creative ambition.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="window-statusbar"><span class="statusbar-panel">3 projects</span></div>
+  </div>
 
+  <!-- GAMES FOLDER -->
+  <div class="window" id="games-window" style="width:560px;height:420px;top:80px;left:190px;">
+    <div class="window-titlebar">
+      <span class="title-icon">🎮</span>
+      <span>Games (D:)</span>
+      <div class="window-controls">
+        <button class="minimize-btn">_</button>
+        <button class="maximize-btn">□</button>
+        <button class="close-btn">✕</button>
+      </div>
+    </div>
+    <div class="window-content">
+      <div class="folder-grid">
+        <div class="folder" data-window="tetris-window">
+          <img src="assets/icons/tetris.png" alt="">
+          <span>Tetris</span>
+        </div>
+        <div class="folder" data-window="minesweeper-window">
+          <span class="icon-emoji">💣</span>
+          <span>Minesweeper</span>
+        </div>
+        <div class="folder" data-window="clicker-window">
+          <span class="icon-emoji">🖱️</span>
+          <span>Clicker</span>
+        </div>
+        <div class="folder" data-window="infinite-download-window">
+          <span class="icon-emoji">⬇️</span>
+          <span>Endless Download</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TETRIS (iframe) -->
+  <div class="window" id="tetris-window" style="width:560px;height:540px;top:40px;left:180px;">
+    <div class="window-titlebar">
+      <span class="title-icon">🟦</span>
+      <span>Tetris</span>
+      <div class="window-controls">
+        <button class="minimize-btn">_</button>
+        <button class="maximize-btn">□</button>
+        <button class="close-btn">✕</button>
+      </div>
+    </div>
+    <div class="window-content" style="padding:0;">
+      <iframe src="games/tetris.html" frameborder="0" style="width:100%;height:100%;border:none;display:block;"></iframe>
+    </div>
+  </div>
+
+  <!-- PIXOS (iframe) -->
+  <div class="window" id="pixos-window" style="width:880px;height:600px;top:30px;left:80px;">
+    <div class="window-titlebar">
+      <span class="title-icon">🎨</span>
+      <span>PixOS — Pixel Art Studio</span>
+      <div class="window-controls">
+        <button class="minimize-btn">_</button>
+        <button class="maximize-btn">□</button>
+        <button class="close-btn">✕</button>
+      </div>
+    </div>
+    <div class="window-content" style="padding:0;">
+      <iframe src="PixOS/PixOS.html" frameborder="0" style="width:100%;height:100%;border:none;display:block;"></iframe>
+    </div>
+  </div>
+
+  <!-- CLICKER (iframe) -->
+  <div class="window" id="clicker-window" style="width:380px;height:320px;top:120px;left:220px;">
+    <div class="window-titlebar">
+      <span class="title-icon">🖱️</span>
+      <span>Clicker Game</span>
+      <div class="window-controls">
+        <button class="minimize-btn">_</button>
+        <button class="maximize-btn">□</button>
+        <button class="close-btn">✕</button>
+      </div>
+    </div>
+    <div class="window-content" style="padding:0;">
+      <iframe src="games/clicker.html" frameborder="0" style="width:100%;height:100%;border:none;display:block;"></iframe>
+    </div>
+  </div>
+
+  <!-- INFINITE DOWNLOAD (iframe) -->
+  <div class="window" id="infinite-download-window" style="width:740px;height:380px;top:100px;left:140px;">
+    <div class="window-titlebar">
+      <span class="title-icon">⬇️</span>
+      <span>Endless Download</span>
+      <div class="window-controls">
+        <button class="minimize-btn">_</button>
+        <button class="maximize-btn">□</button>
+        <button class="close-btn">✕</button>
+      </div>
+    </div>
+    <div class="window-content" style="padding:0;">
+      <iframe src="games/infinite-download.html" frameborder="0" style="width:100%;height:100%;border:none;display:block;"></iframe>
+    </div>
+  </div>
+
+  <!-- NOTEPAD -->
+  <div class="window" id="notepad-window" style="width:480px;height:360px;top:100px;left:200px;">
+    <div class="window-titlebar">
+      <span class="title-icon">📝</span>
+      <span id="notepad-title">Untitled — Notepad</span>
+      <div class="window-controls">
+        <button class="minimize-btn">_</button>
+        <button class="maximize-btn">□</button>
+        <button class="close-btn">✕</button>
+      </div>
+    </div>
+    <div class="window-menubar">
+      <span class="menu-item">File</span>
+      <span class="menu-item">Edit</span>
+      <span class="menu-item">Format</span>
+      <span class="menu-item">View</span>
+      <span class="menu-item">Help</span>
+    </div>
+    <div class="window-content" style="padding:0;display:flex;flex-direction:column;">
+      <textarea class="notepad-textarea" id="notepad-text" spellcheck="true" placeholder="Type your notes here..."></textarea>
+    </div>
+    <div class="window-statusbar">
+      <span class="statusbar-panel" id="notepad-status">Ln 1, Col 1</span>
+    </div>
+  </div>
+
+  <!-- INTERNET EXPLORER -->
+  <div class="window" id="ie-window" style="width:740px;height:520px;top:50px;left:130px;display:none;flex-direction:column;">
+    <div class="window-titlebar">
+      <span class="title-icon">🌐</span>
+      <span id="ie-title">Welcome to Y3t1M.github.io — Internet Explorer</span>
+      <div class="window-controls">
+        <button class="minimize-btn">_</button>
+        <button class="maximize-btn">□</button>
+        <button class="close-btn">✕</button>
+      </div>
+    </div>
+    <div class="window-menubar">
+      <span class="menu-item">File</span>
+      <span class="menu-item">Edit</span>
+      <span class="menu-item">View</span>
+      <span class="menu-item">Favorites</span>
+      <span class="menu-item">Tools</span>
+      <span class="menu-item">Help</span>
+    </div>
+    <div class="ie-toolbar">
+      <button class="ie-btn" onclick="ieNavigate(-1)">◀ Back</button>
+      <button class="ie-btn" onclick="ieNavigate(1)">Forward ▶</button>
+      <button class="ie-btn" onclick="ieRefresh()">🔄 Refresh</button>
+      <button class="ie-btn" onclick="ieHome()">🏠 Home</button>
+      <div class="ie-address">
+        <span>Address:</span>
+        <input type="text" class="ie-address-bar" id="ie-address-bar" value="http://www.y3t1m.github.io/">
+        <button class="ie-btn" onclick="ieGo()">Go</button>
+      </div>
+    </div>
+    <div class="ie-content" id="ie-content">
+      <!-- content loaded by JS -->
+    </div>
+    <div class="ie-statusbar" id="ie-status">✅ Done</div>
+  </div>
+
+  <!-- MINESWEEPER -->
+  <div class="window" id="minesweeper-window" style="width:240px;height:310px;top:80px;left:320px;">
+    <div class="window-titlebar">
+      <span class="title-icon">💣</span>
+      <span>Minesweeper</span>
+      <div class="window-controls">
+        <button class="minimize-btn">_</button>
+        <button class="maximize-btn">□</button>
+        <button class="close-btn">✕</button>
+      </div>
+    </div>
+    <div class="window-menubar">
+      <span class="menu-item" onclick="msNewGame(9,9,10)">Beginner</span>
+      <span class="menu-item" onclick="msNewGame(16,16,40)">Intermediate</span>
+      <span class="menu-item" onclick="msNewGame(16,30,99)">Expert</span>
+    </div>
+    <div class="window-content" style="padding:4px;background:#c0c0c0;">
+      <div class="ms-wrapper">
+        <div class="ms-info-bar">
+          <div class="ms-counter" id="ms-mine-count">010</div>
+          <div class="ms-smiley" id="ms-smiley" onclick="msRestart()">🙂</div>
+          <div class="ms-counter" id="ms-timer">000</div>
+        </div>
+        <div class="ms-grid" id="ms-grid"></div>
+        <div class="ms-status" id="ms-status"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTACT ERROR DIALOG -->
+  <div class="window" id="contact-error-window" style="width:340px;height:160px;display:none;top:42%;left:38%;">
+    <div class="window-titlebar">
+      <span class="title-icon">⚠️</span>
+      <span>System Error</span>
+      <div class="window-controls">
+        <button class="close-btn">✕</button>
+      </div>
+    </div>
+    <div class="error-dialog">
+      <div class="error-icon-row">
+        <span class="error-icon">🚫</span>
+        <div class="error-message-text">
+          <p><strong>Access is denied.</strong></p>
+          <p>Email: Hudson.Tinch@gmail.com</p>
+          <p>GitHub: github.com/Y3t1M</p>
+        </div>
+      </div>
+      <button class="ok-button">OK</button>
+    </div>
+  </div>
+
+  <!-- ═══ TASKBAR ═══ -->
+  <div class="taskbar">
+    <button class="start-btn">
+      <div class="pixel-logo">
+        <span></span><span></span><span></span><span></span>
+      </div>
+      Start
+    </button>
+
+    <div style="width:1px;height:28px;background:#808080;margin:0 2px;"></div>
+
+    <div class="taskbar-items" id="taskbar-items"></div>
+
+    <!-- START MENU -->
+    <div class="start-menu" id="start-menu">
+      <div class="start-menu-banner"></div>
+      <div class="start-menu-items">
+        <div class="start-item" data-action="contact">
+          <img src="assets/icons/contact_icon.svg" alt=""> Contact
+        </div>
+        <div class="start-separator"></div>
+        <div class="start-item" data-action="lock">
+          <img src="assets/icons/lock_icon.svg" alt=""> Lock
+        </div>
+        <div class="start-item" data-action="restart">
+          <img src="assets/icons/restart_icon.svg" alt=""> Restart
+        </div>
+        <div class="start-item" data-action="shutdown">
+          <img src="assets/icons/shutdown_icon.svg" alt=""> Shut Down
+        </div>
+      </div>
     </div>
 
-    <!-- Loading Overlay -->
-    <div id="loading-overlay" class="loading-overlay">
-        <!-- <p>Loading...</p> --> <!-- Removed loading text -->
-        <div class="spinner"></div>
+    <!-- SYSTEM TRAY -->
+    <div class="system-tray">
+      <span style="font-size:14px;margin-right:4px;">🔊</span>
+      <div class="taskbar-clock" id="taskbar-clock">12:00 PM</div>
     </div>
+  </div>
 
-    <script src="desktop.js"></script>
-    <script src="endless-download.js"></script>
-    <script src="main.js"></script>
+  <!-- LOCK SCREEN -->
+  <div class="lock-screen visible" id="lock-screen">
+    <div class="lock-content">
+      <div class="lock-titlebar">Enter Password</div>
+      <div class="lock-body">
+        <div class="lock-avatar-pixel">
+          <img src="assets/img/profile2.jpg" draggable="false">
+        </div>
+        <h2 class="lock-username">TrustMeBro.exe</h2>
+        <div class="password-input">
+          <input type="password" placeholder="Password" id="password-field" autocomplete="off">
+          <button id="login-btn">&#8594;</button>
+        </div>
+        <div class="lock-hint">Hint: Password</div>
+        <div class="error-message"></div>
+      </div>
+    </div>
+  </div>
 
-    <!-- Add screen overlay for shutdown animation -->
-    <div class="screen-overlay"></div>
+  <!-- SCREEN OVERLAY -->
+  <div class="screen-overlay" id="screen-overlay"></div>
 
-    <!-- Make sure index.html is not included or referenced here -->
+</div><!-- end .desktop -->
 
+<script src="desktop.js"></script>
+
+<!-- ═══ INLINE SCRIPTS ═══ -->
+<script>
+
+
+/* --- Clock --- */
+(function updateClock(){
+  var el = document.getElementById('taskbar-clock');
+  if(!el) return;
+  var d = new Date(), h = d.getHours(), m = d.getMinutes();
+  var ap = h >= 12 ? 'PM' : 'AM';
+  h = h % 12 || 12;
+  el.textContent = h + ':' + (m<10?'0':'') + m + ' ' + ap;
+  setTimeout(updateClock, 10000);
+})();
+
+/* --- Start menu: open windows from Programs submenu --- */
+document.querySelectorAll('.start-submenu .sub-item[data-window]').forEach(function(el){
+  el.addEventListener('click', function(e){
+    e.stopPropagation();
+    var wid = el.getAttribute('data-window');
+    var win = document.getElementById(wid);
+    if(win){ win.classList.add('active'); win.style.display='flex'; }
+    document.getElementById('start-menu').classList.remove('visible');
+  });
+});
+
+/* --- Start menu: open windows from main items --- */
+document.querySelectorAll('.start-item[data-window]').forEach(function(el){
+  el.addEventListener('click', function(){
+    var wid = el.getAttribute('data-window');
+    var win = document.getElementById(wid);
+    if(win){ win.classList.add('active'); win.style.display='flex'; }
+    document.getElementById('start-menu').classList.remove('visible');
+  });
+});
+
+/* -------------------------------------------------------
+   NOTEPAD: track cursor position
+   ------------------------------------------------------- */
+var notepadText = document.getElementById('notepad-text');
+if(notepadText){
+  notepadText.addEventListener('keyup', updateNotepadStatus);
+  notepadText.addEventListener('click', updateNotepadStatus);
+  function updateNotepadStatus(){
+    var s = notepadText.selectionStart;
+    var text = notepadText.value.substring(0, s);
+    var lines = text.split('\n');
+    var ln = lines.length, col = lines[lines.length-1].length+1;
+    var st = document.getElementById('notepad-status');
+    if(st) st.textContent = 'Ln '+ln+', Col '+col;
+  }
+}
+
+/* -------------------------------------------------------
+   INTERNET EXPLORER
+   ------------------------------------------------------- */
+var iePages = {
+  'home': {
+    url: 'http://www.y3t1m.github.io/',
+    title: 'Welcome to Y3t1M.github.io — Internet Explorer',
+    content: '<h1>&#127760; Y3t1M.github.io</h1><hr><p class="ie-marquee">✨ Welcome to Hudson Tinch\'s corner of the internet! ✨</p><hr><h2>About This Site</h2><p>Personal portfolio and playground of <strong>Hudson Tinch</strong>, robotics captain, full-stack developer, and maker from Dallas, TX.</p><h2>Quick Links</h2><ul><li><a href="#">&#128187; Projects</a> — Arduino, drones, 3D printing</li><li><a href="#">&#127912; PixOS</a> — Pixel art editor</li><li><a href="#">&#127138; Tetris</a> — Classic block stacking</li><li><a href="#">&#128163; Minesweeper</a> — Don\'t hit the mines!</li></ul><h2>Did You Know?</h2><p>This site has a hidden Windows 95 desktop. You found it! 🎉</p><hr><p style="font-size:10px;color:#666;">Best viewed in Internet Explorer 4.0 at 800x600 resolution.</p>'
+  },
+  'github': {
+    url: 'http://www.github.com/Y3t1M',
+    title: 'GitHub — Y3t1M — Internet Explorer',
+    content: '<h1>&#128011; GitHub Profile — Y3t1M</h1><hr><h2>Repositories</h2><ul><li><strong>Y3t1M.github.io</strong> — Personal portfolio website (JavaScript)</li><li><strong>PixOS</strong> — Easy way to make good-looking sprites (JavaScript)</li><li><strong>Arduino-R4-Controller-Web-Interface</strong> — Web-based panel for servos and electromagnets (C++)</li></ul><h2>Stats</h2><p>🌟 Public Repos: 3 &nbsp;&nbsp; 👥 Followers: -- &nbsp;&nbsp; 📍 Dallas, TX</p>'
+  },
+  'error': {
+    url: '',
+    title: 'Cannot find server — Internet Explorer',
+    content: '<h2 style="color:red">Cannot find server or DNS Error</h2><p>Internet Explorer cannot display the webpage.</p><ul><li>The page might be temporarily unavailable.</li><li>You might need to check your dial-up connection.</li></ul><p><button onclick="ieHome()" style="font-size:11px;padding:4px 12px;cursor:pointer;">Try Again</button></p>'
+  }
+};
+var ieHistory = ['home'], ieHistoryIdx = 0;
+
+function ieLoadPage(key){
+  var page = iePages[key] || iePages['error'];
+  document.getElementById('ie-content').innerHTML = page.content;
+  document.getElementById('ie-title').textContent = page.title;
+  document.getElementById('ie-address-bar').value = page.url;
+  document.getElementById('ie-status').textContent = '✅ Done';
+}
+function ieHome(){ ieLoadPage('home'); }
+function ieRefresh(){ ieLoadPage(ieHistory[ieHistoryIdx]); }
+function ieNavigate(dir){
+  ieHistoryIdx = Math.max(0, Math.min(ieHistory.length-1, ieHistoryIdx+dir));
+  ieLoadPage(ieHistory[ieHistoryIdx]);
+}
+function ieGo(){
+  var addr = document.getElementById('ie-address-bar').value.toLowerCase();
+  document.getElementById('ie-status').textContent = '⏳ Opening page...';
+  setTimeout(function(){
+    if(addr.indexOf('github') > -1){ ieLoadPage('github'); }
+    else if(addr.indexOf('y3t1m') > -1 || addr === ''){ ieLoadPage('home'); }
+    else { ieLoadPage('error'); }
+  }, 600);
+}
+// Load home page when IE window activates
+document.querySelectorAll('[data-window="ie-window"],.icon[data-window="ie-window"]').forEach(function(el){
+  el.addEventListener('click', function(){ setTimeout(ieHome, 50); });
+});
+ieHome();
+
+/* -------------------------------------------------------
+   MINESWEEPER
+   ------------------------------------------------------- */
+var msRows=9, msCols=9, msMines=10;
+var msBoard=[], msRevealed=[], msFlagged=[], msFirstClick=true, msGameOver=false, msTimerInterval=null, msSeconds=0;
+
+function msNewGame(r,c,m){
+  msRows=r; msCols=c; msMines=m;
+  msRestart();
+  // Resize window to fit grid
+  var win = document.getElementById('minesweeper-window');
+  if(win){
+    win.style.width = (msCols*20+24)+'px';
+    win.style.height = (msRows*20+140)+'px';
+  }
+}
+
+function msRestart(){
+  clearInterval(msTimerInterval);
+  msBoard=Array(msRows).fill(null).map(function(){ return Array(msCols).fill(0); });
+  msRevealed=Array(msRows).fill(null).map(function(){ return Array(msCols).fill(false); });
+  msFlagged=Array(msRows).fill(null).map(function(){ return Array(msCols).fill(false); });
+  msFirstClick=true; msGameOver=false; msSeconds=0;
+  document.getElementById('ms-smiley').textContent='🙂';
+  document.getElementById('ms-timer').textContent='000';
+  document.getElementById('ms-mine-count').textContent=String(msMines).padStart(3,'0');
+  document.getElementById('ms-status').textContent='';
+  msRenderGrid();
+}
+
+function msPlaceMines(safeR, safeC){
+  var placed=0;
+  while(placed < msMines){
+    var r=Math.floor(Math.random()*msRows), c=Math.floor(Math.random()*msCols);
+    if((Math.abs(r-safeR)>1 || Math.abs(c-safeC)>1) && msBoard[r][c]===0){
+      msBoard[r][c]=-1; placed++;
+    }
+  }
+  for(var i=0;i<msRows;i++) for(var j=0;j<msCols;j++) if(msBoard[i][j]!==-1){
+    var count=0;
+    for(var di=-1;di<=1;di++) for(var dj=-1;dj<=1;dj++){
+      var ni=i+di, nj=j+dj;
+      if(ni>=0&&ni<msRows&&nj>=0&&nj<msCols&&msBoard[ni][nj]===-1) count++;
+    }
+    msBoard[i][j]=count;
+  }
+}
+
+function msReveal(r,c){
+  if(r<0||r>=msRows||c<0||c>=msCols||msRevealed[r][c]||msFlagged[r][c]) return;
+  msRevealed[r][c]=true;
+  if(msBoard[r][c]===0) for(var di=-1;di<=1;di++) for(var dj=-1;dj<=1;dj++) msReveal(r+di,c+dj);
+}
+
+function msCheckWin(){
+  var unrev=0;
+  for(var i=0;i<msRows;i++) for(var j=0;j<msCols;j++) if(!msRevealed[i][j]) unrev++;
+  return unrev===msMines;
+}
+
+function msClick(r,c){
+  if(msGameOver||msRevealed[r][c]||msFlagged[r][c]) return;
+  if(msFirstClick){ msFirstClick=false; msPlaceMines(r,c); msStartTimer(); }
+  if(msBoard[r][c]===-1){
+    msGameOver=true; clearInterval(msTimerInterval);
+    // Reveal all mines
+    for(var i=0;i<msRows;i++) for(var j=0;j<msCols;j++) if(msBoard[i][j]===-1) msRevealed[i][j]=true;
+    document.getElementById('ms-smiley').textContent='😵';
+    document.getElementById('ms-status').textContent='💥 BOOM! Right-click to restart.';
+    msRenderGrid(r,c);
+    return;
+  }
+  msReveal(r,c);
+  if(msCheckWin()){
+    msGameOver=true; clearInterval(msTimerInterval);
+    document.getElementById('ms-smiley').textContent='😎';
+    document.getElementById('ms-status').textContent='🎉 You Win!';
+  }
+  msRenderGrid();
+}
+
+function msFlag(r,c){
+  if(msGameOver||msRevealed[r][c]) return;
+  msFlagged[r][c]=!msFlagged[r][c];
+  var flagCount=0;
+  for(var i=0;i<msRows;i++) for(var j=0;j<msCols;j++) if(msFlagged[i][j]) flagCount++;
+  document.getElementById('ms-mine-count').textContent=String(msMines-flagCount).padStart(3,'0');
+  msRenderGrid();
+}
+
+function msStartTimer(){
+  msTimerInterval=setInterval(function(){
+    msSeconds++; document.getElementById('ms-timer').textContent=String(Math.min(msSeconds,999)).padStart(3,'0');
+  },1000);
+}
+
+function msRenderGrid(hitR, hitC){
+  var grid=document.getElementById('ms-grid');
+  grid.style.gridTemplateColumns='repeat('+msCols+', 20px)';
+  grid.innerHTML='';
+  for(var i=0;i<msRows;i++) for(var j=0;j<msCols;j++){
+    var cell=document.createElement('div');
+    cell.className='ms-cell';
+    var r2=i,c2=j;
+    if(msRevealed[i][j]){
+      cell.classList.add('revealed');
+      if(msBoard[i][j]===-1){
+        cell.textContent='\u2022';
+        cell.classList.add('mine');
+        if(i===hitR && j===hitC) cell.classList.add('mine-hit');
+      } else if(msBoard[i][j]>0){
+        cell.textContent=msBoard[i][j];
+        cell.setAttribute('data-n', msBoard[i][j]);
+      }
+    } else if(msFlagged[i][j]){
+      cell.textContent='F'; cell.classList.add('flagged');
+    }
+    cell.addEventListener('click', function(ri,ci){ return function(){ msClick(ri,ci); }; }(r2,c2));
+    cell.addEventListener('contextmenu', function(ri,ci){ return function(e){ e.preventDefault(); msFlag(ri,ci); }; }(r2,c2));
+    grid.appendChild(cell);
+  }
+}
+
+// Initialize minesweeper
+msRestart();
+
+</script>
 </body>
 </html>

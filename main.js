@@ -65,6 +65,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function showClickerGame() {
+        if (!clickerGame) return; // not present on every page
         clickerGame.classList.remove('hidden');
         
         // Scroll to the game
@@ -230,11 +231,13 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         // Window control buttons
-        const closeButton = window.querySelector('.close');
-        closeButton.addEventListener('click', (e) => {
-            e.stopPropagation(); // Prevent event bubbling
-            window.style.display = 'none';
-        });
+        const closeButton = window.querySelector('.close-btn');
+        if (closeButton) {
+            closeButton.addEventListener('click', (e) => {
+                e.stopPropagation(); // Prevent event bubbling
+                window.style.display = 'none';
+            });
+        }
 
         // Remove functionality for minimize and maximize buttons as they no longer exist
     });
@@ -281,10 +284,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
 
-    // Add click handlers to both profile images
-    const profile1 = document.getElementById('profile1');
-    const profile2 = document.getElementById('profile2');
-
+    // Bind handleProfileClick to the already-declared profile1 / profile2
     if (profile1) {
         profile1.addEventListener('click', handleProfileClick);
     }

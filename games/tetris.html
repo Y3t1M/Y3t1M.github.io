@@ -1,51 +1,82 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Classic Tetris</title>
-    <link rel="stylesheet" href="tetris.css">
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <title>Tetris</title>
+  <link rel="stylesheet" href="tetris.css">
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="tetris-game">
-        <div class="game-container">
-            <canvas id="tetris" width="240" height="400"></canvas>
-            <div class="info-panel">
-                <div class="game-header">
-                    <div class="score-box">
-                        <div class="label">SCORE</div>
-                        <div id="score">0</div>
-                    </div>
-                    <div class="score-box">
-                        <div class="label">LEVEL</div>
-                        <div id="level">1</div>
-                    </div>
-                    <div class="score-box">
-                        <div class="label">LINES</div>
-                        <div id="lines">0</div>
-                    </div>
-                </div>
-                <div class="next-pieces">
-                    <div class="next-title">NEXT</div>
-                    <canvas class="next-piece" width="80" height="80"></canvas>
-                    <canvas class="next-piece" width="80" height="80"></canvas>
-                    <canvas class="next-piece" width="80" height="80"></canvas>
-                </div>
-            </div>
-        </div>
-        <div class="tetris-controls">
-            <h3>Controls</h3>
-            <ul>
-                <li>Move Left: 'A'</li>
-                <li>Move Right: 'D'</li>
-                <li>Rotate Clockwise: Right Arrow</li>
-                <li>Rotate Counter-Clockwise: Left Arrow</li>
-                <li>Hard Drop: 'S'</li>
-                <li>Soft Drop: 'W'</li>
-                <li>Pause: 'P'</li>
-            </ul>
-        </div>
+<div class="tetris-shell">
+
+  <!-- Menu bar -->
+  <div class="tetris-menu">
+    <span onclick="tetrisInstance&&tetrisInstance.init()">Game</span>
+    <span onclick="tetrisInstance&&tetrisInstance.togglePause()">Pause</span>
+    <span>Help</span>
+  </div>
+
+  <!-- Play area -->
+  <div class="tetris-body">
+
+    <!-- Board -->
+    <div class="board-wrapper">
+      <canvas id="tetris" width="240" height="400"></canvas>
+      <div class="tetris-overlay" id="tetris-overlay">
+        <div class="overlay-msg" id="overlay-msg">GAME OVER</div>
+        <button class="overlay-btn" onclick="tetrisInstance&&tetrisInstance.init()">New Game</button>
+      </div>
     </div>
-    <script src="tetris.js"></script>
+
+    <!-- Right panel -->
+    <div class="info-panel">
+      <div class="score-group">
+        <div class="score-box">
+          <span class="label">SCORE</span>
+          <div class="value" id="score">0</div>
+        </div>
+        <div class="score-box">
+          <span class="label">LEVEL</span>
+          <div class="value" id="level">1</div>
+        </div>
+        <div class="score-box">
+          <span class="label">LINES</span>
+          <div class="value" id="lines">0</div>
+        </div>
+      </div>
+
+      <div class="next-section">
+        <div class="next-title">NEXT</div>
+        <div class="next-canvases">
+          <canvas class="next-piece" width="80" height="60"></canvas>
+          <canvas class="next-piece" width="80" height="60"></canvas>
+          <canvas class="next-piece" width="80" height="60"></canvas>
+        </div>
+      </div>
+
+      <div class="controls-box">
+        <h4>CONTROLS</h4>
+        <ul>
+          <li><strong>A / D</strong> — Move</li>
+          <li><strong>&#8592; / &#8594;</strong> — Rotate</li>
+          <li><strong>S</strong> — Hard Drop</li>
+          <li><strong>W</strong> — Soft Drop</li>
+          <li><strong>P</strong> — Pause</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Status bar -->
+  <div class="tetris-status">
+    <div class="status-panel" id="tetris-status-msg">Press any key to start</div>
+  </div>
+
+</div>
+<script src="tetris.js"></script>
+<script>
+  var tetrisInstance = new Tetris();
+  document.getElementById('tetris-status-msg').textContent = 'Playing — P to pause';
+</script>
 </body>
 </html>

@@ -1,1678 +1,900 @@
+﻿/* ================================================================
+   DESKTOP.CSS — Authentic Windows 95 / 98 UI
+   ================================================================ */
+
+/* ---------- Font Import ---------- */
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
-body {
-    margin: 0;
-    padding: 0;
-    font-family: 'MS Sans Serif', 'Segoe UI', Tahoma, sans-serif;
+/* ---------- Reset ---------- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ---------- CSS Variables ---------- */
+:root {
+  /* W95 palette */
+  --w-face:     #c0c0c0;   /* gray face */
+  --w-lt:       #ffffff;   /* light edge */
+  --w-dk:       #808080;   /* dark edge */
+  --w-ddk:      #404040;   /* deep dark */
+  --w-btn:      #c0c0c0;
+  --w-titlebar: #000080;
+  --w-titlebar2:#1084d0;
+  --w-text:     #000000;
+  --w-white:    #ffffff;
+  --w-select:   #000080;
+  --w-select-t: #ffffff;
+  /* font */
+  --w-font: "Segoe UI", Tahoma, Arial, sans-serif;
+  /* taskbar */
+  --tb-h: 36px;
+  /* lock screen background — change this to retheme the lock screen */
+  --lock-bg: #000080;
 }
 
-/* Only apply background to body when it contains the desktop class */
-body:has(.desktop) {
-    background: url('assets/img/winxppix.png') center/cover no-repeat;
-    height: 100vh;          /* Applied height only when .desktop is present */
-    overflow: hidden;       /* Hide overflow only for desktop layout */
+/* ----------------------------------------------------------------
+   WALLPAPER — Classic Windows 95 teal
+   ---------------------------------------------------------------- */
+html, body {
+  margin: 0; padding: 0;
+  font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+  font-size: 11px;
+  user-select: none;
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+  cursor: default;
 }
 
-/* Update desktop container - remove nav adjustment */
+body.desktop {
+  background: #008080;
+  height: 100vh; overflow: hidden;
+}
+
+body.desktop::before { content: none; }
+
+/* ----------------------------------------------------------------
+   DESKTOP CONTAINER
+   ---------------------------------------------------------------- */
 .desktop {
-    height: 100vh;
-    position: relative;
-    display: block;
+  position: relative;
+  width: 100vw; height: 100vh;
+  display: block;
 }
 
-.desktop.visible {
-    display: block; /* Show desktop when unlocked */
-}
-
+/* ----------------------------------------------------------------
+   DESKTOP ICONS
+   ---------------------------------------------------------------- */
 .icon {
-    position: absolute;
-    width: 80px;  /* Increased from 64px */
-    text-align: center;
-    color: white;
-    cursor: pointer;
-    padding: 5px;
+  position: absolute;
+  width: 76px;
+  text-align: center;
+  color: white;
+  cursor: pointer;
+  padding: 5px 4px 4px;
+  border: 1px solid transparent;
+  outline: none;
+  z-index: 2;
+  transition: none;
+  border-radius: 0;
 }
 
-.icon:first-child { top: 20px; left: 20px; }
-.icon:nth-child(2) { top: 140px; left: 20px; } /* Increased top spacing */
-.icon:nth-child(3) { top: 260px; left: 20px; } /* Position for About Me icon */
+.icon:hover {
+  background: rgba(0,0,128,0.35);
+  border-color: rgba(255,255,255,0.6);
+}
+.icon.selected,
+.icon:active {
+  background: rgba(0,0,128,0.55);
+  border: 1px dotted rgba(255,255,255,0.9);
+}
+
+/* Single-column layout, left side – overridden by JS drag after first move */
+.icon:nth-child(1) { top:  18px; left: 20px; }
+.icon:nth-child(2) { top: 110px; left: 20px; }
+.icon:nth-child(3) { top: 202px; left: 20px; }
+.icon:nth-child(4) { top: 294px; left: 20px; }
+.icon:nth-child(5) { top: 386px; left: 20px; }
+.icon:nth-child(6) { top:  18px; left: 112px; }
+.icon:nth-child(7) { top: 110px; left: 112px; }
+.icon:nth-child(8) { top: 202px; left: 112px; }
 
 .icon img {
-    width: 48px;  /* Increased from 32px */
-    height: 48px;  /* Increased from 32px */
-    margin-bottom: 4px;
+  width: 36px; height: 36px;
+  margin: 0 auto 5px;
+  image-rendering: pixelated;
+  display: block;
+  filter: drop-shadow(1px 2px 2px rgba(0,0,0,0.6));
 }
 
-.icon span {
-    display: block;
-    font-family: 'MS Sans Serif', 'Segoe UI', Tahoma, sans-serif;
-    font-size: 11px;
-    margin-top: 5px;
+/* Pixel-art SVG icon placeholder when no image */
+.icon .icon-emoji {
+  font-size: 30px;
+  display: block;
+  margin: 0 auto 5px;
+  line-height: 1;
+  filter: drop-shadow(1px 1px 1px rgba(0,0,0,0.8));
 }
 
-.taskbar {
-    position: fixed;
-    bottom: -4px; /* Increased negative value to fully overlap any gap */
-    left: 0;
-    right: 0;
-    height: 44px; /* Increased height to compensate for negative bottom */
-    background: #c0c0c0;
-    /* border-top: 2px solid #ffffff; */ /* Removed white border */
-    display: flex;
-    align-items: center;
-    padding: 0 10px;
-    margin: 0; /* Ensure no margin */
-    z-index: 1000;
+.icon span:last-child {
+  display: block;
+  font-size: 10px;
+  font-weight: 600;
+  color: #fff;
+  text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000,
+               0 1px 0 #000, 0 -1px 0 #000, 1px 0 0 #000, -1px 0 0 #000;
+  line-height: 1.3;
+  word-break: break-word;
+  hyphens: auto;
 }
 
-.start-btn {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    padding: 5px 10px;
-    background: #c0c0c0;
-    border: 2px solid #808080;
-    cursor: pointer;
-    font-family: 'MS Sans Serif', 'Segoe UI', Tahoma, sans-serif;
-    font-size: 11px;
-    font-weight: bold;
-}
-
-.start-btn img {
-    width: 16px;  /* Adjusted size for taskbar */
-    height: 16px;
-}
-
-.taskbar-item {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    padding: 5px 10px;
-    background: #c0c0c0;
-    border: 2px solid #808080;
-    cursor: pointer;
-    font-family: 'MS Sans Serif', 'Segoe UI', Tahoma, sans-serif;
-    font-size: 11px;
-    font-weight: bold;
-    margin-left: 5px;
-    min-width: 100px;
-}
-
-.taskbar-item img {
-    width: 16px;
-    height: 16px;
-}
-
-.taskbar-item:hover {
-    background: #d4d4d4;
-}
-
-.taskbar-items {
-    display: flex;
-    align-items: center;
-    margin-left: 10px;
-}
-
+/* ----------------------------------------------------------------
+   WINDOWS — W95 chrome
+   ---------------------------------------------------------------- */
 .window {
-    position: absolute;
-    width: 600px;  /* Fixed default width */
-    height: 400px; /* Fixed default height */
-    background: #ECE9D8;
-    border: 1px solid #000000;
-    box-shadow: inset 1px 1px #FFFFFF, 2px 2px 3px rgba(0, 0, 0, 0.3);
-    display: none;
+  position: absolute;
+  min-width: 200px; min-height: 100px;
+  background: var(--w-face);
+  /* classic W95 raised outer border */
+  border: 2px solid;
+  border-color: var(--w-lt) var(--w-ddk) var(--w-ddk) var(--w-lt);
+  box-shadow: 1px 1px 0 var(--w-dk), inset 1px 1px 0 var(--w-lt);
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 100;
 }
 
-.window.active {
-    display: block;
-}
+.window.active { display: flex; }
 
+/* Window open animation */
+@keyframes winOpen {
+  from { transform: scale(0.92); opacity: 0; }
+  to   { transform: scale(1);    opacity: 1; }
+}
+.window.active { animation: winOpen 0.1s ease-out; }
+
+/* ----------------------------------------------------------------
+   TITLEBAR
+   ---------------------------------------------------------------- */
 .window-titlebar {
-    background: #0000FF; /* Blue background */
-    padding: 3px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    cursor: move;
-    font-family: 'Tahoma', sans-serif;
-    font-size: 12px;
-    font-weight: bold;
-    color: #FFFFFF; /* White text for contrast */
+  background: linear-gradient(90deg,
+    var(--w-titlebar) 0%,
+    var(--w-titlebar2) 100%
+  );
+  height: 22px;
+  display: flex;
+  align-items: center;
+  padding: 0 3px 0 4px;
+  cursor: move;
+  flex-shrink: 0;
+  user-select: none;
+  gap: 4px;
 }
 
+/* Title icon placeholder */
+.window-titlebar .title-icon {
+  font-size: 13px; line-height: 1;
+  flex-shrink: 0;
+}
+
+.window-titlebar > span {
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: 0.2px;
+}
+
+/* ----------------------------------------------------------------
+   WINDOW CONTROLS (minimize / maximize / close)
+   ---------------------------------------------------------------- */
 .window-controls {
-    display: flex;
-    gap: 2px;
-    align-items: center;
-    margin-left: 4px;
+  display: flex; gap: 2px; align-items: center; flex-shrink: 0;
 }
 
-.minimize-btn,
-.maximize-btn,
-.close-btn {
-    width: 16px;
-    height: 14px;
-    font-size: 10px;
-    border: 1px solid #808080;
-    background: #D4D0C8;
-    color: #000000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    padding: 0;
-    line-height: 1;
+.minimize-btn, .maximize-btn, .close-btn {
+  width: 16px; height: 14px;
+  font-size: 8px;
+  display: flex; align-items: center; justify-content: center;
+  padding: 0;
+  cursor: pointer;
+  background: var(--w-face);
+  color: #000;
+  /* W95 raised button */
+  border: 1px solid;
+  border-color: var(--w-lt) var(--w-ddk) var(--w-ddk) var(--w-lt);
+  box-shadow: inset -1px -1px 0 var(--w-dk);
+  font-weight: 900;
+  line-height: 1;
 }
 
-.minimize-btn:hover,
-.maximize-btn:hover,
-.close-btn:hover {
-    background: #FFFFFF;
+.minimize-btn:active, .maximize-btn:active, .close-btn:active {
+  border-color: var(--w-ddk) var(--w-lt) var(--w-lt) var(--w-ddk);
+  box-shadow: inset 1px 1px 0 var(--w-dk);
+  transform: none;
 }
 
-.minimize-btn:active,
-.maximize-btn:active,
-.close-btn:active {
-    background: #D4D0C8;
-    border-color: #404040;
+.close-btn:hover { background: #cc0000; color: white; }
+
+/* ----------------------------------------------------------------
+   MENUBAR (for windows that have it)
+   ---------------------------------------------------------------- */
+.window-menubar {
+  display: flex;
+  background: var(--w-face);
+  border-bottom: 1px solid var(--w-dk);
+  padding: 1px 2px;
+  flex-shrink: 0;
 }
 
+.menu-item {
+  padding: 2px 8px; cursor: pointer; font-size: 11px; border: 1px solid transparent;
+}
+.menu-item:hover {
+  background: var(--w-select); color: var(--w-select-t);
+  border-color: var(--w-lt) var(--w-ddk) var(--w-ddk) var(--w-lt);
+}
+
+/* ----------------------------------------------------------------
+   WINDOW CONTENT
+   ---------------------------------------------------------------- */
 .window-content {
-    padding: 10px;
-    background: #f0eacd;
-    border: 1px solid #404040;
-    border-top: none;
-    height: calc(100% - 25px); /* Account for titlebar */
-    overflow-y: auto; /* Enable scrolling */
-    box-sizing: border-box;
-    font-family: 'MS Sans Serif', 'Segoe UI', Tahoma, sans-serif;
-    font-size: 11px;
-    color: #000000;
+  flex: 1;
+  padding: 4px;
+  background: var(--w-face);
+  overflow: auto;
+  font-size: 11px;
+  color: #000;
+  /* Inner sunken border */
+  border-top: 1px solid var(--w-dk);
 }
 
-#projects-window .window-content {
-    padding: 20px;
-    overflow-y: auto;
-    background: #f0eacd;
+/* W95 scrollbars */
+.window-content::-webkit-scrollbar { width: 16px; height: 16px; }
+.window-content::-webkit-scrollbar-track {
+  background: var(--w-face);
+  border: 1px solid var(--w-dk);
+}
+.window-content::-webkit-scrollbar-thumb {
+  background: var(--w-face);
+  border: 1px solid;
+  border-color: var(--w-lt) var(--w-ddk) var(--w-ddk) var(--w-lt);
+  box-shadow: inset 1px 1px 0 var(--w-lt), inset -1px -1px 0 var(--w-dk);
+}
+.window-content::-webkit-scrollbar-button {
+  background: var(--w-face);
+  border: 1px solid;
+  border-color: var(--w-lt) var(--w-ddk) var(--w-ddk) var(--w-lt);
+  display: block; height: 16px; width: 16px;
 }
 
-.project-item {
-    background: #f0eacd;
-    border: 1px solid #808080;
-    border-radius: 5px;
-    padding: 15px;
-    margin-bottom: 15px;
+/* ----------------------------------------------------------------
+   STATUSBAR (bottom of windows)
+   ---------------------------------------------------------------- */
+.window-statusbar {
+  height: 18px;
+  display: flex; align-items: center;
+  border-top: 1px solid var(--w-dk);
+  padding: 0 4px;
+  flex-shrink: 0;
+  font-size: 10px; color: #000;
+  background: var(--w-face);
+}
+.statusbar-panel {
+  flex: 1; padding: 0 4px;
+  border: 1px solid; border-color: var(--w-dk) var(--w-lt) var(--w-lt) var(--w-dk);
+  margin-right: 2px; height: 12px; line-height: 12px;
 }
 
-.project-item h3 {
-    margin-top: 0;
-    color: #000000;
-    font-size: 14px;
+/* ----------------------------------------------------------------
+   SIDEBAR EXPLORER (My Computer, file explorer)
+   ---------------------------------------------------------------- */
+.explorer-layout {
+  display: flex; height: 100%; gap: 0;
 }
-
-.project-item img {
-    max-width: 100%;
-    height: auto;
-    margin: 10px 0;
-    border-radius: 3px;
-    border: 1px solid #DDD;
+.explorer-sidebar {
+  width: 160px;
+  background: var(--w-white);
+  border-right: 1px solid var(--w-dk);
+  padding: 8px 4px;
+  flex-shrink: 0;
+  overflow-y: auto;
 }
-
-.project-item p {
-    margin: 10px 0 0;
-    color: #000000;
+.explorer-sidebar h4 {
+  font-size: 10px; font-weight: 700; color: var(--w-titlebar);
+  margin-bottom: 8px; padding: 0 4px;
 }
+.explorer-sidebar-item {
+  display: flex; align-items: center; gap: 6px;
+  padding: 2px 6px; cursor: pointer; border: 1px solid transparent; font-size: 11px;
+}
+.explorer-sidebar-item:hover { background: var(--w-select); color: white; border-color: var(--w-select); }
 
+/* ----------------------------------------------------------------
+   FOLDER GRID (inside windows)
+   ---------------------------------------------------------------- */
 .folder-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));  /* Increased from 100px */
-    gap: 25px;  /* Increased from 20px */
-    padding: 15px;  /* Increased from 10px */
-    background: #f0eacd;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 8px;
+  align-content: flex-start;
 }
 
 .folder {
-    text-align: center;
-    cursor: pointer;
-    padding: 8px;
-    border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  cursor: pointer;
+  padding: 6px;
+  width: 80px;
+  border: 1px solid transparent;
+  word-break: break-word;
 }
-
-.folder:hover {
-    background: rgba(0, 0, 0, 0.1);
+.folder:hover { background: rgba(0,0,128,0.1); border-color: var(--w-select); }
+.folder:focus, .folder.selected {
+  background: rgba(0,0,128,0.2); border: 1px dotted var(--w-ddk);
+  outline: none;
 }
-
 .folder img {
-    width: 48px;  /* Increased from 32px */
-    height: 48px;  /* Increased from 32px */
-    margin-bottom: 5px;
+  width: 32px; height: 32px; margin-bottom: 4px;
+  image-rendering: pixelated;
+  filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.3));
+}
+.folder .icon-emoji { font-size: 28px; margin-bottom: 4px; display: block; line-height: 1; }
+.folder span { font-size: 10px; font-weight: 600; color: #000; line-height: 1.3; }
+
+/* ----------------------------------------------------------------
+   PROJECTS WINDOW
+   ---------------------------------------------------------------- */
+#projects-window { width: 680px; height: 520px; top: 60px; left: 200px; }
+.project-list { display: flex; flex-direction: column; gap: 8px; padding: 4px; }
+.project-item {
+  background: var(--w-white);
+  border: 1px solid;
+  border-color: var(--w-dk) var(--w-lt) var(--w-lt) var(--w-dk);
+  padding: 10px; display: flex; gap: 12px;
+}
+.project-item img { width: 80px; height: 80px; object-fit: cover; border: 1px solid var(--w-dk); flex-shrink: 0; }
+.project-item h3 { font-size: 11px; font-weight: 700; margin-bottom: 4px; color: var(--w-titlebar); }
+.project-item p { font-size: 10px; line-height: 1.5; color: #333; }
+
+/* ----------------------------------------------------------------
+   ABOUT WINDOW
+   ---------------------------------------------------------------- */
+#about-window { width: 480px; height: 420px; top: 80px; left: 160px; }
+.about-content { display: flex; flex-direction: column; gap: 10px; padding: 4px; }
+.profile-section { display: flex; align-items: center; gap: 12px; }
+.profile-pic { width: 64px; height: 64px; border: 1px solid; border-color: var(--w-dk) var(--w-lt) var(--w-lt) var(--w-dk); object-fit: cover; }
+.profile-section h2 { font-size: 14px; font-weight: 700; }
+.bio-section p { font-size: 10px; line-height: 1.6; margin-bottom: 6px; }
+.skills-section h3 { font-size: 11px; font-weight: 700; margin-bottom: 6px; }
+.skills-section ul { padding-left: 16px; }
+.skills-section li { font-size: 10px; margin-bottom: 3px; }
+
+/* ----------------------------------------------------------------
+   GAMES WINDOW
+   ---------------------------------------------------------------- */
+#games-window { width: 600px; height: 480px; top: 80px; left: 180px; }
+.game-section { margin-bottom: 16px; }
+.game-title { font-size: 11px; font-weight: 700; margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid var(--w-dk); }
+
+/* ----------------------------------------------------------------
+   RECYCLE BIN
+   ---------------------------------------------------------------- */
+#recycle-window { width: 300px; height: 200px; top: 120px; left: 240px; }
+.trash-button { margin-top: 12px; }
+
+/* ----------------------------------------------------------------
+   COMPUTER WINDOW
+   ---------------------------------------------------------------- */
+#computer-window { width: 520px; height: 380px; top: 60px; left: 180px; }
+
+/* ----------------------------------------------------------------
+   MY DOCUMENTS WINDOW
+   ---------------------------------------------------------------- */
+#mydocs-window { width: 500px; height: 420px; top: 80px; left: 200px; }
+.mydocs-content { padding: 8px; }
+.mydocs-content h2 { font-size: 13px; color: var(--w-titlebar); margin-bottom: 10px; border-bottom: 1px solid var(--w-dk); padding-bottom: 4px; }
+.info-table { width: 100%; border-collapse: collapse; font-size: 10px; }
+.info-table td { padding: 3px 8px; border: 1px solid var(--w-dk); }
+.info-table tr:nth-child(even) td { background: #f0f0f0; }
+.info-table td:first-child { font-weight: 700; background: #e0e0e0; width: 120px; }
+.section-header td { background: var(--w-titlebar) !important; color: white; font-weight: 700 !important; }
+
+/* ----------------------------------------------------------------
+   NOTEPAD WINDOW
+   ---------------------------------------------------------------- */
+#notepad-window { width: 480px; height: 360px; top: 100px; left: 220px; }
+.notepad-textarea {
+  width: 100%; height: 100%;
+  background: white; color: black;
+  border: 1px solid;
+  border-color: var(--w-dk) var(--w-lt) var(--w-lt) var(--w-dk);
+  font-family: "Courier New", monospace;
+  font-size: 12px;
+  resize: none; padding: 4px;
+  outline: none;
+  box-sizing: border-box;
 }
 
-.folder span {
-    display: block;
-    font-family: 'MS Sans Serif', 'Segoe UI', Tahoma, sans-serif;
-    font-size: 11px;
-    margin-top: 5px;
-    color: #000000;
-    text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.8);
+/* ----------------------------------------------------------------
+   INTERNET EXPLORER WINDOW
+   ---------------------------------------------------------------- */
+#ie-window { width: 720px; height: 500px; top: 60px; left: 120px; }
+.ie-toolbar {
+  display: flex; align-items: center; gap: 4px;
+  background: var(--w-face);
+  padding: 4px;
+  border-bottom: 1px solid var(--w-dk);
+  flex-shrink: 0;
+}
+.ie-btn {
+  padding: 2px 8px; font-size: 10px; cursor: pointer;
+  background: var(--w-face);
+  border: 1px solid; border-color: var(--w-lt) var(--w-ddk) var(--w-ddk) var(--w-lt);
+  box-shadow: inset -1px -1px 0 var(--w-dk);
+}
+.ie-btn:active {
+  border-color: var(--w-ddk) var(--w-lt) var(--w-lt) var(--w-ddk);
+  box-shadow: inset 1px 1px 0 var(--w-dk);
+}
+.ie-address {
+  flex: 1; display: flex; align-items: center; gap: 4px; font-size: 10px;
+}
+.ie-address span { font-weight: 600; }
+.ie-address-bar {
+  flex: 1; height: 18px; font-size: 10px;
+  border: 1px solid; border-color: var(--w-dk) var(--w-lt) var(--w-lt) var(--w-dk);
+  background: white; padding: 0 4px; font-family: inherit;
+  outline: none;
+}
+.ie-content {
+  flex: 1; background: white; overflow: auto;
+  padding: 16px; font-size: 12px; font-family: "Times New Roman", serif;
+  border-top: 1px solid var(--w-dk);
+}
+.ie-content h1 { font-size: 24px; color: #000080; margin-bottom: 8px; }
+.ie-content h2 { font-size: 18px; color: #000080; margin: 12px 0 6px; border-bottom: 2px solid navy; }
+.ie-content a  { color: #0000cc; }
+.ie-content a:visited { color: #551a8b; }
+.ie-content hr { border: none; border-top: 1px solid #999; margin: 8px 0; }
+.ie-content .ie-marquee { color: red; font-family: Comic Sans MS, cursive; font-size: 14px; font-style: italic; }
+.ie-statusbar {
+  height: 18px; background: var(--w-face);
+  border-top: 1px solid var(--w-dk);
+  display: flex; align-items: center; padding: 0 4px;
+  font-size: 10px; flex-shrink: 0;
 }
 
-/* About Me Window Styles */
-.about-content {
-    padding: 20px;
+/* ----------------------------------------------------------------
+   MINESWEEPER WINDOW
+   ---------------------------------------------------------------- */
+#minesweeper-window { width: 300px; height: 380px; top: 80px; left: 300px; }
+.ms-wrapper {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 8px; gap: 6px;
+}
+.ms-info-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  width: 100%;
+  background: var(--w-face);
+  border: 2px solid;
+  border-color: var(--w-dk) var(--w-lt) var(--w-lt) var(--w-dk);
+  padding: 4px 8px;
+}
+.ms-counter {
+  font-family: "Courier New", monospace;
+  font-size: 18px; font-weight: 700; color: red;
+  background: #000; padding: 2px 6px; min-width: 40px; text-align: center;
+  border: 1px solid; border-color: var(--w-dk) var(--w-lt) var(--w-lt) var(--w-dk);
+  letter-spacing: 2px;
+}
+.ms-smiley {
+  font-size: 18px; cursor: pointer; width: 28px; height: 24px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--w-face);
+  border: 2px solid; border-color: var(--w-lt) var(--w-ddk) var(--w-ddk) var(--w-lt);
+  box-shadow: inset -1px -1px 0 var(--w-dk);
+}
+.ms-smiley:active {
+  border-color: var(--w-ddk) var(--w-lt) var(--w-lt) var(--w-ddk);
+  transform: translate(1px,1px);
+}
+.ms-grid {
+  display: grid;
+  border: 2px solid;
+  border-color: var(--w-dk) var(--w-lt) var(--w-lt) var(--w-dk);
+  background: var(--w-face);
+}
+.ms-cell {
+  width: 20px; height: 20px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 700; cursor: pointer;
+  border: 2px solid; border-color: var(--w-lt) var(--w-dk) var(--w-dk) var(--w-lt);
+  box-shadow: inset 1px 1px 0 var(--w-lt);
+  font-family: "Courier New", monospace;
+  user-select: none;
+}
+.ms-cell.revealed {
+  border: 1px solid var(--w-dk);
+  border-color: var(--w-dk) var(--w-lt) var(--w-lt) var(--w-dk);
+  box-shadow: none;
+  background: var(--w-face);
+}
+.ms-cell.mine       { color: #000; font-size: 16px; font-weight: 900; }
+.ms-cell.mine-hit   { background: red !important; color: white !important; }
+.ms-cell.flagged    { color: #cc0000; font-weight: 900; font-size: 11px; letter-spacing: 0; }
+/* Number colors */
+.ms-cell[data-n="1"] { color: #0000ff; }
+.ms-cell[data-n="2"] { color: #008000; }
+.ms-cell[data-n="3"] { color: #ff0000; }
+.ms-cell[data-n="4"] { color: #000080; }
+.ms-cell[data-n="5"] { color: #800000; }
+.ms-cell[data-n="6"] { color: #008080; }
+.ms-cell[data-n="7"] { color: #000000; }
+.ms-cell[data-n="8"] { color: #808080; }
+.ms-status { font-size: 10px; text-align: center; }
+
+/* ----------------------------------------------------------------
+   PIXOS WINDOW
+   ---------------------------------------------------------------- */
+#pixos-window { width: 800px; height: 580px; top: 40px; left: 100px; }
+#pixos-window .window-content { padding: 0; }
+#pixos-window iframe { width: 100%; height: 100%; border: none; background: var(--w-face); }
+
+/* ----------------------------------------------------------------
+   TETRIS WINDOW
+   ---------------------------------------------------------------- */
+#tetris-window { width: 520px; height: 500px; top: 60px; left: 160px; }
+#tetris-window .window-content { padding: 0; }
+#tetris-window iframe { width: 100%; height: 100%; border: none; background: var(--w-face); }
+
+/* ----------------------------------------------------------------
+   CLICKER / INFINITE DOWNLOAD WINDOWS
+   ---------------------------------------------------------------- */
+#clicker-window { width: 360px; height: 300px; top: 120px; left: 200px; }
+#infinite-download-window { width: 700px; height: 360px; top: 100px; left: 150px; }
+#clicker-window .window-content,
+#infinite-download-window .window-content { padding: 0; }
+#clicker-window iframe,
+#infinite-download-window iframe { width: 100%; height: 100%; border: none; }
+
+/* ----------------------------------------------------------------
+   CONTACT / ERROR DIALOG
+   ---------------------------------------------------------------- */
+#contact-error-window {
+  width: 340px; height: 160px;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+}
+.error-dialog {
+  display: flex; flex-direction: column; gap: 8px;
+  padding: 12px; background: var(--w-face);
+}
+.error-icon-row { display: flex; align-items: flex-start; gap: 12px; }
+.error-icon { font-size: 32px; line-height: 1; }
+.error-message-text p { font-size: 11px; margin-bottom: 4px; }
+.ok-button {
+  margin-top: 8px; padding: 4px 24px;
+  background: var(--w-face);
+  border: 1px solid; border-color: var(--w-lt) var(--w-ddk) var(--w-ddk) var(--w-lt);
+  box-shadow: inset -1px -1px 0 var(--w-dk);
+  cursor: pointer; font-size: 11px; min-width: 75px;
+}
+.ok-button:active {
+  border-color: var(--w-ddk) var(--w-lt) var(--w-lt) var(--w-ddk);
+  box-shadow: inset 1px 1px 0 var(--w-dk);
+  transform: translate(1px,1px);
 }
 
-.profile-section {
-    text-align: center;
-    margin-bottom: 20px;
+/* ----------------------------------------------------------------
+   W95 BUTTON (generic)
+   ---------------------------------------------------------------- */
+.w95-btn {
+  padding: 3px 16px;
+  background: var(--w-face); color: #000;
+  border: 1px solid; border-color: var(--w-lt) var(--w-ddk) var(--w-ddk) var(--w-lt);
+  box-shadow: inset -1px -1px 0 var(--w-dk);
+  cursor: pointer; font-size: 11px; font-family: inherit;
+  min-width: 75px; text-align: center;
+}
+.w95-btn:active {
+  border-color: var(--w-ddk) var(--w-lt) var(--w-lt) var(--w-ddk);
+  box-shadow: inset 1px 1px 0 var(--w-dk);
+  transform: translate(1px,1px);
+}
+.w95-btn:hover { filter: brightness(0.97); }
+
+/* ----------------------------------------------------------------
+   TASKBAR
+   ---------------------------------------------------------------- */
+.taskbar {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  height: var(--tb-h);
+  background: linear-gradient(180deg, #c0bbbb 0%, #c0c0c0 3%, var(--w-face) 5%, var(--w-face) 95%, #808080 100%);
+  border-top: 2px solid var(--w-lt);
+  display: flex; align-items: center;
+  padding: 2px 4px 2px 2px;
+  z-index: 9000; gap: 4px;
 }
 
-.profile-pic {
-    width: 150px;
-    height: 150px;
-    border-radius: 50%;
-    margin-bottom: 10px;
+/* ----------------------------------------------------------------
+   START BUTTON
+   ---------------------------------------------------------------- */
+.start-btn {
+  display: flex; align-items: center; gap: 5px;
+  padding: 0 10px; height: 28px;
+  background: var(--w-face);
+  border: 1px solid; border-color: var(--w-lt) var(--w-ddk) var(--w-ddk) var(--w-lt);
+  box-shadow: inset -1px -1px 0 var(--w-dk);
+  cursor: pointer; font-weight: 900; font-size: 12px;
+  letter-spacing: 0.5px; font-style: italic;
+  flex-shrink: 0;
+}
+.start-btn:active, .start-btn.active {
+  border-color: var(--w-ddk) var(--w-lt) var(--w-lt) var(--w-ddk);
+  box-shadow: inset 1px 1px 0 var(--w-dk);
+  transform: translate(1px,1px);
+}
+.start-btn img { width: 18px; height: 18px; image-rendering: pixelated; }
+.start-btn .pixel-logo {
+  width: 18px; height: 18px; display: grid; grid-template-columns: 1fr 1fr;
+  gap: 1px; flex-shrink: 0;
+}
+.start-btn .pixel-logo span {
+  display: block;
+}
+.start-btn .pixel-logo span:nth-child(1) { background: #ff0000; }
+.start-btn .pixel-logo span:nth-child(2) { background: #00cc00; }
+.start-btn .pixel-logo span:nth-child(3) { background: #0000ff; }
+.start-btn .pixel-logo span:nth-child(4) { background: #ffcc00; }
+
+/* ----------------------------------------------------------------
+   TASKBAR ITEMS (minimized windows)
+   ---------------------------------------------------------------- */
+.taskbar-items {
+  display: flex; gap: 2px; flex: 1; align-items: center; overflow: hidden;
+}
+.taskbar-item {
+  display: flex; align-items: center; gap: 4px;
+  height: 28px; padding: 2px 8px;
+  background: var(--w-face);
+  border: 1px solid; border-color: var(--w-lt) var(--w-ddk) var(--w-ddk) var(--w-lt);
+  box-shadow: inset -1px -1px 0 var(--w-dk);
+  cursor: pointer; font-size: 10px; font-weight: 600;
+  min-width: 100px; max-width: 150px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.taskbar-item.focused {
+  border-color: var(--w-ddk) var(--w-lt) var(--w-lt) var(--w-ddk);
+  box-shadow: inset 1px 1px 0 var(--w-dk);
+  background: #b4b4b4;
+}
+.taskbar-item img { width: 14px; height: 14px; image-rendering: pixelated; flex-shrink: 0; }
+
+/* ----------------------------------------------------------------
+   SYSTEM TRAY
+   ---------------------------------------------------------------- */
+.system-tray {
+  display: flex; align-items: center; gap: 0;
+  height: 28px; padding: 0 8px;
+  border: 1px solid; border-color: var(--w-dk) var(--w-lt) var(--w-lt) var(--w-dk);
+  box-shadow: inset 1px 1px 0 var(--w-dk);
+  background: var(--w-face); flex-shrink: 0;
 }
 
-.profile-section h2 {
-    font-family: 'MS Sans Serif', 'Segoe UI', Tahoma, sans-serif;
-    font-size: 14px;
-    margin: 0;
+.taskbar-clock {
+  font-size: 10px; font-weight: 600; color: #000;
+  padding: 0 8px; letter-spacing: 0.2px;
+  border-left: 1px solid var(--w-dk);
 }
 
-.bio-section {
-    margin-bottom: 20px;
-    text-align: justify;
-}
-
-.bio-section p {
-    margin: 12px 0;  /* Increased margin for better paragraph spacing */
-    line-height: 1.5;  /* Increased line height for better readability */
-    font-size: 11px;
-}
-
-.skills-section h3 {
-    font-size: 12px;
-    margin-bottom: 8px;
-}
-
-.skills-section ul {
-    list-style-type: disc;
-    margin: 0;
-    padding-left: 20px;
-}
-
-.skills-section li {
-    margin-bottom: 4px;
-}
-
-/* Make About Me window slightly larger */
-#about-window {
-    width: 650px;  /* Slightly wider to accommodate the text better */
-    min-height: 400px;  /* Taller to fit all content comfortably */
-}
-
-/* Start Menu Styles */
+/* ----------------------------------------------------------------
+   START MENU
+   ---------------------------------------------------------------- */
 .start-menu {
-    position: fixed;
-    bottom: 40px;
-    left: 0;
-    background: #c0c0c0;
-    border: 2px solid #ffffff;
-    border-bottom: none;
-    width: 200px;
-    padding: 2px;
-    display: none;
+  display: none;
+  position: fixed; bottom: var(--tb-h); left: 0;
+  width: 200px;
+  background: var(--w-face);
+  border: 1px solid; border-color: var(--w-lt) var(--w-ddk) var(--w-ddk) var(--w-lt);
+  box-shadow: 2px 2px 4px rgba(0,0,0,0.3), inset -1px -1px 0 var(--w-dk);
+  z-index: 9500;
+  flex-direction: row;
+}
+.start-menu.visible { display: flex; }
+.start-menu.hidden   { display: none; }
+
+/* Left banner */
+.start-menu-banner {
+  width: 30px; background: linear-gradient(0deg, var(--w-titlebar) 0%, #6060c0 100%);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; position: relative;
+}
+.start-menu-banner::after {
+  content: '';
+  position: absolute;
+  top: 6px; bottom: 6px; left: 50%; transform: translateX(-50%);
+  width: 2px;
+  background: rgba(255,255,255,0.12);
 }
 
-.start-menu.visible {
-    display: block;
-}
-
+/* Menu items column */
 .start-menu-items {
-    border: 1px solid #808080;
-    background: #c0c0c0;
+  flex: 1; display: flex; flex-direction: column;
 }
 
 .start-item {
-    padding: 8px 10px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    cursor: pointer;
+  display: flex; align-items: center; gap: 10px;
+  padding: 5px 12px; cursor: pointer; font-size: 11px; font-weight: 600;
+  border-top: 1px solid transparent;
 }
-
 .start-item:hover {
-    background: #000080;
-    color: white;
+  background: var(--w-select); color: white;
 }
+.start-item img { width: 22px; height: 22px; image-rendering: pixelated; flex-shrink: 0; }
+.start-item .icon-emoji { font-size: 20px; flex-shrink: 0; width: 22px; text-align: center; }
 
-.start-item img {
-    width: 16px;
-    height: 16px;
+/* Separator */
+.start-separator { height: 1px; background: var(--w-dk); margin: 2px 0; }
+
+/* Programs submenu */
+.start-item.has-submenu { position: relative; justify-content: space-between; }
+.start-item.has-submenu::after { content: "▶"; font-size: 8px; }
+.start-submenu {
+  display: none; position: absolute; left: calc(100% - 2px); top: 0;
+  background: var(--w-face);
+  border: 1px solid; border-color: var(--w-lt) var(--w-ddk) var(--w-ddk) var(--w-lt);
+  box-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+  min-width: 200px; z-index: 9600;
 }
+.start-item.has-submenu:hover .start-submenu { display: block; }
+.start-submenu .sub-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 4px 12px; cursor: pointer; font-size: 11px;
+}
+.start-submenu .sub-item:hover { background: var(--w-select); color: white; }
+.start-submenu .sub-item .icon-emoji { font-size: 16px; }
 
-/* Lock Screen Styles */
+/* ----------------------------------------------------------------
+   LOCK SCREEN
+   ---------------------------------------------------------------- */
 .lock-screen {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: #006666; /* Darker shade of teal */
-    display: none;
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
+  display: none; position: fixed; inset: 0;
+  background: var(--lock-bg);
+  z-index: 19999;
+  align-items: center; justify-content: center;
 }
-
-.lock-screen.visible {
-    display: flex;
-}
+.lock-screen.visible { display: flex; }
+.lock-screen.hidden  { display: none; }
 
 .lock-content {
-    text-align: center;
-    color: white;
+  display: flex; flex-direction: column; align-items: stretch;
+  background: var(--w-face);
+  border: 2px solid;
+  border-color: var(--w-lt) var(--w-ddk) var(--w-ddk) var(--w-lt);
+  box-shadow: 2px 2px 0 var(--w-ddk), inset 1px 1px 0 #fff;
+  min-width: 260px;
 }
-
-.lock-avatar {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    margin-bottom: 20px;
+.lock-titlebar {
+  background: linear-gradient(90deg, var(--w-titlebar) 0%, var(--w-titlebar2) 100%);
+  color: #fff;
+  font-size: 12px; font-weight: bold;
+  padding: 3px 6px;
+  font-family: var(--w-font);
+  display: flex; align-items: center;
+  user-select: none;
 }
-
-.password-input {
-    margin-top: 20px;
-    display: flex;
-    gap: 10px;
+.lock-body {
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  padding: 20px 32px 16px;
 }
-
+.lock-avatar-pixel {
+  width: 64px; height: 64px;
+  border: 2px solid;
+  border-color: var(--w-dk) var(--w-lt) var(--w-lt) var(--w-dk);
+  box-shadow: inset 1px 1px 0 var(--w-ddk);
+  overflow: hidden;
+  margin-bottom: 2px;
+}
+.lock-avatar-pixel img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.lock-username {
+  font-size: 13px; font-weight: bold;
+  color: #000;
+  font-family: var(--w-font);
+  margin: 0;
+}
+.password-input { display: flex; gap: 4px; }
 .password-input input {
-    padding: 8px;
-    border: 1px solid #808080;
-    background: #000000;
-    color: white;
+  padding: 4px 6px; font-size: 13px; width: 160px;
+  background: #fff;
+  border: 2px solid;
+  border-color: var(--w-dk) var(--w-lt) var(--w-lt) var(--w-dk);
+  box-shadow: inset 1px 1px 0 var(--w-ddk);
+  color: #000;
+  font-family: var(--w-font);
+  outline: none;
 }
-
-.password-input button {
-    padding: 8px 15px;
-    background: #008080; /* Match desktop teal color */
-    color: white;
-    border: none;
-    cursor: pointer;
-    transition: background 0.2s ease;
+.password-input input::placeholder { color: #808080; letter-spacing: 0; }
+.lock-hint {
+  font-size: 11px;
+  color: #444;
+  font-family: var(--w-font);
+  font-style: normal;
+  margin-top: -2px;
 }
-
-.password-input button:hover {
-    background: #006666; /* Darker shade for hover state */
+#login-btn {
+  padding: 4px 10px;
+  background: var(--w-face);
+  border: 2px solid;
+  border-color: var(--w-lt) var(--w-ddk) var(--w-ddk) var(--w-lt);
+  box-shadow: inset -1px -1px 0 var(--w-dk);
+  color: #000; font-size: 14px; font-weight: bold;
+  cursor: pointer;
+  font-family: var(--w-font);
 }
-
-.error-message {
-    color: #ff0000;
-    margin-top: 10px;
-    font-size: 14px;
-    font-family: 'MS Sans Serif', sans-serif;
-    text-shadow: 1px 1px rgba(0,0,0,0.5);
+#login-btn:hover { background: #d4d0c8; }
+#login-btn:active {
+  border-color: var(--w-ddk) var(--w-lt) var(--w-lt) var(--w-ddk);
+  box-shadow: inset 1px 1px 0 var(--w-ddk);
 }
-
-/* Shutdown Animation */
-@keyframes shutdown {
-    0% {
-        transform: scaleY(1);
-        opacity: 1;
-        filter: brightness(1);
-    }
-    50% {
-        transform: scaleY(0.5);
-        opacity: 0.7;
-        filter: brightness(0.7);
-    }
-    75% {
-        transform: scaleY(0.1);
-        opacity: 0.3;
-        filter: brightness(0.3);
-    }
-    100% {
-        transform: scaleY(0.001);
-        opacity: 0;
-        filter: brightness(0);
-    }
+.lock-screen .error-message {
+  font-size: 11px; color: #c00000;
+  height: 14px; font-family: var(--w-font);
 }
-
-.shutting-down {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: #000;
-    z-index: 99999;
-    animation: fadeToBlack 2s forwards;
+@keyframes shake {
+  0%,100%{ transform:translateX(0); }
+  20%     { transform:translateX(-7px); }
+  40%     { transform:translateX(7px); }
+  60%     { transform:translateX(-5px); }
+  80%     { transform:translateX(5px); }
 }
+.password-input input.shake { animation: shake 0.35s ease; }
 
-@keyframes fadeToBlack {
-    0% {
-        opacity: 0;
-    }
-    50% {
-        opacity: 0.5;
-    }
-    100% {
-        opacity: 1;
-    }
-}
-
-@keyframes scanline {
-    0% { opacity: 0; }
-    30% { opacity: 0.5; }
-    60% { opacity: 1; }
-    100% { opacity: 1; }
-}
-
-@keyframes fadeOut {
-    0% { opacity: 1; }
-    60% { opacity: 0.3; }
-    100% { opacity: 0; }
-}
-
-/* Restart Animation */
-@keyframes restart {
-    0% { opacity: 1; }
-    45% { opacity: 0; }
-    55% { opacity: 0; }
-    100% { opacity: 1; }
-}
-
-.restarting {
-    animation: restart 2s forwards;
-}
-
-.window-controls button {
-    width: 18px;
-    height: 18px;
-    margin-left: 2px;
-    border: 1px solid #FFF;
-    border-radius: 2px;
-    font-family: 'Tahoma', sans-serif;
-    font-size: 14px;
-    line-height: 14px;
-    text-align: center;
-    color: #000;
-    background: #C0C0C0;
-    text-shadow: none;
-}
-
-.minimize-btn, .maximize-btn {
-    background: linear-gradient(to bottom, #5998E5, #2683F5);
-}
-
-.maximize-btn {
-    position: relative;
-}
-
-.maximize-btn::after {
-    content: '□';
-    position: absolute;
-    top: 45%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 10px;
-}
-
-.close-btn {
-    background: #FF0000; /* Red background */
-    color: #FFFFFF; /* White color for the '×' symbol */
-}
-
-.close-btn:hover,
-.close-btn:active {
-    background: #FF0000; /* Keep red background on hover and active */
-    color: #FFFFFF; /* Maintain white color for the '×' symbol */
-}
-
-/* Update maximize behavior */
-.window.maximized {
-    width: 100% !important;
-    height: calc(100vh - 44px) !important; /* Match new taskbar height */
-}
-
-/* Ensure content areas use the correct background */
-.bio-section,
-.skills-section,
-.about-content,
-.games-list {
-    background: #f0eacd;
-}
-
-/* Add scrollbar styling */
-.window-content::-webkit-scrollbar {
-    width: 16px;
-}
-
-.window-content::-webkit-scrollbar-track {
-    background: #f0eacd;
-}
-
-.window-content::-webkit-scrollbar-thumb {
-    background: #d4d0c8;
-    border: 1px solid #808080;
-}
-
-/* Games Window Styles */
-.game-section {
-    background: #f0eacd;
-    border: 1px solid #404040;
-    padding: 15px;
-    margin-bottom: 20px;
-}
-
-.game-title {
-    font-family: 'Press Start 2P', cursive;
-    color: #000000;
-    font-size: 16px;
-    margin-bottom: 15px;
-    text-align: center;
-    text-shadow: none;
-}
-
-.game-container {
-    text-align: center;
-    position: relative;
-}
-
-#gameCanvas {
-    background: #f0eacd;
-    border: 1px solid #404040;
-    margin: 10px 0;
-}
-
-.game-instructions {
-    font-family: 'Press Start 2P', cursive;
-    color: #000000;
-    font-size: 12px;
-    margin: 10px 0;
-    text-shadow: none;
-}
-
-.floor {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 55px;
-    background: url('assets/img/new_floor.png') repeat-x;
-    background-size: auto 100%;
-}
-
-/* Make sure window is large enough for the game */
-#games-window {
-    width: 1200px;
-    height: 800px;
-    min-width: 1200px;
-    min-height: 800px;
-}
-
-/* Update clicker game styles */
-#clicker-game {
-    background: #f0eacd;
-    padding: 20px;
-    font-family: 'Press Start 2P', cursive;
-}
-
-.clicker-area {
-    background: #e0d6b9;  /* Slightly darker shade of tan */
-    height: 200px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    border: 1px solid #808080;
-    margin: 10px 0;
-    transition: background-color 0.2s;
-}
-
-.clicker-area:hover {
-    background: #d6ccaf;  /* Even darker shade of tan for hover */
-}
-
-.clicker-area h3 {
-    font-family: 'Press Start 2P', cursive;
-    color: #000000;
-    font-size: 24px;
-    text-shadow: none;
-}
-
-.score-display {
-    font-family: 'Press Start 2P', cursive;
-    color: #000000;
-    font-size: 12px;
-    text-align: center;
-    margin-top: 10px;
-    text-shadow: none;
-}
-
-/* Add CRT shutdown effects */
-@keyframes shutdown {
-    0% { 
-        transform: scale(1, 1);
-        opacity: 1;
-        filter: brightness(1);
-    }
-    60% { 
-        transform: scale(1, 0.002);
-        opacity: 0.8;
-        filter: brightness(0.6);
-    }
-    100% { 
-        transform: scale(0, 0);
-        opacity: 0;
-        filter: brightness(0);
-    }
-}
-
-.shutting-down {
-    animation: shutdown 1.5s cubic-bezier(0.19, 1, 0.22, 1) forwards;
-    transform-origin: center center;
-}
-
-/* Add CRT scan lines effect */
-.shutting-down::after {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(0deg, rgba(0,0,0,0.2) 50%, transparent 50%);
-    background-size: 100% 4px;
-    pointer-events: none;
-    z-index: 9999;
-    animation: flicker 0.15s infinite linear;
-}
-
-@keyframes flicker {
-    0% { opacity: 0.7; }
-    50% { opacity: 0.3; }
-    100% { opacity: 0.7; }
-}
-
-.trash-button {
-    padding: 8px 16px;
-    background: #d4d0c8;
-    border: 2px solid #808080;
-    font-family: 'MS Sans Serif', 'Segoe UI', Tahoma, sans-serif;
-    font-size: 11px;
-    cursor: pointer;
-    margin-top: 10px;
-}
-
-.trash-button:hover {
-    background: #c0c0c0;
-}
-
-.trash-button:active {
-    border-color: #404040;
-    background: #d4d0c8;
-}
-
-/* New CRT shutdown animation */
-@keyframes crtShutdown {
-    0% {
-        transform: scaleY(1);
-        filter: brightness(1) contrast(1);
-    }
-    40% {
-        transform: scaleY(0.8) translateY(10%);
-        filter: brightness(0.8) contrast(1.2);
-    }
-    70% {
-        transform: scaleY(0.05) translateY(45%);
-        filter: brightness(0.4) contrast(1.5);
-    }
-    100% {
-        transform: scaleY(0.001) translateY(50%);
-        filter: brightness(0) contrast(2);
-    }
-}
-
-/* Add boot animation */
-@keyframes crtBoot {
-    0% {
-        transform: scaleY(0.001) translateY(50%);
-        filter: brightness(0) contrast(2);
-    }
-    30% {
-        transform: scaleY(0.05) translateY(45%);
-        filter: brightness(0.4) contrast(1.5);
-    }
-    60% {
-        transform: scaleY(0.8) translateY(10%);
-        filter: brightness(0.8) contrast(1.2);
-    }
-    100% {
-        transform: scaleY(1) translateY(0);
-        filter: brightness(1) contrast(1);
-    }
-}
-
+/* ----------------------------------------------------------------
+   SCREEN EFFECTS (shutdown / wake)
+   ---------------------------------------------------------------- */
 .screen-overlay {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: transparent;
-    pointer-events: none;
-    z-index: 99999;
-    transform-origin: center top;
+  position: fixed; inset: 0; background: black;
+  pointer-events: none; z-index: 29999;
+  opacity: 0; transition: opacity 0.5s;
 }
+.screen-overlay.shutting-down { opacity: 1; }
 
-.screen-overlay.shutting-down {
-    display: block;
-    animation: crtShutdown 1.5s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+.loading-overlay {
+  position: fixed; inset: 0; background: #000;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 29998; transition: opacity 0.5s;
 }
-
-.screen-overlay.booting {
-    display: block;
-    animation: crtBoot 2s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+.loading-overlay.hidden { display: none; }
+.spinner {
+  width: 40px; height: 40px;
+  border: 3px solid #333;
+  border-top-color: var(--w-titlebar2);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
 }
-
-/* Update CRT shutdown animation */
-@keyframes crtShutdown {
-    0% {
-        transform: scaleY(1);
-        filter: brightness(1);
-        background: inherit;
-    }
-    40% {
-        transform: scaleY(0.6);
-        filter: brightness(0.8);
-        background: #000;
-    }
-    100% {
-        transform: scaleY(0.001);
-        filter: brightness(0);
-        background: #000;
-    }
-}
-
-.screen-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    z-index: 99999;
-    transform-origin: center center;
-    background: transparent;
-}
-
-.screen-off {
-    background: #000 !important;
-    z-index: 100000;
-}
-
-/* Completely new shutdown animation */
-@keyframes crtShutdown {
-    0% {
-        height: 100vh;
-        opacity: 1;
-        background: #000;
-    }
-    75% {
-        height: 2px;
-        opacity: 1;
-        background: #000;
-    }
-    100% {
-        height: 0;
-        opacity: 1;
-        background: #000;
-    }
-}
-
-.screen-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    z-index: 99999;
-    pointer-events: none;
-    background: transparent;
-}
+@keyframes spin { to { transform: rotate(360deg); } }
 
 .black-screen {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: #000;
-    z-index: 99998;
-    opacity: 0;
-    transition: opacity 0.5s;
+  position: fixed; inset: 0; background: black;
+  z-index: 29997;
+}
+.shutdown-active .taskbar  { display: none; }
+.shutdown-active .desktop  { pointer-events: none; }
+
+/* ----------------------------------------------------------------
+   IE PROGRESS BAR (throbber)
+   ---------------------------------------------------------------- */
+@keyframes ie-throb {
+  0%   { background-position: 0 0; }
+  100% { background-position: -200px 0; }
 }
-
-.shutdown-active .screen-overlay {
-    animation: crtShutdown 1s cubic-bezier(.23,1,.32,1) forwards;
-}
-
-.shutdown-active .black-screen {
-    opacity: 1;
-}
-
-#endless-download {
-    font-family: 'Press Start 2P', cursive;
-}
-
-/* ...existing code... */
-
-/* Style for Projects Window */
-#projects-window {
-    /* ...existing styles... */
-    display: none; /* Ensure it's hidden by default */
-}
-
-#projects-window.active {
-    display: block; /* Display when active */
-}
-
-/* Style for Contact Error Window */
-#contact-error-window {
-    /* ...existing styles... */
-    display: none; /* Hide by default */
-}
-
-#contact-error-window.active {
-    display: block; /* Show when triggered */
-}
-
-/* ...existing styles... */
-
-/* Update contact error window styles */
-#contact-error-window {
-    width: 225px;  /* Halved from 450px */
-    height: 125px; /* Halved from 250px */
-    background: #F1F1F1;
-}
-
-/* Ensure close button is always red */
-#contact-error-window .close-btn {
-    background: #FF0000;
-    color: #FFFFFF;
-}
-
-#contact-error-window .close-btn:hover,
-#contact-error-window .close-btn:active {
-    background: #FF0000;
-    color: #FFFFFF;
-}
-
-/* Update error text color to black */
-.error-message-text p {
-    margin: 5px 0;
-    color: #000000 !important; /* Force black color */
-    font-size: 12px;
-    font-weight: bold;
-    text-align: center;
-}
-
-.error-dialog {
-    padding: 10px;
-    box-sizing: border-box;
-    width: 100%;
-    height: calc(100% - 25px);
-}
-
-/* ...existing code... */
-
-/* Update contact error window size and styling */
-#contact-error-window {
-    width: 450px;  /* 9 units */
-    height: 250px; /* 5 units */
-    background: #F1F1F1;
-}
-
-#contact-error-window .window-content {
-    padding: 0;
-    margin: 0;
-    height: calc(100% - 25px);
-    border: none;
-    background: #F1F1F1;
-}
-
-.error-dialog {
-    width: 100%;
-    height: 100%;
-    margin: 0;
-    padding: 20px;
-    box-sizing: border-box;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #F1F1F1;
-    border: none;
-}
-
-.error-message-text {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-}
-
-.error-message-text p {
-    margin: 5px 0;
-    color: #0000FF;
-    font-size: 12px;
-    font-weight: bold;
-    text-align: center;
-}
-
-.ok-button {
-    margin-top: 20px;
-    padding: 5px 20px;
-}
-
-/* ...existing code... */
-
-#contact-error-window .window-content p {
-    margin: 10px 0;
-    color: #FF0000; /* Red color for error message */
-    font-weight: bold;
-    text-align: center;
-}
-
-/* Style for Error Dialog */
-.error-dialog {
-    display: flex;
-    align-items: center;
-    padding: 15px; /* Reduced padding */
-    background: #F1F1F1;
-    border: 2px solid #000080; /* Windows XP blue border */
-    border-radius: 4px;
-    width: 450px; /* Updated width for 9:5 ratio */
-    height: 250px; /* Updated height for 9:5 ratio */
-}
-
-.error-icon {
-    width: 32px;
-    height: 32px;
-    margin-right: 15px;
-}
-
-.error-message-text {
-    flex: 1;
-    font-family: 'MS Sans Serif', 'Segoe UI', Tahoma, sans-serif;
-    font-size: 12px;
-    color: #000000;
-    display: flex;
-    flex-direction: column;
-    align-items: center; /* Center horizontally */
-}
-
-.error-message-text p {
-    margin: 10px 0;
-    color: #0000FF; /* Blue color for error message */
-    font-weight: bold;
-    text-align: center;
-}
-
-.ok-button {
-    margin-top: 15px; /* Space above the button */
-    padding: 5px 20px;
-    background: #C0C0C0;
-    border: 2px solid #000080;
-    cursor: pointer;
-    font-family: 'MS Sans Serif', 'Segoe UI', Tahoma, sans-serif;
-    font-size: 12px;
-}
-
-.ok-button:hover {
-    background: #000080;
-    color: #FFFFFF;
-}
-
-/* Style for Shutdown Button */
-.start-item[data-action="shutdown"] {
-    /* ...existing styles... */
-}
-
-.start-item[data-action="shutdown"]:hover {
-    /* ...existing hover styles... */
-}
-
-/* Loading Overlay Styles */
-.loading-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: #000; /* Black background for old computer feel */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 100000;
-    animation: fadeOut 3s forwards; /* Duration matches JavaScript timeout */
-}
-
-/* Keyframes for fade out effect */
-@keyframes fadeOut {
-    0% { opacity: 1; }
-    100% { opacity: 0; visibility: hidden; }
-}
-
-/* ...existing code... */
-
-/* Styles for PixOS icon */
-.icon[data-window="pixos-window"] {
-    /* Positioning and styling */
-}
-
-/* Ensure the iframe fills the window content area */
-#pixos-window .window-content iframe {
-    width: 100%;
-    height: 100%;
-    border: none;
-}
-
-/* ...existing code... */
-
-/* Add minimized window styles */
-.window.minimized {
-    display: none;
-}
-
-/* Ensure maximized windows occupy the full screen minus the taskbar */
-.window.maximized {
-    width: 100% !important;
-    height: calc(100vh - 44px) !important; /* Match new taskbar height */
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 44px; /* Height of the taskbar */
-}
-
-/* ...existing code... */
-
-/* Update PixOS window styles */
-#pixos-window {
-    min-width: 800px;
-    min-height: 600px;
-}
-
-#pixos-window.maximized {
-    width: 100% !important;
-    height: calc(100vh - 44px) !important;
-    top: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    transform: none !important;
-    border-radius: 0;
-}
-
-#pixos-window.maximized .window-content {
-    height: calc(100% - 25px);
-    padding: 0;
-}
-
-#pixos-window.maximized iframe {
-    width: 100% !important;
-    height: 100% !important;
-    border: none;
-}
-
-/* ...existing code... */
-
-/* ...existing code... */
-
-#tetris-window {
-    width: 800px;
-    height: 600px;
-}
-
-#tetris-window .window-content {
-    padding: 0;
-    background: #151617;
-}
-
-#tetris-window iframe {
-    width: 100%;
-    height: 100%;
-    border: none;
-}
-
-/* ...existing code... */
-
-/* ...existing code... */
-
-#tetris-game {
-    background: #f0eacd;  /* Match the desktop theme background */
-    padding: 20px;
-    border-radius: 8px;
-    margin-top: 20px;
-}
-
-#tetris-game .game-container {
-    display: flex;
-    gap: 20px;
-    justify-content: center;
-    align-items: flex-start;
-    padding: 20px;
-    background-color: #f0eacd;  /* Match the desktop theme background */
-    border: 4px solid #444;
-    border-radius: 8px;
-}
-
-#tetris-game .game-header {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-#tetris-game .score-box {
-    background-color: #f0eacd;  /* Match the desktop theme background */
-    padding: 10px;
-    border: 2px solid #444;
-    text-align: center;
-    color: #0000FF;  /* Change to Windows blue */
-    font-family: 'Press Start 2P', cursive;
-}
-
-#tetris-game .label {
-    font-size: 12px;
-    margin-bottom: 5px;
-    color: #888;
-}
-
-#tetris-game canvas {
-    border: 2px solid #444;
-    background-color: #f0eacd;  /* Match the desktop theme background */
-}
-
-#tetris-game .next-piece {
-    background-color: #f0eacd;  /* Match the desktop theme background */
-    padding: 10px;
-    border: 2px solid #444;
-    text-align: center;
-}
-
-#tetris-game .controls {
-    color: #888;
-    font-size: 10px;
-    font-family: 'Press Start 2P', cursive;
-    line-height: 1.5;
-    margin-top: 20px;
-}
-
-#tetris-game .controls p {
-    margin: 5px 0;
-}
-
-/* Update games window size to accommodate Tetris */
-#games-window {
-    width: 1200px;
-    height: 800px;
-    min-width: 1200px;
-    min-height: 800px;
-}
-
-/* ...existing code... */
-
-/* Tetris Styles */
-.tetris-layout {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 20px;
-    background: #f0eacd;
-    padding: 20px;
-    border-radius: 8px;
-}
-
-.tetris-layout .game-header {
-    display: flex;
-    gap: 20px;
-}
-
-.tetris-layout .score-box {
-    background: #f0eacd;
-    padding: 10px 20px;
-    border: 2px solid #444;
-    text-align: center;
-}
-
-.tetris-layout .label {
-    font-family: 'Press Start 2P', cursive;
-    font-size: 12px;
-    color: #0000FF;
-    margin-bottom: 5px;
-}
-
-.tetris-layout #tetris {
-    border: 2px solid #444;
-    background: #f0eacd;
-}
-
-.tetris-layout .next-piece {
-    background: #f0eacd;
-    padding: 10px;
-    border: 2px solid #444;
-    text-align: center;
-}
-
-.tetris-layout .controls {
-    font-family: 'Press Start 2P', cursive;
-    font-size: 10px;
-    color: #0000FF;
-    text-align: center;
-}
-
-.tetris-layout .controls p {
-    margin: 5px 0;
-}
-
-/* ...existing code... */
-
-/* ...existing code... */
-
-#tetris-game {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    background: #f0eacd;
-    padding: 20px;
-}
-
-#tetris {
-    border: 2px solid #444;
-    background: #f0eacd;
-}
-
-.game-info {
-    margin-left: 20px;
-    font-family: 'Press Start 2P', cursive;
-    color: #0000FF;
-}
-
-/* ...existing code... */
-
-/* Styles for Tetris Controls */
-.tetris-controls {
-    /* Ensure consistency with other control sections */
-    background: #f0eacd;
-    padding: 15px;
-    border: 2px solid #0000FF;
-    border-radius: 5px;
-    margin: 20px;
-}
-
-.tetris-controls h3 {
-    font-family: 'Press Start 2P', cursive;
-    color: #0000FF;
-    text-align: center;
-    margin-bottom: 10px;
-}
-
-.tetris-controls ul {
-    list-style: none;
-    padding: 0;
-}
-
-.tetris-controls li {
-    background: #c0c0c0;
-    margin: 5px 0;
-    padding: 8px;
-    border-radius: 3px;
-    text-align: center;
-    color: #000;
-    font-size: 10px;
-}
-
-/* ...existing styles... */
-
-/* Ensure the Tetris game window appears above desktop icons */
-#pixos-window, #tetris-window {
-    z-index: 1001;
-}
-
-/* Style window titlebars to match retro theme */
-.window-titlebar {
-    background: #0000FF; /* Classic blue */
-    color: #fff;
-    font-family: 'Press Start 2P', cursive;
-    font-size: 0.8em;
-}
-
-/* Style window controls buttons */
-.window-controls button {
-    background: #C0C0C0;
-    border: none;
-    width: 20px;
-    height: 20px;
-    cursor: pointer;
-    font-family: 'Press Start 2P', cursive;
-}
-
-.window-controls button:hover {
-    background: #FFF;
-}
-
-/* ...existing styles... */
-
-/* Styles for Next Pieces Display */
-.next-pieces {
-    display: flex;
-    flex-direction: column; /* Changed from row to column */
-    gap: 10px; /* Adjust spacing as needed */
-    align-items: center; /* Center hold blocks horizontally */
-}
-
-.next-pieces canvas {
-    border: 2px solid #444;
-    background-color: #f0eacd;
-    width: 100px; /* Fixed width to prevent stretching */
-    height: 100px; /* Fixed height to maintain aspect ratio */
-}
-
-/* Ensure the game section has proper positioning and background */
-.tetris-game {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    background-color: #000; /* Black background to match OG Tetris */
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 0 10px #fff;
-    margin: 20px auto;
-    max-width: 800px;
-}
-
-/* Adjust h1 within tetris-game for better visibility */
-.tetris-game h1 {
-    font-size: 2em;
-    margin-bottom: 10px;
-}
-
-/* Style the game-container to center the game and next pieces */
-.game-container {
-    display: flex;
-    gap: 20px;
-    justify-content: center;
-    align-items: flex-start;
-    margin-bottom: 20px;
-}
-
-/* Style the next-pieces container */
-.next-pieces {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-/* Style individual next-piece canvases */
-.next-pieces canvas {
-    border: 2px solid #555;
-    background-color: #000;
-    width: 80px;
-    height: 80px;
-}
-
-/* Style the tetris controls */
-.tetris-controls {
-    background: #f0eacd;
-    padding: 15px;
-    border: 2px solid #555;
-    border-radius: 5px;
-    margin: 20px auto;
-    max-width: 300px;
-    font-family: 'Roboto', 'Helvetica Neue', Arial, sans-serif;
-    color: #D2B48C; /* Dark tan color */
-    font-weight: 300; /* Lighter font weight */
-}
-
-.tetris-controls h3 {
-    color: #0ff;
-    text-align: center;
-    margin-bottom: 10px;
-}
-
-.tetris-controls ul {
-    list-style: none;
-    padding: 0;
-    font-weight: normal; /* Lighter text */
-    font-family: 'Press Start 2P', cursive;
-}
-
-.tetris-controls li {
-    background: #444;
-    margin: 5px 0;
-    padding: 8px;
-    border-radius: 3px;
-    text-align: center;
-    color: #fff;
-    font-size: 0.8em;
-}
-
-/* ...existing code... */
-
-/* ...existing code... */
-
-/* Tetris Layout Styles */
-.game-container {
-    display: flex;
-    gap: 20px;
-    justify-content: flex-start;
-    align-items: flex-start;
-    padding: 20px;
-    background-color: #f0eacd;
-}
-
-/* Style the next-pieces container */
-.next-pieces {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-left: 20px;
-}
-
-.next-piece {
-    width: 80px;
-    height: 80px;
-    background: #D2B48C;
-    border: 2px solid #444;
-    margin-bottom: 10px;
-}
-
-/* Style the tetris controls */
-.tetris-controls {
-    background: #D2B48C;
-    padding: 15px;
-    border: 2px solid #444;
-    border-radius: 5px;
-    margin: 20px;
-    font-family: 'Roboto', sans-serif;
-    color: #444;
-    font-weight: 300;
-}
-
-.tetris-controls ul {
-    list-style: none;
-    padding: 0;
-}
-
-.tetris-controls li {
-    margin: 5px 0;
-    padding: 8px;
-    text-align: center;
-    font-size: 0.9em;
-}
-
-/* ...existing code... */
-
-/* Tetris Styles for Desktop Window */
-#games-window .tetris-game {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    background-color: #f0eacd;
-    padding: 20px;
-}
-
-#games-window .game-container {
-    display: flex;
-    gap: 20px;
-    justify-content: center;
-    align-items: flex-start;
-    margin-bottom: 20px;
-}
-
-#games-window .info-panel {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-#games-window .game-header {
-    display: flex;
-    gap: 10px;
-    flex-direction: column;
-}
-
-#games-window .score-box {
-    background: #D2B48C;
-    padding: 10px;
-    text-align: center;
-    border: 2px solid #444;
-}
-
-#games-window .score-box .label {
-    font-family: 'Press Start 2P', cursive;
-    color: #000;
-    font-size: 12px;
-    margin-bottom: 5px;
-}
-
-#games-window .next-pieces {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    align-items: center;
-}
-
-#games-window .next-title {
-    font-family: 'Press Start 2P', cursive;
-    color: #000;
-    font-size: 14px;
-}
-
-#games-window .next-piece {
-    background: #D2B48C;
-    border: 2px solid #444;
-}
-
-#games-window .tetris-controls {
-    background: #D2B48C;
-    padding: 15px;
-    border: 2px solid #444;
-    border-radius: 5px;
-    margin-top: 20px;
-    width: 100%;
-    box-sizing: border-box;
-}
-
-#games-window .tetris-controls h3 {
-    font-family: 'Press Start 2P', cursive;
-    color: #000;
-    text-align: center;
-    margin-bottom: 10px;
-    font-size: 14px;
-}
-
-#games-window .tetris-controls ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-#games-window .tetris-controls li {
-    font-family: 'Press Start 2P', cursive;
-    color: #000;
-    font-size: 10px;
-    margin: 8px 0;
-    text-align: center;
-}
-
-/* ...existing code... */
-
-/* ...existing code... */
-
-/* Ensure Tetris window uses the same styles as other windows */
-/* ...existing code... */
-
-/* ...existing code... */
-/* Game Windows Styling */
-#tetris-window,
-#clicker-window,
-#infinite-download-window {
-    width: 800px;
-    height: 600px;
-}
-
-#tetris-window .window-content,
-#clicker-window .window-content,
-#infinite-download-window .window-content {
-    padding: 0;
-    background: #151617;
-}
-
-#tetris-window iframe,
-#clicker-window iframe,
-#infinite-download-window iframe {
-    width: 100%;
-    height: 100%;
-    border: none;
-}
-
-/* ...existing code... */
-
-/* Define CRT shutdown keyframes */
-@keyframes crtPowerOff {
-    0% {
-        transform: scaleY(1);
-        opacity: 1;
-        filter: brightness(1);
-    }
-    50% {
-        transform: scaleY(0.5);
-        opacity: 0.7;
-        filter: brightness(0.7);
-    }
-    100% {
-        transform: scaleY(0);
-        opacity: 0;
-        filter: brightness(0);
-    }
-}
-
-/* Apply CRT shutdown effect */
-.shutting-down {
-    animation: crtPowerOff 1.5s forwards;
-}
-
-.shutdown-active .screen-overlay {
-    display: block;
-    animation: crtPowerOff 1.5s forwards;
-}
-
-.shutdown-active .black-screen {
-    opacity: 1;
-}
-
-/* ...existing code... */

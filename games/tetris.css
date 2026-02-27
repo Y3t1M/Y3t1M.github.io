@@ -1,135 +1,215 @@
-body {
-    background-color: #D2B48C; /* Dark tan background */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    margin: 0;
-    font-family: 'Press Start 2P', cursive;
+﻿/* ================================================================
+   TETRIS.CSS — Windows 95 Style
+   ================================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --face: #c0c0c0;
+  --lt:   #ffffff;
+  --dk:   #808080;
+  --ddk:  #404040;
+  --navy: #000080;
 }
 
-.game-container {
-    display: flex;
-    gap: 20px;
-    padding: 20px;
-    background-color: #f0eacd;
-    border: 4px solid #444;
-    border-radius: 8px;
-    flex-direction: row;
+html, body {
+  background: var(--face);
+  font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+  font-size: 11px;
+  overflow: hidden;
+  height: 100%;
+  width: 100%;
+  user-select: none;
 }
 
-.game-header {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    align-items: center;
+/* ── Outer wrapper ─────────────────────────── */
+.tetris-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--face);
 }
 
-.score-box {
-    background-color: #F5DEB3; /* Lighter tan for score boxes */
-    padding: 10px;
-    border: 2px solid #444;
-    text-align: center;
-    color: #000080; /* Navy text for better contrast */
-    font-family: 'Press Start 2P', cursive;
+/* ── Menu bar ──────────────────────────────── */
+.tetris-menu {
+  display: flex;
+  background: var(--face);
+  border-bottom: 1px solid var(--dk);
+  padding: 1px 4px;
+  flex-shrink: 0;
+}
+.tetris-menu span {
+  padding: 2px 8px; cursor: pointer; font-size: 11px; border: 1px solid transparent;
+}
+.tetris-menu span:hover {
+  background: var(--navy); color: white;
+  border-color: var(--lt) var(--ddk) var(--ddk) var(--lt);
 }
 
-.label {
-    font-size: 10px;
-    margin-bottom: 5px;
-    color: #000080;
+/* ── Main play area ────────────────────────── */
+.tetris-body {
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+  flex: 1;
+  align-items: flex-start;
+}
+
+/* ── Canvas: game board ────────────────────── */
+.board-panel {
+  border: 2px solid;
+  border-color: var(--dk) var(--lt) var(--lt) var(--dk);
+  box-shadow: inset 1px 1px 0 var(--dk);
+  background: #000;
+  flex-shrink: 0;
 }
 
 #tetris {
-    border: 4px solid #8B4513; /* SaddleBrown border for classic look */
-    background-color: #F5DEB3; /* Lighter tan for game canvas */
-    width: 240px; /* 12 blocks * 20px */
-    height: 400px; /* 20 blocks * 20px */
+  display: block;
+  image-rendering: pixelated;
+  /* 12 cols × 20px = 240, 20 rows × 20px = 400 */
+  width: 240px;
+  height: 400px;
 }
 
-.next-piece {
-    background-color: #F5DEB3;
-    padding: 10px;
-    border: 2px solid #8B4513;
-    text-align: center;
-}
-
-.controls {
-    color: #888;
-    font-size: 10px;
-    line-height: 1.5;
-}
-
-.tetris-game {
-    flex-direction: column;
-    align-items: center;
-    display: flex;
-    flex-direction: row;
-    gap: 40px; /* Increased gap for better spacing */
-    align-items: flex-start;
-}
-
+/* ── Right side panel ──────────────────────── */
 .info-panel {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 120px;
 }
 
-.next-pieces {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+/* ── Score/level/lines boxes ───────────────── */
+.score-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
+.score-box {
+  background: var(--face);
+  border: 2px solid;
+  border-color: var(--dk) var(--lt) var(--lt) var(--dk);
+  padding: 4px 8px;
+  text-align: center;
+}
+.score-box .label {
+  font-size: 9px;
+  font-family: 'Press Start 2P', monospace;
+  color: var(--navy);
+  margin-bottom: 4px;
+  display: block;
+}
+.score-box .value {
+  font-size: 14px;
+  font-family: 'Press Start 2P', monospace;
+  color: #000;
+}
+
+/* ── Next pieces ───────────────────────────── */
+.next-section {
+  border: 2px solid;
+  border-color: var(--dk) var(--lt) var(--lt) var(--dk);
+  padding: 4px;
+  background: var(--face);
+}
 .next-title {
-    font-size: 14px;
-    margin-bottom: 10px;
-    color: #000080;
-    font-family: 'Press Start 2P', cursive;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 8px;
+  color: var(--navy);
+  text-align: center;
+  margin-bottom: 4px;
+}
+.next-canvases {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+}
+.next-piece {
+  display: block;
+  background: #1a1a1a;
+  border: 1px solid var(--dk);
+  image-rendering: pixelated;
 }
 
-.tetris-controls {
-    margin-top: 20px;
-    text-align: center;
-    color: #8B4513; /* Changed to Dark Brown */
-    font-family: 'Press Start 2P', cursive;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    font-size: 8px;
-    font-weight: 300; /* Thinner text */
-    width: 150px;
-    padding: 10px;
-    background-color: #F5DEB3;
-    border: 2px solid #8B4513;
-    border-radius: 4px;
+/* ── Controls reference ────────────────────── */
+.controls-box {
+  border: 2px solid;
+  border-color: var(--dk) var(--lt) var(--lt) var(--dk);
+  padding: 6px 8px;
+  font-size: 9px;
+  background: var(--face);
+}
+.controls-box h4 {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 7px;
+  color: var(--navy);
+  margin-bottom: 4px;
+}
+.controls-box ul { list-style: none; padding: 0; }
+.controls-box li { margin-bottom: 3px; color: #333; }
+.controls-box li strong { color: #000; font-weight: 700; }
+
+/* ── Pause / Game-over overlay ─────────────── */
+.tetris-overlay {
+  display: none;
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 10;
+}
+.tetris-overlay.visible { display: flex; }
+.overlay-msg {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 12px;
+  color: #fff;
+  text-align: center;
+  text-shadow: 2px 2px 0 #000;
+}
+.overlay-btn {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+  padding: 8px 20px;
+  background: var(--face);
+  border: 2px solid;
+  border-color: var(--lt) var(--ddk) var(--ddk) var(--lt);
+  cursor: pointer; color: #000;
+}
+.overlay-btn:active {
+  border-color: var(--ddk) var(--lt) var(--lt) var(--ddk);
+  transform: translate(1px,1px);
 }
 
-.tetris-controls h3 {
-    font-size: 10px;
-    font-weight: 300;
-    margin-bottom: 5px;
+/* ── Board wrapper (for overlay positioning) ─ */
+.board-wrapper {
+  position: relative;
+  flex-shrink: 0;
 }
 
-.tetris-controls ul {
-    padding: 0;
-    margin: 0;
-    list-style: none;
+/* ── Status bar ────────────────────────────── */
+.tetris-status {
+  height: 18px;
+  background: var(--face);
+  border-top: 1px solid var(--dk);
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  font-size: 10px;
+  flex-shrink: 0;
+  gap: 8px;
 }
-
-.tetris-controls li {
-    margin-bottom: 4px;
-}
-
-h1 {
-    font-size: 24px;
-    color: #000080;
-    margin-bottom: 20px;
-    font-family: 'Press Start 2P', cursive;
-}
-
-#score, #level, #lines {
-    font-size: 16px;
-    color: #000080;
-    font-family: 'Press Start 2P', cursive;
+.status-panel {
+  padding: 0 8px;
+  border: 1px solid;
+  border-color: var(--dk) var(--lt) var(--lt) var(--dk);
+  height: 12px;
+  line-height: 12px;
+  flex: 1;
 }

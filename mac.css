@@ -1,0 +1,633 @@
+/* ================================================================
+   MAC.CSS  —  Classic Mac OS 9 "Platinum" UI
+   ================================================================ */
+
+/* ---------- Reset & Base ---------- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --mac-desk:     #818181;   /* classic platinum desktop gray */
+  --mac-face:     #c0c0c0;   /* window chrome / button face    */
+  --mac-lt:       #ffffff;   /* light bevel edge               */
+  --mac-dk:       #888888;   /* dark bevel edge                */
+  --mac-ddk:      #444444;   /* deep dark edge                 */
+  --mac-black:    #000000;
+  --mac-white:    #ffffff;
+  --mac-menubar:  #ffffff;
+  --mac-blue:     #2963cc;   /* Platinum highlight / selection */
+  --mac-font:     "Geneva", "Charcoal", "Helvetica Neue", Arial, sans-serif;
+  --mac-font-sz:  11px;
+  --menubar-h:    21px;
+}
+
+html, body {
+  margin: 0; padding: 0;
+  font-family: var(--mac-font);
+  font-size: var(--mac-font-sz);
+  overflow: hidden;
+  height: 100vh; width: 100vw;
+  user-select: none;
+  cursor: default;
+  background: var(--mac-desk);
+}
+
+/* ----------------------------------------------------------------
+   MENU BAR
+   ---------------------------------------------------------------- */
+#mac-menubar {
+  position: fixed; top: 0; left: 0; right: 0;
+  height: var(--menubar-h);
+  background: var(--mac-menubar);
+  border-bottom: 1px solid #888;
+  display: flex; align-items: center;
+  z-index: 10000;
+  font-size: 13px;
+  font-family: var(--mac-font);
+}
+
+.mac-menu-item {
+  padding: 0 10px;
+  height: var(--menubar-h);
+  display: flex; align-items: center;
+  cursor: default;
+  white-space: nowrap;
+  position: relative;
+}
+.mac-menu-item:hover,
+.mac-menu-item.open {
+  background: var(--mac-black);
+  color: var(--mac-white);
+}
+#apple-menu-btn {
+  font-size: 16px;
+  padding: 0 12px;
+  font-family: "Apple Symbols", "Symbol", serif;
+}
+.active-app-name { font-weight: bold; }
+
+#mac-menubar-right {
+  margin-left: auto;
+  display: flex; align-items: center; gap: 8px;
+  padding-right: 10px;
+  font-size: 12px;
+}
+#mac-clock { font-size: 12px; }
+
+/* ----------------------------------------------------------------
+   DROPDOWN MENUS
+   ---------------------------------------------------------------- */
+.mac-dropdown {
+  display: none;
+  position: fixed;
+  background: var(--mac-white);
+  border: 1px solid var(--mac-black);
+  box-shadow: 2px 2px 0 rgba(0,0,0,0.4);
+  min-width: 160px;
+  z-index: 10001;
+  padding: 2px 0;
+}
+.mac-dropdown.visible { display: block; }
+
+.mac-drop-item {
+  padding: 2px 20px 2px 24px;
+  font-size: 13px;
+  font-family: var(--mac-font);
+  cursor: default;
+  white-space: nowrap;
+}
+.mac-drop-item:hover {
+  background: var(--mac-blue);
+  color: var(--mac-white);
+}
+.mac-drop-item.checked::before {
+  content: "✓";
+  position: absolute; left: 8px;
+}
+.mac-drop-item.disabled {
+  color: #aaa;
+  pointer-events: none;
+}
+.mac-drop-separator {
+  height: 1px;
+  background: #aaa;
+  margin: 3px 4px;
+}
+.mac-drop-item.has-submenu::after {
+  content: "▶";
+  float: right;
+}
+
+/* ----------------------------------------------------------------
+   DESKTOP
+   ---------------------------------------------------------------- */
+#mac-desktop {
+  position: fixed;
+  top: var(--menubar-h); left: 0; right: 0; bottom: 0;
+  overflow: hidden;
+}
+
+/* ----------------------------------------------------------------
+   DESKTOP ICONS
+   ---------------------------------------------------------------- */
+.mac-desk-icon {
+  position: absolute;
+  display: flex; flex-direction: column; align-items: center;
+  width: 72px;
+  gap: 3px;
+  padding: 4px;
+  cursor: default;
+}
+.mac-desk-icon .icon-img {
+  width: 32px; height: 32px;
+  display: flex; align-items: center; justify-content: center;
+}
+.mac-desk-icon .icon-img svg { display: block; }
+.mac-desk-icon .icon-label {
+  font-size: 11px;
+  color: var(--mac-white);
+  text-align: center;
+  max-width: 72px;
+  word-break: break-word;
+  line-height: 1.2;
+  text-shadow: 1px 1px 1px rgba(0,0,0,0.8);
+  padding: 1px 3px;
+}
+.mac-desk-icon.selected .icon-img svg rect,
+.mac-desk-icon.selected .icon-img svg path { opacity: 0.6; }
+.mac-desk-icon.selected .icon-label {
+  background: var(--mac-blue);
+  color: white;
+  text-shadow: none;
+}
+
+/* ----------------------------------------------------------------
+   MAC WINDOWS
+   ---------------------------------------------------------------- */
+.mac-window {
+  position: fixed;
+  display: none;
+  flex-direction: column;
+  background: var(--mac-white);
+  border: 1px solid var(--mac-black);
+  box-shadow: 2px 2px 0 rgba(0,0,0,0.5);
+  min-width: 200px; min-height: 120px;
+}
+.mac-window.open { display: flex; }
+
+/* Active title bar — pinstripe */
+.mac-window .mac-titlebar {
+  height: 19px;
+  display: flex; align-items: center;
+  position: relative;
+  cursor: move;
+  flex-shrink: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    #000 0px, #000 1px,
+    #fff 1px, #fff 2px
+  );
+  border-bottom: 1px solid #000;
+}
+/* Inactive title bar */
+.mac-window.inactive .mac-titlebar {
+  background: var(--mac-face);
+}
+
+.mac-titlebar-title {
+  position: absolute; left: 50%; transform: translateX(-50%);
+  background: var(--mac-white);
+  padding: 0 6px;
+  font-size: 11px; font-weight: bold;
+  font-family: var(--mac-font);
+  white-space: nowrap;
+  pointer-events: none;
+}
+.mac-window.inactive .mac-titlebar-title {
+  background: var(--mac-face);
+}
+
+/* Close / zoom boxes */
+.mac-close-box, .mac-zoom-box {
+  width: 13px; height: 13px;
+  border: 1px solid var(--mac-black);
+  background: var(--mac-face);
+  flex-shrink: 0;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px;
+  z-index: 1;
+}
+.mac-close-box { margin-left: 4px; }
+.mac-zoom-box  { margin-left: auto; margin-right: 4px; }
+.mac-close-box:hover { background: #ff6060; }
+.mac-zoom-box:hover  { background: #60c060; }
+
+/* Window content */
+.mac-win-body {
+  flex: 1;
+  overflow: auto;
+  background: var(--mac-white);
+  position: relative;
+}
+
+/* Scrollbar styling */
+.mac-win-body::-webkit-scrollbar { width: 15px; height: 15px; }
+.mac-win-body::-webkit-scrollbar-track { background: var(--mac-face); }
+.mac-win-body::-webkit-scrollbar-thumb {
+  background: var(--mac-face);
+  border: 1px solid var(--mac-black);
+}
+.mac-win-body::-webkit-scrollbar-button {
+  background: var(--mac-face);
+  border: 1px solid var(--mac-black);
+  display: block; height: 15px;
+}
+
+/* Resize handle bottom-right */
+.mac-window .mac-resize-handle {
+  position: absolute; bottom: 0; right: 0;
+  width: 14px; height: 14px;
+  cursor: se-resize;
+  background: linear-gradient(135deg,
+    transparent 0%,   transparent 40%,
+    #888 40%,         #888 50%,
+    transparent 50%,  transparent 65%,
+    #888 65%,         #888 75%,
+    transparent 75%,  transparent 90%,
+    #888 90%,         #888 100%
+  );
+}
+
+/* Window status bar */
+.mac-win-statusbar {
+  height: 16px;
+  border-top: 1px solid var(--mac-black);
+  background: var(--mac-face);
+  display: flex; align-items: center;
+  padding: 0 6px;
+  font-size: 10px;
+  flex-shrink: 0;
+}
+
+/* ----------------------------------------------------------------
+   MAC BUTTON (standard Platinum)
+   ---------------------------------------------------------------- */
+.mac-btn {
+  background: var(--mac-face);
+  border: 1px solid var(--mac-black);
+  padding: 3px 14px;
+  font-family: var(--mac-font);
+  font-size: 11px;
+  cursor: default;
+  min-width: 60px;
+  text-align: center;
+  box-shadow: inset 1px 1px 0 var(--mac-lt), inset -1px -1px 0 var(--mac-dk);
+}
+.mac-btn.default-btn {
+  border-width: 2px;
+  font-weight: bold;
+}
+.mac-btn:hover { background: #d8d8d8; }
+.mac-btn:active {
+  box-shadow: inset -1px -1px 0 var(--mac-lt), inset 1px 1px 0 var(--mac-dk);
+}
+
+/* ----------------------------------------------------------------
+   ABOUT THIS MAC
+   ---------------------------------------------------------------- */
+#about-win { width: 340px; }
+.about-content {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 16px 20px 20px;
+  gap: 10px;
+  text-align: center;
+}
+.about-logo { font-size: 40px; }
+.about-os-name { font-size: 18px; font-weight: bold; }
+.about-os-ver  { font-size: 12px; color: #444; }
+.about-divider { width: 100%; height: 1px; background: #aaa; }
+.about-info { font-size: 11px; color: #333; line-height: 1.7; }
+.about-info strong { color: #000; }
+
+/* ----------------------------------------------------------------
+   FINDER
+   ---------------------------------------------------------------- */
+#finder-win { width: 500px; }
+.finder-toolbar {
+  height: 24px;
+  background: var(--mac-face);
+  border-bottom: 1px solid #888;
+  display: flex; align-items: center;
+  padding: 0 6px; gap: 4px;
+  flex-shrink: 0;
+}
+.finder-path {
+  font-size: 11px; color: #333;
+  flex: 1;
+}
+.finder-view-btn {
+  width: 20px; height: 16px;
+  background: var(--mac-face);
+  border: 1px solid #888;
+  cursor: default;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px;
+}
+.finder-body {
+  flex: 1; overflow: auto;
+  padding: 8px;
+  display: flex; flex-wrap: wrap; gap: 12px;
+  align-content: flex-start;
+  background: var(--mac-white);
+  min-height: 200px;
+}
+.finder-item {
+  display: flex; flex-direction: column; align-items: center;
+  width: 64px; gap: 3px;
+  padding: 3px;
+  cursor: default;
+}
+.finder-item .fitem-icon {
+  width: 32px; height: 32px;
+  display: flex; align-items: center; justify-content: center;
+}
+.finder-item .fitem-label {
+  font-size: 10px; text-align: center;
+  max-width: 64px; word-break: break-word;
+  line-height: 1.2;
+}
+.finder-item.selected {
+  background: var(--mac-blue);
+}
+.finder-item.selected .fitem-label { color: white; }
+
+/* ----------------------------------------------------------------
+   SIMPLETEXT
+   ---------------------------------------------------------------- */
+#simpletext-win { width: 440px; }
+.simpletext-toolbar {
+  height: 22px;
+  background: var(--mac-face);
+  border-bottom: 1px solid #888;
+  display: flex; align-items: center;
+  padding: 0 4px; gap: 2px;
+  flex-shrink: 0;
+}
+.st-font-select, .st-size-select {
+  height: 16px;
+  font-size: 10px;
+  font-family: var(--mac-font);
+  border: 1px solid #888;
+  background: white;
+  padding: 0 2px;
+}
+.st-divider { width: 1px; height: 14px; background: #888; margin: 0 2px; }
+.simpletext-area {
+  width: 100%; height: 100%;
+  border: none; outline: none;
+  padding: 8px;
+  font-family: var(--mac-font);
+  font-size: 12px;
+  resize: none;
+  background: var(--mac-white);
+  color: #000;
+  cursor: text;
+}
+
+/* ----------------------------------------------------------------
+   CALCULATOR
+   ---------------------------------------------------------------- */
+#calc-win { width: 198px; }
+.calc-display {
+  background: #c8dbc8;
+  border: 2px inset;
+  border-color: var(--mac-dk) var(--mac-lt) var(--mac-lt) var(--mac-dk);
+  height: 32px;
+  text-align: right;
+  padding: 0 6px;
+  font-size: 20px;
+  font-family: "Monaco", "Courier New", monospace;
+  display: flex; align-items: center; justify-content: flex-end;
+  margin: 8px 8px 4px;
+  overflow: hidden;
+}
+.calc-btns {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 3px;
+  padding: 4px 8px 8px;
+}
+.calc-btn {
+  height: 28px;
+  background: var(--mac-face);
+  border: 1px solid var(--mac-black);
+  font-size: 12px;
+  font-family: var(--mac-font);
+  cursor: default;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: inset 1px 1px 0 var(--mac-lt), inset -1px -1px 0 #888;
+}
+.calc-btn:active, .calc-btn.pressed {
+  box-shadow: inset -1px -1px 0 var(--mac-lt), inset 1px 1px 0 #888;
+  background: #b0b0b0;
+}
+.calc-btn.op  { background: #d8d8d8; }
+.calc-btn.eq  { background: var(--mac-blue); color: white; }
+.calc-btn.clr { background: #e8c8c8; }
+.calc-btn.span2 { grid-column: span 2; }
+
+/* ----------------------------------------------------------------
+   NETSCAPE NAVIGATOR
+   ---------------------------------------------------------------- */
+#netscape-win { width: 580px; }
+.ns-toolbar {
+  background: var(--mac-face);
+  border-bottom: 1px solid #888;
+  padding: 3px 6px;
+  display: flex; flex-wrap: wrap; gap: 3px;
+  flex-shrink: 0;
+}
+.ns-nav-btn {
+  padding: 2px 8px; font-size: 10px;
+  background: var(--mac-face); border: 1px solid #888;
+  cursor: default; font-family: var(--mac-font);
+  display: flex; flex-direction: column; align-items: center; gap: 1px;
+}
+.ns-nav-btn .nb-icon { font-size: 14px; }
+.ns-nav-btn .nb-label { font-size: 9px; }
+.ns-url-bar {
+  display: flex; align-items: center;
+  gap: 4px; padding: 2px 6px;
+  background: var(--mac-face);
+  border-bottom: 1px solid #888;
+  flex-shrink: 0;
+}
+.ns-url-label { font-size: 11px; white-space: nowrap; }
+.ns-url-input {
+  flex: 1; height: 16px;
+  border: 2px inset;
+  border-color: var(--mac-dk) var(--mac-lt) var(--mac-lt) var(--mac-dk);
+  font-size: 11px;
+  font-family: var(--mac-font);
+  padding: 0 3px;
+  outline: none;
+  background: white;
+}
+.ns-body {
+  flex: 1; overflow: auto;
+  padding: 12px 16px;
+  background: white;
+}
+.ns-body h1 { font-size: 18px; margin-bottom: 8px; color: #000080; }
+.ns-body h2 { font-size: 14px; margin: 12px 0 6px; color: #000080; border-bottom: 1px solid #aaa; padding-bottom: 3px; }
+.ns-body p  { font-size: 12px; margin-bottom: 8px; line-height: 1.5; }
+.ns-body a  { color: #0000cc; text-decoration: underline; cursor: pointer; }
+.ns-body a:visited { color: #800080; }
+.ns-body hr { border: none; border-top: 2px solid #aaa; margin: 8px 0; }
+.ns-body ul { padding-left: 20px; margin-bottom: 8px; }
+.ns-body li { font-size: 12px; margin-bottom: 4px; line-height: 1.4; }
+.ns-statusbar {
+  height: 16px; border-top: 1px solid #888;
+  background: var(--mac-face);
+  display: flex; align-items: center; padding: 0 6px; gap: 8px;
+  flex-shrink: 0;
+}
+.ns-progress { flex: 1; height: 8px; background: white; border: 1px inset; }
+.ns-progress-fill { height: 100%; background: var(--mac-blue); width: 0%; }
+
+/* ----------------------------------------------------------------
+   STICKIES
+   ---------------------------------------------------------------- */
+.sticky-win {
+  width: 240px;
+  border: 1px solid #555;
+  box-shadow: 2px 2px 0 rgba(0,0,0,0.4);
+}
+.sticky-win .mac-titlebar {
+  background: #ffff99;
+  border-bottom: 1px solid #888;
+  cursor: move;
+}
+.sticky-win .mac-titlebar-title {
+  background: #ffff99;
+  font-size: 10px;
+  font-weight: normal;
+}
+.sticky-win.inactive .mac-titlebar { background: #eeeeaa; }
+.sticky-win.inactive .mac-titlebar-title { background: #eeeeaa; }
+.sticky-area {
+  width: 100%; min-height: 100px;
+  border: none; outline: none;
+  padding: 8px;
+  font-family: var(--mac-font); font-size: 12px;
+  background: #ffff99;
+  resize: none; cursor: text;
+  color: #000;
+}
+
+/* ----------------------------------------------------------------
+   TETRIS
+   ---------------------------------------------------------------- */
+#tetris-win { width: 280px; }
+.tetris-wrap {
+  display: flex; gap: 12px; padding: 8px;
+  background: var(--mac-face);
+  justify-content: center;
+}
+.mac-tetris-canvas { border: 2px inset; background: #000; display: block; }
+.tetris-side { display: flex; flex-direction: column; gap: 8px; font-size: 11px; }
+.tetris-side label { font-size: 10px; color: #555; }
+.tetris-side .score-val { font-size: 14px; font-weight: bold; font-family: "Monaco", monospace; }
+.tetris-side .next-canvas { border: 1px solid #888; background: #000; display: block; }
+
+/* ----------------------------------------------------------------
+   ALERT DIALOG
+   ---------------------------------------------------------------- */
+.mac-alert {
+  position: fixed;
+  background: var(--mac-white);
+  border: 1px solid var(--mac-black);
+  box-shadow: 3px 3px 0 rgba(0,0,0,0.5);
+  z-index: 20000;
+  display: none;
+  flex-direction: column;
+  min-width: 280px; max-width: 380px;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+}
+.mac-alert.visible { display: flex; }
+.mac-alert .mac-titlebar { cursor: default; }
+.mac-alert-body {
+  padding: 16px 20px;
+  display: flex; gap: 14px; align-items: flex-start;
+}
+.mac-alert-icon { font-size: 32px; flex-shrink: 0; }
+.mac-alert-text { font-size: 12px; line-height: 1.5; }
+.mac-alert-btns {
+  padding: 0 16px 16px;
+  display: flex; justify-content: flex-end; gap: 8px;
+}
+
+/* ----------------------------------------------------------------
+   TRASH / SHUTDOWN / BOOT BACK
+   ---------------------------------------------------------------- */
+#shutdown-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: #000;
+  z-index: 30000;
+  align-items: center; justify-content: center;
+  flex-direction: column;
+  gap: 20px;
+  color: #fff;
+  font-family: var(--mac-font);
+}
+#shutdown-overlay.visible { display: flex; }
+#shutdown-overlay p { font-size: 14px; text-align: center; }
+#shutdown-overlay .mac-happy { font-size: 64px; }
+
+/* ----------------------------------------------------------------
+   CONTROL PANELS
+   ---------------------------------------------------------------- */
+#ctrlpanel-win { width: 360px; }
+.ctrlpanel-body { padding: 12px; display: flex; flex-direction: column; gap: 12px; }
+.ctrlpanel-section { border: 1px solid #aaa; padding: 10px; }
+.ctrlpanel-section h3 { font-size: 11px; margin-bottom: 8px; }
+.ctrlpanel-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-size: 11px; }
+.ctrlpanel-row label { min-width: 100px; }
+.ctrlpanel-row input[type="color"] { width: 30px; height: 20px; border: 1px solid #888; padding: 0; cursor: pointer; }
+.ctrlpanel-row input[type="range"] { width: 120px; }
+.ctrlpanel-row select {
+  font-size: 11px; font-family: var(--mac-font);
+  border: 1px solid var(--mac-dk);
+  background: white; padding: 1px;
+}
+
+/* ----------------------------------------------------------------
+   SYSTEM CONTEXT MENU (right click desktop)
+   ---------------------------------------------------------------- */
+#mac-ctx-menu {
+  display: none;
+  position: fixed;
+  background: var(--mac-white);
+  border: 1px solid var(--mac-black);
+  box-shadow: 2px 2px 0 rgba(0,0,0,0.4);
+  min-width: 150px;
+  z-index: 10002;
+  padding: 2px 0;
+}
+#mac-ctx-menu.visible { display: block; }
+
+/* ----------------------------------------------------------------
+   SCROLLBAR global reset for mac feel
+   ---------------------------------------------------------------- */
+::-webkit-scrollbar { width: 15px; height: 15px; }
+::-webkit-scrollbar-track { background: var(--mac-face); }
+::-webkit-scrollbar-thumb {
+  background: var(--mac-face);
+  border-top: 1px solid var(--mac-lt);
+  border-left: 1px solid var(--mac-lt);
+  border-right: 1px solid var(--mac-dk);
+  border-bottom: 1px solid var(--mac-dk);
+}
+::-webkit-scrollbar-corner { background: var(--mac-face); }

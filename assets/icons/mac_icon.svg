@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" shape-rendering="crispEdges">
+  <!-- Case body — classic Mac beige -->
+  <rect x="8"  y="1"  width="16" height="28" fill="#e8dcc8"/>
+  <!-- light bevel top/left -->
+  <rect x="8"  y="1"  width="16" height="1"  fill="#fff"/>
+  <rect x="8"  y="1"  width="1"  height="28" fill="#fff"/>
+  <!-- dark bevel right/bottom -->
+  <rect x="23" y="1"  width="1"  height="28" fill="#888"/>
+  <rect x="8"  y="28" width="16" height="1"  fill="#888"/>
+  <!-- Screen bezel -->
+  <rect x="10" y="3"  width="12" height="12" fill="#555"/>
+  <!-- Screen glass -->
+  <rect x="11" y="4"  width="10" height="10" fill="#000060"/>
+  <!-- Happy Mac face: eyes -->
+  <rect x="13" y="6"  width="2"  height="2"  fill="#fff"/>
+  <rect x="17" y="6"  width="2"  height="2"  fill="#fff"/>
+  <!-- Happy Mac face: smile -->
+  <rect x="12" y="10" width="1"  height="1"  fill="#fff"/>
+  <rect x="13" y="11" width="6"  height="1"  fill="#fff"/>
+  <rect x="19" y="10" width="1"  height="1"  fill="#fff"/>
+  <!-- Separator line below screen -->
+  <rect x="9"  y="16" width="14" height="1"  fill="#aaa"/>
+  <!-- Floppy drive slot -->
+  <rect x="11" y="18" width="8"  height="2"  fill="#333"/>
+  <rect x="11" y="18" width="8"  height="1"  fill="#222"/>
+  <!-- Floppy insert indicator dot -->
+  <rect x="19" y="18" width="1"  height="2"  fill="#555"/>
+  <!-- Power button row -->
+  <rect x="9"  y="21" width="14" height="6"  fill="#ddd0b8"/>
+  <rect x="20" y="22" width="2"  height="2"  fill="#aaa"/>
+  <rect x="20" y="22" width="2"  height="1"  fill="#fff"/>
+  <!-- Feet -->
+  <rect x="9"  y="28" width="3"  height="2"  fill="#aaa"/>
+  <rect x="20" y="28" width="3"  height="2"  fill="#aaa"/>
+</svg>

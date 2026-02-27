@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" shape-rendering="crispEdges">
+  <!-- Power button circle arc -->
+  <!-- Top gap (power line slot) -->
+  <rect x="10" y="2"  width="4"  height="2"  fill="#c0c0c0"/>
+  <!-- Arc top-left -->
+  <rect x="5"  y="4"  width="3"  height="2"  fill="#c00000"/>
+  <rect x="4"  y="6"  width="2"  height="2"  fill="#c00000"/>
+  <!-- Arc top-right -->
+  <rect x="16" y="4"  width="3"  height="2"  fill="#c00000"/>
+  <rect x="18" y="6"  width="2"  height="2"  fill="#c00000"/>
+  <!-- Arc left side -->
+  <rect x="3"  y="8"  width="2"  height="4"  fill="#c00000"/>
+  <!-- Arc right side -->
+  <rect x="19" y="8"  width="2"  height="4"  fill="#c00000"/>
+  <!-- Arc bottom-left -->
+  <rect x="3"  y="12" width="2"  height="4"  fill="#c00000"/>
+  <rect x="5"  y="16" width="2"  height="2"  fill="#c00000"/>
+  <rect x="7"  y="18" width="3"  height="2"  fill="#c00000"/>
+  <!-- Arc bottom-right -->
+  <rect x="19" y="12" width="2"  height="4"  fill="#c00000"/>
+  <rect x="17" y="16" width="2"  height="2"  fill="#c00000"/>
+  <rect x="14" y="18" width="3"  height="2"  fill="#c00000"/>
+  <!-- Arc bottom center -->
+  <rect x="10" y="20" width="4"  height="2"  fill="#c00000"/>
+  <!-- Inner arc highlight -->
+  <rect x="5"  y="5"  width="2"  height="1"  fill="#e04040"/>
+  <rect x="4"  y="7"  width="1"  height="2"  fill="#e04040"/>
+  <rect x="4"  y="9"  width="1"  height="6"  fill="#e04040"/>
+  <!-- Vertical power line (center) -->
+  <rect x="11" y="2"  width="2"  height="10" fill="#ffffff"/>
+  <rect x="10" y="2"  width="1"  height="10" fill="#ffaaaa"/>
+  <rect x="13" y="2"  width="1"  height="10" fill="#aa0000"/>
+</svg>
