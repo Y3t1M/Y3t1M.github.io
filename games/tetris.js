@@ -141,8 +141,8 @@ class Tetris {
             const canvas = ctx.canvas;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            // Set dark tan background
-            ctx.fillStyle = '#D2B48C';
+            // Black background to match board
+            ctx.fillStyle = '#000000';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
         });
 
