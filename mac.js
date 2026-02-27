@@ -525,6 +525,31 @@ document.getElementById('st-italic').addEventListener('click', function() {
   this.style.background = stArea.style.fontStyle === 'italic' ? '#bbb' : '';
 });
 
+/* ── Persist SimpleText & Stickies content in localStorage ── */
+(function() {
+  var stKey  = 'mac_simpletext';
+  var stkKey = 'mac_stickies';
+
+  /* SimpleText — restore then save on input */
+  if (stArea) {
+    var saved = localStorage.getItem(stKey);
+    if (saved !== null) stArea.value = saved;
+    stArea.addEventListener('input', function() {
+      localStorage.setItem(stKey, this.value);
+    });
+  }
+
+  /* Stickies — restore then save on input */
+  var stkArea = document.querySelector('.sticky-area');
+  if (stkArea) {
+    var savedSticky = localStorage.getItem(stkKey);
+    if (savedSticky !== null) stkArea.value = savedSticky;
+    stkArea.addEventListener('input', function() {
+      localStorage.setItem(stkKey, this.value);
+    });
+  }
+})();
+
 /* ──────────────────────────────────────────
    10. CALCULATOR
 ────────────────────────────────────────── */
