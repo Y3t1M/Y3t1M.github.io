@@ -1332,3 +1332,414 @@ section { position: relative; z-index: 1; }
   text-shadow: 0 0 12px rgba(124,58,237,0.8);
   transition: opacity 0.4s ease;
 }
+
+
+/* ---------- Coming Soon Block (projects page) ---------- */
+.coming-soon-block {
+  position: relative;
+  border: 1px dashed rgba(124,58,237,0.35);
+  border-radius: var(--radius-lg);
+  padding: 52px 40px;
+  margin-top: 24px;
+  text-align: center;
+  overflow: hidden;
+  background: rgba(124,58,237,0.03);
+}
+
+.csb-glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 0%, rgba(124,58,237,0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.csb-inner { position: relative; z-index: 1; }
+
+.csb-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: rgba(124,58,237,0.12);
+  border: 1px solid rgba(124,58,237,0.3);
+  border-radius: 100px;
+  padding: 4px 12px;
+  margin-bottom: 18px;
+}
+
+.csb-badge::before {
+  content: '● ';
+  animation: csbPulse 1.5s ease-in-out infinite;
+  display: inline;
+}
+@keyframes csbPulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.25; }
+}
+
+.csb-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 10px;
+}
+
+.csb-sub {
+  font-size: 14px;
+  color: var(--text-muted);
+  max-width: 380px;
+  margin: 0 auto 20px;
+  line-height: 1.6;
+}
+
+.csb-link {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent2);
+  transition: color 0.2s, letter-spacing 0.2s;
+}
+.csb-link:hover { color: #fff; letter-spacing: 0.5px; }
+
+.csb-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 28px;
+  position: relative;
+  z-index: 1;
+}
+.csb-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(124,58,237,0.35);
+  animation: csbDotBounce 1.4s ease-in-out infinite;
+}
+.csb-dot:nth-child(2) { animation-delay: 0.2s; }
+.csb-dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes csbDotBounce {
+  0%, 80%, 100% { transform: translateY(0);   opacity: 0.35; }
+  40%           { transform: translateY(-8px); opacity: 1; background: var(--accent); }
+}
+
+/* ============================================================
+   FEATURES — Firmware Flash, CLI Terminal, Blueprint Mode
+   ============================================================ */
+
+/* ── Firmware Flash Overlay ─────────────────────────────────── */
+#firmware-overlay {
+  position: fixed;
+  inset: 0;
+  background: #141414;
+  z-index: 999999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Courier New', monospace;
+  transition: opacity 0.5s ease;
+}
+#firmware-overlay.fw-fade { opacity: 0; pointer-events: none; }
+
+#firmware-inner {
+  width: 580px;
+  max-width: 94vw;
+}
+
+.fw-topbar {
+  background: #1e1f2e;
+  border-radius: 6px 6px 0 0;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid #2a2b3d;
+  border-bottom: none;
+}
+.fw-dot          { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+.fw-dot-red      { background: #ff5f57; }
+.fw-dot-yellow   { background: #febc2e; }
+.fw-dot-green    { background: #28c840; }
+.fw-title {
+  font-size: 11px;
+  color: #555;
+  margin-left: 10px;
+  font-family: 'Courier New', monospace;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fw-body {
+  background: #1a1b26;
+  border: 1px solid #2a2b3d;
+  border-radius: 0 0 6px 6px;
+  padding: 20px 24px 24px;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.9), 0 0 0 1px rgba(255,255,255,0.03);
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.fw-output-line {
+  font-size: 12.5px;
+  color: #ccc;
+  margin-bottom: 2px;
+  font-family: 'Courier New', monospace;
+  line-height: 1.75;
+  white-space: pre;
+}
+.fw-output-line.fw-active { color: #ccc; }
+
+/* ── CLI Terminal Overlay — Arch Linux style ─────────────────── */
+#cli-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.75);
+  z-index: 99998;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+#cli-overlay.cli-open { display: flex; }
+
+#cli-window {
+  width: 700px;
+  max-width: 95vw;
+  max-height: 72vh;
+  background: #1a1b26;
+  border: 1px solid #2a2b3d;
+  border-radius: 6px;
+  box-shadow:
+    0 24px 64px rgba(0,0,0,0.9),
+    0 0 0 1px rgba(255,255,255,0.04);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: cliSlideIn 0.16s cubic-bezier(0.16,1,0.3,1) forwards;
+}
+@keyframes cliSlideIn {
+  from { opacity: 0; transform: scale(0.97) translateY(8px); }
+  to   { opacity: 1; transform: scale(1)    translateY(0); }
+}
+
+#cli-titlebar {
+  background: #16161e;
+  border-bottom: 1px solid #2a2b3d;
+  padding: 8px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  user-select: none;
+}
+#cli-titlebar-label {
+  font-size: 12px;
+  color: #565f89;
+  font-family: 'Courier New', monospace;
+  letter-spacing: 0.5px;
+}
+#cli-close-btn {
+  color: #3b3c54;
+  font-size: 14px;
+  cursor: pointer;
+  line-height: 1;
+  transition: color 0.15s;
+  user-select: none;
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+#cli-close-btn:hover { color: #f7768e; background: rgba(247,118,142,0.12); }
+
+#cli-output {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px 18px 4px;
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  line-height: 1.65;
+  color: #a9b1d6;
+  scrollbar-width: thin;
+  scrollbar-color: #2a2b3d #1a1b26;
+}
+
+.cli-line     { white-space: pre-wrap; word-break: break-word; }
+.cli-cmd      { color: #a9b1d6; }
+.cli-out      { color: #a9b1d6; }
+.cli-err      { color: #f7768e; }
+.cli-info     { color: #7dcfff; }
+.cli-success  { color: #9ece6a; }
+.cli-dim      { color: #3b3c54; }
+
+/* Arch-style prompt colors */
+.cli-p-user   { color: #9ece6a; font-weight: 700; }
+.cli-p-at     { color: #a9b1d6; }
+.cli-p-host   { color: #9ece6a; font-weight: 700; }
+.cli-p-tilde  { color: #7dcfff; font-weight: 700; }
+.cli-p-dollar { color: #bb9af7; font-weight: 700; }
+
+/* neofetch art color */
+.cli-nf-art   { color: #7dcfff; }
+.cli-nf-key   { color: #7dcfff; font-weight: 700; }
+.cli-nf-val   { color: #a9b1d6; }
+
+#cli-input-row {
+  display: flex;
+  align-items: center;
+  padding: 6px 18px 12px;
+  border-top: 1px solid #1e1f2e;
+  flex-shrink: 0;
+  gap: 0;
+}
+#cli-prompt {
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  user-select: none;
+}
+#cli-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #c0caf5;
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  caret-color: #7dcfff;
+}
+#cli-input::placeholder { color: #2a2b3d; }
+
+/* Slash hint (bottom-right corner) */
+#cli-slash-hint {
+  position: fixed;
+  bottom: 22px;
+  right: 28px;
+  font-size: 10px;
+  font-family: 'Courier New', monospace;
+  color: rgba(255,255,255,0.11);
+  letter-spacing: 2px;
+  pointer-events: none;
+  z-index: 200;
+  user-select: none;
+}
+
+/* ── Blueprint Mode ──────────────────────────────────────────── */
+body.blueprint {
+  --bg:        #002a56;
+  --bg-card:   rgba(255,255,255,0.04);
+  --bg-card-h: rgba(255,255,255,0.07);
+  --border:    rgba(255,255,255,0.2);
+  --border-h:  rgba(255,255,255,0.38);
+  --text:      #ffffff;
+  --text-muted:rgba(255,255,255,0.68);
+  --text-faint:rgba(255,255,255,0.35);
+  --accent:    #90caff;
+  --accent2:   #b8dfff;
+  background: #002a56 !important;
+}
+
+/* Blueprint grid overlay */
+body.blueprint::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.045) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+body.blueprint .bg-blob { opacity: 0 !important; }
+
+body.blueprint .gradient-text {
+  background: linear-gradient(135deg, #fff 0%, #b8dfff 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+body.blueprint .section-label       { color: #b8dfff; }
+body.blueprint .section-label::before { background: #b8dfff; }
+body.blueprint .footer-logo {
+  background: linear-gradient(135deg, #fff, #b8dfff);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+body.blueprint .site-header {
+  background: rgba(0,20,55,0.88) !important;
+  border-bottom-color: rgba(255,255,255,0.2) !important;
+}
+body.blueprint .stats-bar         { border-color: rgba(255,255,255,0.2) !important; }
+body.blueprint .resume-section    { border-top-color: rgba(255,255,255,0.2) !important; }
+body.blueprint .site-footer       { border-top-color: rgba(255,255,255,0.2) !important; }
+
+/* Dashed borders on cards */
+body.blueprint .about-card,
+body.blueprint .project-card,
+body.blueprint .repo-card,
+body.blueprint .awards-list,
+body.blueprint .skill-tag {
+  border-style: dashed !important;
+  border-color: rgba(180,220,255,0.3) !important;
+}
+
+/* Dimension annotations on cards */
+body.blueprint .about-card,
+body.blueprint .project-card,
+body.blueprint .repo-card {
+  position: relative;
+}
+body.blueprint .about-card::after,
+body.blueprint .project-card::after,
+body.blueprint .repo-card::after {
+  content: '■ DETAIL';
+  position: absolute;
+  bottom: 7px;
+  right: 10px;
+  font-size: 8px;
+  letter-spacing: 1.5px;
+  color: rgba(180,220,255,0.22);
+  font-family: 'Courier New', monospace;
+  pointer-events: none;
+  user-select: none;
+}
+
+body.blueprint .tl-dot     { background: #90caff; box-shadow: 0 0 0 1px #90caff; }
+body.blueprint .tl-dot.edu { background: #b8dfff; box-shadow: 0 0 0 1px #b8dfff; }
+
+/* Force monospace on text (not icons) */
+body.blueprint *:not(i):not(svg):not(path):not(circle):not(line):not(polyline):not(rect):not(polygon) {
+  font-family: 'Courier New', monospace !important;
+}
+
+/* ── Mode Toast ─────────────────────────────────────────────── */
+#mode-toast {
+  position: fixed;
+  bottom: 22px;
+  left: 50%;
+  transform: translateX(-50%) translateY(16px);
+  background: rgba(10,10,10,0.88);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  padding: 7px 20px;
+  font-size: 10px;
+  font-family: 'Courier New', monospace;
+  letter-spacing: 2.5px;
+  color: rgba(255,255,255,0.6);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 99999;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  user-select: none;
+}
+#mode-toast.toast-show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
