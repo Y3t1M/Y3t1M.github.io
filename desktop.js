@@ -315,29 +315,125 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Ensure the contact-error-window is draggable and closable
-    const contactWindowElement = document.getElementById('contact-error-window');
-    if (contactWindowElement) {
-        const titlebar = contactWindowElement.querySelector('.window-titlebar');
-        const closeBtn = contactWindowElement.querySelector('.close-btn');
+    // ── CONTACT WINDOW ──────────────────────────────────────────────────────
+    let virusActive = false;
+    let virusZ = 9000;
+    let virusSpawnDelay = 250;
 
-        titlebar.addEventListener('mousedown', dragStart);
-        closeBtn.addEventListener('click', () => {
-            contactWindowElement.style.display = 'none';
+    function makeVirusPopup() {
+        const pop = document.createElement('div');
+        pop.className = 'window virus-popup';
+        pop.style.cssText = [
+            'width:340px',
+            'height:auto',
+            'display:flex',
+            'flex-direction:column',
+            'position:fixed',
+            'left:' + (Math.random() * Math.max(10, window.innerWidth  - 360)) + 'px',
+            'top:'  + (Math.random() * Math.max(10, window.innerHeight - 180)) + 'px',
+            'z-index:' + (++virusZ),
+            'transform:none'
+        ].join(';');
+
+        pop.innerHTML =
+            '<div class="window-titlebar">' +
+              '<span class="title-icon">&#x26A0;&#xFE0F;</span>' +
+              '<span>System Error</span>' +
+              '<div class="window-controls"><button class="close-btn">&#x2715;</button></div>' +
+            '</div>' +
+            '<div class="error-dialog">' +
+              '<div class="error-icon-row">' +
+                '<span class="error-icon">&#x1F6AB;</span>' +
+                '<div class="error-message-text">' +
+                  '<p><strong>Access is denied.</strong></p>' +
+                  '<p>Email: Hudson.Tinch@gmail.com</p>' +
+                  '<p>GitHub: github.com/Y3t1M</p>' +
+                '</div>' +
+              '</div>' +
+              '<button class="ok-button">OK</button>' +
+            '</div>';
+
+        pop.querySelector('.close-btn').addEventListener('click', () => pop.remove());
+
+        pop.querySelector('.ok-button').addEventListener('click', () => {
+            pop.remove();
+            virusSpawnDelay = Math.max(30, virusSpawnDelay - 20);
+            for (let i = 0; i < 6; i++) setTimeout(makeVirusPopup, i * 60);
+            new Audio('assets/audio/WindowsXPErrorSound.mp3').play().catch(() => {});
         });
+
+        // Draggable
+        const tb = pop.querySelector('.window-titlebar');
+        let dragging = false, offX = 0, offY = 0;
+        tb.addEventListener('mousedown', e => {
+            dragging = true;
+            offX = e.clientX - pop.offsetLeft;
+            offY = e.clientY - pop.offsetTop;
+            pop.style.zIndex = ++virusZ;
+            e.preventDefault();
+        });
+        document.addEventListener('mousemove', e => {
+            if (!dragging) return;
+            pop.style.left = (e.clientX - offX) + 'px';
+            pop.style.top  = (e.clientY - offY) + 'px';
+        });
+        document.addEventListener('mouseup', () => { dragging = false; });
+
+        document.body.appendChild(pop);
     }
 
-    // Handle OK button in contact error window
-    const okButton = document.querySelector('#contact-error-window .ok-button');
-    const contactWindow = document.getElementById('contact-error-window');
-
-    if (okButton && contactWindow) {
-        okButton.addEventListener('click', () => {
-            contactWindow.style.display = 'none';
-        });
-    } else {
-        console.error('OK button or contact error window not found!');
+    function virusSpawnLoop() {
+        if (virusActive) return;
+        virusActive = true;
+        virusSpawnDelay = 250;
+        let count = 0;
+        const max = 60;
+        new Audio('assets/audio/WindowsXPErrorSound.mp3').play().catch(() => {});
+        function tick() {
+            if (count >= max) { virusActive = false; return; }
+            count++;
+            makeVirusPopup();
+            virusSpawnDelay = Math.max(30, virusSpawnDelay - 3);
+            setTimeout(tick, virusSpawnDelay);
+        }
+        tick();
     }
+
+    function showContactError() {
+        const cw = document.getElementById('contact-error-window');
+        if (!cw) return;
+        new Audio('assets/audio/WindowsXPErrorSound.mp3').play().catch(() => {});
+        cw.style.display = 'flex';
+        cw.style.left = '50%';
+        cw.style.top = '50%';
+        cw.style.transform = 'translate(-50%, -50%)';
+        bringToFront(cw);
+
+        // Wire OK once (use a flag to avoid stacking listeners)
+        if (!cw._virusWired) {
+            cw._virusWired = true;
+            const okBtn = cw.querySelector('.ok-button');
+            const clBtn = cw.querySelector('.close-btn');
+            if (okBtn) okBtn.addEventListener('click', () => {
+                cw.style.display = 'none';
+                virusSpawnLoop();
+            });
+            if (clBtn) clBtn.addEventListener('click', () => {
+                cw.style.display = 'none';
+            });
+            const tb = cw.querySelector('.window-titlebar');
+            if (tb) tb.addEventListener('mousedown', dragStart);
+        }
+    }
+
+    // Bind every contact trigger to showContactError
+    document.querySelectorAll('.start-item[data-action="contact"]').forEach(item => {
+        item.addEventListener('click', () => {
+            const menu = document.getElementById('start-menu');
+            if (menu) menu.style.display = 'none';
+            showContactError();
+        });
+    });
 
 
 
@@ -617,27 +713,7 @@ const playSound = (soundPath) => {
     return sound.play().catch(err => console.error('Error playing sound:', err));
 };
 
-// Modify contact error window handling
-function showContactError() {
-    const contactWindow = document.getElementById('contact-error-window');
-    if (contactWindow) {
-        // Play error sound
-        const errorSound = new Audio('assets/audio/WindowsXPErrorSound.mp3');
-        errorSound.play().catch(err => console.error('Error playing error sound:', err));
-        
-        // Show and position the window
-        contactWindow.style.display = 'block';
-        contactWindow.style.left = '50%';
-        contactWindow.style.top = '50%';
-        contactWindow.style.transform = 'translate(-50%, -50%)';
-        bringToFront(contactWindow);
-    }
-}
-
-// Update contact action in start menu
-document.querySelectorAll('.start-item[data-action="contact"]').forEach(item => {
-    item.addEventListener('click', showContactError);
-});
+// showContactError is defined inside DOMContentLoaded
 
 // ...existing code...
 
