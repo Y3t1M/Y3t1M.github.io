@@ -1743,3 +1743,176 @@ body.blueprint *:not(i):not(svg):not(path):not(circle):not(line):not(polyline):n
   opacity: 1;
   transform: translateX(-50%) translateY(0);
 }
+
+/* ── Blueprint Interactive (sketch, drag, smudge, crinkle) ── */
+
+/* Apply sketch filter to all sections and cards to look drawn-on */
+body.blueprint .about-card,
+body.blueprint .project-card,
+body.blueprint .repo-card,
+body.blueprint .tl-item,
+body.blueprint .stat-item,
+body.blueprint .skill-group,
+body.blueprint .award-row,
+body.blueprint .hero-title,
+body.blueprint .hero-subtitle,
+body.blueprint .section-title,
+body.blueprint .section-description,
+body.blueprint .section-label,
+body.blueprint .nav-logo,
+body.blueprint .nav-links,
+body.blueprint .site-footer,
+body.blueprint .stats-bar {
+  filter: url(#bp-sketch);
+}
+
+body.blueprint [data-lucide],
+body.blueprint svg {
+  filter: url(#bp-sketch) drop-shadow(0 0 1px rgba(144,202,255,0.5));
+}
+
+/* Blueprint text: pencil-on-paper shadow */
+body.blueprint h1, body.blueprint h2, body.blueprint h3, body.blueprint h4,
+body.blueprint p, body.blueprint span, body.blueprint a, body.blueprint li {
+  text-shadow: 0.4px 0.4px 0 rgba(144,202,255,0.35), -0.2px 0.2px 0 rgba(80,160,255,0.2) !important;
+}
+
+/* Prevent link navigation in blueprint mode */
+body.blueprint a {
+  pointer-events: none !important;
+}
+body.blueprint [data-bp-drag] a {
+  pointer-events: none !important;
+}
+
+/* Draggable elements */
+body.blueprint [data-bp-drag] {
+  cursor: grab !important;
+  user-select: none !important;
+  position: relative;
+  z-index: 1;
+}
+body.blueprint [data-bp-drag].bp-dragging {
+  cursor: grabbing !important;
+  z-index: 200 !important;
+}
+body.blueprint [data-bp-drag]:hover {
+  outline: 1px dashed rgba(144,202,255,0.45) !important;
+  outline-offset: 5px;
+}
+
+/* Smudge levels — work on ANY element */
+body.blueprint .bp-smudged-1 {
+  filter: blur(1.5px) !important;
+  opacity: 0.72 !important;
+}
+body.blueprint .bp-smudged-2 {
+  filter: blur(3.5px) !important;
+  opacity: 0.56 !important;
+}
+body.blueprint .bp-smudged-3 {
+  filter: blur(7px) !important;
+  opacity: 0.38 !important;
+}
+
+/* Ruined state */
+body.blueprint.bp-ruined,
+body.blueprint.bp-ruined * {
+  cursor: pointer !important;
+}
+
+/* Ruined overlay */
+.bp-ruined-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99998;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,10,28,0.72);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  animation: bp-overlay-in 0.45s cubic-bezier(0.22,1,0.36,1) both;
+}
+@keyframes bp-overlay-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.bp-ruined-card {
+  background: rgba(0,22,55,0.94);
+  border: 1.5px dashed rgba(144,202,255,0.45);
+  border-radius: 4px;
+  padding: 44px 52px 40px;
+  text-align: center;
+  max-width: 380px;
+  width: 90vw;
+  font-family: 'Courier New', monospace !important;
+  animation: bp-card-in 0.5s cubic-bezier(0.22,1,0.36,1) both;
+  position: relative;
+}
+@keyframes bp-card-in {
+  from { opacity: 0; transform: scale(0.88) rotate(-1.5deg); }
+  to   { opacity: 1; transform: scale(1)   rotate(-0.4deg); }
+}
+.bp-ruined-stamp {
+  font-size: 11px;
+  letter-spacing: 5px;
+  color: rgba(144,202,255,0.35);
+  margin-bottom: 18px;
+  font-family: 'Courier New', monospace !important;
+}
+.bp-ruined-title {
+  font-family: 'Courier New', monospace !important;
+  font-size: 26px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 2px;
+  margin: 0 0 10px;
+  text-shadow: 0 0 24px rgba(144,202,255,0.4);
+  /* slight permanent smear look */
+  filter: url(#bp-sketch);
+}
+.bp-ruined-sub {
+  font-family: 'Courier New', monospace !important;
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  color: rgba(144,202,255,0.55);
+  margin: 0 0 32px;
+}
+.bp-ruined-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.bp-btn {
+  font-family: 'Courier New', monospace !important;
+  font-size: 10px;
+  letter-spacing: 2px;
+  padding: 10px 22px;
+  border-radius: 3px;
+  cursor: pointer !important;
+  border: 1.5px dashed;
+  background: transparent;
+  transition: background 0.18s, color 0.18s, border-color 0.18s;
+  pointer-events: all !important;
+  text-transform: lowercase;
+}
+.bp-btn-crinkle {
+  color: #ffffff;
+  border-color: rgba(144,202,255,0.6);
+}
+.bp-btn-crinkle:hover {
+  background: rgba(144,202,255,0.12);
+  border-color: rgba(144,202,255,1);
+  color: #b8dfff;
+}
+.bp-btn-reset {
+  color: rgba(144,202,255,0.7);
+  border-color: rgba(144,202,255,0.25);
+}
+.bp-btn-reset:hover {
+  background: rgba(144,202,255,0.07);
+  border-color: rgba(144,202,255,0.6);
+  color: #ffffff;
+}
