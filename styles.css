@@ -685,6 +685,26 @@ header, section, footer, .hero, .stats-bar, .about-section,
   box-shadow: 0 0 0 1px var(--accent2);
 }
 
+.tl-dot.done {
+  background: transparent;
+  border: 2px solid rgba(255,255,255,0.2);
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.15);
+}
+.tl-dot.done::before {
+  content: '';
+  display: block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.3);
+  margin: 3px auto 0;
+}
+
+.tl-done .tl-body h4 { color: rgba(255,255,255,0.5); }
+.tl-done .tl-body p  { color: var(--text-faint); }
+.tl-done .tl-date    { opacity: 0.6; }
+.tl-done .tl-org     { opacity: 0.5; }
+
 .tl-body { flex: 1; }
 
 .tl-date {
@@ -1307,30 +1327,38 @@ section { position: relative; z-index: 1; }
 #scroll-decode-wrap {
   padding: 14px 0 6px;
   text-align: center;
+  cursor: default;
 }
 #scroll-decode-hint {
   font-family: 'Courier New', monospace;
-  font-size: 9px;
-  color: rgba(124, 58, 237, 0.35);
+  font-size: 10px;
+  color: rgba(167, 139, 250, 0.45);
   letter-spacing: 2px;
   opacity: 0;
   margin-bottom: 6px;
   user-select: none;
-  pointer-events: none;
-  transition: opacity 0.4s ease;
+  transition: opacity 0.4s ease, color 0.35s ease, text-shadow 0.35s ease;
 }
 #scroll-decode-msg {
   text-align: center;
   font-family: 'Courier New', monospace;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 4px;
   color: var(--accent);
   opacity: 0;
   user-select: none;
-  pointer-events: none;
   text-shadow: 0 0 12px rgba(124,58,237,0.8);
-  transition: opacity 0.4s ease;
+  transition: opacity 0.4s ease, color 0.35s ease, text-shadow 0.35s ease, letter-spacing 0.35s ease;
+}
+#scroll-decode-wrap:hover #scroll-decode-hint {
+  color: rgba(167, 139, 250, 0.85);
+  text-shadow: 0 0 8px rgba(139,92,246,0.5);
+}
+#scroll-decode-wrap:hover #scroll-decode-msg {
+  color: #c4b5fd;
+  letter-spacing: 6px;
+  text-shadow: 0 0 14px rgba(139,92,246,1), 0 0 32px rgba(167,139,250,0.6), 0 0 60px rgba(167,139,250,0.25);
 }
 
 
@@ -1713,6 +1741,7 @@ body.blueprint .repo-card::after {
 
 body.blueprint .tl-dot     { background: #90caff; box-shadow: 0 0 0 1px #90caff; }
 body.blueprint .tl-dot.edu { background: #b8dfff; box-shadow: 0 0 0 1px #b8dfff; }
+body.blueprint .tl-dot.done{ background: transparent; box-shadow: 0 0 0 1px rgba(144,202,255,0.3); border-color: rgba(144,202,255,0.3); }
 
 /* Force monospace on text (not icons) */
 body.blueprint *:not(i):not(svg):not(path):not(circle):not(line):not(polyline):not(rect):not(polygon) {

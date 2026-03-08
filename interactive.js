@@ -629,8 +629,8 @@
   (function () {
     var footer = document.querySelector('.site-footer');
     if (!footer) return;
-    var TARGET = '\u2191\u2191\u2193\u2193\u2190\u2192\u2190\u2192 B A  \u2014  the 90s had two icons';
-    var HINT   = '// interactive  \u2014  try entering the sequence on your keyboard';
+    var TARGET = '\u2191\u2191\u2193\u2193\u2190\u2192\u2190\u2192 B A  \u2014  or type "mac"';
+    var HINT   = '// two secrets  \u2014  a konami code and a keyword';
     var CSET   = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%\u2191\u2193\u2190\u2192+-=><_';
 
     var wrapEl = document.createElement('div');
