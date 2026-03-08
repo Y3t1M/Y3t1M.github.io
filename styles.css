@@ -700,10 +700,10 @@ header, section, footer, .hero, .stats-bar, .about-section,
   margin: 3px auto 0;
 }
 
-.tl-done .tl-body h4 { color: rgba(255,255,255,0.5); }
-.tl-done .tl-body p  { color: var(--text-faint); }
-.tl-done .tl-date    { opacity: 0.6; }
-.tl-done .tl-org     { opacity: 0.5; }
+.tl-done .tl-body h4 { color: #fff; }
+.tl-done .tl-body p  { color: var(--text-muted); }
+.tl-done .tl-date    { opacity: 1; }
+.tl-done .tl-org     { opacity: 1; }
 
 .tl-body { flex: 1; }
 
