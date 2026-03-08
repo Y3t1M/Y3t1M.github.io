@@ -686,52 +686,46 @@
     document.body.appendChild(cvs);
     var ctx = cvs.getContext('2d');
 
-    var fx = W * (0.4 + Math.random() * 0.2);
-    var fy = H * (0.34 + Math.random() * 0.24);
+    var fx = W * (0.42 + Math.random() * 0.16);
+    var fy = H * (0.36 + Math.random() * 0.2);
     var diag = Math.sqrt(W * W + H * H);
 
-    // Fold facets simulate paper planes catching light differently while crumpling.
-    var facets = [];
-    var FACET_COUNT = Math.max(130, Math.min(230, Math.round((W * H) / 7800)));
-    for (var i = 0; i < FACET_COUNT; i++) {
-      var fa = Math.random() * Math.PI * 2;
-      var fr = Math.pow(Math.random(), 0.7) * diag * 0.58;
-      var cx0 = fx + Math.cos(fa) * fr + (Math.random() - 0.5) * 30;
-      var cy0 = fy + Math.sin(fa) * fr + (Math.random() - 0.5) * 30;
-      facets.push({
-        x: cx0,
-        y: cy0,
-        angle: Math.random() * Math.PI * 2,
-        long: 12 + Math.random() * 30,
-        short: 6 + Math.random() * 18,
-        depth: (Math.random() - 0.5) * 2,
-        pull: 0.3 + Math.random() * 1.05,
-        spin: (Math.random() - 0.5) * 2.2,
-        tw: Math.random() * Math.PI * 2
+    var corners = [
+      { x: 0, y: 0 },
+      { x: W, y: 0 },
+      { x: W, y: H },
+      { x: 0, y: H }
+    ];
+
+    var ridges = [];
+    var RIDGE_COUNT = Math.max(220, Math.min(360, Math.round((W * H) / 5000)));
+    for (var i = 0; i < RIDGE_COUNT; i++) {
+      var a = Math.random() * Math.PI * 2;
+      var r = Math.pow(Math.random(), 0.62) * diag * 0.68;
+      var x = fx + Math.cos(a) * r + (Math.random() - 0.5) * 26;
+      var y = fy + Math.sin(a) * r + (Math.random() - 0.5) * 26;
+      var cornerIdx = (x < W * 0.5 ? (y < H * 0.5 ? 0 : 3) : (y < H * 0.5 ? 1 : 2));
+      ridges.push({
+        x: x,
+        y: y,
+        a: a + Math.PI * 0.5 + (Math.random() - 0.5) * 1.9,
+        len: 10 + Math.random() * 34,
+        bend: (Math.random() - 0.5) * 20,
+        thick: 0.35 + Math.random() * 1.25,
+        alpha: 0.03 + Math.random() * 0.09,
+        pull: 0.26 + Math.random() * 1.25,
+        phase: Math.random() * Math.PI * 2,
+        cornerIdx: cornerIdx
       });
     }
 
-    // Micro wrinkles add high-frequency detail so folds do not read as cracks.
-    var wrinkles = [];
-    var WRINKLE_COUNT = Math.max(180, Math.min(320, Math.round((W * H) / 5600)));
-    for (var j = 0; j < WRINKLE_COUNT; j++) {
-      var wa = Math.random() * Math.PI * 2;
-      var wr = Math.pow(Math.random(), 0.66) * diag * 0.62;
-      var wx = fx + Math.cos(wa) * wr + (Math.random() - 0.5) * 20;
-      var wy = fy + Math.sin(wa) * wr + (Math.random() - 0.5) * 20;
-      var tang = wa + Math.PI * 0.5 + (Math.random() - 0.5) * 1.8;
-      var len = 10 + Math.random() * 30;
-      var bend = (Math.random() - 0.5) * len * 0.65;
-      wrinkles.push({
-        x: wx,
-        y: wy,
-        angle: tang,
-        len: len,
-        bend: bend,
-        thick: 0.4 + Math.random() * 1.1,
-        alpha: 0.035 + Math.random() * 0.085,
-        pull: 0.3 + Math.random() * 1.2,
-        phase: Math.random() * Math.PI * 2
+    var paperGrain = [];
+    for (var g = 0; g < 85; g++) {
+      paperGrain.push({
+        x: Math.random() * W,
+        y: Math.random() * H,
+        r: 0.6 + Math.random() * 1.9,
+        a: 0.018 + Math.random() * 0.05
       });
     }
 
@@ -745,7 +739,7 @@
     document.body.style.willChange = 'transform, opacity, clip-path, border-radius, filter';
 
     var startTime = null;
-    var DURATION  = 2650;
+    var DURATION  = 2500;
     var maxR      = Math.hypot(Math.max(fx, W - fx), Math.max(fy, H - fy));
     var fromCx    = W * 0.5;
     var fromCy    = H * 0.5;
@@ -757,105 +751,92 @@
     function easeIn(t)  { return t * t * t; }
     function easeIO(t)  { return t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2,3)/2; }
 
-    function drawCrumpleField(p, gather, scrunch) {
+    function drawCrumpleField(p, fold, gather, crunch, elapsed) {
       ctx.clearRect(0, 0, W, H);
 
-      var bodyShade = ctx.createRadialGradient(fx, fy, 24, fx, fy, diag * 0.62);
-      bodyShade.addColorStop(0, 'rgba(8,16,28,' + (0.08 + gather * 0.16).toFixed(3) + ')');
-      bodyShade.addColorStop(0.58, 'rgba(8,16,28,' + (0.04 + gather * 0.08).toFixed(3) + ')');
-      bodyShade.addColorStop(1, 'rgba(8,16,28,0)');
-      ctx.fillStyle = bodyShade;
+      var baseShade = ctx.createRadialGradient(fx, fy, 26, fx, fy, diag * 0.66);
+      baseShade.addColorStop(0, 'rgba(8,16,28,' + (0.08 + fold * 0.12 + crunch * 0.1).toFixed(3) + ')');
+      baseShade.addColorStop(0.58, 'rgba(8,16,28,' + (0.035 + gather * 0.08).toFixed(3) + ')');
+      baseShade.addColorStop(1, 'rgba(8,16,28,0)');
+      ctx.fillStyle = baseShade;
       ctx.fillRect(0, 0, W, H);
 
-      facets.forEach(function(f) {
-        var move = gather * f.pull;
-        var cx = lerp(f.x, fx, move);
-        var cy = lerp(f.y, fy, move);
-        var ang = f.angle + f.spin * gather + Math.sin(p * 5 * Math.PI + f.tw) * 0.12 * (1 - scrunch);
-        var ux = Math.cos(ang);
-        var uy = Math.sin(ang);
-        var vx = -uy;
-        var vy = ux;
-
-        var hl = f.long * (1 - gather * 0.28);
-        var hs = f.short * (1 - gather * 0.62);
-        var depth = f.depth * (0.55 + 0.45 * Math.sin(p * 4 * Math.PI + f.tw));
-
-        var p1x = cx - ux * hl;
-        var p1y = cy - uy * hl;
-        var p2x = cx + vx * hs;
-        var p2y = cy + vy * hs;
-        var p3x = cx + ux * hl;
-        var p3y = cy + uy * hl;
-        var p4x = cx - vx * hs;
-        var p4y = cy - vy * hs;
+      corners.forEach(function(c) {
+        var px = c.x + (fx - c.x) * (0.18 + fold * 0.58);
+        var py = c.y + (fy - c.y) * (0.18 + fold * 0.58);
+        var nx = (c.x === 0 ? 1 : -1) * (42 + fold * 95);
+        var ny = (c.y === 0 ? 1 : -1) * (42 + fold * 95);
 
         ctx.beginPath();
-        ctx.moveTo(p1x, p1y);
-        ctx.lineTo(p2x, p2y);
-        ctx.lineTo(p3x, p3y);
-        ctx.lineTo(p4x, p4y);
+        ctx.moveTo(c.x, c.y);
+        ctx.lineTo(px + nx * 0.28, py);
+        ctx.lineTo(px, py + ny * 0.28);
         ctx.closePath();
 
-        if (depth >= 0) {
-          ctx.fillStyle = 'rgba(178,220,255,' + (0.018 + depth * 0.04 + gather * 0.018).toFixed(3) + ')';
-          ctx.globalCompositeOperation = 'screen';
-        } else {
-          ctx.fillStyle = 'rgba(0,10,22,' + (0.02 + (-depth) * 0.06 + gather * 0.02).toFixed(3) + ')';
-          ctx.globalCompositeOperation = 'multiply';
-        }
+        var cornerShade = ctx.createRadialGradient(c.x, c.y, 1, px, py, Math.max(Math.abs(nx), Math.abs(ny)) * 1.8);
+        cornerShade.addColorStop(0, 'rgba(0,8,18,' + (0.05 + fold * 0.16).toFixed(3) + ')');
+        cornerShade.addColorStop(1, 'rgba(0,8,18,0)');
+        ctx.fillStyle = cornerShade;
         ctx.fill();
+      });
 
-        ctx.globalCompositeOperation = 'source-over';
-        ctx.strokeStyle = 'rgba(184,223,255,' + (0.018 + gather * 0.03).toFixed(3) + ')';
-        ctx.lineWidth = 0.45;
-        ctx.stroke();
+      paperGrain.forEach(function(pt) {
+        ctx.fillStyle = 'rgba(180,215,248,' + (pt.a * (0.7 + fold * 0.6)).toFixed(3) + ')';
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, pt.r, 0, Math.PI * 2);
+        ctx.fill();
       });
 
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
-      wrinkles.forEach(function(w) {
-        var moveW = gather * w.pull;
-        var cxw = lerp(w.x, fx, moveW);
-        var cyw = lerp(w.y, fy, moveW);
-        var a = w.angle + Math.sin(p * 6 * Math.PI + w.phase) * 0.12;
-        var half = w.len * (1 - gather * 0.35) * 0.5;
-        var sx = cxw - Math.cos(a) * half;
-        var sy = cyw - Math.sin(a) * half;
-        var tx = cxw + Math.cos(a) * half;
-        var ty = cyw + Math.sin(a) * half;
-        var nx = -Math.sin(a);
-        var ny =  Math.cos(a);
-        var bend = w.bend * (1 - gather * 0.42);
-        var mx = (sx + tx) * 0.5 + nx * bend;
-        var my = (sy + ty) * 0.5 + ny * bend;
+      ridges.forEach(function(r) {
+        var corner = corners[r.cornerIdx];
+        var cx0 = lerp(r.x, fx, gather * r.pull * 0.64);
+        var cy0 = lerp(r.y, fy, gather * r.pull * 0.64);
+
+        var cpx = cx0 + (fx - corner.x) * fold * 0.06;
+        var cpy = cy0 + (fy - corner.y) * fold * 0.06;
+
+        var ang = r.a + Math.sin(elapsed * 0.0038 + r.phase) * 0.24 * (1 - crunch);
+        var len = r.len * (1 - gather * 0.32 - crunch * 0.2);
+        var half = len * 0.5;
+
+        var sx = cpx - Math.cos(ang) * half;
+        var sy = cpy - Math.sin(ang) * half;
+        var tx = cpx + Math.cos(ang) * half;
+        var ty = cpy + Math.sin(ang) * half;
+        var nx = -Math.sin(ang);
+        var ny =  Math.cos(ang);
+        var b = r.bend * (1 - gather * 0.36);
+        var mx = (sx + tx) * 0.5 + nx * b;
+        var my = (sy + ty) * 0.5 + ny * b;
 
         ctx.globalCompositeOperation = 'multiply';
         ctx.beginPath();
         ctx.moveTo(sx, sy);
         ctx.quadraticCurveTo(mx, my, tx, ty);
-        ctx.strokeStyle = 'rgba(3,10,19,' + (w.alpha + gather * 0.045).toFixed(3) + ')';
-        ctx.lineWidth = w.thick;
+        ctx.strokeStyle = 'rgba(3,10,18,' + (r.alpha + gather * 0.03 + fold * 0.025).toFixed(3) + ')';
+        ctx.lineWidth = r.thick;
         ctx.stroke();
 
         ctx.globalCompositeOperation = 'screen';
         ctx.beginPath();
-        ctx.moveTo(sx + nx * 0.9, sy + ny * 0.9);
-        ctx.quadraticCurveTo(mx + nx * 0.9, my + ny * 0.9, tx + nx * 0.9, ty + ny * 0.9);
-        ctx.strokeStyle = 'rgba(190,226,255,' + (w.alpha * 0.62 + gather * 0.026).toFixed(3) + ')';
-        ctx.lineWidth = Math.max(0.35, w.thick * 0.5);
+        ctx.moveTo(sx + nx * 0.8, sy + ny * 0.8);
+        ctx.quadraticCurveTo(mx + nx * 0.8, my + ny * 0.8, tx + nx * 0.8, ty + ny * 0.8);
+        ctx.strokeStyle = 'rgba(188,226,255,' + (r.alpha * 0.58 + gather * 0.02).toFixed(3) + ')';
+        ctx.lineWidth = Math.max(0.3, r.thick * 0.48);
         ctx.stroke();
       });
 
       ctx.globalCompositeOperation = 'source-over';
-      var broadHighlight = ctx.createRadialGradient(fx - diag * 0.08, fy - diag * 0.08, 14, fx - diag * 0.06, fy - diag * 0.06, diag * 0.45);
-      broadHighlight.addColorStop(0, 'rgba(174,214,250,' + (0.1 + gather * 0.14).toFixed(3) + ')');
-      broadHighlight.addColorStop(1, 'rgba(170,210,250,0)');
-      ctx.fillStyle = broadHighlight;
+      var broadLight = ctx.createRadialGradient(fx - diag * 0.09, fy - diag * 0.1, 16, fx - diag * 0.06, fy - diag * 0.08, diag * 0.5);
+      broadLight.addColorStop(0, 'rgba(174,214,250,' + (0.08 + gather * 0.12).toFixed(3) + ')');
+      broadLight.addColorStop(1, 'rgba(174,214,250,0)');
+      ctx.fillStyle = broadLight;
       ctx.fillRect(0, 0, W, H);
 
-      var centerPocket = ctx.createRadialGradient(fx, fy, 0, fx, fy, diag * 0.3);
-      centerPocket.addColorStop(0, 'rgba(0,10,20,' + (0.12 + scrunch * 0.24).toFixed(3) + ')');
+      var centerPocket = ctx.createRadialGradient(fx, fy, 0, fx, fy, diag * 0.33);
+      centerPocket.addColorStop(0, 'rgba(0,10,20,' + (0.13 + crunch * 0.25).toFixed(3) + ')');
       centerPocket.addColorStop(1, 'rgba(0,10,20,0)');
       ctx.fillStyle = centerPocket;
       ctx.fillRect(0, 0, W, H);
@@ -866,41 +847,42 @@
       var elapsed = ts - startTime;
       var p = clamp01(elapsed / DURATION);
 
-      var gather = easeIO(clamp01((p - 0.07) / 0.66));
-      var foldEase = easeIO(clamp01((p - 0.18) / 0.52));
-      var scrunchEase = easeIn(clamp01((p - 0.55) / 0.45));
-      drawCrumpleField(p, gather, scrunchEase);
+      var foldEase = easeIO(clamp01((p - 0.02) / 0.34));
+      var gather = easeIO(clamp01((p - 0.21) / 0.5));
+      var scrunchEase = easeIn(clamp01((p - 0.58) / 0.42));
+      drawCrumpleField(p, foldEase, gather, scrunchEase, elapsed);
 
-      var turbP = clamp01((p - 0.08) / 0.72);
+      var turbP = clamp01((p - 0.1) / 0.74);
       var turbEase = easeIO(turbP);
-      if (dispEl)   dispEl.setAttribute('scale', (3 + turbEase * 94 + Math.sin(p * 18 * Math.PI) * 3).toFixed(2));
-      if (dispBgEl) dispBgEl.setAttribute('scale', (4 + turbEase * 122 + Math.cos(p * 14 * Math.PI) * 3.5).toFixed(2));
+      if (dispEl)   dispEl.setAttribute('scale', (3 + turbEase * 102 + Math.sin(p * 22 * Math.PI) * 4).toFixed(2));
+      if (dispBgEl) dispBgEl.setAttribute('scale', (4 + turbEase * 126 + Math.cos(p * 19 * Math.PI) * 4).toFixed(2));
       if (turbEl) {
-        var freq = 0.028 + turbEase * 0.074 + Math.sin(p * 16 * Math.PI) * 0.0022;
+        var freq = 0.024 + turbEase * 0.085 + Math.sin(p * 18 * Math.PI) * 0.0028;
         turbEl.setAttribute('baseFrequency', Math.max(0.01, freq).toFixed(4));
       }
 
-      var centerX = lerp(fromCx, toCx, gather);
-      var centerY = lerp(fromCy, toCy, gather);
+      var centerX = lerp(fromCx, toCx, gather * 0.9 + scrunchEase * 0.1);
+      var centerY = lerp(fromCy, toCy, gather * 0.9 + scrunchEase * 0.1);
       var scale = Math.max(0.016, 1 - scrunchEase * 0.984);
-      var rotX = Math.sin(p * 6 * Math.PI) * foldEase * (14 + 7 * (1 - scrunchEase));
-      var rotY = Math.cos(p * 5 * Math.PI) * foldEase * (11 + 6 * (1 - scrunchEase));
-      var rotZ = scrunchEase * 520 + Math.sin(p * 4 * Math.PI) * foldEase * 8;
-      var skewX = Math.sin(p * 11 * Math.PI) * foldEase * 6;
-      var skewY = Math.cos(p * 9 * Math.PI) * foldEase * 4;
-      var drift = (1 - scrunchEase) * (3 + turbEase * 4);
+      var rotX = Math.sin(p * 7 * Math.PI) * foldEase * (17 + 7 * (1 - scrunchEase));
+      var rotY = Math.cos(p * 6 * Math.PI) * foldEase * (13 + 6 * (1 - scrunchEase));
+      var rotZ = gather * 120 + scrunchEase * 640 + Math.sin(p * 6 * Math.PI) * foldEase * 10;
+      var skewX = Math.sin(p * 12 * Math.PI) * foldEase * 6;
+      var skewY = Math.cos(p * 10 * Math.PI) * foldEase * 4;
+      var drift = (1 - scrunchEase) * (3.5 + turbEase * 4.5);
       var shiftX = (toCx - fromCx) * gather + Math.sin(elapsed * 0.04) * drift;
       var shiftY = (toCy - fromCy) * gather + Math.cos(elapsed * 0.037) * drift;
-      var radius = lerp(maxR, 16, scrunchEase);
+      var clipCrunch = easeIn(clamp01((p - 0.46) / 0.54));
+      var radius = lerp(maxR, 13, clipCrunch);
       var roundness = Math.floor(lerp(0, 50, scrunchEase));
-      var wobbleR = radius * (1 + Math.sin(p * 10 * Math.PI) * 0.02 * (1 - scrunchEase));
+      var wobbleR = radius * (1 + Math.sin(p * 10 * Math.PI) * 0.028 * (1 - clipCrunch));
 
       document.body.style.clipPath = 'circle(' + wobbleR.toFixed(1) + 'px at ' + centerX.toFixed(1) + 'px ' + centerY.toFixed(1) + 'px)';
       document.body.style.borderRadius = roundness + 'px';
       document.body.style.filter =
         'contrast(' + (1 + turbEase * 0.17).toFixed(3) + ') ' +
         'saturate(' + (1 - scrunchEase * 0.18).toFixed(3) + ') ' +
-        'brightness(' + (1 - scrunchEase * 0.07).toFixed(3) + ')';
+        'brightness(' + (1 - scrunchEase * 0.08).toFixed(3) + ')';
 
       document.body.style.transform =
         'translate(' + shiftX.toFixed(2) + 'px, ' + shiftY.toFixed(2) + 'px) ' +
@@ -914,7 +896,7 @@
       document.body.style.opacity = String(clamp01(1 - scrunchEase * 1.16));
 
       if (foldEase > 0) {
-        var shadowAlpha = foldEase * 0.32 + scrunchEase * 0.38;
+        var shadowAlpha = foldEase * 0.36 + scrunchEase * 0.42;
         ctx.fillStyle = 'rgba(0,8,20,' + shadowAlpha.toFixed(3) + ')';
         ctx.fillRect(0, 0, W, H);
       }
@@ -950,6 +932,17 @@
           ctx.lineWidth = Math.max(0.6, ballR * 0.08);
           ctx.arc(bx, by, ballR * (0.5 + k * 0.08), a0, a1);
           ctx.stroke();
+        }
+
+        for (var n = 0; n < 24; n++) {
+          var na = (n / 24) * Math.PI * 2 + elapsed * 0.0015;
+          var nr = ballR * (0.25 + (n % 5) * 0.13);
+          var nx = bx + Math.cos(na) * nr;
+          var ny = by + Math.sin(na) * nr;
+          ctx.fillStyle = 'rgba(8,16,30,' + (0.09 * (1 - ballP)).toFixed(3) + ')';
+          ctx.beginPath();
+          ctx.arc(nx, ny, Math.max(0.45, ballR * 0.028), 0, Math.PI * 2);
+          ctx.fill();
         }
       }
 
