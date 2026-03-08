@@ -270,7 +270,7 @@ function handleMacAction(action) {
       if (confirm('Are you sure you want to restart?')) location.reload();
       break;
     case 'shutdown':
-      window.location.href = 'index.html';
+      window.location.href = './';
       break;
   }
 }

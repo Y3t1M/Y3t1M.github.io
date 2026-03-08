@@ -686,43 +686,65 @@
     document.body.appendChild(cvs);
     var ctx = cvs.getContext('2d');
 
-    // Generate fold-crease lines radiating from a focal point near center
+    // Build a dense wrinkle field (short curved ridges), which reads as paper crumple
     var fx = W * (0.38 + Math.random() * 0.24);
     var fy = H * (0.32 + Math.random() * 0.28);
 
     var creases = [];
-    var NUM_CREASES = 28;
+    var NUM_CREASES = 130;
+    var diag = Math.sqrt(W * W + H * H);
     for (var i = 0; i < NUM_CREASES; i++) {
-      var baseAngle = (i / NUM_CREASES) * Math.PI * 2;
-      var angle = baseAngle + (Math.random() - 0.5) * (Math.PI * 2 / NUM_CREASES) * 1.4;
-      var maxLen = Math.sqrt(W * W + H * H);
-      var len    = maxLen * (0.55 + Math.random() * 0.65);
-      // Bezier control point for a wobbly crease
-      var ctrlDist = len * (0.3 + Math.random() * 0.5);
-      var ctrlAng  = angle + (Math.random() - 0.5) * 0.9;
+      var ringA = Math.random() * Math.PI * 2;
+      var ringR = Math.pow(Math.random(), 0.62) * diag * 0.52;
+      var ax = fx + Math.cos(ringA) * ringR + (Math.random() - 0.5) * 26;
+      var ay = fy + Math.sin(ringA) * ringR + (Math.random() - 0.5) * 26;
+
+      // Tangential bias avoids "crack rays" and feels like random paper ridges.
+      var dir = ringA + Math.PI * 0.5 + (Math.random() - 0.5) * 1.55;
+      var len = 24 + Math.random() * Math.min(W, H) * 0.17;
+      var half = len * 0.5;
+      var x1 = ax - Math.cos(dir) * half;
+      var y1 = ay - Math.sin(dir) * half;
+      var x2 = ax + Math.cos(dir) * half;
+      var y2 = ay + Math.sin(dir) * half;
+
+      var mx = (x1 + x2) * 0.5;
+      var my = (y1 + y2) * 0.5;
+      var nx = -Math.sin(dir);
+      var ny =  Math.cos(dir);
+      var bend = (Math.random() - 0.5) * len * (0.18 + Math.random() * 0.35);
+
       creases.push({
-        x1: fx, y1: fy,
-        cpx: fx + Math.cos(ctrlAng) * ctrlDist,
-        cpy: fy + Math.sin(ctrlAng) * ctrlDist,
-        x2: fx + Math.cos(angle) * len,
-        y2: fy + Math.sin(angle) * len,
+        ax: ax, ay: ay,
+        x1: x1, y1: y1,
+        cpx: mx + nx * bend,
+        cpy: my + ny * bend,
+        x2: x2, y2: y2,
         prog: 0,
-        speed: 0.022 + Math.random() * 0.032,
-        width: 0.6 + Math.random() * 1.6,
-        alpha: 0.12 + Math.random() * 0.28,
-        delay: i * 0.008
+        speed: 0.02 + Math.random() * 0.05,
+        width: 0.45 + Math.random() * 1.35,
+        alpha: 0.04 + Math.random() * 0.12,
+        delay: Math.random() * 0.3,
+        pull: 0.25 + Math.random() * 0.9
       });
     }
 
-    var dispEl = document.getElementById('bp-disp');
-    var turbEl = document.getElementById('bp-turb');
+    var dispEl   = document.getElementById('bp-disp');
+    var dispBgEl = document.getElementById('bp-disp-bg');
+    var turbEl   = document.getElementById('bp-turb');
 
     document.body.style.pointerEvents  = 'none';
-    document.body.style.transformOrigin = '50% 50%';
+    document.body.style.transformOrigin = fx + 'px ' + fy + 'px';
     document.documentElement.style.perspective = '900px';
+    document.body.style.willChange = 'transform, opacity, clip-path, border-radius, filter';
 
     var startTime = null;
-    var DURATION  = 2200;
+    var DURATION  = 2800;
+    var maxR      = Math.hypot(Math.max(fx, W - fx), Math.max(fy, H - fy));
+    var fromCx    = W * 0.5;
+    var fromCy    = H * 0.5;
+    var toCx      = fx;
+    var toCy      = fy;
 
     function lerp(a, b, t) { return a + (b - a) * t; }
     function clamp01(v) { return Math.max(0, Math.min(1, v)); }
@@ -731,32 +753,74 @@
 
     function drawCreases(lineP) {
       ctx.clearRect(0, 0, W, H);
+      var pull = lineP * lineP;
+
+      // Base diffuse shading under wrinkle field.
+      var bodyShade = ctx.createRadialGradient(fx, fy, 30, fx, fy, diag * 0.58);
+      bodyShade.addColorStop(0, 'rgba(8,16,28,' + (0.09 + pull * 0.09).toFixed(3) + ')');
+      bodyShade.addColorStop(0.55, 'rgba(8,16,28,' + (0.05 + pull * 0.05).toFixed(3) + ')');
+      bodyShade.addColorStop(1, 'rgba(8,16,28,0)');
+      ctx.fillStyle = bodyShade;
+      ctx.fillRect(0, 0, W, H);
+
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+
       creases.forEach(function(c) {
         var target = clamp01((lineP - c.delay) / (1 - c.delay));
         if (target <= 0) return;
         c.prog = Math.min(c.prog + c.speed, target);
         if (c.prog <= 0) return;
 
+        var toCenterX = fx - c.ax;
+        var toCenterY = fy - c.ay;
+        var toCenterD = Math.max(1, Math.hypot(toCenterX, toCenterY));
+        var px = (toCenterX / toCenterD) * pull * c.pull * 17;
+        var py = (toCenterY / toCenterD) * pull * c.pull * 17;
+
         // Interpolate along the quadratic bezier
         var t = c.prog;
-        var ex = (1-t)*(1-t)*c.x1 + 2*(1-t)*t*c.cpx + t*t*c.x2;
-        var ey = (1-t)*(1-t)*c.y1 + 2*(1-t)*t*c.cpy + t*t*c.y2;
+        var sx = c.x1 + px;
+        var sy = c.y1 + py;
+        var cx = c.cpx + px * 1.1;
+        var cy = c.cpy + py * 1.1;
+        var tx = c.x2 + px;
+        var ty = c.y2 + py;
+        var ex = (1-t)*(1-t)*sx + 2*(1-t)*t*cx + t*t*tx;
+        var ey = (1-t)*(1-t)*sy + 2*(1-t)*t*cy + t*t*ty;
 
+        ctx.globalCompositeOperation = 'multiply';
         ctx.beginPath();
-        ctx.moveTo(c.x1, c.y1);
-        ctx.quadraticCurveTo(c.cpx, c.cpy, ex, ey);
-        ctx.strokeStyle = 'rgba(0,0,0,' + (c.alpha * Math.min(c.prog * 3, 1)) + ')';
+        ctx.moveTo(sx, sy);
+        ctx.quadraticCurveTo(cx, cy, ex, ey);
+        ctx.strokeStyle = 'rgba(4,12,20,' + (c.alpha * Math.min(c.prog * 2.6, 1)).toFixed(3) + ')';
         ctx.lineWidth   = c.width;
         ctx.stroke();
 
-        // Bright highlight alongside the fold (paper-fold light effect)
+        // Soft highlight adjacent to ridge for paper fold relief.
+        ctx.globalCompositeOperation = 'screen';
         ctx.beginPath();
-        ctx.moveTo(c.x1 + 1, c.y1 + 1);
-        ctx.quadraticCurveTo(c.cpx + 1, c.cpy + 1, ex + 1, ey + 1);
-        ctx.strokeStyle = 'rgba(144,202,255,' + (c.alpha * 0.35 * Math.min(c.prog * 3, 1)) + ')';
-        ctx.lineWidth   = c.width * 0.5;
+        ctx.moveTo(sx + 0.9, sy + 0.8);
+        ctx.quadraticCurveTo(cx + 0.9, cy + 0.8, ex + 0.9, ey + 0.8);
+        ctx.strokeStyle = 'rgba(180,215,255,' + (c.alpha * 0.52 * Math.min(c.prog * 2.4, 1)).toFixed(3) + ')';
+        ctx.lineWidth   = Math.max(0.35, c.width * 0.52);
         ctx.stroke();
       });
+
+      // Return to normal blend mode and add a broad soft highlight.
+      ctx.globalCompositeOperation = 'source-over';
+      var broadHighlight = ctx.createRadialGradient(
+        fx - diag * 0.07,
+        fy - diag * 0.08,
+        12,
+        fx - diag * 0.06,
+        fy - diag * 0.07,
+        diag * 0.44
+      );
+      broadHighlight.addColorStop(0, 'rgba(170,210,250,' + (0.12 + pull * 0.1).toFixed(3) + ')');
+      broadHighlight.addColorStop(1, 'rgba(170,210,250,0)');
+      ctx.fillStyle = broadHighlight;
+      ctx.fillRect(0, 0, W, H);
     }
 
     function step(ts) {
@@ -768,41 +832,96 @@
       var lineP = clamp01(p / 0.35);
       drawCreases(lineP);
 
-      /* Stage 2: 20–65% → turbulence ramps hard */
-      var turbP   = clamp01((p - 0.20) / 0.45);
+      /* Stage 2: 14–68% → turbulence ramps hard */
+      var turbP   = clamp01((p - 0.14) / 0.54);
       var turbEase = easeIO(turbP);
-      if (dispEl) dispEl.setAttribute('scale', 3 + turbEase * 120);
-      if (turbEl) turbEl.setAttribute('baseFrequency', (0.032 + turbEase * 0.12).toFixed(4));
+      if (dispEl)   dispEl.setAttribute('scale', (3 + turbEase * 165).toFixed(2));
+      if (dispBgEl) dispBgEl.setAttribute('scale', (4 + turbEase * 210).toFixed(2));
+      if (turbEl) {
+        var freq = 0.032 + turbEase * 0.19 + Math.sin(p * 24 * Math.PI) * 0.005;
+        turbEl.setAttribute('baseFrequency', Math.max(0.01, freq).toFixed(4));
+      }
 
-      /* Stage 3: 45–75% → 3D fold using perspective rotations */
-      var foldP    = clamp01((p - 0.45) / 0.30);
+      /* Stage 3: 32–72% → 3D fold and torsion */
+      var foldP    = clamp01((p - 0.32) / 0.40);
       var foldEase = easeIO(foldP);
-      var rotX = foldEase * 38  * Math.sin(p * 11 * Math.PI);
-      var rotY = foldEase * 26  * Math.cos(p * 8  * Math.PI);
+      var rotX = foldEase * (34 + 14 * Math.sin(p * 7 * Math.PI)) * Math.sin(p * 12 * Math.PI);
+      var rotY = foldEase * (26 + 10 * Math.cos(p * 6 * Math.PI)) * Math.cos(p * 10 * Math.PI);
 
-      /* Stage 4: 65–100% → scrunch to crumpled ball */
-      var scrunchP    = clamp01((p - 0.65) / 0.35);
+      /* Stage 4: 56–100% → scrunch to a paper ball */
+      var scrunchP    = clamp01((p - 0.56) / 0.44);
       var scrunchEase = easeIn(scrunchP);
-      var sc    = 1  - scrunchEase * 0.97;
-      var rotZ  = scrunchEase * 540 + foldEase * 12;
-      var skewX = foldEase * 18 * Math.sin(p * 13 * Math.PI);
-      var skewY = foldEase * 10 * Math.cos(p * 11 * Math.PI);
+      var pullEase = easeIO(clamp01((p - 0.50) / 0.46));
+      var centerX = lerp(fromCx, toCx, pullEase);
+      var centerY = lerp(fromCy, toCy, pullEase);
+      var scale = 1 - scrunchEase * 0.986;
+      scale = Math.max(0.014, scale);
+      var rotZ  = scrunchEase * 720 + foldEase * 18;
+      var skewX = foldEase * 20 * Math.sin(p * 15 * Math.PI);
+      var skewY = foldEase * 12 * Math.cos(p * 13 * Math.PI);
+      var jitterAmp = (1 - scrunchEase) * (6 + turbEase * 9);
+      var jitterX = Math.sin(elapsed * 0.065) * jitterAmp;
+      var jitterY = Math.cos(elapsed * 0.053) * jitterAmp;
+      var shiftX = (toCx - fromCx) * pullEase + jitterX;
+      var shiftY = (toCy - fromCy) * pullEase + jitterY;
+      var radius = lerp(maxR, 14, scrunchEase);
+      var roundness = Math.floor(lerp(0, 50, scrunchEase));
+
+      document.body.style.clipPath = 'circle(' + radius.toFixed(1) + 'px at ' + centerX.toFixed(1) + 'px ' + centerY.toFixed(1) + 'px)';
+      document.body.style.borderRadius = roundness + 'px';
+      document.body.style.filter = 'contrast(' + (1 + turbEase * 0.26).toFixed(3) + ') saturate(' + (1 - scrunchEase * 0.22).toFixed(3) + ')';
 
       document.body.style.transform =
-        'scale(' + sc + ') ' +
+        'translate(' + shiftX.toFixed(2) + 'px, ' + shiftY.toFixed(2) + 'px) ' +
+        'scale(' + scale.toFixed(4) + ') ' +
         'rotateX(' + rotX + 'deg) ' +
         'rotateY(' + rotY + 'deg) ' +
-        'rotate('  + rotZ + 'deg) ' +
-        'skewX('   + skewX + 'deg) ' +
-        'skewY('   + skewY + 'deg)';
+        'rotate('  + rotZ.toFixed(2) + 'deg) ' +
+        'skewX('   + skewX.toFixed(2) + 'deg) ' +
+        'skewY('   + skewY.toFixed(2) + 'deg)';
 
-      document.body.style.opacity = String(clamp01(1 - scrunchEase * 1.1));
+      document.body.style.opacity = String(clamp01(1 - scrunchEase * 1.22));
 
       /* Draw a darkening overlay on the crinkle canvas as paper shadows deepen */
       if (foldP > 0) {
-        var shadowAlpha = foldEase * 0.45 + scrunchEase * 0.4;
+        var shadowAlpha = foldEase * 0.45 + scrunchEase * 0.52;
         ctx.fillStyle = 'rgba(0,8,20,' + shadowAlpha.toFixed(3) + ')';
         ctx.fillRect(0, 0, W, H);
+      }
+
+      /* Late-stage paper ball render to sell the final collapse */
+      if (scrunchP > 0.35) {
+        var ballP = clamp01((scrunchP - 0.35) / 0.65);
+        var ballR = lerp(32, 8, ballP);
+        var bx = toCx + Math.sin(elapsed * 0.03) * (1 - ballP) * 8;
+        var by = toCy + Math.cos(elapsed * 0.025) * (1 - ballP) * 6;
+
+        var ballGrad = ctx.createRadialGradient(
+          bx - ballR * 0.38, by - ballR * 0.42, ballR * 0.1,
+          bx, by, ballR
+        );
+        ballGrad.addColorStop(0, 'rgba(232,242,255,' + (0.75 * (1 - ballP * 0.35)).toFixed(3) + ')');
+        ballGrad.addColorStop(0.55, 'rgba(134,170,214,' + (0.68 * (1 - ballP * 0.18)).toFixed(3) + ')');
+        ballGrad.addColorStop(1, 'rgba(14,28,52,' + (0.88 * (1 - ballP * 0.05)).toFixed(3) + ')');
+
+        ctx.save();
+        ctx.globalCompositeOperation = 'screen';
+        ctx.fillStyle = ballGrad;
+        ctx.beginPath();
+        ctx.arc(bx, by, ballR, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+
+        var creaseAlpha = 0.28 * (1 - ballP);
+        for (var k = 0; k < 5; k++) {
+          var a0 = (k / 5) * Math.PI * 2 + elapsed * 0.002;
+          var a1 = a0 + Math.PI * (0.45 + 0.08 * k);
+          ctx.beginPath();
+          ctx.strokeStyle = 'rgba(6,12,20,' + creaseAlpha.toFixed(3) + ')';
+          ctx.lineWidth = Math.max(0.6, ballR * 0.08);
+          ctx.arc(bx, by, ballR * (0.62 + k * 0.07), a0, a1);
+          ctx.stroke();
+        }
       }
 
       if (p < 1) {
@@ -815,7 +934,13 @@
         document.body.style.filter       = '';
         document.body.style.pointerEvents= '';
         document.body.style.transformOrigin = '';
+        document.body.style.clipPath = '';
+        document.body.style.borderRadius = '';
+        document.body.style.willChange = '';
         document.documentElement.style.perspective = '';
+        if (dispEl)   dispEl.setAttribute('scale', '3');
+        if (dispBgEl) dispBgEl.setAttribute('scale', '4');
+        if (turbEl)   turbEl.setAttribute('baseFrequency', '0.032');
         destroyBlueprintInteractive();
         document.body.classList.remove('blueprint', 'bp-ruined');
         showToast('[ BLUEPRINT MODE OFF ]');

@@ -188,7 +188,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 case 'shutdown':
                     document.body.classList.add('shutdown-active');
                     setTimeout(() => {
-                        window.location.href = 'index.html';
+                        window.location.href = './';
                     }, 1200);
                     break;
                 case 'restart':
@@ -699,7 +699,7 @@ function handleShutdown() {
 
     // Redirect to home page after 1.2 seconds
     setTimeout(() => {
-        window.location.href = 'index.html';
+        window.location.href = './';
     }, 1200);
 }
 

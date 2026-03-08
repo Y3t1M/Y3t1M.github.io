@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+  <defs>
+    <linearGradient id="bpBody" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#16395d"/>
+      <stop offset="1" stop-color="#0a1e34"/>
+    </linearGradient>
+    <linearGradient id="bpTip" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#d8efff"/>
+      <stop offset="1" stop-color="#9acdf2"/>
+    </linearGradient>
+  </defs>
+
+  <g transform="translate(2 2) rotate(-34 14 14)">
+    <rect x="6" y="10" width="18" height="12" rx="2.2" fill="url(#bpBody)"/>
+    <rect x="17" y="10" width="7" height="12" rx="1.6" fill="url(#bpTip)"/>
+
+    <path d="M8.5 12.6H16" stroke="#90caff" stroke-width="0.9" stroke-opacity="0.78"/>
+    <path d="M8.5 15.2H16" stroke="#90caff" stroke-width="0.9" stroke-opacity="0.62"/>
+    <path d="M8.5 17.8H16" stroke="#90caff" stroke-width="0.9" stroke-opacity="0.46"/>
+
+    <path d="M17 10V22" stroke="#5e8fb5" stroke-width="0.8" stroke-opacity="0.7"/>
+    <path d="M7 20.9H23" stroke="#061426" stroke-width="1" stroke-opacity="0.55"/>
+
+    <rect x="6" y="10" width="18" height="12" rx="2.2" fill="none" stroke="#b8dfff" stroke-width="1.1" stroke-opacity="0.88"/>
+    <rect x="6.6" y="10.6" width="16.8" height="10.8" rx="1.7" fill="none" stroke="#ffffff" stroke-width="0.45" stroke-opacity="0.34"/>
+  </g>
+</svg>

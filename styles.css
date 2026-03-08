@@ -1670,6 +1670,21 @@ body.blueprint {
   background: #002a56 !important;
 }
 
+@media (hover: hover) {
+  body.blueprint,
+  body.blueprint a,
+  body.blueprint button,
+  body.blueprint [role="button"] {
+    cursor: url('assets/icons/eraser_cursor.svg') 6 26, auto !important;
+  }
+}
+
+/* Hide sci-fi custom cursor in blueprint so native eraser cursor is visible */
+body.blueprint #cursor-dot,
+body.blueprint #cursor-ring {
+  opacity: 0 !important;
+}
+
 /* Blueprint grid overlay */
 body.blueprint::before {
   content: '';
@@ -1694,6 +1709,29 @@ body.blueprint .gradient-text {
 
 body.blueprint .section-label       { color: #b8dfff; }
 body.blueprint .section-label::before { background: #b8dfff; }
+body.blueprint .btn-primary {
+  background: linear-gradient(180deg, rgba(16,54,98,0.9), rgba(9,32,63,0.92)) !important;
+  color: #e8f5ff !important;
+  border: 1.5px dashed rgba(144,202,255,0.75) !important;
+  border-radius: 4px;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,0.14),
+    0 0 0 1px rgba(144,202,255,0.22),
+    0 0 18px rgba(144,202,255,0.2) !important;
+  font-family: 'Courier New', monospace !important;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+}
+body.blueprint .btn-primary:hover {
+  background: linear-gradient(180deg, rgba(24,74,128,0.95), rgba(11,42,82,0.95)) !important;
+  border-color: rgba(184,223,255,0.95) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,0.2),
+    0 0 0 1px rgba(184,223,255,0.32),
+    0 0 24px rgba(144,202,255,0.28) !important;
+}
 body.blueprint .footer-logo {
   background: linear-gradient(135deg, #fff, #b8dfff);
   -webkit-background-clip: text;
@@ -1816,13 +1854,13 @@ body.blueprint [data-bp-drag] a {
 
 /* Draggable elements */
 body.blueprint [data-bp-drag] {
-  cursor: grab !important;
+  cursor: url('assets/icons/eraser_cursor.svg') 6 26, grab !important;
   user-select: none !important;
   position: relative;
   z-index: 1;
 }
 body.blueprint [data-bp-drag].bp-dragging {
-  cursor: grabbing !important;
+  cursor: url('assets/icons/eraser_cursor.svg') 6 26, grabbing !important;
   z-index: 200 !important;
 }
 body.blueprint [data-bp-drag]:hover {
@@ -1847,7 +1885,7 @@ body.blueprint .bp-smudged-3 {
 /* Ruined state */
 body.blueprint.bp-ruined,
 body.blueprint.bp-ruined * {
-  cursor: pointer !important;
+  cursor: url('assets/icons/eraser_cursor.svg') 6 26, pointer !important;
 }
 
 /* Ruined overlay */
@@ -1920,7 +1958,7 @@ body.blueprint.bp-ruined * {
   letter-spacing: 2px;
   padding: 10px 22px;
   border-radius: 3px;
-  cursor: pointer !important;
+  cursor: url('assets/icons/eraser_cursor.svg') 6 26, pointer !important;
   border: 1.5px dashed;
   background: transparent;
   transition: background 0.18s, color 0.18s, border-color 0.18s;
