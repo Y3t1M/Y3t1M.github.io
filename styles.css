@@ -56,9 +56,21 @@ a { color: inherit; text-decoration: none; }
 }
 
 /* Subtle press feedback on interactive items */
-a:active, button:active, .skill-tag:active,
+a:active, button:active, .skill-tag:active, .avatar-link:active,
 .project-card:active, .repo-card:active, .about-card:active {
   transform: scale(0.985);
+}
+
+/* Rainbow high-score flair — main.js applies .rainbow at 69+ clicks
+   (was referenced by the clicker but never defined; now it works) */
+.rainbow { animation: rainbowCycle 1.2s linear infinite; }
+@keyframes rainbowCycle {
+  0%   { color: #ff4d4d; }
+  20%  { color: #ffb000; }
+  40%  { color: #4dff88; }
+  60%  { color: #4dc4ff; }
+  80%  { color: #a78bfa; }
+  100% { color: #ff4d4d; }
 }
 
 /* ---------- Background: engineering dot grid ---------- */

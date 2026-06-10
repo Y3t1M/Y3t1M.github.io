@@ -249,7 +249,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const taskbarItem = document.createElement('div');
             taskbarItem.classList.add('taskbar-item');
             taskbarItem.innerHTML = `
-                <img src="assets/icons/window.png" alt="Window">
+                <img src="assets/icons/my_computer.png" alt="Window">
                 <span>${window.querySelector('.window-titlebar span').textContent}</span>
             `;
             taskbarItem.addEventListener('click', () => {
