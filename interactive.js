@@ -72,7 +72,7 @@
       this.r  = Math.random() * 1.6 + 0.5;
       this.base_alpha = Math.random() * 0.35 + 0.12;
       this.alpha = this.base_alpha;
-      this.hue = Math.random() < 0.6 ? 263 : 191; // purple or cyan
+      this.hue = Math.random() < 0.6 ? 263 : 280; // ultraviolet pair
     }
     update() {
       const dx   = this.x - mouse.x;
@@ -122,7 +122,7 @@
           ctx.beginPath();
           ctx.moveTo(particles[i].x, particles[i].y);
           ctx.lineTo(particles[j].x, particles[j].y);
-          ctx.strokeStyle = `rgba(124,58,237,${a})`;
+          ctx.strokeStyle = `rgba(139,92,246,${a})`;
           ctx.lineWidth = 0.6;
           ctx.stroke();
         }
@@ -141,7 +141,7 @@
           ctx.beginPath();
           ctx.moveTo(particles[i].x, particles[i].y);
           ctx.lineTo(mouse.x, mouse.y);
-          ctx.strokeStyle = `rgba(6,182,212,${a})`;
+          ctx.strokeStyle = `rgba(167,139,250,${a})`;
           ctx.lineWidth = 0.7;
           ctx.stroke();
         }
@@ -168,17 +168,20 @@
   document.addEventListener('mousemove', e => {
     spotlight.style.background =
       `radial-gradient(700px circle at ${e.clientX}px ${e.clientY}px,
-        rgba(124,58,237,0.07) 0%,
-        rgba(6,182,212,0.03) 35%,
+        rgba(139,92,246,0.06) 0%,
+        rgba(91,33,182,0.03) 35%,
         transparent 65%)`;
   });
 
 
   /* ================================================================
      3. CUSTOM CURSOR  –  dot + lagging ring
-        Disabled on touch-only devices.
+        RETIRED with the ultraviolet re-skin: default cursor in
+        effect while a new cursor treatment is designed separately.
+        Flip ENABLE_CUSTOM_CURSOR to true to bring it back.
      ================================================================ */
-  if (!isTouchOnly()) {
+  const ENABLE_CUSTOM_CURSOR = false;
+  if (ENABLE_CUSTOM_CURSOR && !isTouchOnly()) {
     const dot  = document.createElement('div');  dot.id  = 'cursor-dot';
     const ring = document.createElement('div');  ring.id = 'cursor-ring';
     document.body.append(dot, ring);
@@ -245,8 +248,8 @@
     const docH    = document.documentElement.scrollHeight - window.innerHeight;
     const pct     = docH > 0 ? (scrollY / docH) * 100 : 0;
     progressBar.style.width = `${pct}%`;
-    const hue = lerp(263, 191, pct / 100);
-    progressBar.style.background = `linear-gradient(90deg, hsl(${hue},70%,60%), hsl(191,70%,55%))`;
+    const hue = lerp(263, 278, pct / 100);
+    progressBar.style.background = `linear-gradient(90deg, hsl(${hue},70%,62%), hsl(263,72%,70%))`;
 
     const mid = scrollY + window.innerHeight / 2;
     let active = TRACKED_SECTIONS[0];
@@ -415,8 +418,8 @@
       const glow = Math.max(0, 1 - dist / (r.width * 0.8));
 
       card.style.transform   = `perspective(900px) rotateX(${rx}deg) rotateY(${ry}deg) translateY(-6px) scale(1.01)`;
-      card.style.boxShadow   = `${-ry * 1.5}px ${rx * 1.5}px 40px rgba(0,0,0,0.5), 0 0 ${30 + glow * 30}px rgba(124,58,237,${0.08 + glow * 0.12})`;
-      card.style.borderColor = `rgba(124,58,237,${0.2 + glow * 0.25})`;
+      card.style.boxShadow   = `${-ry * 1.5}px ${rx * 1.5}px 40px rgba(0,0,0,0.5), 0 0 ${30 + glow * 30}px rgba(139,92,246,${0.08 + glow * 0.12})`;
+      card.style.borderColor = `rgba(139,92,246,${0.2 + glow * 0.25})`;
     });
 
     card.addEventListener('mouseleave', () => {
