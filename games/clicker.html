@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Clicker</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      height: 100%;
+      background: #c0c0c0; /* Win95 face — matches the desktop window chrome */
+      font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+      font-size: 11px;
+      overflow: hidden;
+      user-select: none;
+    }
+    .clk-shell {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      padding: 8px;
+      gap: 8px;
+    }
+    .clk-title {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 10px;
+      color: #000080;
+      text-align: center;
+    }
+    #clk-area {
+      flex: 1;
+      min-height: 0;
+      border-top: 2px solid #808080;
+      border-left: 2px solid #808080;
+      border-right: 2px solid #ffffff;
+      border-bottom: 2px solid #ffffff;
+      background: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 12px;
+      text-align: center;
+      line-height: 1.8;
+      padding: 8px;
+    }
+    #clk-area:active { background: #dfdfdf; }
+    .clk-status {
+      border-top: 2px solid #808080;
+      border-left: 2px solid #808080;
+      border-right: 2px solid #ffffff;
+      border-bottom: 2px solid #ffffff;
+      background: #c0c0c0;
+      padding: 4px 8px;
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 8px;
+    }
+    .rainbow {
+      animation: rainbow 1.2s linear infinite;
+    }
+    @keyframes rainbow {
+      0%   { color: #ff0000; }
+      20%  { color: #ff9900; }
+      40%  { color: #33cc33; }
+      60%  { color: #00ccff; }
+      80%  { color: #9933ff; }
+      100% { color: #ff0000; }
+    }
+  </style>
+</head>
+<body>
+  <div class="clk-shell">
+    <div class="clk-title">CLICKER.EXE</div>
+    <div id="clk-area">CLICK TO START<br>5 SECONDS. GO FAST.</div>
+    <div class="clk-status">
+      <span id="clk-score">CLICKS: 0</span>
+      <span id="clk-time">TIME: 5.0</span>
+      <span id="clk-high">HI: 0</span>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      var area    = document.getElementById('clk-area');
+      var scoreEl = document.getElementById('clk-score');
+      var timeEl  = document.getElementById('clk-time');
+      var highEl  = document.getElementById('clk-high');
+
+      // Shares the high-score slot with the hidden clicker on projects.html
+      var high = parseInt(localStorage.getItem('clickerHighScore'), 10) || 0;
+      var clicks = 0, running = false, over = false, endAt = 0, timer = null;
+
+      function renderHigh() {
+        highEl.textContent = 'HI: ' + high;
+        // ...nice
+        highEl.classList.toggle('rainbow', high >= 69);
+      }
+      renderHigh();
+
+      function tick() {
+        var left = Math.max(0, endAt - Date.now());
+        timeEl.textContent = 'TIME: ' + (left / 1000).toFixed(1);
+        if (left <= 0) endGame();
+      }
+
+      function startGame() {
+        running = true; over = false; clicks = 0;
+        scoreEl.textContent = 'CLICKS: 0';
+        endAt = Date.now() + 5000;
+        area.innerHTML = 'CLICK!';
+        timer = setInterval(tick, 50);
+      }
+
+      function endGame() {
+        running = false; over = true;
+        clearInterval(timer);
+        timeEl.textContent = 'TIME: 0.0';
+        if (clicks > high) {
+          high = clicks;
+          localStorage.setItem('clickerHighScore', String(high));
+        }
+        renderHigh();
+        var cps = (clicks / 5).toFixed(1);
+        area.innerHTML = 'FINAL: ' + clicks + '<br>(' + cps + ' CPS)<br><br>CLICK TO RETRY';
+      }
+
+      area.addEventListener('click', function () {
+        if (!running && !over) { startGame(); return; }
+        if (!running && over)  { startGame(); return; }
+        clicks++;
+        scoreEl.textContent = 'CLICKS: ' + clicks;
+      });
+    })();
+  </script>
+</body>
+</html>
