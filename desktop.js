@@ -165,18 +165,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const errorMessage = document.querySelector('.error-message');
     const errorSound = new Audio('assets/sounds/error.wav');
 
-    // Toggle start menu
-    startBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        startMenu.classList.toggle('visible');
-    });
+    // Toggle start menu (guarded — absent on the main pages)
+    if (startBtn && startMenu) {
+        startBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            startMenu.classList.toggle('visible');
+        });
 
-    // Close start menu when clicking outside
-    document.addEventListener('click', (e) => {
-        if (!startMenu.contains(e.target) && !startBtn.contains(e.target)) {
-            startMenu.classList.remove('visible');
-        }
-    });
+        // Close start menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!startMenu.contains(e.target) && !startBtn.contains(e.target)) {
+                startMenu.classList.remove('visible');
+            }
+        });
+    }
 
     // Handle start menu actions
     document.querySelectorAll('.start-item').forEach(item => {
@@ -211,9 +213,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Lock screen functionality
-    loginBtn.addEventListener('click', handleLogin);
-    passwordField.addEventListener('keypress', (e) => {
+    // Lock screen functionality (guarded — absent on the main pages)
+    if (loginBtn) loginBtn.addEventListener('click', handleLogin);
+    if (passwordField) passwordField.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') handleLogin();
     });
 
@@ -445,12 +447,12 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     document.addEventListener('click', playStartupSound);
 
-    // Add event listeners for PixOS window buttons
+    // Add event listeners for PixOS window buttons (guarded — desktop only)
     const pixosWindow = document.getElementById('pixos-window');
-    const pixosMinimizeBtn = pixosWindow.querySelector('.minimize-btn');
-    const pixosMaximizeBtn = pixosWindow.querySelector('.maximize-btn');
+    const pixosMinimizeBtn = pixosWindow ? pixosWindow.querySelector('.minimize-btn') : null;
+    const pixosMaximizeBtn = pixosWindow ? pixosWindow.querySelector('.maximize-btn') : null;
 
-    pixosMinimizeBtn.addEventListener('click', () => {
+    if (pixosMinimizeBtn) pixosMinimizeBtn.addEventListener('click', () => {
         pixosWindow.classList.toggle('minimized');
         if (pixosWindow.classList.contains('minimized')) {
             // Optionally, add PixOS to taskbar or hidden list
@@ -459,7 +461,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    pixosMaximizeBtn.addEventListener('click', () => {
+    if (pixosMaximizeBtn) pixosMaximizeBtn.addEventListener('click', () => {
         pixosWindow.classList.toggle('maximized');
         bringToFront(pixosWindow);
     });
@@ -723,14 +725,18 @@ function initializeDesktop() {
         icon.addEventListener('click', () => {
             const windowId = icon.getAttribute('data-window');
             const windowElement = document.getElementById(windowId);
-            windowElement.classList.add('active');
+            if (windowElement) windowElement.classList.add('active');
         });
     });
 }
 
 function bindTaskbarControls() {
     // Bind taskbar buttons such as shutdown, restart, etc.
-    document.getElementById('shutdown-btn').addEventListener('click', shutdownComputer);
+    // (guarded: #shutdown-btn does not exist on the main pages, and an
+    // unguarded deref here used to abort main.js's DOMContentLoaded,
+    // breaking the profile-avatar -> desktop boot easter egg)
+    const shutdownBtn = document.getElementById('shutdown-btn');
+    if (shutdownBtn) shutdownBtn.addEventListener('click', shutdownComputer);
     // ...other taskbar bindings...
 }
 

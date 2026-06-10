@@ -15,12 +15,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const correctSequence = ['left', 'right', 'left', 'right', 'left'];
     let lastClickTime = Date.now();
 
-    // Add click handlers to profile images
-    profile1.addEventListener('click', function() {
+    // Add click handlers to profile images (guarded — avatars only exist on the home page)
+    if (profile1) profile1.addEventListener('click', function() {
         handleClick('left');
     });
 
-    profile2.addEventListener('click', function() {
+    if (profile2) profile2.addEventListener('click', function() {
         handleClick('right');
     });
 
@@ -93,7 +93,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Add a cooldown flag
     let isCooldown = false;
 
-    clickerArea.addEventListener('click', function() {
+    // (guarded — the clicker only exists on the projects page)
+    if (clickerArea) clickerArea.addEventListener('click', function() {
         if (isCooldown) return; // Ignore clicks during cooldown
         if (!gameActive && !gameOver) {
             startGame();
