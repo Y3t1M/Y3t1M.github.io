@@ -8,7 +8,7 @@
   <link rel="icon" href="assets/img/mh_logo.ico" type="image/x-icon">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 </head>
@@ -36,24 +36,40 @@
 
   <!-- Hero Section -->
   <section class="hero">
+    <div class="hero-panel">
 
-    <h1 class="hero-title">
-      Building things<br>
-      that <span class="gradient-text">actually work</span>
-    </h1>
+      <div class="hero-sysline readout-row">
+        <span class="readout"><span class="readout-key">OPERATOR:</span> <span class="readout-val">HUDSON TINCH</span></span>
+        <span class="readout"><span class="readout-key">UNIT:</span> <span class="readout-val">ENGINEER // BUILDER</span></span>
+        <span class="readout readout-accent"><span class="led"></span> SYS ONLINE</span>
+      </div>
 
-    <div class="hero-actions">
-      <a href="projects.html" class="btn-primary">View Projects</a>
-    </div>
+      <h1 class="hero-title">
+        Building things<br>
+        that <span class="gradient-text">actually work</span>
+      </h1>
 
-    <!-- Profile avatars -->
-    <div class="hero-avatars">
-      <span class="avatar-link">
-        <img src="assets/img/profile1.jpg" alt="Hudson Tinch" class="hero-avatar" id="profile1">
-      </span>
-      <span class="avatar-link">
-        <img src="assets/img/profile2.jpg" alt="Hudson Tinch" class="hero-avatar" id="profile2">
-      </span>
+      <div class="hero-actions">
+        <a href="projects.html" class="btn-primary">View Projects</a>
+      </div>
+
+      <!-- Profile avatars -->
+      <div class="hero-avatars">
+        <span class="avatar-link">
+          <img src="assets/img/profile1.jpg" alt="Hudson Tinch" class="hero-avatar" id="profile1">
+        </span>
+        <span class="avatar-link">
+          <img src="assets/img/profile2.jpg" alt="Hudson Tinch" class="hero-avatar" id="profile2">
+        </span>
+      </div>
+
+      <div class="hero-statusbar">
+        <span class="status-cell"><span class="led"></span> <span class="status-on">PWR&nbsp;NOMINAL</span></span>
+        <span class="status-cell">LOC: DALLAS TX &rarr; FAYETTEVILLE AR</span>
+        <span class="status-cell">LANG: C++ / PY / JS / TS</span>
+        <span class="status-cell">HT.SYS V3</span>
+      </div>
+
     </div>
   </section>
 
@@ -342,8 +358,8 @@
   <!-- Footer -->
   <footer class="site-footer">
     <div class="footer-inner">
-      <span class="footer-logo">HT</span>
-      <span class="footer-copy">Hudson Tinch &mdash; Y3t1M.github.io</span>
+      <span class="footer-logo"><span class="led"></span>HT</span>
+      <span class="footer-copy">HT.SYS V3 // BUILT BY HAND // DALLAS TX // Y3T1M.GITHUB.IO</span>
       <div class="footer-links">
         <a href="https://github.com/Y3t1M" target="_blank" class="footer-link">GitHub</a>
         <a href="https://linkedin.com/in/hudsontinch" target="_blank" class="footer-link">LinkedIn</a>
