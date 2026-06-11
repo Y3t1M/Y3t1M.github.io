@@ -296,7 +296,7 @@ header, section, footer, .hero, .stats-bar, .about-section,
   background: rgba(13,11,18,0.72);
   border: 1px solid var(--border);
   box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
-  padding: 56px 40px 0;
+  padding: 56px 40px 52px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -323,39 +323,8 @@ header, section, footer, .hero, .stats-bar, .about-section,
                        bottom left, bottom left, bottom right, bottom right;
 }
 
-.hero-sysline {
-  margin-bottom: 32px;
-  animation: fadeUp 0.6s ease forwards;
-  opacity: 0;
-}
-
-.hero-statusbar {
-  width: calc(100% + 80px);
-  margin: 48px -40px 0;
-  border-top: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 12px 18px;
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--text-faint);
-  flex-wrap: wrap;
-  animation: fadeUp 0.6s 0.5s ease forwards;
-  opacity: 0;
-}
-
-.hero-statusbar .status-cell {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  white-space: nowrap;
-}
-
-.hero-statusbar .status-on { color: var(--accent); }
+/* (hero-sysline readout trio + hero-statusbar removed — the hero stays
+   clean: headline, actions, avatars. Readout chips live on elsewhere.) */
 
 .hero-role-pill {
   --role-accent: #8b5cf6;
@@ -1471,8 +1440,7 @@ section { position: relative; z-index: 1; }
   .site-nav { gap: 12px; }
   .nav-links { gap: 2px; }
   .hero { padding: 120px 16px 60px; }
-  .hero-panel { padding: 40px 20px 0; }
-  .hero-statusbar { width: calc(100% + 40px); margin: 40px -20px 0; justify-content: center; }
+  .hero-panel { padding: 40px 20px 40px; }
   .hero-title { font-size: 2.2rem; }
   .stats-bar { gap: 16px; padding: 20px 12px; }
   .stat-item { padding: 0 16px; }
