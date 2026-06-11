@@ -419,13 +419,13 @@
 
       card.style.transform   = `perspective(900px) rotateX(${rx}deg) rotateY(${ry}deg) translateY(-6px) scale(1.01)`;
       card.style.boxShadow   = `${-ry * 1.5}px ${rx * 1.5}px 40px rgba(0,0,0,0.5), 0 0 ${30 + glow * 30}px rgba(139,92,246,${0.08 + glow * 0.12})`;
-      card.style.borderColor = `rgba(139,92,246,${0.2 + glow * 0.25})`;
+      /* border color stays with the CSS :hover rule (--border-h) so every
+         card-like panel shares the exact same hover treatment */
     });
 
     card.addEventListener('mouseleave', () => {
       card.style.transform   = '';
       card.style.boxShadow   = '';
-      card.style.borderColor = '';
     });
   });
 
