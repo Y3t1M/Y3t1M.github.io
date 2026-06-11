@@ -439,13 +439,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-    // Play Windows XP Startup Sound (on first interaction — autoplay is blocked by browsers)
-    const playStartupSound = () => {
-        const startupSound = new Audio('assets/audio/MicrosoftWindowsXPstartupSound.mp3');
-        startupSound.play().catch(() => {});
-        document.removeEventListener('click', playStartupSound);
-    };
-    document.addEventListener('click', playStartupSound);
+    // (removed) A document-wide click listener used to play the XP startup
+    // sound on first interaction. Because desktop.js is also loaded on
+    // index.html / projects.html (for the hidden contact-error window), the
+    // sound fired on the first click of EVERY page. The startup sound now
+    // plays only from the profile-avatar easter egg in main.js (guarded,
+    // once per page load). No global click/dblclick listener plays audio.
 
     // Add event listeners for PixOS window buttons (guarded — desktop only)
     const pixosWindow = document.getElementById('pixos-window');

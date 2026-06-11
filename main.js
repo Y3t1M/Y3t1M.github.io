@@ -268,8 +268,14 @@ document.addEventListener('DOMContentLoaded', function() {
         sound.play().catch(err => console.error('Error playing sound:', err));
     };
 
-    // Update profile click handlers with proper audio handling
+    // Update profile click handlers with proper audio handling.
+    // The XP startup sound is the avatar easter-egg cue ONLY, and fires at
+    // most once per page load — a double-click used to replay it because
+    // every 'click' event spawned a fresh Audio object.
+    let startupSoundPlayed = false;
     function handleProfileClick() {
+        if (startupSoundPlayed) return; // sound + redirect already in flight
+        startupSoundPlayed = true;
         const startupSound = new Audio('assets/audio/MicrosoftWindowsXPstartupSound.mp3');
         startupSound.play()
             .then(() => {
