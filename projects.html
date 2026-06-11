@@ -34,43 +34,107 @@
   <section id="projects">
     <div class="readout-row" style="justify-content:flex-start;margin-bottom:24px;">
       <span class="readout"><span class="readout-key">DIR:</span> <span class="readout-val">/PROJECTS</span></span>
-      <span class="readout readout-accent"><span class="led"></span> 3 UNITS LOGGED</span>
+      <span class="readout readout-accent"><span class="led"></span> 05 UNITS LOGGED</span>
     </div>
     <div class="section-label" style="margin-bottom: 16px;">Work</div>
     <h2>Projects</h2>
 
-    <div class="card">
-      <div class="project-card-tag">Hardware &bull; WiFi</div>
-      <h3>Arduino R4 Controller</h3>
-      <img src="assets/img/arduino_r4.jpg" alt="Arduino R4 Controller" class="project-image">
-      <p>
-        A web-based interface hosted on an Arduino R4 WiFi board, enabling remote control of multiple servos and electromagnets.
-        Users can access the control panel over WiFi without additional apps, operate servos individually or simultaneously,
-        control electromagnets, and view real-time statuses &mdash; all through a stylish and user-friendly layout.
-      </p>
+    <div class="proj-index-head">
+      <span class="pih-l">PROJECTS // INDEX</span>
+      <span class="pih-r">EQUIPMENT MANIFEST &mdash; TEXT ONLY</span>
     </div>
 
-    <div class="card">
-      <div class="project-card-tag">Robotics &bull; Autonomous</div>
-      <h3>AVR Drone</h3>
-      <img src="assets/img/avr_drone.jpg" alt="AVR Drone" class="project-image avr-drone-image">
-      <p>
-        Led the development of an autonomous drone for the Bell Advanced Vertical Robotics Competition.
-        Utilized A* pathfinding to navigate complex environments, pushing the boundaries of autonomous flight
-        and showcasing innovative engineering solutions.
-      </p>
-    </div>
+    <article class="card proj-entry">
+      <div class="proj-num">01</div>
+      <div class="proj-body">
+        <div class="proj-head">
+          <h3 class="proj-name">Arduino R4 Controller</h3>
+          <div class="proj-tags">
+            <span class="proj-tag">Hardware</span>
+            <span class="proj-tag">WiFi</span>
+            <span class="proj-tag">C++</span>
+          </div>
+        </div>
+        <p class="proj-desc">
+          A web-based control panel hosted directly on an Arduino R4 WiFi board &mdash; servos and
+          electromagnets driven remotely from any browser, individually or simultaneously, with
+          real-time status readouts and no extra apps.
+        </p>
+        <a href="https://github.com/Y3t1M/Arduino-R4-Controller-Web-Interface" target="_blank" class="proj-action">VIEW REPO <span class="pa-arrow">-&gt;</span></a>
+      </div>
+    </article>
 
-    <div class="card">
-      <div class="project-card-tag">3D Print &bull; Electronics</div>
-      <h3>Iron Man Helmet</h3>
-      <img src="assets/img/ironman_helmettop.jpg" alt="Iron Man Helmet" class="project-image ironman-image">
-      <p>
-        Designed and built a functional Iron Man helmet using 3D printing and electronics. This project combined
-        engineering and creativity to bring a piece of fictional technology into the real world, complete with
-        moving parts and a magnetic faceplate.
-      </p>
-    </div>
+    <article class="card proj-entry">
+      <div class="proj-num">02</div>
+      <div class="proj-body">
+        <div class="proj-head">
+          <h3 class="proj-name">AVR Drone</h3>
+          <div class="proj-tags">
+            <span class="proj-tag">Robotics</span>
+            <span class="proj-tag">Autonomous</span>
+          </div>
+        </div>
+        <p class="proj-desc">
+          Led the development of an autonomous drone for the Bell Advanced Vertical Robotics
+          Competition, navigating complex environments with A* pathfinding. Placed 8th at nationals.
+        </p>
+        <span class="proj-status">STATUS // FLOWN &mdash; 8TH AT NATIONALS</span>
+      </div>
+    </article>
+
+    <article class="card proj-entry">
+      <div class="proj-num">03</div>
+      <div class="proj-body">
+        <div class="proj-head">
+          <h3 class="proj-name">Iron Man Helmet</h3>
+          <div class="proj-tags">
+            <span class="proj-tag">3D Print</span>
+            <span class="proj-tag">Electronics</span>
+          </div>
+        </div>
+        <p class="proj-desc">
+          A functional Iron Man helmet built with 3D printing and embedded electronics &mdash; moving
+          parts and a magnetic faceplate bring a piece of fictional technology into the real world.
+        </p>
+        <span class="proj-status">STATUS // BUILD COMPLETE</span>
+      </div>
+    </article>
+
+    <article class="card proj-entry">
+      <div class="proj-num">04</div>
+      <div class="proj-body">
+        <div class="proj-head">
+          <h3 class="proj-name">Win95 Desktop</h3>
+          <div class="proj-tags">
+            <span class="proj-tag">Easter Egg</span>
+            <span class="proj-tag">JS</span>
+          </div>
+        </div>
+        <p class="proj-desc">
+          A full Windows-95-style desktop hidden inside this site &mdash; draggable windows, a start
+          menu, a lock screen, error-popup chaos, and a Games folder.
+        </p>
+        <a href="desktop.html" class="proj-action">LAUNCH <span class="pa-arrow">-&gt;</span></a>
+      </div>
+    </article>
+
+    <article class="card proj-entry">
+      <div class="proj-num">05</div>
+      <div class="proj-body">
+        <div class="proj-head">
+          <h3 class="proj-name">Arcade</h3>
+          <div class="proj-tags">
+            <span class="proj-tag">Games</span>
+            <span class="proj-tag">Retro</span>
+          </div>
+        </div>
+        <p class="proj-desc">
+          Tetris, a click-speed test, and an endless download simulator &mdash; playable from the
+          Games folder on the hidden desktop.
+        </p>
+        <a href="desktop.html" class="proj-action">LAUNCH <span class="pa-arrow">-&gt;</span></a>
+      </div>
+    </article>
 
     <!-- More coming soon -->
     <div class="coming-soon-block">
