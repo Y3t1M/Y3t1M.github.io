@@ -488,8 +488,9 @@
 
   const roleText = document.getElementById('role-text');
   if (roleText) setTimeout(() => scramble(roleText, 900), 350);
+  /* nav-logo scramble: first hover only — never re-triggers */
   const navLogo = document.querySelector('.nav-logo-text');
-  if (navLogo) navLogo.addEventListener('mouseenter', () => scramble(navLogo, 400));
+  if (navLogo) navLogo.addEventListener('mouseenter', () => scramble(navLogo, 400), { once: true });
 
 
   /* blob parallax handled above */
@@ -656,15 +657,6 @@
     var SCRAMBLE_MS  = 60;
     var REVEAL_DELAY = 35;
 
-    function reset() {
-      running = false;
-      timers.forEach(function (t) { clearInterval(t); });
-      timers = [];
-      msgEl.textContent  = '';
-      msgEl.style.opacity  = '0';
-      hintEl.style.opacity = '0';
-    }
-
     function runDecode() {
       if (running) return;
       running = true;
@@ -706,9 +698,12 @@
       }
     }
 
+    /* one-shot: decode on first footer reveal, stay decoded, never re-run */
     var obs = new IntersectionObserver(function (entries) {
-      if (entries[0].isIntersecting) { runDecode(); }
-      else { reset(); }
+      if (entries[0].isIntersecting) {
+        obs.disconnect();
+        runDecode();
+      }
     }, { threshold: 0.3 });
     obs.observe(footer);
   }());
