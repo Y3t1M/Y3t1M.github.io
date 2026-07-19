@@ -5,102 +5,102 @@
   <meta charset="UTF-8">
   <title>Hudson H. Tinch — Resume</title>
   <style>
-    @page { size: letter; margin: 0.55in 0.6in; }
+    @page { size: letter; margin: 0.55in 0.62in; }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body { background: #fff; }
     body {
       font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-      color: #1a1c1e;
-      font-size: 10.2px;
-      line-height: 1.42;
+      color: #17191c;
+      font-size: 10pt;
+      line-height: 1.32;
       max-width: 7.3in;
       margin: 0 auto;
       padding: 24px 0;
     }
     @media print { body { padding: 0; } }
 
-    header { text-align: left; margin-bottom: 14px; }
+    /* Header */
+    header { margin-bottom: 10px; }
     h1 {
-      font-size: 21px;
+      font-size: 22pt;
       font-weight: 750;
-      letter-spacing: 0.01em;
+      letter-spacing: -0.01em;
+      margin-bottom: 4px;
+    }
+    .role-line {
+      font-size: 10pt;
+      color: #33373c;
       margin-bottom: 3px;
     }
     .contact {
-      font-size: 9.3px;
-      color: #4a4e54;
+      font-size: 9pt;
+      color: #55595f;
     }
-    .contact a { color: #4a4e54; text-decoration: none; }
+    .contact a { color: #55595f; text-decoration: none; }
     .contact span + span::before { content: "  ·  "; color: #b6b9be; }
 
+    /* Sections */
     h2 {
-      font-size: 10px;
+      font-size: 9.5pt;
       font-weight: 700;
-      letter-spacing: 0.14em;
+      letter-spacing: 0.13em;
       text-transform: uppercase;
       color: #5b21b6;
-      border-bottom: 1px solid #e2e3e6;
+      border-bottom: 1px solid #e5e6e9;
       padding-bottom: 3px;
-      margin: 13px 0 7px;
+      margin: 10px 0 6px;
     }
 
-    .entry { margin-bottom: 8px; }
+    /* Experience entries */
+    .entry { margin-bottom: 7px; }
     .entry-head {
       display: flex;
       justify-content: space-between;
       align-items: baseline;
       gap: 12px;
     }
-    .entry-head h3 { font-size: 10.8px; font-weight: 700; }
-    .entry-head h3 span { font-weight: 400; color: #4a4e54; }
+    .entry-head h3 { font-size: 10.5pt; font-weight: 700; }
+    .entry-head h3 span { font-weight: 400; color: #44484e; }
     .entry-date {
-      font-size: 9.3px;
+      font-size: 9pt;
       color: #6a6e74;
       white-space: nowrap;
       font-variant-numeric: tabular-nums;
     }
-    .entry-org { font-size: 9.6px; color: #4a4e54; margin-bottom: 2px; }
-    ul { padding-left: 14px; margin-top: 2px; }
-    li { margin-bottom: 1.5px; color: #2c2f33; }
+    .entry-org { font-size: 9.3pt; color: #55595f; margin: 1px 0 3px; }
+    ul { padding-left: 14px; }
+    li { margin-bottom: 1px; color: #26292d; }
+    li b { font-weight: 650; }
 
-    .edu-line { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
-    .edu-line strong { font-size: 10.8px; }
-    .edu-sub { color: #4a4e54; margin-top: 1px; }
-
-    .proj { margin-bottom: 4.5px; }
+    /* Projects */
+    .proj { margin-bottom: 4px; display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
+    .proj p { flex: 1; }
     .proj b { font-weight: 700; }
-    .proj span.stack { color: #6a6e74; font-size: 9.3px; }
+    .proj .stack { color: #6a6e74; font-size: 9pt; white-space: nowrap; }
 
-    .inline-list { color: #2c2f33; }
-    .inline-list b { font-weight: 600; }
+    /* Education */
+    .edu-line { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
+    .edu-line strong { font-size: 10.5pt; }
+    .edu-sub { color: #44484e; margin-top: 1px; }
+
+    .inline-list { color: #26292d; }
+    .inline-list b { font-weight: 650; }
   </style>
 </head>
 
 <body>
   <header>
     <h1>Hudson H. Tinch</h1>
+    <div class="role-line">Developer &amp; business student &mdash; production software, hardware, and the systems in between</div>
     <div class="contact">
       <span>Dallas, TX</span>
       <span><a href="mailto:hudson.tinch@gmail.com">hudson.tinch@gmail.com</a></span>
       <span>817-808-2010</span>
-      <span><a href="https://linkedin.com/in/hudsontinch">linkedin.com/in/hudsontinch</a></span>
+      <span><a href="https://y3t1m.github.io">y3t1m.github.io</a></span>
       <span><a href="https://github.com/Y3t1M">github.com/Y3t1M</a></span>
+      <span><a href="https://linkedin.com/in/hudsontinch">linkedin.com/in/hudsontinch</a></span>
     </div>
   </header>
-
-  <h2>Education</h2>
-  <div class="entry">
-    <div class="edu-line">
-      <strong>University of Arkansas &mdash; Sam M. Walton College of Business</strong>
-      <span class="entry-date">2025 &ndash; 2029 (expected)</span>
-    </div>
-    <div class="edu-sub">Honors College &middot; 4.0 GPA &mdash; Chancellor's List, both semesters &middot; McMillon Innovation Studio</div>
-  </div>
-  <div class="entry">
-    <div class="edu-line">
-      <strong>Highland Park High School</strong> <span class="entry-date">2021 &ndash; 2025</span>
-    </div>
-  </div>
 
   <h2>Experience</h2>
   <div class="entry">
@@ -110,9 +110,10 @@
     </div>
     <div class="entry-org">Fountain Place, Dallas, TX</div>
     <ul>
-      <li>Built and deployed the facilities work-order platform that runs the building daily &mdash; intake by web, email, iOS, and Microsoft Teams; vendor scheduling, photo capture, and invoicing with ACH payments and QuickBooks sync.</li>
-      <li>Built a Microsoft Teams bot (Bot Framework REST + AI tool-calling) that creates and tracks work orders, posts daily briefings, and files photos from chat.</li>
-      <li>Platform remains in production; rollout underway across Integrity's Dallas locations.</li>
+      <li>Shipped the facilities work-order platform that runs the building daily &mdash; a React/TypeScript SPA on Supabase with <b>331 serverless functions</b>, <b>1,484 database migrations</b>, and <b>8 role-based portals</b>.</li>
+      <li>Consolidated request intake into <b>5 channels</b> &mdash; web, email, iOS, Siri, and Microsoft Teams &mdash; with AI parsing of emails into routed work orders.</li>
+      <li>Built the Microsoft Teams bot (Bot Framework REST, AI tool-calling) staff use to create and track work orders, get daily briefings, and file job photos from chat.</li>
+      <li>Left the platform in production; rollout across Integrity's Dallas locations is underway.</li>
     </ul>
   </div>
 
@@ -121,10 +122,9 @@
       <h3>Back-End Developer <span>&mdash; Hollis Bloom</span></h3>
       <span class="entry-date">2019 &ndash; Present</span>
     </div>
-    <div class="entry-org">Dallas, TX</div>
     <ul>
-      <li>Develop and maintain production back-end infrastructure for client web projects &mdash; React, TypeScript, Supabase/Postgres, Cloudflare.</li>
-      <li>Shipped an online donation system and fully responsive rebuilds for client sites, including Prison Chapels.</li>
+      <li>Build and maintain back-end infrastructure for production client sites &mdash; React, TypeScript, Supabase/Postgres, Stripe ACH, QuickBooks, Cloudflare.</li>
+      <li>Shipped an online donation system and fully responsive rebuilds for clients including Prison Chapels.</li>
     </ul>
   </div>
 
@@ -133,10 +133,9 @@
       <h3>C Programmer <span>&mdash; The Farah Law Firm</span></h3>
       <span class="entry-date">2023 &ndash; 2025</span>
     </div>
-    <div class="entry-org">Dallas, TX</div>
     <ul>
-      <li>Wrote a proprietary C program for large-scale data scraping, aggregation, archiving, and marketing distribution.</li>
-      <li>Automated forcible-detainer legal workflows between firm and client; platform expanding to firms across Texas and Louisiana.</li>
+      <li>Built a proprietary C system for large-scale data scraping, aggregation, archiving, and marketing distribution.</li>
+      <li>Automated forcible-detainer legal workflows; platform expanding to firms across Texas and Louisiana.</li>
     </ul>
   </div>
 
@@ -146,14 +145,29 @@
       <span class="entry-date">2014 &ndash; 2020</span>
     </div>
     <ul>
-      <li>Started a 3D printing and design business at age eight; ran design, production, and sales through its own website.</li>
+      <li>Founded a 3D printing business at age eight; ran design, production, and sales for six years.</li>
     </ul>
   </div>
 
   <h2>Projects</h2>
-  <div class="proj"><b>RH Agentic</b> &mdash; Autonomous trading system on the Robinhood API; agents scan markets, run analysis, and place orders, reporting to an encrypted live dashboard. <span class="stack">Python, JavaScript</span></div>
-  <div class="proj"><b>Members Moments</b> &mdash; Shoppable creator-video feed prototyped into the Sam's Club homepage; qualified through the pitch round and presented at McMillon Innovation Studio Demo Day, Spring 2026.</div>
-  <div class="proj"><b>AVR Drone</b> &mdash; Led development of an autonomous competition drone with A* pathfinding; 8th place, Bell Advanced Vertical Robotics nationals.</div>
+  <div class="proj"><p><b>RH Agentic</b> &mdash; Autonomous trading system on the Robinhood API; agents scan markets, run analysis, and place orders, reporting to an encrypted live dashboard.</p><span class="stack">Python, JavaScript</span></div>
+  <div class="proj"><p><b>Members Moments</b> &mdash; Shoppable creator-video feed prototyped into the Sam's Club homepage; qualified through the pitch round and presented at McMillon Demo Day, Spring 2026 (largest cohort to date, 18 teams).</p><span class="stack">Vanilla JS</span></div>
+  <div class="proj"><p><b>AVR Drone</b> &mdash; Led an autonomous competition drone using A* pathfinding to 8th place at Bell Advanced Vertical Robotics nationals.</p><span class="stack">C++, Python</span></div>
+  <div class="proj"><p><b>y3t1m.github.io</b> &mdash; Hand-built portfolio with an interactive PCB hero and a fully working Windows 95 desktop hidden inside.</p><span class="stack">HTML, CSS, JS</span></div>
+
+  <h2>Education</h2>
+  <div class="entry">
+    <div class="edu-line">
+      <strong>University of Arkansas &mdash; Sam M. Walton College of Business</strong>
+      <span class="entry-date">Expected May 2029</span>
+    </div>
+    <div class="edu-sub">BSBA &middot; Honors College &middot; <b>4.0 GPA</b> &mdash; Chancellor's List, both semesters &middot; McMillon Innovation Studio</div>
+  </div>
+  <div class="entry">
+    <div class="edu-line">
+      <strong>Highland Park High School</strong> <span class="entry-date">2021 &ndash; 2025</span>
+    </div>
+  </div>
 
   <h2>Skills</h2>
   <p class="inline-list">

@@ -45,6 +45,7 @@
         <a href="projects.html" class="btn-primary">View projects</a>
         <a href="assets/Hudson-Tinch-Resume.pdf" download class="btn-ghost">Resume</a>
       </div>
+      <p class="hero-now">Now // sophomore year at Arkansas &middot; building <b>RH Agentic</b></p>
     </div>
 
     <div class="hero-comp-row">
@@ -282,11 +283,26 @@
     </div>
   </section>
 
+  <!-- Contact -->
+  <section class="contact-band">
+    <div class="contact-inner">
+      <div>
+        <h2>Get in touch</h2>
+        <p>Hiring an intern, or want to talk about a build? Email is fastest.</p>
+      </div>
+      <div class="contact-actions">
+        <a href="mailto:hudson.tinch@gmail.com" class="btn-primary">Email me</a>
+        <a href="https://github.com/Y3t1M" target="_blank" class="btn-ghost">GitHub</a>
+        <a href="https://linkedin.com/in/hudsontinch" target="_blank" class="btn-ghost">LinkedIn</a>
+      </div>
+    </div>
+  </section>
+
   <!-- Footer -->
   <footer class="site-footer">
     <div class="footer-inner">
       <span class="footer-logo"><span class="led"></span>Hudson Tinch</span>
-      <span class="footer-copy">&copy; 2026 &middot; Dallas, TX</span>
+      <span class="footer-copy">&copy; 2026 &middot; Dallas, TX &middot; <b id="local-time"></b> &middot; vanilla HTML/CSS/JS</span>
       <div class="footer-links">
         <a href="https://github.com/Y3t1M" target="_blank" class="footer-link">GitHub</a>
         <a href="https://linkedin.com/in/hudsontinch" target="_blank" class="footer-link">LinkedIn</a>
@@ -417,6 +433,16 @@
       }
       printNext();
     }
+  })();
+  </script>
+  <script>
+  (function(){
+    var el = document.getElementById('local-time');
+    if(!el) return;
+    function tick(){
+      el.textContent = new Date().toLocaleTimeString('en-US', {timeZone:'America/Chicago', hour:'numeric', minute:'2-digit'}) + ' local';
+    }
+    tick(); setInterval(tick, 30000);
   })();
   </script>
   <script>lucide.createIcons();</script>
