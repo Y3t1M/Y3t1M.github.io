@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Hudson H. Tinch — Resume</title>
+  <style>
+    @page { size: letter; margin: 0.55in 0.6in; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { background: #fff; }
+    body {
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      color: #1a1c1e;
+      font-size: 10.2px;
+      line-height: 1.42;
+      max-width: 7.3in;
+      margin: 0 auto;
+      padding: 24px 0;
+    }
+    @media print { body { padding: 0; } }
+
+    header { text-align: left; margin-bottom: 14px; }
+    h1 {
+      font-size: 21px;
+      font-weight: 750;
+      letter-spacing: 0.01em;
+      margin-bottom: 3px;
+    }
+    .contact {
+      font-size: 9.3px;
+      color: #4a4e54;
+    }
+    .contact a { color: #4a4e54; text-decoration: none; }
+    .contact span + span::before { content: "  ·  "; color: #b6b9be; }
+
+    h2 {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #5b21b6;
+      border-bottom: 1px solid #e2e3e6;
+      padding-bottom: 3px;
+      margin: 13px 0 7px;
+    }
+
+    .entry { margin-bottom: 8px; }
+    .entry-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 12px;
+    }
+    .entry-head h3 { font-size: 10.8px; font-weight: 700; }
+    .entry-head h3 span { font-weight: 400; color: #4a4e54; }
+    .entry-date {
+      font-size: 9.3px;
+      color: #6a6e74;
+      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
+    }
+    .entry-org { font-size: 9.6px; color: #4a4e54; margin-bottom: 2px; }
+    ul { padding-left: 14px; margin-top: 2px; }
+    li { margin-bottom: 1.5px; color: #2c2f33; }
+
+    .edu-line { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
+    .edu-line strong { font-size: 10.8px; }
+    .edu-sub { color: #4a4e54; margin-top: 1px; }
+
+    .proj { margin-bottom: 4.5px; }
+    .proj b { font-weight: 700; }
+    .proj span.stack { color: #6a6e74; font-size: 9.3px; }
+
+    .inline-list { color: #2c2f33; }
+    .inline-list b { font-weight: 600; }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>Hudson H. Tinch</h1>
+    <div class="contact">
+      <span>Dallas, TX</span>
+      <span><a href="mailto:hudson.tinch@gmail.com">hudson.tinch@gmail.com</a></span>
+      <span>817-808-2010</span>
+      <span><a href="https://linkedin.com/in/hudsontinch">linkedin.com/in/hudsontinch</a></span>
+      <span><a href="https://github.com/Y3t1M">github.com/Y3t1M</a></span>
+    </div>
+  </header>
+
+  <h2>Education</h2>
+  <div class="entry">
+    <div class="edu-line">
+      <strong>University of Arkansas &mdash; Sam M. Walton College of Business</strong>
+      <span class="entry-date">2025 &ndash; 2029 (expected)</span>
+    </div>
+    <div class="edu-sub">Honors College &middot; 4.0 GPA &mdash; Chancellor's List, both semesters &middot; McMillon Innovation Studio</div>
+  </div>
+  <div class="entry">
+    <div class="edu-line">
+      <strong>Highland Park High School</strong> <span class="entry-date">2021 &ndash; 2025</span>
+    </div>
+  </div>
+
+  <h2>Experience</h2>
+  <div class="entry">
+    <div class="entry-head">
+      <h3>Developer &amp; Facilities Support Intern <span>&mdash; Integrity Marketing Group, via Hollis Bloom</span></h3>
+      <span class="entry-date">Summer 2026</span>
+    </div>
+    <div class="entry-org">Fountain Place, Dallas, TX</div>
+    <ul>
+      <li>Built and deployed the facilities work-order platform that runs the building daily &mdash; intake by web, email, iOS, and Microsoft Teams; vendor scheduling, photo capture, and invoicing with ACH payments and QuickBooks sync.</li>
+      <li>Built a Microsoft Teams bot (Bot Framework REST + AI tool-calling) that creates and tracks work orders, posts daily briefings, and files photos from chat.</li>
+      <li>Platform remains in production; rollout underway across Integrity's Dallas locations.</li>
+    </ul>
+  </div>
+
+  <div class="entry">
+    <div class="entry-head">
+      <h3>Back-End Developer <span>&mdash; Hollis Bloom</span></h3>
+      <span class="entry-date">2019 &ndash; Present</span>
+    </div>
+    <div class="entry-org">Dallas, TX</div>
+    <ul>
+      <li>Develop and maintain production back-end infrastructure for client web projects &mdash; React, TypeScript, Supabase/Postgres, Cloudflare.</li>
+      <li>Shipped an online donation system and fully responsive rebuilds for client sites, including Prison Chapels.</li>
+    </ul>
+  </div>
+
+  <div class="entry">
+    <div class="entry-head">
+      <h3>C Programmer <span>&mdash; The Farah Law Firm</span></h3>
+      <span class="entry-date">2023 &ndash; 2025</span>
+    </div>
+    <div class="entry-org">Dallas, TX</div>
+    <ul>
+      <li>Wrote a proprietary C program for large-scale data scraping, aggregation, archiving, and marketing distribution.</li>
+      <li>Automated forcible-detainer legal workflows between firm and client; platform expanding to firms across Texas and Louisiana.</li>
+    </ul>
+  </div>
+
+  <div class="entry">
+    <div class="entry-head">
+      <h3>Founder <span>&mdash; Dimensional Design 3D</span></h3>
+      <span class="entry-date">2014 &ndash; 2020</span>
+    </div>
+    <ul>
+      <li>Started a 3D printing and design business at age eight; ran design, production, and sales through its own website.</li>
+    </ul>
+  </div>
+
+  <h2>Projects</h2>
+  <div class="proj"><b>RH Agentic</b> &mdash; Autonomous trading system on the Robinhood API; agents scan markets, run analysis, and place orders, reporting to an encrypted live dashboard. <span class="stack">Python, JavaScript</span></div>
+  <div class="proj"><b>Members Moments</b> &mdash; Shoppable creator-video feed prototyped into the Sam's Club homepage; qualified through the pitch round and presented at McMillon Innovation Studio Demo Day, Spring 2026.</div>
+  <div class="proj"><b>AVR Drone</b> &mdash; Led development of an autonomous competition drone with A* pathfinding; 8th place, Bell Advanced Vertical Robotics nationals.</div>
+
+  <h2>Skills</h2>
+  <p class="inline-list">
+    <b>Languages:</b> TypeScript, JavaScript, Python, C/C++, SQL &nbsp;&middot;&nbsp;
+    <b>Web &amp; back end:</b> React, Node.js, Supabase/Postgres, Stripe, Cloudflare &nbsp;&middot;&nbsp;
+    <b>Hardware:</b> Arduino, KiCad/PCB design, 3D printing, AutoCAD
+  </p>
+
+  <h2>Awards &amp; Leadership</h2>
+  <p class="inline-list">
+    Chancellor's List (4.0, both semesters) &middot; HP Robotics Team Captain &middot; Wharton Global Youth Program &mdash; Best Presentation, elected CEO &middot; Duke Pre-College &mdash; Pitch Competition Winner &middot; Georgia Tech Summer Institute &mdash; Highest Presentation Score &middot; Presidential Service Award
+  </p>
+</body>
+
+</html>
