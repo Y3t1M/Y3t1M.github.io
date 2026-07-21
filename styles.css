@@ -707,6 +707,10 @@ html.fx .sc-slide.wide .case-grid {
 }
 html.fx .sc-slide.wide .case-sm img { height: 170px; }
 html.fx .sc-slide.wide .case-sm p { font-size: 12.5px; }
+html.fx .sc-slide img {
+  transform: translateY(calc(var(--q, 0) * -14px)) scale(1.06);
+  transition: none;
+}
 .slide-eyebrow { display: none; }
 html.fx .slide-eyebrow {
   display: block;

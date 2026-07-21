@@ -101,17 +101,28 @@
     counter.className = 'sc-counter';
     stage.appendChild(counter);
     var hideTimer = null;
-    document.addEventListener('pointermove', function () {
+    /* Chrome fires synthetic pointermove (same coords) when the page
+       scrolls under a stationary cursor — only real travel counts */
+    var lastPX = -1, lastPY = -1;
+    document.addEventListener('pointermove', function (e) {
+      var moved = lastPX >= 0 && Math.abs(e.clientX - lastPX) + Math.abs(e.clientY - lastPY) > 2;
+      lastPX = e.clientX; lastPY = e.clientY;
+      if (!moved) return;
       counter.classList.add('show');
       if (hideTimer) clearTimeout(hideTimer);
       hideTimer = setTimeout(function () { counter.classList.remove('show'); }, 1800);
     });
 
+    var lastSp = 0, velTilt = 0;
     function scTick() {
       var r = sec.getBoundingClientRect();
       var runway = sec.offsetHeight - window.innerHeight;
       var p = Math.max(0, Math.min(1, -r.top / runway));
       sp += (p - sp) * 0.085;
+
+      /* scroll velocity -> a whisper of extra tilt while moving */
+      var dsp = sp - lastSp; lastSp = sp;
+      velTilt += (Math.max(-4, Math.min(4, dsp * 2200)) - velTilt) * 0.12;
 
       var active = Math.round(sp * (N - 1));
       if (counter && active !== lastActive) {
@@ -144,9 +155,13 @@
         else { y = -q * 30; rx = q * 9; }
         var settle = Math.exp(-abs * 6) * Math.sin(abs * 16) * 1.0;
         var sc = 1 - Math.min(0.05, abs * 0.05);
-        el.style.transform = 'translate(-50%, -50%) translateY(' + (y + settle) + 'vh) rotateX(' + (-rx) + 'deg) scale(' + sc.toFixed(3) + ')';
+        el.style.transform = 'translate(-50%, -50%) translateY(' + (y + settle) + 'vh) rotateX(' + (-(rx + velTilt)) + 'deg) scale(' + sc.toFixed(3) + ')';
         el.style.opacity = op.toFixed(3);
 
+        /* depth: slides soften as they leave center; media drifts inside */
+        var bl = Math.min(4, Math.max(0, abs - 0.3) * 7);
+        el.style.filter = bl > 0.1 ? 'blur(' + bl.toFixed(2) + 'px)' : '';
+        el.style.setProperty('--q', q.toFixed(3));
       }
       requestAnimationFrame(scTick);
     }
