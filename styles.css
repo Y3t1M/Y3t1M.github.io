@@ -120,8 +120,13 @@ a, button, [onclick], .pcb-comp, .nf-sample-btn, .nf-upload, label.nf-check {
   font-size: 15px;
   letter-spacing: -0.01em;
   color: var(--text);
+  white-space: nowrap;
 }
 .nav-links { display: flex; gap: 26px; }
+@media (max-width: 480px) {
+  .site-nav { padding: 14px 16px; }
+  .nav-links { gap: 16px; }
+}
 .nav-link {
   color: var(--text-muted);
   font-size: 14px;
@@ -716,6 +721,25 @@ html.fx .sc-slide.wide .case-sm p { font-size: 12.5px; }
 html.fx .sc-slide img {
   transform: translateY(calc(var(--q, 0) * -14px)) scale(1.06);
   transition: none;
+}
+/* mobile: the hardware trio becomes a swipeable filmstrip — three
+   crushed 1fr columns made the photos unusable on a phone */
+@media (max-width: 768px) {
+  html.fx .sc-slide.wide .case-grid {
+    display: flex;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    gap: 12px;
+    padding-bottom: 4px;
+  }
+  html.fx .sc-slide.wide .case-grid::-webkit-scrollbar { display: none; }
+  html.fx .sc-slide.wide .case-sm {
+    flex: 0 0 76vw;
+    scroll-snap-align: center;
+  }
+  html.fx .sc-slide.wide .case-sm img { height: 190px; }
 }
 .slide-eyebrow { display: none; }
 html.fx .slide-eyebrow {
