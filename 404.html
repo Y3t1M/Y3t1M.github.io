@@ -77,7 +77,7 @@
       octx.textBaseline = 'middle';
       octx.fillText('(', 6, GH / 2);
       octx.fillText(')', GW - 12, GH / 2);
-      octx.fillText('_', 27, GH / 2 - 2);
+      octx.fillText('_', 24, GH / 2 - 2);
       var d = octx.getImageData(0, 0, GW, GH).data;
       facePat = new Float32Array(GW * GH);
       for (var i = 0; i < GW * GH; i++) facePat[i] = d[i * 4 + 3] / 255;
@@ -131,8 +131,8 @@
       /* eyes: face-space float rects, tracked toward the cursor */
       var faceCx = (faceCol + GW / 2) * cell;
       var faceCy = (faceRow + GH / 2) * cell;
-      var tx = mouse.x > -999 ? Math.max(-3.2, Math.min(3.2, (mouse.x - faceCx) / 150)) : 0;
-      var ty = mouse.y > -999 ? Math.max(-2.4, Math.min(2.4, (mouse.y - faceCy) / 150)) : 0;
+      var tx = mouse.x > -999 ? Math.max(-4.5, Math.min(4.5, (mouse.x - faceCx) / 120)) : 0;
+      var ty = mouse.y > -999 ? Math.max(-3.0, Math.min(3.0, (mouse.y - faceCy) / 120)) : 0;
       eye.x += (tx - eye.x) * 0.14;
       eye.y += (ty - eye.y) * 0.14;
 
@@ -141,8 +141,8 @@
       var eyeW = 3.2;
       var eyeYbase = GH / 2 - 3.4 + (3.4 - eyeH) / 2 + eye.y * 0.9;
       var eyes = [
-        [21 + eye.x, eyeYbase, eyeW, eyeH],
-        [37 + eye.x, eyeYbase, eyeW, eyeH]
+        [21.4 + eye.x, eyeYbase, eyeW, eyeH],
+        [38.4 + eye.x, eyeYbase, eyeW, eyeH]
       ];
 
       for (var r = 0; r < rows; r++) {
