@@ -5,3 +5,6 @@
 
 # Ensure the background image is ignored since it's removed
 /assets/img/background.jpg
+
+# wrangler local cache — never commit or deploy
+.wrangler/
