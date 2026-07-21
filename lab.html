@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Decision Lab</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #0b0b0b; color: #eaeaea; font-family: ui-sans-serif, system-ui, sans-serif; }
+    .head { padding: 44px 32px; max-width: 900px; }
+    .head h1 { font-size: 22px; margin-bottom: 8px; }
+    .head p { color: #9a9a9a; font-size: 14px; line-height: 1.6; }
+    .tag {
+      position: sticky; top: 0; z-index: 40;
+      background: rgba(11,11,11,0.94);
+      border-top: 1px solid rgba(255,255,255,0.1);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      padding: 12px 32px;
+      font-family: ui-monospace, Menlo, monospace;
+      font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+      color: #8a8a8a;
+    }
+    .tag b { color: #eaeaea; }
+
+    /* shared demo card */
+    .dcard {
+      background: #101010;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 14px;
+      padding: 28px 30px;
+    }
+    .dcard .meta {
+      font-family: ui-monospace, Menlo, monospace;
+      font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase;
+      color: #bdbdbd; margin-bottom: 10px;
+    }
+    .dcard .meta .dim { color: #6f6f6f; }
+    .dcard h3 { font-size: 21px; font-weight: 750; margin-bottom: 10px; }
+    .dcard p { font-size: 14px; color: #9a9a9a; line-height: 1.6; }
+
+    /* ---- SCROLL A: pinned showcase ---- */
+    #pinned { position: relative; }
+    #pinned .stage {
+      position: sticky; top: 0; height: 100vh; overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+      perspective: 60rem;
+    }
+    #pinned .pcard {
+      position: absolute;
+      width: min(600px, 82vw);
+      will-change: transform, opacity;
+    }
+    #pinned .rail {
+      position: absolute; right: 26px; top: 50%; transform: translateY(-50%);
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    #pinned .rail i {
+      width: 5px; height: 5px; border-radius: 50%;
+      background: rgba(255,255,255,0.18);
+      transition: background 0.2s, transform 0.2s;
+    }
+    #pinned .rail i.on { background: #eaeaea; transform: scale(1.5); }
+    #pinned .stage .st-label {
+      position: absolute; top: 22px; left: 32px;
+      font-family: ui-monospace, Menlo, monospace;
+      font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
+      color: #6f6f6f;
+    }
+
+    /* ---- SCROLL B: flowing list ---- */
+    #flowing { max-width: 860px; margin: 0 auto; padding: 8vh 24px 14vh; }
+    #flowing .fcard {
+      --p: 0;
+      --pe: calc(var(--p) * var(--p) * (3 - 2 * var(--p)));
+      margin-bottom: 9vh;
+      transform: translate3d(calc(var(--side, 1) * (1 - var(--pe)) * 4rem), calc((1 - var(--pe)) * 3rem), 0);
+      opacity: calc(0.15 + var(--pe) * 0.85);
+      clip-path: inset(0 calc((1 - var(--pe)) * 8%) 0 calc((1 - var(--pe)) * 8%) round 14px);
+      will-change: transform, opacity, clip-path;
+    }
+    #flowing .fcard:nth-child(even) { --side: -1; }
+    #flowing .fcard .rule {
+      height: 1px; background: rgba(255,255,255,0.18);
+      margin-top: 18px;
+      transform-origin: left;
+      transform: scaleX(var(--pe));
+    }
+
+    /* ---- BG sections ---- */
+    .bgsec {
+      position: relative; height: 100vh; overflow: hidden;
+      display: flex; align-items: center; justify-content: center; gap: 24px;
+      flex-wrap: wrap; padding: 24px;
+    }
+    .bgsec canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+    .bgsec .dcard { position: relative; z-index: 2; width: min(400px, 84vw); }
+  </style>
+</head>
+
+<body>
+  <div class="head">
+    <h1>Decision Lab</h1>
+    <p>Everything live, no mockups. Part 1 — two ways the projects page can scroll (scroll through both, they behave completely differently). Part 2 — three background candidates with cards sitting on them so you can judge readability. Reply like "pinned + sand" or "flowing + dots".</p>
+  </div>
+
+  <!-- ============ SCROLL OPTION 1: PINNED SHOWCASE ============ -->
+  <div class="tag"><b>SCROLL 1 — PINNED SHOWCASE</b> · the page holds while each project presents itself, wodniack-style</div>
+  <section id="pinned">
+    <div class="stage">
+      <span class="st-label">Selected work — scroll</span>
+      <div class="pcard dcard" data-i="0">
+        <div class="meta">2025 – 2026 <span class="dim">· Production · React / TS / Supabase</span></div>
+        <h3>Hollis Bloom Platform</h3>
+        <p>Facilities work-order software running Integrity Marketing Group's Dallas offices. Five intake channels, 331 edge functions, invoicing with ACH and QuickBooks sync.</p>
+      </div>
+      <div class="pcard dcard" data-i="1">
+        <div class="meta">2026 <span class="dim">· Live · Python / JS</span></div>
+        <h3>RH Agentic</h3>
+        <p>Autonomous trading system on the Robinhood API. Agents scan, decide, and place orders without a human in the loop, reporting to an encrypted dashboard.</p>
+      </div>
+      <div class="pcard dcard" data-i="2">
+        <div class="meta">Spring 2026 <span class="dim">· Concept · Vanilla JS</span></div>
+        <h3>Members Moments</h3>
+        <p>A shoppable creator-video feed prototyped into the Sam's Club homepage. Qualified through the pitch round and presented at McMillon Demo Day.</p>
+      </div>
+      <div class="pcard dcard" data-i="3">
+        <div class="meta">2026 <span class="dim">· Desktop app · Python / OpenCV / CadQuery</span></div>
+        <h3>NeatFreak</h3>
+        <p>Photo in, 3D-printable drawer organizer out — with a live in-browser demo that exports real STL files, Gridfinity base optional.</p>
+      </div>
+      <div class="rail"><i></i><i></i><i></i><i></i></div>
+    </div>
+  </section>
+
+  <!-- ============ SCROLL OPTION 2: FLOWING LIST ============ -->
+  <div class="tag"><b>SCROLL 2 — FLOWING LIST</b> · normal scrolling, richer choreography: slide-in from alternating sides, clip reveal, rules that draw</div>
+  <section id="flowing">
+    <div class="fcard dcard">
+      <div class="meta">2025 – 2026 <span class="dim">· Production</span></div>
+      <h3>Hollis Bloom Platform</h3>
+      <p>Facilities work-order software running Integrity Marketing Group's Dallas offices. Five intake channels, 331 edge functions, ACH invoicing.</p>
+      <div class="rule"></div>
+    </div>
+    <div class="fcard dcard">
+      <div class="meta">2026 <span class="dim">· Live</span></div>
+      <h3>RH Agentic</h3>
+      <p>Autonomous trading system on the Robinhood API — scans, decides, places orders, reports to an encrypted dashboard.</p>
+      <div class="rule"></div>
+    </div>
+    <div class="fcard dcard">
+      <div class="meta">Spring 2026 <span class="dim">· Concept</span></div>
+      <h3>Members Moments</h3>
+      <p>Shoppable creator-video feed prototyped into the Sam's Club homepage. Presented at McMillon Demo Day.</p>
+      <div class="rule"></div>
+    </div>
+    <div class="fcard dcard">
+      <div class="meta">2026 <span class="dim">· Desktop app</span></div>
+      <h3>NeatFreak</h3>
+      <p>Photo to 3D-printable drawer organizer, with a live browser demo that exports STL.</p>
+      <div class="rule"></div>
+    </div>
+  </section>
+
+  <!-- ============ BG A: SAND THAT KNOWS THE CARDS ============ -->
+  <div class="tag"><b>BG A — AWARE SAND</b> · grain calms inside the cards and piles along their edges — content reads as solid objects in the field</div>
+  <section class="bgsec" id="bgSand">
+    <canvas></canvas>
+    <div class="dcard"><div class="meta">Readability check</div><h3>Aware sand</h3><p>The grain knows where this card is: calm underneath it, denser right at its border. Move between the cards — the field flows around them.</p></div>
+    <div class="dcard"><div class="meta">Second object</div><h3>Two cards, one field</h3><p>Both boxes carve their own quiet zones out of the boiling field.</p></div>
+  </section>
+
+  <!-- ============ BG B: DOT GRID ============ -->
+  <div class="tag"><b>BG B — LED DOT GRID</b> · quiet 24px matrix, drifts slowly, ripples away from your cursor — the mascot's native texture</div>
+  <section class="bgsec" id="bgDots">
+    <canvas></canvas>
+    <div class="dcard"><div class="meta">Readability check</div><h3>Dot grid</h3><p>Calmer than sand — pure structure. Move your cursor: the matrix parts around it and springs back.</p></div>
+    <div class="dcard"><div class="meta">Second object</div><h3>LED language</h3><p>Same texture family as the ( ._.) face and the 404 page.</p></div>
+  </section>
+
+  <!-- ============ BG C: NOTHING ============ -->
+  <div class="tag"><b>BG C — CLEAN BLACK</b> · no field at all, just the gradient — maximum quiet</div>
+  <section class="bgsec" id="bgNone" style="background: radial-gradient(120% 80% at 50% 0%, #141414 0%, #0b0b0b 48%, #050505 100%);">
+    <div class="dcard"><div class="meta">Readability check</div><h3>Clean black</h3><p>The control group. Terrain hero and content carry everything; the rest of the page is silent.</p></div>
+    <div class="dcard"><div class="meta">Second object</div><h3>Nothing to fight</h3><p>Most readable, least alive.</p></div>
+  </section>
+
+  <script>
+  (function () {
+    'use strict';
+
+    /* ---------- SCROLL 1: pinned showcase ---------- */
+    (function () {
+      var sec = document.getElementById('pinned');
+      var cards = sec.querySelectorAll('.pcard');
+      var dots = sec.querySelectorAll('.rail i');
+      var N = cards.length;
+      sec.style.height = (N * 90 + 100) + 'vh';
+      var sp = 0;
+
+      function tick() {
+        var r = sec.getBoundingClientRect();
+        var runway = sec.offsetHeight - window.innerHeight;
+        var p = Math.max(0, Math.min(1, -r.top / runway));
+        sp += (p - sp) * 0.12;
+
+        var active = Math.round(sp * (N - 1));
+        for (var d = 0; d < dots.length; d++) dots[d].classList.toggle('on', d === active);
+
+        for (var i = 0; i < N; i++) {
+          var q = sp * (N - 1) - i;          // 0 when card i is centered; card 0 centered at rest
+          q = Math.max(-1.6, Math.min(1.6, q));
+          var el = cards[i];
+          var abs = Math.abs(q);
+          el.style.opacity = Math.max(0, 1 - Math.max(0, (abs - 0.3) / 0.55));
+          el.style.transform =
+            'translateX(' + (-q * 72) + 'vw) ' +
+            'rotateY(' + (q * 16) + 'deg) ' +
+            'translateZ(' + (-(q * q) * 10) + 'rem)';
+          el.style.pointerEvents = abs < 0.3 ? 'auto' : 'none';
+        }
+        requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    })();
+
+    /* ---------- SCROLL 2: flowing list ---------- */
+    (function () {
+      var cards = Array.prototype.slice.call(document.querySelectorAll('#flowing .fcard'));
+      var items = cards.map(function (el) { return { el: el, sp: 0 }; });
+      function tick() {
+        var vh = window.innerHeight;
+        items.forEach(function (it) {
+          var r = it.el.getBoundingClientRect();
+          var p = Math.max(0, Math.min(1, (vh - r.top) / (vh * 0.75)));
+          it.sp += (p - it.sp) * 0.13;
+          it.el.style.setProperty('--p', it.sp.toFixed(4));
+        });
+        requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    })();
+
+    /* ---------- BG A: card-aware sand (WebGL) ---------- */
+    (function () {
+      var sec = document.getElementById('bgSand');
+      var canvas = sec.querySelector('canvas');
+      var gl = canvas.getContext('webgl', { alpha: false, antialias: false });
+      if (!gl) return;
+      var FS = [
+        'precision highp float;',
+        'uniform vec2 uRes; uniform float uT; uniform vec4 uR0; uniform vec4 uR1;',
+        'vec3 mod289(vec3 x){return x - floor(x * (1.0/289.0)) * 289.0;}',
+        'vec2 mod289(vec2 x){return x - floor(x * (1.0/289.0)) * 289.0;}',
+        'vec3 permute(vec3 x){return mod289(((x*34.0)+1.0)*x);}',
+        'float snoise(vec2 v){',
+        '  const vec4 C = vec4(0.211324865405187, 0.366025403784439, -0.577350269189626, 0.024390243902439);',
+        '  vec2 i = floor(v + dot(v, C.yy)); vec2 x0 = v - i + dot(i, C.xx);',
+        '  vec2 i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);',
+        '  vec4 x12 = x0.xyxy + C.xxzz; x12.xy -= i1; i = mod289(i);',
+        '  vec3 p = permute(permute(i.y + vec3(0.0, i1.y, 1.0)) + i.x + vec3(0.0, i1.x, 1.0));',
+        '  vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0);',
+        '  m = m*m; m = m*m;',
+        '  vec3 x = 2.0 * fract(p * C.www) - 1.0; vec3 h = abs(x) - 0.5;',
+        '  vec3 ox = floor(x + 0.5); vec3 a0 = x - ox;',
+        '  m *= 1.79284291400159 - 0.85373472095314 * (a0*a0 + h*h);',
+        '  vec3 g; g.x = a0.x * x0.x + h.x * x0.y; g.yz = a0.yz * x12.xz + h.yz * x12.yw;',
+        '  return 130.0 * dot(m, g);',
+        '}',
+        'float hash(vec2 p){ vec3 p3 = fract(vec3(p.xyx) * 0.1031); p3 += dot(p3, p3.yzx + 33.33); return fract((p3.x + p3.y) * p3.z); }',
+        'float sn01(vec2 v){ return 0.5 + 0.5 * snoise(v); }',
+        'float n2(vec2 st){ return sn01(vec2(st.x + uT*0.025, st.y - uT*0.035)); }',
+        'float pat(vec2 p){',
+        '  vec2 q = vec2(n2(p), n2(p + vec2(5.2, 1.3)));',
+        '  vec2 r = vec2(n2(p + 4.0*q + vec2(1.7, 9.2)), n2(p + 4.0*q + vec2(8.3, 2.8)));',
+        '  return n2(p + r);',
+        '}',
+        'float boxes(vec2 p, vec4 r, inout float pile){',
+        '  vec2 d = max(vec2(r.x - p.x, r.y - p.y), vec2(p.x - r.x - r.z, p.y - r.y - r.w));',
+        '  float outside = length(max(d, 0.0));',
+        '  float inside = max(d.x, d.y);',
+        '  if (inside < 0.0) return 0.1;                     /* calm under the card */',
+        '  pile += exp(-outside * outside / 700.0) * 1.5;    /* grain piles at the edge */',
+        '  return 1.0;',
+        '}',
+        'void main(){',
+        '  vec2 st = gl_FragCoord.xy;',
+        '  vec2 pcss = vec2(st.x, uRes.y - st.y);            /* css-space for rects */',
+        '  vec2 px = floor(st);',
+        '  float gr = pow(hash(px), 1.5);',
+        '  float ga = hash(px + 917.0) * 6.28318;',
+        '  vec2 jitter = 0.05 * gr * vec2(cos(ga), sin(ga));',
+        '  float n = pat(st * vec2(0.000323, 0.001333) + jitter);',
+        '  n = smoothstep(0.0, 1.0, pow(n * 1.05, 6.0));',
+        '  float pile = 0.0;',
+        '  float f = min(boxes(pcss, uR0, pile), boxes(pcss, uR1, pile));',
+        '  float s = n * f * (1.0 + pile) + 0.06 * pile * gr;',
+        '  gl_FragColor = vec4(vec3(0.5) * s * 0.55, 1.0);',
+        '}'
+      ].join('\n');
+      var VS = 'attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}';
+      function sh(t, src) { var x = gl.createShader(t); gl.shaderSource(x, src); gl.compileShader(x); return gl.getShaderParameter(x, gl.COMPILE_STATUS) ? x : null; }
+      var prog = gl.createProgram();
+      gl.attachShader(prog, sh(gl.VERTEX_SHADER, VS));
+      gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, FS));
+      gl.linkProgram(prog);
+      if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) return;
+      gl.useProgram(prog);
+      var buf = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+      var loc = gl.getAttribLocation(prog, 'p');
+      gl.enableVertexAttribArray(loc);
+      gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+      var uRes = gl.getUniformLocation(prog, 'uRes');
+      var uT = gl.getUniformLocation(prog, 'uT');
+      var uR = [gl.getUniformLocation(prog, 'uR0'), gl.getUniformLocation(prog, 'uR1')];
+      var cardEls = sec.querySelectorAll('.dcard');
+      function resize() {
+        var r = sec.getBoundingClientRect();
+        canvas.width = r.width; canvas.height = r.height;
+        gl.viewport(0, 0, r.width, r.height);
+        gl.uniform2f(uRes, r.width, r.height);
+      }
+      resize();
+      window.addEventListener('resize', resize);
+      function tick(ts) {
+        var sr = sec.getBoundingClientRect();
+        for (var i = 0; i < 2; i++) {
+          var cr = cardEls[i].getBoundingClientRect();
+          gl.uniform4f(uR[i], cr.left - sr.left, cr.top - sr.top, cr.width, cr.height);
+        }
+        gl.uniform1f(uT, ts / 1000);
+        gl.drawArrays(gl.TRIANGLES, 0, 3);
+        requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    })();
+
+    /* ---------- BG B: LED dot grid ---------- */
+    (function () {
+      var sec = document.getElementById('bgDots');
+      var canvas = sec.querySelector('canvas');
+      var ctx = canvas.getContext('2d');
+      var mouse = { x: -9999, y: -9999 };
+      sec.addEventListener('pointermove', function (e) {
+        var r = sec.getBoundingClientRect();
+        mouse.x = e.clientX - r.left; mouse.y = e.clientY - r.top;
+      });
+      sec.addEventListener('pointerleave', function () { mouse.x = -9999; });
+      function resize() {
+        var r = sec.getBoundingClientRect();
+        canvas.width = r.width; canvas.height = r.height;
+      }
+      resize();
+      window.addEventListener('resize', resize);
+      function tick(ts) {
+        var t = ts / 1000;
+        var W = canvas.width, H = canvas.height;
+        ctx.clearRect(0, 0, W, H);
+        var g = 24;
+        var driftX = (t * 4) % g;
+        for (var y = g / 2; y < H; y += g) {
+          for (var x = g / 2 - driftX; x < W + g; x += g) {
+            var dx = x - mouse.x, dy = y - mouse.y;
+            var d2 = dx * dx + dy * dy;
+            var push = Math.exp(-d2 / 9000);
+            var len = Math.sqrt(d2) || 1;
+            var ox = (dx / len) * push * 14;
+            var oy = (dy / len) * push * 14;
+            ctx.fillStyle = 'rgba(234,234,234,' + (0.05 + push * 0.25) + ')';
+            ctx.fillRect(x + ox, y + oy, 1.2, 1.2);
+          }
+        }
+        requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    })();
+  })();
+  </script>
+</body>
+
+</html>
