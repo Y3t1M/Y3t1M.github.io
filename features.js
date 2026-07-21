@@ -19,20 +19,48 @@
 
     var overlay = document.createElement('div');
     overlay.id = 'firmware-overlay';
-    overlay.innerHTML = '<div id="firmware-inner"><div class="fw-head">HT-01 REV E &mdash; POWER-ON SELF-TEST</div><div id="fw-body"></div></div>';
+    overlay.innerHTML =
+      '<div id="firmware-inner">' +
+        '<div class="fw-topbar">' +
+          '<div class="fw-dot fw-dot-red"></div>' +
+          '<div class="fw-dot fw-dot-yellow"></div>' +
+          '<div class="fw-dot fw-dot-green"></div>' +
+          '<span class="fw-title">hudson@archlinux: ~</span>' +
+        '</div>' +
+        '<div class="fw-body" id="fw-body"></div>' +
+      '</div>';
     document.body.appendChild(overlay);
 
     var body = document.getElementById('fw-body');
 
-    // short lines only — must fit a 320px viewport in 12px mono
-    var lines = [
-      { label: 'vcc',       result: '3.3V ok',  delay: 120 },
-      { label: 'clock',     result: '16 MHz',   delay: 110 },
-      { label: 'traces',    result: 'routed',   delay: 130 },
-      { label: 'd1 status', result: 'blink',    delay: 110 },
-      { label: 'memory',    result: '8/8',      delay: 120 },
-      { label: 'boot',      result: 'hudsontinch.com', delay: 260 }
+    // narrow art + short lines only — must fit a 320px viewport
+    var art = [
+      '       /\\',
+      '      /  \\',
+      '     /\\   \\',
+      '    /  __  \\',
+      '   /  (  )  \\',
+      '  / __|  |__\\\\',
+      ' /.`        `.\\',
     ];
+
+    var lines = [];
+    lines.push({ html: '<span class="cli-p-user">hudson</span><span style="color:#888">@</span><span class="cli-p-host">archlinux</span> <span class="cli-p-tilde">~</span><span class="cli-p-dollar"> $</span> <span class="cli-nf-val">neofetch</span>', delay: 60 });
+    lines.push({ html: '', delay: 90 });
+    for (var i = 0; i < art.length; i++) {
+      lines.push({ html: '<span class="cli-nf-art">' + art[i] + '</span>', delay: 42 });
+    }
+    lines.push({ html: '', delay: 60 });
+    lines.push({ html: '<span class="cli-p-user">hudson</span><span style="color:#888">@</span><span class="cli-p-host">archlinux</span>', delay: 30 });
+    lines.push({ html: '<span class="cli-nf-key">--------------------------</span>', delay: 20 });
+    lines.push({ html: '<span class="cli-nf-key">OS:</span>    <span class="cli-nf-val">HudsonTinch x86_64</span>', delay: 35 });
+    lines.push({ html: '<span class="cli-nf-key">Host:</span>  <span class="cli-nf-val">hudsontinch.com</span>', delay: 35 });
+    lines.push({ html: '<span class="cli-nf-key">Univ:</span>  <span class="cli-nf-val">Arkansas — Honors</span>', delay: 35 });
+    lines.push({ html: '<span class="cli-nf-key">Lang:</span>  <span class="cli-nf-val">TS JS Python C++</span>', delay: 35 });
+    lines.push({ html: '<span class="cli-nf-key">HW:</span>    <span class="cli-nf-val">Arduino · PCB · 3DP</span>', delay: 35 });
+    lines.push({ html: '<span class="cli-nf-key">GPA:</span>   <span class="cli-nf-val">4.0</span>', delay: 60 });
+    lines.push({ html: '', delay: 80 });
+    lines.push({ html: '<span class="cli-p-dollar">$</span> <span style="color:#4ade80">// portfolio loaded — welcome</span>', delay: 220 });
 
     var done = false;
     function finish() {
@@ -44,25 +72,22 @@
       setTimeout(function () { overlay.remove(); }, 520);
     }
 
-    // skippable: tap or key ends it immediately
     overlay.addEventListener('pointerdown', finish);
     document.addEventListener('keydown', finish, { once: true });
-    // hard guard: never trap the visitor, whatever happens
-    setTimeout(finish, 3500);
+    setTimeout(finish, 4500); // never trap the visitor
 
     var idx = 0;
     function printNext() {
       if (done) return;
-      if (idx >= lines.length) { setTimeout(finish, 420); return; }
+      if (idx >= lines.length) { setTimeout(finish, 460); return; }
       var line = lines[idx++];
       var el = document.createElement('div');
       el.className = 'fw-output-line';
-      var dots = new Array(Math.max(2, 14 - line.label.length)).join('.');
-      el.innerHTML = '<span class="fw-label">' + line.label + ' ' + dots + '</span> <span class="fw-ok">' + line.result + '</span>';
+      el.innerHTML = line.html;
       body.appendChild(el);
       setTimeout(printNext, line.delay);
     }
-    setTimeout(printNext, 260);
+    setTimeout(printNext, 240);
   })();
 
 
