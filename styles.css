@@ -954,6 +954,10 @@ a, button, [onclick], .pcb-comp, .nf-sample-btn, .nf-upload, label.nf-check {
   line-height: 1.7;
   white-space: pre;
 }
+.fw-output-line.fw-art {
+  font-size: clamp(7px, 2.1vw, 12.5px);
+  line-height: 1.5;
+}
 @media (max-width: 480px) {
   .fw-body { padding: 14px 16px 18px; }
   .fw-output-line { font-size: 11px; line-height: 1.65; }

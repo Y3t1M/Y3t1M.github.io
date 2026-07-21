@@ -66,6 +66,14 @@
     #v2 .panel .btns { justify-content: center; }
     #v2 .chips { left: 50%; bottom: 11%; transform: translateX(-50%); }
 
+    /* V4: docked — chips plugged into the card */
+    #v4 .panel { left: 8%; top: 42%; transform: translateY(-50%); }
+    #v4 .chips { flex-direction: column; left: 52%; top: 42%; transform: translateY(-50%); gap: 14px; }
+
+    /* V5: shoreline — chips stand on the bright first row */
+    #v5s .panel { left: 8%; top: 10%; }
+    #v5s .chips { left: 8%; right: 8%; justify-content: space-between; top: 44%; }
+
     /* V3: open — no card, type on the field */
     #v3 .open-copy { position: absolute; left: 8%; top: 18%; z-index: 2; max-width: 640px; }
     #v3 h2.hl { font-size: clamp(34px, 4.6vw, 58px); text-shadow: 0 2px 26px rgba(0,0,0,0.9); }
@@ -132,6 +140,40 @@
     </div>
   </section>
 
+  <!-- V4 -->
+  <section class="demo" id="v4" data-horizon="0.30" data-chips="dock">
+    <canvas></canvas>
+    <div class="vtag"><b>4 — DOCKED</b> · chips plug into the card like modules on U1 — no floating, no mooring</div>
+    <div class="panel">
+      <div class="des">U1 · Hudson Tinch · Dallas, TX</div>
+      <h2 class="hl">Studying business.<br>Shipping software.</h2>
+      <p class="sub">Developer at Hollis Bloom. Business student at Arkansas.</p>
+      <div class="btns"><button class="b1">View projects</button><button class="b2">Resume</button></div>
+    </div>
+    <div class="chips">
+      <span class="lchip"><span class="cd">U2 · 8 ENTRIES</span>PROJECTS →</span>
+      <span class="lchip"><span class="cd">U3 · DO NOT SHIP</span>WIN95.SYS</span>
+      <span class="lchip"><span class="cd">J1 · PDF</span>RESUME.PDF ↓</span>
+    </div>
+  </section>
+
+  <!-- V5 -->
+  <section class="demo" id="v5s" data-horizon="0.52" data-chips="shore">
+    <canvas></canvas>
+    <div class="vtag"><b>5 — SHORELINE</b> · terrain holds the lower half behind a bright first row; chips stand on it, spread wide</div>
+    <div class="panel">
+      <div class="des">U1 · Hudson Tinch · Dallas, TX</div>
+      <h2 class="hl">Studying business.<br>Shipping software.</h2>
+      <p class="sub">Developer at Hollis Bloom. Business student at Arkansas.</p>
+      <div class="btns"><button class="b1">View projects</button><button class="b2">Resume</button></div>
+    </div>
+    <div class="chips">
+      <span class="lchip"><span class="cd">U2 · 8 ENTRIES</span>PROJECTS →</span>
+      <span class="lchip"><span class="cd">U3 · DO NOT SHIP</span>WIN95.SYS</span>
+      <span class="lchip"><span class="cd">J1 · PDF</span>RESUME.PDF ↓</span>
+    </div>
+  </section>
+
   <script>
   (function () {
     'use strict';
@@ -163,6 +205,9 @@
       var canvas = sec.querySelector('canvas');
       var ctx = canvas.getContext('2d');
       var horizonF = parseFloat(sec.getAttribute('data-horizon') || '0.28');
+      var chipsMode = sec.getAttribute('data-chips') || 'moor';
+      var panelEl = sec.querySelector('.panel');
+      var panelRect = null;
       var W = 0, H = 0;
       var chips = Array.prototype.slice.call(sec.querySelectorAll('.lchip'))
         .map(function (el) { return { el: el, xc: 0, z: 0.5, zz: 0, y0: 0, amp: 0, bottom: 0 }; });
@@ -171,14 +216,22 @@
         var sr = sec.getBoundingClientRect();
         W = canvas.width = Math.round(sr.width);
         H = canvas.height = Math.round(sr.height);
+        if (panelEl) {
+          var pr = panelEl.getBoundingClientRect();
+          panelRect = { r: pr.right - sr.left, t: pr.top - sr.top, h: pr.height, l: pr.left - sr.left };
+        }
         chips.forEach(function (c) {
           c.el.style.transform = '';
           var r = c.el.getBoundingClientRect();
           c.xc = r.left - sr.left + r.width / 2;
+          c.left = r.left - sr.left;
+          c.cy = r.top - sr.top + r.height / 2;
           c.bottom = r.bottom - sr.top;
           var horizon = H * horizonF;
-          var yTarget = Math.min(H - 26, c.bottom + 52);
-          var zz = Math.max(0.05, Math.min(1, (yTarget - horizon) / ((H - horizon) * 1.05)));
+          var yTarget = chipsMode === 'shore'
+            ? horizon + (H - horizon) * 0.06
+            : Math.min(H - 26, c.bottom + 52);
+          var zz = Math.max(0.02, Math.min(1, (yTarget - horizon) / ((H - horizon) * 1.05)));
           c.zz = zz;
           c.z = Math.pow(zz, 1 / 1.7);
           c.y0 = horizon + zz * (H - horizon) * 1.05;
@@ -237,7 +290,8 @@
           var zz = Math.pow(z, 1.7);
           var y0 = horizon + zz * (H - horizon) * 1.05;
           var amp = 14 + zz * 74;
-          ctx.strokeStyle = 'rgba(234,234,234,' + (0.05 + zz * 0.18) + ')';
+          var rowA = (chipsMode === 'shore' && r < 2) ? 0.4 : (0.05 + zz * 0.18);
+          ctx.strokeStyle = 'rgba(234,234,234,' + rowA + ')';
           ctx.lineWidth = 1;
           ctx.beginPath();
           for (var i = 0; i <= 110; i++) {
@@ -250,6 +304,25 @@
         }
         waves = waves.filter(function (wv) { return t - wv.t0 < 4.5; });
 
+        if (chipsMode === 'dock') {
+          /* horizontal leaders from the card edge into each chip */
+          if (panelRect) {
+            for (var c = 0; c < chips.length; c++) {
+              var cp = chips[c];
+              ctx.strokeStyle = 'rgba(234,234,234,0.14)';
+              ctx.beginPath();
+              ctx.moveTo(panelRect.r, cp.cy);
+              ctx.lineTo(cp.left - 4, cp.cy);
+              ctx.stroke();
+              ctx.fillStyle = 'rgba(234,234,234,0.55)';
+              ctx.beginPath();
+              ctx.arc(panelRect.r + 2, cp.cy, 2.2, 0, 7);
+              ctx.fill();
+            }
+          }
+          requestAnimationFrame(frame);
+          return;
+        }
         for (var c = 0; c < chips.length; c++) {
           var cp = chips[c];
           if (!cp.xc) continue;

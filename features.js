@@ -33,23 +33,23 @@
 
     var body = document.getElementById('fw-body');
 
-    // the original Yetim face, condensed to fit a 320px viewport
+    // the ORIGINAL Yetim face, untouched — sized responsively via .fw-art
     var art = [
-      '     .o                         o.',
-      '   .8\'                           `8.',
-      '  .8\'                             `8.',
-      '  88                                88',
-      '  88                                88',
-      '  `8.       .o.         .o.      .8\'',
-      '   `8.      Y8P  ooooo  Y8P     .8\'',
-      '    `"                          "\'',
+      '        .o                                            o.',
+      '      .8\'                                              `8.',
+      '     .8\'                                                `8.',
+      '     88                                                  88',
+      '     88                                                  88',
+      '     `8.            .o.                       .o.       .8\'',
+      '      `8.           Y8P      ooooooooooo      Y8P      .8\'',
+      '       `"                                              "\'',
     ];
 
     var lines = [];
     lines.push({ html: '<span class="cli-p-user">hudson</span><span style="color:#888">@</span><span class="cli-p-host">archlinux</span> <span class="cli-p-tilde">~</span><span class="cli-p-dollar"> $</span> <span class="cli-nf-val">neofetch</span>', delay: 60 });
     lines.push({ html: '', delay: 90 });
     for (var i = 0; i < art.length; i++) {
-      lines.push({ html: '<span class="cli-nf-art">' + art[i] + '</span>', delay: 42 });
+      lines.push({ html: '<span class="cli-nf-art">' + art[i] + '</span>', delay: 42, art: true });
     }
     lines.push({ html: '', delay: 60 });
     lines.push({ html: '<span class="cli-p-user">hudson</span><span style="color:#888">@</span><span class="cli-p-host">archlinux</span>', delay: 30 });
@@ -83,7 +83,7 @@
       if (idx >= lines.length) { setTimeout(finish, 460); return; }
       var line = lines[idx++];
       var el = document.createElement('div');
-      el.className = 'fw-output-line';
+      el.className = 'fw-output-line' + (line.art ? ' fw-art' : '');
       el.innerHTML = line.html;
       body.appendChild(el);
       setTimeout(printNext, line.delay);

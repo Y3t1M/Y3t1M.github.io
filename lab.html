@@ -114,15 +114,16 @@
   </div>
 
   <!-- ============ SCROLL OPTION 1: PINNED SHOWCASE ============ -->
-  <div class="tag"><b>SCROLL 1 — PINNED SHOWCASE</b> · the page holds while each project presents itself, wodniack-style</div>
+  <div class="tag"><b>SCROLL 1 — PINNED · SURFACE FAMILY</b> · four ways cards can surface — A settle · B through the ground line · C terrain lift · D vertical stack</div>
   <section id="pinned">
     <div class="stage">
       <canvas class="grain-fx"></canvas>
       <span class="st-label">Selected work — scroll</span>
       <div class="modes">
-        <button data-m="grain" class="on">A · GRAIN</button>
-        <button data-m="surface">B · SURFACE</button>
-        <button data-m="fly">C · FLY</button>
+        <button data-m="surface" class="on">A · SURFACE</button>
+        <button data-m="emerge">B · EMERGE</button>
+        <button data-m="lift">C · LIFT</button>
+        <button data-m="stack">D · STACK</button>
       </div>
       <div class="pcard dcard" data-i="0">
         <div class="meta">2025 – 2026 <span class="dim">· Production · React / TS / Supabase</span></div>
@@ -204,7 +205,7 @@
   (function () {
     'use strict';
 
-    /* ---------- SCROLL 1: pinned showcase, three entrance modes ---------- */
+    /* ---------- SCROLL 1: pinned showcase — SURFACE family ---------- */
     (function () {
       var sec = document.getElementById('pinned');
       var stage = sec.querySelector('.stage');
@@ -215,7 +216,7 @@
       var N = cards.length;
       sec.style.height = (N * 90 + 100) + 'vh';
       var sp = 0;
-      var mode = 'grain';
+      var mode = 'surface';
 
       sec.querySelector('.modes').addEventListener('click', function (e) {
         var b = e.target.closest('button');
@@ -223,28 +224,12 @@
         mode = b.getAttribute('data-m');
         var bs = sec.querySelectorAll('.modes button');
         for (var i = 0; i < bs.length; i++) bs[i].classList.toggle('on', bs[i] === b);
+        for (var c = 0; c < N; c++) { cards[c].style.clipPath = 'none'; }
       });
 
-      /* precomputed grain homes per card (points inside its rect) */
-      var homes = [];
-      function seedHomes() {
-        homes = [];
-        var sw = stage.clientWidth, sh = stage.clientHeight;
-        for (var i = 0; i < N; i++) {
-          var w = cards[i].offsetWidth || 560, h = cards[i].offsetHeight || 220;
-          var x0 = (sw - w) / 2, y0 = (sh - h) / 2;
-          var pts = [];
-          for (var k = 0; k < 420; k++) {
-            pts.push([x0 + Math.random() * w, y0 + Math.random() * h,
-                      Math.random() * 6.283, 0.35 + Math.random() * 0.65]);
-          }
-          homes.push(pts);
-        }
-      }
       function resizeFx() {
         fx.width = stage.clientWidth;
         fx.height = stage.clientHeight;
-        seedHomes();
       }
       resizeFx();
       window.addEventListener('resize', resizeFx);
@@ -258,47 +243,82 @@
         var active = Math.round(sp * (N - 1));
         for (var d = 0; d < dots.length; d++) dots[d].classList.toggle('on', d === active);
 
+        var sh = stage.clientHeight, sw = stage.clientWidth;
+        var vhpx = sh / 100;
+        var groundY = sh * 0.76;
         fctx.clearRect(0, 0, fx.width, fx.height);
+
+        if (mode === 'emerge') {
+          fctx.strokeStyle = 'rgba(234,234,234,0.12)';
+          fctx.lineWidth = 1;
+          fctx.beginPath();
+          fctx.moveTo(0, groundY);
+          fctx.lineTo(sw, groundY);
+          fctx.stroke();
+        }
 
         for (var i = 0; i < N; i++) {
           var q = sp * (N - 1) - i;               // <0 incoming, 0 centered, >0 leaving
           q = Math.max(-1.6, Math.min(1.6, q));
           var el = cards[i];
           var abs = Math.abs(q);
+          var cardH = el.offsetHeight || 220;
           el.style.pointerEvents = abs < 0.3 ? 'auto' : 'none';
 
-          if (mode === 'grain') {
-            /* card materializes from converging sand */
-            el.style.transform = 'none';
-            el.style.opacity = abs < 0.32 ? String(1 - abs / 0.32 * 0.9 + (abs < 0.1 ? 0.9 * (1 - abs / 0.1) * 0 : 0)) : '0';
-            el.style.opacity = abs < 0.32 ? (1 - Math.pow(abs / 0.32, 1.6)).toFixed(3) : '0';
-            if (abs > 0.04 && abs < 1.1 && homes[i]) {
-              var scatter = Math.pow(abs, 0.8) * Math.min(fx.width, 900) * 0.55;
-              var fade = Math.max(0, 1 - abs / 1.05);
-              var pts = homes[i];
-              for (var k = 0; k < pts.length; k++) {
-                var pt = pts[k];
-                var dx = Math.cos(pt[2]) * scatter * pt[3];
-                var dy = Math.sin(pt[2]) * scatter * pt[3] * 0.6;
-                fctx.fillStyle = 'rgba(234,234,234,' + (fade * 0.55 * pt[3]).toFixed(3) + ')';
-                fctx.fillRect(pt[0] + dx, pt[1] + dy, 1.6, 1.6);
-              }
-            }
-          } else if (mode === 'surface') {
-            /* card surfaces from beneath the fold, settles with a dip */
-            var y;
-            if (q < 0) { y = -q * 85; }           // waiting below (vh)
-            else { y = -q * 26; }                  // drifts up and away
+          if (mode === 'surface') {
+            var y = q < 0 ? -q * 85 : -q * 26;
             var settle = Math.exp(-abs * 6) * Math.sin(abs * 18) * 1.2;
             el.style.transform = 'translateY(' + (y + settle) + 'vh) scale(' + (1 - Math.min(0.12, abs * 0.1)) + ')';
             el.style.opacity = Math.max(0, 1 - Math.max(0, (abs - 0.35) / 0.5)).toFixed(3);
+            el.style.clipPath = 'none';
+
+          } else if (mode === 'emerge') {
+            /* cards surface through the ground line and submerge back */
+            var ty = (q < 0 ? -q * 62 : q * 46) * vhpx;
+            var cardBottom = sh / 2 + cardH / 2 + ty;
+            var hidden = Math.max(0, cardBottom - groundY);
+            var clipPct = Math.min(100, hidden / cardH * 100);
+            el.style.transform = 'translateY(' + ty + 'px)';
+            el.style.clipPath = 'inset(0 0 ' + clipPct.toFixed(2) + '% 0 round 14px)';
+            el.style.opacity = clipPct >= 99.5 ? '0' : '1';
+            /* disturbance on the line while a card is in transit */
+            if (abs > 0.05 && abs < 0.9) {
+              var k = 1 - abs / 0.9;
+              fctx.strokeStyle = 'rgba(234,234,234,' + (0.25 * k).toFixed(3) + ')';
+              fctx.lineWidth = 1;
+              fctx.beginPath();
+              fctx.ellipse(sw / 2, groundY, (0.3 + abs) * cardH * 1.6, 6 + abs * 10, 0, 0, 7);
+              fctx.stroke();
+            }
+
+          } else if (mode === 'lift') {
+            /* the terrain swells and lifts the card into place, releases it upward */
+            var y2, rx;
+            if (q < 0) { y2 = -q * 80; rx = q * 22; }        // tilted back while low
+            else { y2 = -q * 34; rx = q * 14; }               // released up and away
+            var settle2 = Math.exp(-abs * 6) * Math.sin(abs * 16) * 1.4;
+            el.style.transform = 'translateY(' + (y2 + settle2) + 'vh) rotateX(' + (-rx) + 'deg)';
+            el.style.opacity = Math.max(0, 1 - Math.max(0, (abs - 0.4) / 0.5)).toFixed(3);
+            el.style.clipPath = 'none';
+            if (abs < 0.9) {
+              var bow = Math.exp(-abs * 3) * 22;
+              var yline = sh / 2 + cardH / 2 + 26;
+              fctx.strokeStyle = 'rgba(234,234,234,' + (0.2 * (1 - abs)).toFixed(3) + ')';
+              fctx.lineWidth = 1;
+              fctx.beginPath();
+              fctx.moveTo(sw / 2 - cardH * 1.7, yline);
+              fctx.quadraticCurveTo(sw / 2, yline - bow, sw / 2 + cardH * 1.7, yline);
+              fctx.stroke();
+            }
+
           } else {
-            /* fly: approaches from deep in the field */
-            var z, y2, op;
-            if (q < 0) { z = q * 60; y2 = -q * 7; op = 1 - Math.min(1, abs / 1.05); }
-            else { z = q * 18; y2 = -q * 24; op = 1 - Math.min(1, abs / 0.45); }
-            el.style.transform = 'translateY(' + y2 + 'vh) translateZ(' + z + 'rem)';
+            /* stack: rises from behind-below, cycles forward-down — vertical conveyor */
+            var ty3, tz, op;
+            if (q < 0) { ty3 = -q * 9; tz = q * 26; op = 1 - Math.min(1, abs * 0.75); }
+            else { ty3 = q * 38; tz = q * 12; op = 1 - Math.min(1, abs / 0.5); }
+            el.style.transform = 'translateY(' + ty3 + 'vh) translateZ(' + tz + 'rem)';
             el.style.opacity = Math.max(0, op).toFixed(3);
+            el.style.clipPath = 'none';
           }
         }
         requestAnimationFrame(tick);
