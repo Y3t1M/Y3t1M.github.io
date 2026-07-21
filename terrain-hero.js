@@ -1,8 +1,9 @@
 /* ============================================================
    TERRAIN HERO — terrain-hero.js
-   Interactive monochrome wireframe topography. The ground rises
-   to meet the cursor; clicking drops a slow seismic pulse that
-   ripples through the rows.
+   Refined wireframe topography: long smooth swells. The nav
+   chips are moored to the field — each rides the swell at its
+   anchor point, tied down by a leader line to a glowing node.
+   Cursor raises the ground; clicks drop slow seismic ripples.
    ============================================================ */
 (function () {
   'use strict';
@@ -13,15 +14,50 @@
   var ctx = canvas.getContext('2d');
 
   var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var desktopLayout = window.matchMedia('(min-width: 861px)');
 
   var W = 0, H = 0;
+
+  var comps = ['comp-projects', 'comp-desktop', 'comp-resume']
+    .map(function (id) { return document.getElementById(id); })
+    .filter(Boolean)
+    .map(function (el) { return { el: el, xc: 0, z: 0.5, zz: 0, y0: 0, amp: 0, bottom: 0 }; });
+
+  function measureComps() {
+    if (!desktopLayout.matches) return;
+    var hr = hero.getBoundingClientRect();
+    comps.forEach(function (c) {
+      c.el.style.transform = '';
+      var r = c.el.getBoundingClientRect();
+      c.xc = r.left - hr.left + r.width / 2;
+      c.bottom = r.bottom - hr.top;
+      // anchor the chip to the terrain row ~56px below it
+      var horizon = H * 0.42;
+      var yTarget = Math.min(H - 30, c.bottom + 56);
+      var zz = Math.max(0.05, Math.min(1, (yTarget - horizon) / ((H - horizon) * 1.05)));
+      c.zz = zz;
+      c.z = Math.pow(zz, 1 / 1.7);
+      c.y0 = horizon + zz * (H - horizon) * 1.05;
+      c.amp = 14 + zz * 74;
+    });
+  }
+
   function resize() {
     var r = hero.getBoundingClientRect();
     W = canvas.width = Math.round(r.width);
     H = canvas.height = Math.round(r.height);
+    measureComps();
   }
   resize();
   window.addEventListener('resize', resize);
+  window.addEventListener('load', function () { setTimeout(measureComps, 100); });
+
+  // after the boot stagger settles, drop the CSS transform transition so
+  // the chips can ride the swells without rubber-banding
+  setTimeout(function () {
+    document.documentElement.classList.add('settled');
+    measureComps();
+  }, 1500);
 
   var mouse = { x: -9999, y: -9999, sx: -9999, sy: -9999 };
   hero.addEventListener('pointermove', function (e) {
@@ -51,6 +87,31 @@
     return a + (b - a) * u + (c - a) * v + (a - b - c + d) * u * v;
   }
 
+  /* refined field: two long-wavelength octaves — rolling swells, no jitter */
+  function fieldN(nx, z, t) {
+    return vnoise(nx * 1.7 + 7.3, (1 - z) * 3.2 - t * 0.05)
+         + 0.35 * vnoise(nx * 3.6 + 2.1, (1 - z) * 6.5 - t * 0.08);
+  }
+
+  /* displacement extras (cursor bump + click ripples) at a base point */
+  function extras(x, y0, zz, t) {
+    var d = 0;
+    if (mouse.sx > -999) {
+      var dxm = x - mouse.sx, dym = y0 - mouse.sy;
+      d += Math.exp(-(dxm * dxm + dym * dym) / 30000) * 56 * (0.3 + zz);
+    }
+    for (var w = 0; w < waves.length; w++) {
+      var wv = waves[w];
+      var age = t - wv.t0;
+      if (age > 4.5) continue;
+      var dxw = x - wv.x, dyw = y0 - wv.y;
+      var dist = Math.sqrt(dxw * dxw + dyw * dyw);
+      var band = Math.exp(-Math.pow(dist - age * 170, 2) / 3000);
+      d += band * 42 * Math.exp(-age * 0.9) * (0.3 + zz) * Math.sin(age * 5.5);
+    }
+    return d;
+  }
+
   function draw(t) {
     ctx.clearRect(0, 0, W, H);
 
@@ -61,48 +122,51 @@
     } else { mouse.sx = -9999; mouse.sy = -9999; }
 
     var horizon = H * 0.42;
-    var rows = 34;
+    var rows = 26;
     for (var r = 0; r < rows; r++) {
       var z = r / rows;
       var zz = Math.pow(z, 1.7);
       var y0 = horizon + zz * (H - horizon) * 1.05;
-      var amp = 14 + zz * 90;
-      var alpha = 0.05 + zz * 0.2;
+      var amp = 14 + zz * 74;
+      var alpha = 0.04 + zz * 0.18;
       ctx.strokeStyle = 'rgba(234,234,234,' + alpha + ')';
       ctx.lineWidth = 1;
       ctx.beginPath();
-      var steps = 90;
+      var steps = 110;
       for (var i = 0; i <= steps; i++) {
         var x = (i / steps) * W;
         var nx = (i / steps - 0.5) / (0.25 + z * 0.75);
-        var n = vnoise(nx * 3 + 7.3, (1 - z) * 5 - t * 0.06)
-              + 0.5 * vnoise(nx * 6 + 2.1, (1 - z) * 10 - t * 0.1);
-        var y = y0 - n * amp;
-
-        // the ground rises toward the cursor
-        if (mouse.sx > -999) {
-          var dxm = x - mouse.sx, dym = y0 - mouse.sy;
-          var d2 = dxm * dxm + dym * dym;
-          y -= Math.exp(-d2 / 26000) * 60 * (0.3 + zz);
-        }
-
-        // slow seismic ripples from clicks
-        for (var w = 0; w < waves.length; w++) {
-          var wv = waves[w];
-          var age = t - wv.t0;
-          if (age > 4.5) continue;
-          var dxw = x - wv.x, dyw = y0 - wv.y;
-          var dist = Math.sqrt(dxw * dxw + dyw * dyw);
-          var ring = age * 170;
-          var band = Math.exp(-Math.pow(dist - ring, 2) / 2400);
-          y -= band * 46 * Math.exp(-age * 0.9) * (0.3 + zz) * Math.sin(age * 5.5);
-        }
-
+        var y = y0 - fieldN(nx, z, t) * amp - extras(x, y0, zz, t);
         if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
       }
       ctx.stroke();
     }
     waves = waves.filter(function (wv) { return t - wv.t0 < 4.5; });
+
+    /* moor the chips: node on their terrain line, leader up to the card, bob */
+    if (desktopLayout.matches && document.documentElement.classList.contains('settled')) {
+      for (var c = 0; c < comps.length; c++) {
+        var cp = comps[c];
+        if (!cp.xc) continue;
+        var nx2 = (cp.xc / W - 0.5) / (0.25 + cp.z * 0.75);
+        var lineY = cp.y0 - fieldN(nx2, cp.z, t) * cp.amp - extras(cp.xc, cp.y0, cp.zz, t);
+        var rest = cp.y0 - 0.675 * cp.amp;   // field mean ≈ 0.675
+        var dy = Math.max(-16, Math.min(16, (lineY - rest) * 0.45));
+        cp.el.style.transform = 'translateY(' + dy.toFixed(2) + 'px)';
+
+        // leader line + glowing node
+        ctx.strokeStyle = 'rgba(234,234,234,0.1)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(cp.xc, cp.bottom + dy + 6);
+        ctx.lineTo(cp.xc, lineY);
+        ctx.stroke();
+        ctx.fillStyle = 'rgba(234,234,234,0.55)';
+        ctx.beginPath();
+        ctx.arc(cp.xc, lineY, 2.4, 0, 7);
+        ctx.fill();
+      }
+    }
   }
 
   if (reduced) { draw(4.2); return; }

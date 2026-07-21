@@ -35,13 +35,14 @@
 
     // the original Yetim face, condensed to fit a 320px viewport
     var art = [
-      '   .o                      o.',
-      ' .8\'                        `8.',
-      ' 88                          88',
-      ' 88                          88',
-      ' `8.     .o.       .o.     .8\'',
-      '  `8.    Y8P  ooooo Y8P   .8\'',
-      '   `"                      "\'',
+      '     .o                         o.',
+      '   .8\'                           `8.',
+      '  .8\'                             `8.',
+      '  88                                88',
+      '  88                                88',
+      '  `8.       .o.         .o.      .8\'',
+      '   `8.      Y8P  ooooo  Y8P     .8\'',
+      '    `"                          "\'',
     ];
 
     var lines = [];

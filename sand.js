@@ -12,6 +12,19 @@
   canvas.id = 'sand-canvas';
   document.body.prepend(canvas);
 
+  // the splash stays clean: sand only fades in once you scroll past the hero
+  var heroEl = document.querySelector('.hero');
+  if (heroEl) {
+    var syncOp = function () {
+      var hb = heroEl.offsetHeight || 600;
+      var f = Math.max(0, Math.min(1, (window.pageYOffset - hb * 0.3) / (hb * 0.55)));
+      canvas.style.opacity = (0.26 * f).toFixed(3);
+    };
+    syncOp();
+    window.addEventListener('scroll', syncOp, { passive: true });
+    window.addEventListener('resize', syncOp);
+  }
+
   var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var gl = canvas.getContext('webgl', { alpha: false, antialias: false, depth: false, stencil: false });
 

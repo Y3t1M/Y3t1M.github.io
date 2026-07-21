@@ -62,6 +62,15 @@ img { max-width: 100%; }
 
 .hidden { display: none !important; }
 
+/* ── Cursor: angular retro arrow, monochrome ─────────────── */
+body {
+  cursor: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20d%3D%22M7%205.4%20L7%2016.2%20Q7%2018.6%208.6%2016.9%20L11.1%2014.2%20L15.0%2014.15%20Q17.6%2014.1%2015.9%2012.6%20L8.3%205.3%20Q7%204.0%207%205.4%20Z%22%20fill%3D%22%230b0b0b%22%20stroke%3D%22%23eaeaea%22%20stroke-width%3D%221.2%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E") 7 4, auto;
+}
+a, button, [onclick], .pcb-comp, .nf-sample-btn, .nf-upload, label.nf-check {
+  cursor: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20d%3D%22M7%205.4%20L7%2016.2%20Q7%2018.6%208.6%2016.9%20L11.1%2014.2%20L15.0%2014.15%20Q17.6%2014.1%2015.9%2012.6%20L8.3%205.3%20Q7%204.0%207%205.4%20Z%22%20fill%3D%22%23eaeaea%22%20stroke%3D%22%23060708%22%20stroke-width%3D%221.2%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E") 7 4, pointer;
+}
+
+
 /* ── Page transitions ───────────────────────────────────── */
 @media (prefers-reduced-motion: no-preference) {
   html.pt-ready body { animation: pageIn 0.45s ease both; }
@@ -633,20 +642,9 @@ html.fx .case, html.fx .case-sm, html.fx .project-card, html.fx .about-card {
   will-change: transform, opacity;
 }
 
-/* LED flicker separators between case studies */
-.led-sep {
-  font-family: var(--font-mono);
-  font-size: 9px;
-  letter-spacing: 0.4em;
-  line-height: 1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-align: center;
-  color: rgba(255, 255, 255, 0.05);
-  margin: 34px 0 10px;
-  user-select: none;
+html.settled .pcb-comp {
+  transition: box-shadow 0.25s ease, border-color 0.25s ease, color 0.2s ease;
 }
-.led-sep span.on { color: rgba(255, 255, 255, 0.22); }
 
 /* ── Contact band ───────────────────────────────────────── */
 .contact-band {
@@ -876,6 +874,15 @@ html.fx .case, html.fx .case-sm, html.fx .project-card, html.fx .about-card {
   margin-top: 12px;
 }
 .clicker-game.hidden { display: none !important; }
+
+/* ── Cursor: angular retro arrow, monochrome ─────────────── */
+body {
+  cursor: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20d%3D%22M7%205.4%20L7%2016.2%20Q7%2018.6%208.6%2016.9%20L11.1%2014.2%20L15.0%2014.15%20Q17.6%2014.1%2015.9%2012.6%20L8.3%205.3%20Q7%204.0%207%205.4%20Z%22%20fill%3D%22%230b0b0b%22%20stroke%3D%22%23eaeaea%22%20stroke-width%3D%221.2%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E") 7 4, auto;
+}
+a, button, [onclick], .pcb-comp, .nf-sample-btn, .nf-upload, label.nf-check {
+  cursor: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20d%3D%22M7%205.4%20L7%2016.2%20Q7%2018.6%208.6%2016.9%20L11.1%2014.2%20L15.0%2014.15%20Q17.6%2014.1%2015.9%2012.6%20L8.3%205.3%20Q7%204.0%207%205.4%20Z%22%20fill%3D%22%23eaeaea%22%20stroke%3D%22%23060708%22%20stroke-width%3D%221.2%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E") 7 4, pointer;
+}
+
 
 /* ── Page transitions ───────────────────────────────────── */
 @media (prefers-reduced-motion: no-preference) {
