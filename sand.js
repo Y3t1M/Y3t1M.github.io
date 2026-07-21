@@ -42,6 +42,7 @@
     'uniform vec2 uRes;',
     'uniform float uT;',
     'uniform float uSeed;',
+    'uniform float uPx;',   /* CSS px per device px — resolution independence */
     '#define PI 3.141592653589793',
     /* Ashima / stegu 2D simplex noise */
     'vec3 mod289(vec3 x){return x - floor(x * (1.0/289.0)) * 289.0;}',
@@ -83,6 +84,7 @@
     '}',
     'void main(){',
     '  vec2 uv = gl_FragCoord.xy / uRes;',
+    '  vec2 st = gl_FragCoord.xy * uPx;',   /* CSS-pixel coords */
     '  vec2 px = floor(gl_FragCoord.xy);',
     /* soft off-center mask with a floor so faint grain reaches everywhere */
     '  vec2 asp = vec2(uRes.x / uRes.y, 1.0);',
@@ -92,8 +94,8 @@
     '  float gr = pow(hash(px), 1.5) + 0.5 * (1.0 - mask);',
     '  float ga = hash(px + 917.0) * 2.0 * PI;',
     '  vec2 jitter = 0.05 * gr * vec2(cos(ga), sin(ga));',
-    '  vec2 freq = vec2(0.2, 0.4) + 0.1 * (1.0 - mask);',
-    '  float n = pattern(uv * freq + jitter);',
+    '  vec2 freq = vec2(0.000323, 0.001333) * (1.0 + 0.5 * (1.0 - mask));',
+    '  float n = pattern(st * freq + jitter);',
     '  n = smoothstep(0.0, 1.0, pow(n * 1.05, 6.0));',
     '  gl_FragColor = vec4(vec3(0.55) * n * mask, 1.0);',
     '}'
@@ -126,6 +128,7 @@
   var uRes = gl.getUniformLocation(prog, 'uRes');
   var uT = gl.getUniformLocation(prog, 'uT');
   var uSeed = gl.getUniformLocation(prog, 'uSeed');
+  var uPx = gl.getUniformLocation(prog, 'uPx');
   gl.uniform1f(uSeed, Math.random() * 100.0);
 
   function resize() {
@@ -135,6 +138,7 @@
     canvas.width = w; canvas.height = h;
     gl.viewport(0, 0, w, h);
     gl.uniform2f(uRes, w, h);
+    gl.uniform1f(uPx, 1.0 / dpr);
   }
   resize();
   window.addEventListener('resize', resize);
