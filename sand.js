@@ -120,11 +120,11 @@
     '    vec4 rct = uR[i];',
     '    vec2 d = max(vec2(rct.x - pcss.x, rct.y - pcss.y), vec2(pcss.x - rct.x - rct.z, pcss.y - rct.y - rct.w));',
     '    float outside = length(max(d, 0.0));',
-    '    if (max(d.x, d.y) < 0.0) { f = min(f, 0.16); }',
-    '    else { pile += exp(-outside * outside / 600.0); }',
+    '    if (max(d.x, d.y) < 0.0) { f = min(f, 0.3); }',
+    '    else { pile += exp(-outside * outside / 220.0); }',
     '  }',
-    '  pile = min(pile, 1.3);',
-    '  float s2 = n * f * (1.0 + pile * 1.6) + 0.045 * pile * gr;',
+    '  pile = min(pile, 1.0);',
+    '  float s2 = n * f * (1.0 + pile * 0.5);',
     '  gl_FragColor = vec4(vec3(0.55) * s2 * mask, 1.0);',
     '}'
   ].join('\n');
@@ -165,7 +165,7 @@
   var cardEls = [];
   function collectCards() {
     cardEls = Array.prototype.slice.call(document.querySelectorAll(
-      '.case, .case-sm, .project-card, .about-card, .awards-list, .contact-inner, .hero-panel, .nf-panel, .nf-controls'
+      '.case, .case-sm, .project-card, .about-card, .awards-list, .contact-inner, .nf-panel, .nf-controls'
     ));
   }
   collectCards();
