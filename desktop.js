@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Icon dragging
     let dragIconEl = null, iconOffX = 0, iconOffY = 0;
     document.querySelectorAll('.icon').forEach(icon => {
-        icon.addEventListener('mousedown', e => {
+        icon.addEventListener('pointerdown', e => {
             if (e.button !== 0) return;
             const rect = icon.getBoundingClientRect();
             iconOffX = e.clientX - rect.left;
@@ -30,12 +30,12 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
         });
     });
-    document.addEventListener('mousemove', e => {
+    document.addEventListener('pointermove', e => {
         if (!dragIconEl) return;
         dragIconEl.style.left = (e.clientX - iconOffX) + 'px';
         dragIconEl.style.top  = (e.clientY - iconOffY) + 'px';
     });
-    document.addEventListener('mouseup', () => { dragIconEl = null; });
+    document.addEventListener('pointerup', () => { dragIconEl = null; });
 
     document.querySelectorAll('.folder').forEach(folder => {
         folder.addEventListener('dblclick', () => {
@@ -75,13 +75,13 @@ document.addEventListener('DOMContentLoaded', () => {
         let initialX;
         let initialY;
 
-        titlebar.addEventListener('mousedown', dragStart);
+        titlebar.addEventListener('pointerdown', dragStart);
 
-        document.addEventListener('mousemove', drag);
-        document.addEventListener('mouseup', dragEnd);
+        document.addEventListener('pointermove', drag);
+        document.addEventListener('pointerup', dragEnd);
 
         // Bring window to front when clicked
-        window.addEventListener('mousedown', () => {
+        window.addEventListener('pointerdown', () => {
             bringToFront(window);
         });
 
@@ -367,19 +367,19 @@ document.addEventListener('DOMContentLoaded', () => {
         // Draggable
         const tb = pop.querySelector('.window-titlebar');
         let dragging = false, offX = 0, offY = 0;
-        tb.addEventListener('mousedown', e => {
+        tb.addEventListener('pointerdown', e => {
             dragging = true;
             offX = e.clientX - pop.offsetLeft;
             offY = e.clientY - pop.offsetTop;
             pop.style.zIndex = ++virusZ;
             e.preventDefault();
         });
-        document.addEventListener('mousemove', e => {
+        document.addEventListener('pointermove', e => {
             if (!dragging) return;
             pop.style.left = (e.clientX - offX) + 'px';
             pop.style.top  = (e.clientY - offY) + 'px';
         });
-        document.addEventListener('mouseup', () => { dragging = false; });
+        document.addEventListener('pointerup', () => { dragging = false; });
 
         document.body.appendChild(pop);
     }
@@ -424,7 +424,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 cw.style.display = 'none';
             });
             const tb = cw.querySelector('.window-titlebar');
-            if (tb) tb.addEventListener('mousedown', dragStart);
+            if (tb) tb.addEventListener('pointerdown', dragStart);
         }
     }
 
@@ -635,7 +635,7 @@ function initEndlessDownload() {
 
 /* Add wake up handler */
 function handleWakeUp(e) {
-    document.removeEventListener('mousemove', handleWakeUp);
+    document.removeEventListener('pointermove', handleWakeUp);
     
     // Create boot elements
     const bootOverlay = document.createElement('div');
@@ -674,7 +674,7 @@ function triggerShutdown() {
             document.body.innerHTML = '';
             // Listen for mouse movement after shutdown
             setTimeout(() => {
-                document.addEventListener('mousemove', handleWakeUp);
+                document.addEventListener('pointermove', handleWakeUp);
             }, 500);
         });
 
@@ -763,3 +763,17 @@ document.querySelectorAll('.folder').forEach(folder => {
 });
 
 // (shutdown already bound above)
+
+/* ── Touch support: single tap opens what double-click opens ── */
+(function () {
+    if (!window.matchMedia('(hover: none)').matches) return;
+    var lastSynth = 0;
+    document.addEventListener('click', function (e) {
+        var el = e.target.closest('.icon, .folder, .game-item, #tetris');
+        if (!el) return;
+        var now = Date.now();
+        if (now - lastSynth < 500) return; // a real double-tap already fired dblclick
+        lastSynth = now;
+        el.dispatchEvent(new MouseEvent('dblclick', { bubbles: true }));
+    });
+})();

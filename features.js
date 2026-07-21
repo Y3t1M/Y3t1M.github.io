@@ -115,7 +115,10 @@
     var slashHint = document.createElement('div');
     slashHint.id = 'cli-slash-hint';
     slashHint.textContent = '[ / ] terminal';
+    slashHint.setAttribute('role', 'button');
+    slashHint.setAttribute('aria-label', 'open terminal');
     document.body.appendChild(slashHint);
+    slashHint.addEventListener('click', function () { if (!isOpen) open(); });
 
     var output   = document.getElementById('cli-output');
     var input    = document.getElementById('cli-input');

@@ -1043,18 +1043,23 @@ html.fw-booted .pcb-comp { transition-delay: 0.4s; }
 #cli-input::placeholder { color: #2a2b3d; }
 #cli-slash-hint {
   position: fixed;
-  bottom: 22px;
-  right: 28px;
+  bottom: 18px;
+  right: 22px;
   font-size: 9px;
   font-family: var(--font);
   font-weight: 700;
-  color: rgba(236, 233, 241, 0.13);
+  color: rgba(236, 233, 241, 0.18);
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  pointer-events: none;
+  pointer-events: auto;
+  cursor: pointer;
+  padding: 10px 12px;
   z-index: 200;
   user-select: none;
+  transition: color 0.2s ease;
 }
+#cli-slash-hint:hover { color: rgba(236, 233, 241, 0.55); }
+@media (hover: none) { #cli-slash-hint { color: rgba(236, 233, 241, 0.35); } }
 
 /* ---------- Blueprint mode ---------- */
 body.blueprint {

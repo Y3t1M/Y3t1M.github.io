@@ -898,3 +898,22 @@ body.desktop::before { content: none; }
   0%   { background-position: 0 0; }
   100% { background-position: -200px 0; }
 }
+
+
+/* ── Mobile / touch support ─────────────────────────────── */
+.icon, .window-titlebar { touch-action: none; }
+
+@media (max-width: 760px) {
+  .window {
+    max-width: 96vw !important;
+    max-height: 74vh !important;
+  }
+  [id$="-window"] {
+    width: 96vw;
+    left: 2vw;
+    top: 8vh;
+  }
+  .window-content { overflow: auto; -webkit-overflow-scrolling: touch; }
+  .window iframe { width: 100%; }
+  .taskbar-items { overflow-x: auto; }
+}

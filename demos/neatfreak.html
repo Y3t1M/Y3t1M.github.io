@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NeatFreak — Live Demo</title>
+  <meta name="description" content="NeatFreak live demo — extract an object's silhouette from a photo and preview its 3D-printable drawer-organizer pocket. Runs entirely in your browser.">
+  <link rel="stylesheet" href="../styles.css">
+  <style>
+    .demo-wrap { max-width: 1080px; margin: 0 auto; padding: 56px 24px 0; }
+    .nf-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 32px;
+    }
+    @media (max-width: 760px) { .nf-grid { grid-template-columns: 1fr; } }
+    .nf-panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 20px 20px;
+    }
+    .nf-panel h3 {
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+    .nf-panel canvas {
+      display: block;
+      width: 100%;
+      border-radius: 8px;
+      background: #0d0d0d;
+    }
+    .nf-controls {
+      margin-top: 20px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 22px;
+      display: flex;
+      gap: 28px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .nf-slider { min-width: 200px; flex: 1; }
+    .nf-slider label {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    .nf-slider label b { color: var(--text); font-weight: 400; font-variant-numeric: tabular-nums; }
+    input[type="range"] {
+      width: 100%;
+      accent-color: #eaeaea;
+    }
+    .nf-samples { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .nf-sample-btn {
+      background: none;
+      border: 1px solid var(--border-h);
+      border-radius: 8px;
+      padding: 3px;
+      cursor: pointer;
+      line-height: 0;
+    }
+    .nf-sample-btn img { width: 52px; height: 40px; object-fit: cover; border-radius: 5px; filter: saturate(0.85); }
+    .nf-sample-btn.on { border-color: #eaeaea; }
+    .nf-upload {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      border: 1px dashed var(--border-h);
+      border-radius: 8px;
+      padding: 12px 14px;
+      cursor: pointer;
+      transition: border-color 0.15s ease, color 0.15s ease;
+    }
+    .nf-upload:hover { border-color: rgba(255, 255, 255, 0.4); color: var(--text); }
+    .nf-note {
+      margin-top: 14px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+    }
+    .nf-how { margin-top: 48px; max-width: 68ch; }
+    .nf-how p { color: var(--text-muted); font-size: 14.5px; line-height: 1.7; margin-bottom: 10px; }
+    .nf-how p strong { color: var(--text); }
+  </style>
+</head>
+
+<body>
+
+  <header class="site-header">
+    <nav class="site-nav">
+      <div class="nav-logo"><span class="nav-logo-text">Hudson Tinch</span></div>
+      <div class="nav-links">
+        <a href="../index.html" class="nav-link">Home</a>
+        <a href="../projects.html" class="nav-link active">Projects</a>
+      </div>
+      <div class="nav-cta">
+        <a href="../assets/Hudson-Tinch-Resume.pdf" download class="btn-ghost">Resume</a>
+      </div>
+    </nav>
+  </header>
+
+  <section class="demo-wrap">
+    <div class="section-label">Live demo</div>
+    <h1 class="section-title">NeatFreak</h1>
+    <p class="section-description">
+      Photo in, 3D-printable drawer organizer out. The desktop app extracts an object's silhouette
+      from a photo and generates an STL tray with a matching pocket. This is the extraction engine,
+      rebuilt in JavaScript — <strong>drag the sliders</strong> until the outline hugs the object.
+    </p>
+
+    <div class="nf-controls">
+      <div class="nf-samples" id="nfSamples">
+        <button class="nf-sample-btn on" data-src="../assets/img/arduino_r4.jpg" aria-label="Arduino sample"><img src="../assets/img/arduino_r4.jpg" alt="Arduino"></button>
+        <button class="nf-sample-btn" data-src="../assets/img/ironman_helmettop.jpg" aria-label="Helmet sample"><img src="../assets/img/ironman_helmettop.jpg" alt="Helmet"></button>
+        <label class="nf-upload">Use your own photo<input type="file" id="nfFile" accept="image/*" style="display:none"></label>
+      </div>
+      <div class="nf-slider">
+        <label>Threshold <b id="nfThreshVal">46</b></label>
+        <input type="range" id="nfThresh" min="8" max="140" value="46">
+      </div>
+      <div class="nf-slider">
+        <label>Smoothing <b id="nfMorphVal">2</b></label>
+        <input type="range" id="nfMorph" min="0" max="6" value="2">
+      </div>
+    </div>
+
+    <div class="nf-grid">
+      <div class="nf-panel">
+        <h3>Source &middot; detected silhouette</h3>
+        <canvas id="nfSrc" width="420" height="315"></canvas>
+      </div>
+      <div class="nf-panel">
+        <h3>Generated tray pocket</h3>
+        <canvas id="nfTray" width="420" height="315"></canvas>
+      </div>
+    </div>
+    <p class="nf-note">Runs entirely in your browser &mdash; photos never leave your device.</p>
+
+    <div class="nf-how">
+      <div class="section-label">How the real app works</div>
+      <p>
+        The desktop version (Python &middot; OpenCV &middot; CadQuery) estimates the background color from the
+        photo's corners, thresholds the color distance to isolate the object, cleans the mask with
+        morphological passes, and traces the largest contour. That outline gets extruded into a
+        parametric tray in CadQuery and exported as a printable STL.
+      </p>
+      <p>
+        This page reimplements the extraction stage — corner sampling, color-distance threshold,
+        dilate/erode smoothing — in about 150 lines of vanilla JavaScript on a canvas.
+      </p>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <span class="footer-logo"><span class="led"></span>Hudson Tinch</span>
+      <span class="footer-copy">&copy; 2026 &middot; Dallas, TX</span>
+      <div class="footer-links">
+        <a href="../projects.html" class="footer-link">&larr; Back to projects</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+  (function () {
+    'use strict';
+    var srcCanvas = document.getElementById('nfSrc');
+    var trayCanvas = document.getElementById('nfTray');
+    var sctx = srcCanvas.getContext('2d', { willReadFrequently: true });
+    var tctx = trayCanvas.getContext('2d');
+    var threshEl = document.getElementById('nfThresh');
+    var morphEl = document.getElementById('nfMorph');
+    var img = null;
+    var W = 420, H = 315;
+
+    function loadImage(src) {
+      var im = new Image();
+      im.onload = function () { img = im; process(); };
+      im.src = src;
+    }
+
+    document.getElementById('nfSamples').addEventListener('click', function (e) {
+      var btn = e.target.closest('.nf-sample-btn');
+      if (!btn) return;
+      var btns = document.querySelectorAll('.nf-sample-btn');
+      for (var i = 0; i < btns.length; i++) btns[i].classList.toggle('on', btns[i] === btn);
+      loadImage(btn.getAttribute('data-src'));
+    });
+
+    document.getElementById('nfFile').addEventListener('change', function (e) {
+      var f = e.target.files && e.target.files[0];
+      if (!f) return;
+      var reader = new FileReader();
+      reader.onload = function () { loadImage(reader.result); };
+      reader.readAsDataURL(f);
+      var btns = document.querySelectorAll('.nf-sample-btn');
+      for (var i = 0; i < btns.length; i++) btns[i].classList.remove('on');
+    });
+
+    var pending = false;
+    function schedule() {
+      document.getElementById('nfThreshVal').textContent = threshEl.value;
+      document.getElementById('nfMorphVal').textContent = morphEl.value;
+      if (pending) return;
+      pending = true;
+      requestAnimationFrame(function () { pending = false; process(); });
+    }
+    threshEl.addEventListener('input', schedule);
+    morphEl.addEventListener('input', schedule);
+
+    function process() {
+      if (!img) return;
+      // fit image into working canvas
+      var scale = Math.min(W / img.width, H / img.height);
+      var w = Math.round(img.width * scale), h = Math.round(img.height * scale);
+      var ox = (W - w) >> 1, oy = (H - h) >> 1;
+      sctx.fillStyle = '#0d0d0d';
+      sctx.fillRect(0, 0, W, H);
+      sctx.drawImage(img, ox, oy, w, h);
+      var data = sctx.getImageData(ox, oy, w, h);
+      var px = data.data;
+
+      // background color: average the four 8x8 corner patches
+      var br = 0, bg = 0, bb = 0, n = 0;
+      function patch(x0, y0) {
+        for (var y = y0; y < y0 + 8; y++) for (var x = x0; x < x0 + 8; x++) {
+          var i = (y * w + x) * 4;
+          br += px[i]; bg += px[i + 1]; bb += px[i + 2]; n++;
+        }
+      }
+      patch(0, 0); patch(w - 8, 0); patch(0, h - 8); patch(w - 8, h - 8);
+      br /= n; bg /= n; bb /= n;
+
+      // threshold color distance from background
+      var thr = +threshEl.value, thr2 = thr * thr * 3;
+      var mask = new Uint8Array(w * h);
+      for (var i = 0, p = 0; i < mask.length; i++, p += 4) {
+        var dr = px[p] - br, dg = px[p + 1] - bg, db = px[p + 2] - bb;
+        mask[i] = (dr * dr + dg * dg + db * db) > thr2 ? 1 : 0;
+      }
+
+      // morphological close: dilate n, then erode n (3x3)
+      var iters = +morphEl.value;
+      function pass(src, expand) {
+        var dst = new Uint8Array(w * h);
+        for (var y = 0; y < h; y++) {
+          for (var x = 0; x < w; x++) {
+            var v = expand ? 0 : 1;
+            for (var yy = Math.max(0, y - 1); yy <= Math.min(h - 1, y + 1); yy++) {
+              for (var xx = Math.max(0, x - 1); xx <= Math.min(w - 1, x + 1); xx++) {
+                if (expand) { if (src[yy * w + xx]) { v = 1; } }
+                else { if (!src[yy * w + xx]) { v = 0; } }
+              }
+            }
+            dst[y * w + x] = v;
+          }
+        }
+        return dst;
+      }
+      for (var d = 0; d < iters; d++) mask = pass(mask, true);
+      for (var e2 = 0; e2 < iters; e2++) mask = pass(mask, false);
+
+      // draw green edge overlay on source
+      for (var y2 = 1; y2 < h - 1; y2++) {
+        for (var x2 = 1; x2 < w - 1; x2++) {
+          var idx = y2 * w + x2;
+          if (mask[idx] && (!mask[idx - 1] || !mask[idx + 1] || !mask[idx - w] || !mask[idx + w])) {
+            var p2 = idx * 4;
+            px[p2] = 74; px[p2 + 1] = 222; px[p2 + 2] = 128;
+            // thicken
+            if (x2 + 1 < w) { px[p2 + 4] = 74; px[p2 + 5] = 222; px[p2 + 6] = 128; }
+          }
+        }
+      }
+      sctx.putImageData(data, ox, oy);
+
+      drawTray(mask, w, h);
+    }
+
+    function drawTray(mask, w, h) {
+      tctx.clearRect(0, 0, W, H);
+      // tray base
+      var m = 18;
+      tctx.fillStyle = '#1c1c1c';
+      roundRect(tctx, m, m, W - m * 2, H - m * 2, 14);
+      tctx.fill();
+      tctx.strokeStyle = 'rgba(255,255,255,0.14)';
+      tctx.lineWidth = 1.5;
+      roundRect(tctx, m, m, W - m * 2, H - m * 2, 14);
+      tctx.stroke();
+      // top bevel highlight
+      tctx.strokeStyle = 'rgba(255,255,255,0.05)';
+      roundRect(tctx, m + 5, m + 5, W - m * 2 - 10, H - m * 2 - 10, 10);
+      tctx.stroke();
+
+      // pocket: the mask, scaled into the tray with a depth offset
+      var pad = 40;
+      var s = Math.min((W - pad * 2) / w, (H - pad * 2) / h);
+      var pw = w * s, ph = h * s;
+      var px0 = (W - pw) / 2, py0 = (H - ph) / 2;
+
+      var off = document.createElement('canvas');
+      off.width = w; off.height = h;
+      var octx = off.getContext('2d');
+      var od = octx.createImageData(w, h);
+      for (var i = 0; i < mask.length; i++) {
+        if (mask[i]) {
+          var p = i * 4;
+          od.data[p] = 8; od.data[p + 1] = 8; od.data[p + 2] = 8; od.data[p + 3] = 255;
+        }
+      }
+      octx.putImageData(od, 0, 0);
+
+      tctx.imageSmoothingEnabled = true;
+      // depth shadow (extrusion illusion), then pocket floor
+      tctx.globalAlpha = 0.55;
+      tctx.drawImage(off, px0 + 3, py0 + 4, pw, ph);
+      tctx.globalAlpha = 1;
+      tctx.drawImage(off, px0, py0, pw, ph);
+
+      // caption
+      tctx.font = '10px ui-monospace, Menlo, monospace';
+      tctx.fillStyle = 'rgba(255,255,255,0.28)';
+      tctx.fillText('TRAY POCKET — EXTRUDED FROM SILHOUETTE', m + 10, H - m - 10);
+    }
+
+    function roundRect(ctx, x, y, w2, h2, r) {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.arcTo(x + w2, y, x + w2, y + h2, r);
+      ctx.arcTo(x + w2, y + h2, x, y + h2, r);
+      ctx.arcTo(x, y + h2, x, y, r);
+      ctx.arcTo(x, y, x + w2, y, r);
+      ctx.closePath();
+    }
+
+    loadImage('../assets/img/arduino_r4.jpg');
+  })();
+  </script>
+  <script src="../transitions.js"></script>
+  <script src="../rha-cursor.js" defer></script>
+</body>
+
+</html>
