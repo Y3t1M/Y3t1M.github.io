@@ -1,8 +1,9 @@
 /* ============================================================
    SAND — sand.js
-   Drifting sand background (p5aholic-style): WebGL value-noise
-   field, smoothly evolving, with a slow sinusoidal sway.
-   Falls back to a static speckle tile without WebGL.
+   Boiling-grain background: static per-pixel jitter over a
+   slowly drifting domain-warped simplex field. Movement comes
+   from pixels crossing the contrast threshold at different
+   moments — never from sliding or re-randomizing a texture.
    ============================================================ */
 (function () {
   'use strict';
@@ -14,7 +15,6 @@
   var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var gl = canvas.getContext('webgl', { alpha: false, antialias: false, depth: false, stencil: false });
 
-  /* ---------- fallback: static speckle ---------- */
   function fallback() {
     var ctx = canvas.getContext('2d');
     if (!ctx) return;
@@ -38,37 +38,64 @@
 
   var VS = 'attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}';
   var FS = [
-    'precision mediump float;',
+    'precision highp float;',
     'uniform vec2 uRes;',
     'uniform float uT;',
-    'float hash(vec2 p){',
-    '  p = fract(p * vec2(123.34, 456.21));',
-    '  p += dot(p, p + 45.32);',
-    '  return fract(p.x * p.y);',
+    'uniform float uSeed;',
+    '#define PI 3.141592653589793',
+    /* Ashima / stegu 2D simplex noise */
+    'vec3 mod289(vec3 x){return x - floor(x * (1.0/289.0)) * 289.0;}',
+    'vec2 mod289(vec2 x){return x - floor(x * (1.0/289.0)) * 289.0;}',
+    'vec3 permute(vec3 x){return mod289(((x*34.0)+1.0)*x);}',
+    'float snoise(vec2 v){',
+    '  const vec4 C = vec4(0.211324865405187, 0.366025403784439, -0.577350269189626, 0.024390243902439);',
+    '  vec2 i = floor(v + dot(v, C.yy));',
+    '  vec2 x0 = v - i + dot(i, C.xx);',
+    '  vec2 i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);',
+    '  vec4 x12 = x0.xyxy + C.xxzz;',
+    '  x12.xy -= i1;',
+    '  i = mod289(i);',
+    '  vec3 p = permute(permute(i.y + vec3(0.0, i1.y, 1.0)) + i.x + vec3(0.0, i1.x, 1.0));',
+    '  vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0);',
+    '  m = m*m; m = m*m;',
+    '  vec3 x = 2.0 * fract(p * C.www) - 1.0;',
+    '  vec3 h = abs(x) - 0.5;',
+    '  vec3 ox = floor(x + 0.5);',
+    '  vec3 a0 = x - ox;',
+    '  m *= 1.79284291400159 - 0.85373472095314 * (a0*a0 + h*h);',
+    '  vec3 g;',
+    '  g.x = a0.x * x0.x + h.x * x0.y;',
+    '  g.yz = a0.yz * x12.xz + h.yz * x12.yw;',
+    '  return 130.0 * dot(m, g);',
     '}',
-    'float vnoise(vec2 p){',
-    '  vec2 i = floor(p); vec2 f = fract(p);',
-    '  vec2 u = f * f * (3.0 - 2.0 * f);',
-    '  float a = hash(i);',
-    '  float b = hash(i + vec2(1.0, 0.0));',
-    '  float c = hash(i + vec2(0.0, 1.0));',
-    '  float d = hash(i + vec2(1.0, 1.0));',
-    '  return mix(mix(a, b, u.x), mix(c, d, u.x), u.y);',
+    /* static per-pixel random — time must NEVER enter here */
+    'float hash(vec2 p){',
+    '  vec3 p3 = fract(vec3(p.xyx) * 0.1031);',
+    '  p3 += dot(p3, p3.yzx + 33.33);',
+    '  return fract((p3.x + p3.y) * p3.z);',
+    '}',
+    'float snoise01(vec2 v){ return 0.5 + 0.5 * snoise(v); }',
+    'float noise2d(vec2 st){ return snoise01(vec2(st.x + uT*0.025, st.y - uT*0.035 + uSeed)); }',
+    'float pattern(vec2 p){',
+    '  vec2 q = vec2(noise2d(p), noise2d(p + vec2(5.2, 1.3)));',
+    '  vec2 r = vec2(noise2d(p + 4.0*q + vec2(1.7, 9.2)), noise2d(p + 4.0*q + vec2(8.3, 2.8)));',
+    '  return noise2d(p + r);',
     '}',
     'void main(){',
-    '  vec2 uv = gl_FragCoord.xy / uRes.y;',
-    // slow sway: gentle domain warp so the whole field breathes
-    '  uv += 0.06 * vec2(sin(uT * 0.13 + uv.y * 3.1), cos(uT * 0.10 + uv.x * 2.7));',
-    // fine sand grain, advected slowly and evolving in time
-    '  float g1 = vnoise(uv * 260.0 + vec2(uT * 1.9, uT * 0.7));',
-    '  float g2 = vnoise(uv * 260.0 + vec2(37.7, 19.3) - vec2(uT * 0.6, uT * 1.3));',
-    '  float g = max(g1, g2 * 0.9);',
-    // dune-scale density modulation, swaying slower
-    '  float m = vnoise(uv * 9.0 + vec2(uT * 0.05, -uT * 0.035));',
-    '  float dune = 0.45 + 0.55 * m;',
-    // sparse bright speckle out of the noise field
-    '  float s = pow(max(0.0, g - 0.52) / 0.48, 2.1) * dune;',
-    '  gl_FragColor = vec4(vec3(s), 1.0);',
+    '  vec2 uv = gl_FragCoord.xy / uRes;',
+    '  vec2 px = floor(gl_FragCoord.xy);',
+    /* soft off-center mask with a floor so faint grain reaches everywhere */
+    '  vec2 asp = vec2(uRes.x / uRes.y, 1.0);',
+    '  float mask = 1.0 - smoothstep(0.3, 1.1, distance(uv * asp, vec2(0.5, 0.72) * asp));',
+    '  mask = 0.18 + 0.82 * mask;',
+    /* static jitter vector per pixel */
+    '  float gr = pow(hash(px), 1.5) + 0.5 * (1.0 - mask);',
+    '  float ga = hash(px + 917.0) * 2.0 * PI;',
+    '  vec2 jitter = 0.05 * gr * vec2(cos(ga), sin(ga));',
+    '  vec2 freq = vec2(0.2, 0.4) + 0.1 * (1.0 - mask);',
+    '  float n = pattern(uv * freq + jitter);',
+    '  n = smoothstep(0.0, 1.0, pow(n * 1.05, 6.0));',
+    '  gl_FragColor = vec4(vec3(0.55) * n * mask, 1.0);',
     '}'
   ].join('\n');
 
@@ -76,9 +103,7 @@
     var sh = gl.createShader(type);
     gl.shaderSource(sh, src);
     gl.compileShader(sh);
-    if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) {
-      return null;
-    }
+    if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) return null;
     return sh;
   }
   var vs = shader(gl.VERTEX_SHADER, VS);
@@ -100,11 +125,13 @@
 
   var uRes = gl.getUniformLocation(prog, 'uRes');
   var uT = gl.getUniformLocation(prog, 'uT');
+  var uSeed = gl.getUniformLocation(prog, 'uSeed');
+  gl.uniform1f(uSeed, Math.random() * 100.0);
 
   function resize() {
-    // half-resolution keeps the grain soft and the GPU cost low
-    var w = Math.max(2, Math.floor(window.innerWidth / 2));
-    var h = Math.max(2, Math.floor(window.innerHeight / 2));
+    var dpr = Math.min(window.devicePixelRatio || 1, 1.5); // chunky 1px grain
+    var w = Math.max(2, Math.floor(window.innerWidth * dpr));
+    var h = Math.max(2, Math.floor(window.innerHeight * dpr));
     canvas.width = w; canvas.height = h;
     gl.viewport(0, 0, w, h);
     gl.uniform2f(uRes, w, h);
@@ -117,7 +144,7 @@
     gl.drawArrays(gl.TRIANGLES, 0, 3);
   }
 
-  if (reduced) { draw(7.3); return; }
+  if (reduced) { draw(11.0); return; }
 
   var rafId = null;
   function frame(ts) {
