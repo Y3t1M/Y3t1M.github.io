@@ -104,7 +104,7 @@
     /* soft off-center mask with a floor so faint grain reaches everywhere */
     '  vec2 asp = vec2(uRes.x / uRes.y, 1.0);',
     '  float mask = 1.0 - smoothstep(0.3, 1.1, distance(uv * asp, vec2(0.5, 0.72) * asp));',
-    '  mask = 0.18 + 0.82 * mask;',
+    '  mask = 0.55 + 0.45 * mask;',
     /* static jitter vector per pixel */
     '  float gr = pow(hash(px), 1.5) + 0.5 * (1.0 - mask);',
     '  float ga = hash(px + 917.0) * 2.0 * PI;',
@@ -118,13 +118,15 @@
     '  for (int i = 0; i < 8; i++) {',
     '    if (float(i) >= uNR) break;',
     '    vec4 rct = uR[i];',
-    '    vec2 d = max(vec2(rct.x - pcss.x, rct.y - pcss.y), vec2(pcss.x - rct.x - rct.z, pcss.y - rct.y - rct.w));',
-    '    float outside = length(max(d, 0.0));',
-    '    if (max(d.x, d.y) < 0.0) { f = min(f, 0.3); }',
-    '    else { pile += exp(-outside * outside / 90.0); }',
+    /* rounded-rect SDF so the carve follows the cards 14px corners */
+    '    vec2 half = rct.zw * 0.5;',
+    '    vec2 q = abs(pcss - rct.xy - half) - half + vec2(14.0);',
+    '    float sd = length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - 14.0;',
+    '    if (sd < 0.0) { f = min(f, 0.15); }',
+    '    else { pile += exp(-sd * sd / 90.0); }',
     '  }',
     '  pile = min(pile, 1.0);',
-    '  float s2 = n * f * (1.0 + pile * 0.9);',
+    '  float s2 = n * f * (1.0 + pile * 1.25);',
     '  gl_FragColor = vec4(vec3(0.55) * s2 * mask, 1.0);',
     '}'
   ].join('\n');
