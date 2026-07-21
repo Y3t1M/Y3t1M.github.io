@@ -7,6 +7,7 @@
   <title>404 — Hudson Tinch</title>
   <link rel="stylesheet" href="/styles.css">
   <style>
+    #dot-bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
     .nf-wrap {
       min-height: calc(100vh - 80px);
       display: flex;
@@ -32,6 +33,8 @@
 
 <body>
 
+  <canvas id="dot-bg"></canvas>
+
   <header class="site-header">
     <nav class="site-nav">
       <div class="nav-logo"><span class="nav-logo-text">Hudson Tinch</span></div>
@@ -54,22 +57,57 @@
   <script>
   (function () {
     'use strict';
+    var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var mouse = { x: -9999, y: -9999 };
+    document.addEventListener('pointermove', function (e) { mouse.x = e.clientX; mouse.y = e.clientY; });
+
+    /* ---- dot-grid background with a gentle cursor part ---- */
+    var bg = document.getElementById('dot-bg');
+    var bctx = bg.getContext('2d');
+    function bgResize() { bg.width = window.innerWidth; bg.height = window.innerHeight; }
+    bgResize();
+    window.addEventListener('resize', bgResize);
+    function drawBg() {
+      var W = bg.width, H = bg.height;
+      bctx.clearRect(0, 0, W, H);
+      var g = 24;
+      for (var y = g / 2; y < H; y += g) {
+        for (var x = g / 2; x < W; x += g) {
+          var dx = x - mouse.x, dy = y - mouse.y;
+          var d2 = dx * dx + dy * dy;
+          var push = Math.exp(-d2 / 9000);
+          var len = Math.sqrt(d2) || 1;
+          bctx.fillStyle = 'rgba(234,234,234,' + (0.045 + push * 0.2) + ')';
+          bctx.fillRect(x + (dx / len) * push * 12, y + (dy / len) * push * 12, 1.2, 1.2);
+        }
+      }
+    }
+
+    /* ---- LED face: stable render, smooth tracked eyes, slow eased blinks ---- */
     var canvas = document.getElementById('led-face');
     var ctx = canvas.getContext('2d');
     var off = document.createElement('canvas');
     var octx = off.getContext('2d', { willReadFrequently: true });
-    var mouse = { x: -9999, y: -9999 };
-    document.addEventListener('pointermove', function (e) {
-      var r = canvas.getBoundingClientRect();
-      mouse.x = e.clientX - r.left;
-      mouse.y = e.clientY - r.top;
-    });
-    var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    var blink = 0, nextBlink = 2.2;
+
+    var nextBlink = 4 + Math.random() * 5;
+    var blinkStart = -1;
+    var BLINK_DUR = 0.6;                 // slow, controlled: 0.25s close, 0.1 hold, 0.25 open
+
+    function blinkAmount(t) {
+      if (blinkStart < 0) return 0;
+      var e = t - blinkStart;
+      if (e >= BLINK_DUR) { blinkStart = -1; nextBlink = t + 5 + Math.random() * 5; return 0; }
+      if (e < 0.25) { var u = e / 0.25; return u * u * (3 - 2 * u); }         // ease close
+      if (e < 0.35) return 1;                                                  // hold
+      var v = (e - 0.35) / 0.25;
+      return 1 - v * v * (3 - 2 * v);                                          // ease open
+    }
 
     function draw(t) {
+      if (blinkStart < 0 && t > nextBlink) blinkStart = t;
       var W = canvas.width, H = canvas.height;
       ctx.clearRect(0, 0, W, H);
+
       var gw = 64, gh = 32;
       off.width = gw; off.height = gh;
       octx.clearRect(0, 0, gw, gh);
@@ -78,16 +116,19 @@
       octx.textBaseline = 'middle';
       octx.fillText('(', 6, gh / 2);
       octx.fillText(')', gw - 12, gh / 2);
-      var scale = canvas.getBoundingClientRect().width / W || 1;
-      var dx = Math.max(-2, Math.min(2, (mouse.x / scale - W / 2) / 200));
-      var dy = Math.max(-1.5, Math.min(1.5, (mouse.y / scale - H / 2) / 200));
-      if (t > nextBlink) { blink = 1; nextBlink = t + 2 + Math.random() * 3.5; }
-      if (blink > 0) blink = Math.max(0, blink - 0.09);
-      var eyeGlyph = blink > 0.4 ? '-' : '.';
-      var eyeYOffset = eyeGlyph === '.' ? -4 : 0;
-      octx.fillText(eyeGlyph, 20 + dx, gh / 2 + eyeYOffset + dy);
-      octx.fillText(eyeGlyph, 36 + dx, gh / 2 + eyeYOffset + dy);
-      octx.fillText('_', 27, gh / 2 - 2);
+      octx.fillText('_', 27, gh / 2 - 2);       // mouth (static — no resample jitter)
+
+      /* eyes as drawn blocks: track smoothly, blink by squashing */
+      var r = canvas.getBoundingClientRect();
+      var scale = r.width / W || 1;
+      var mx = (mouse.x - r.left) / scale, my = (mouse.y - r.top) / scale;
+      var dx = Math.max(-2, Math.min(2, (mx - W / 2) / 200));
+      var dy = Math.max(-1.5, Math.min(1.5, (my - H / 2) / 200));
+      var b = blinkAmount(t);
+      var eyeH = Math.max(0.6, 3.4 * (1 - b));
+      var eyeY = gh / 2 - 2 + dy + (3.4 - eyeH) / 2;
+      octx.fillRect(21 + dx, eyeY, 3.2, eyeH);
+      octx.fillRect(37 + dx, eyeY, 3.2, eyeH);
 
       var data = octx.getImageData(0, 0, gw, gh).data;
       var cellW = W / gw, cellH = H / gh;
@@ -109,12 +150,16 @@
       }
     }
 
-    if (reduced) { draw(1); return; }
-    function frame(ts) { draw(ts / 1000); requestAnimationFrame(frame); }
+    if (reduced) { draw(1); drawBg(); return; }
+    function frame(ts) {
+      var t = ts / 1000;
+      drawBg();
+      draw(t);
+      requestAnimationFrame(frame);
+    }
     requestAnimationFrame(frame);
   })();
   </script>
-  <script src="/sand.js"></script>
   <script src="/transitions.js"></script>
 </body>
 

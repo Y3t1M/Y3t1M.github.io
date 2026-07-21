@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Splash Lab</title>
+  <title>Splash Lab — Terrain Variants</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { background: #0b0b0b; color: #eaeaea; font-family: ui-sans-serif, system-ui, sans-serif; }
@@ -20,73 +20,115 @@
       overflow: hidden;
     }
     section.demo canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
-    .tag {
+    .vtag {
       position: absolute; top: 14px; left: 32px; z-index: 3;
       font-family: ui-monospace, Menlo, monospace;
       font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
       color: #8a8a8a;
     }
-    .tag b { color: #eaeaea; font-weight: 600; }
+    .vtag b { color: #eaeaea; font-weight: 600; }
+
     .panel {
-      position: absolute; left: 8%; top: 50%; transform: translateY(-50%);
-      z-index: 2; max-width: min(440px, 60%);
-      background: rgba(13,13,13,0.92);
+      position: absolute; z-index: 2;
+      background: rgba(15,15,15,0.86);
       border: 1px solid rgba(255,255,255,0.16);
       border-radius: 6px; padding: 28px 30px;
+      max-width: min(460px, 84vw);
     }
-    .panel .des {
+    .des {
       font-family: ui-monospace, Menlo, monospace;
       font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase;
       color: #bdbdbd; margin-bottom: 12px;
     }
-    .panel h2 { font-size: clamp(24px, 2.8vw, 34px); line-height: 1.14; font-weight: 750; letter-spacing: -0.02em; margin-bottom: 10px; }
-    .panel p { color: #9a9a9a; font-size: 14.5px; margin-bottom: 20px; }
+    h2.hl { font-size: clamp(26px, 3vw, 36px); line-height: 1.14; font-weight: 750; letter-spacing: -0.02em; margin-bottom: 10px; }
+    .sub { color: #9a9a9a; font-size: 14.5px; margin-bottom: 20px; }
     .btns { display: flex; gap: 10px; }
     .b1 { background: #eaeaea; color: #0b0b0b; font-weight: 650; font-size: 13.5px; border: 0; border-radius: 999px; padding: 10px 18px; }
     .b2 { background: none; color: #eaeaea; font-size: 13.5px; border: 1px solid rgba(255,255,255,0.2); border-radius: 999px; padding: 10px 18px; }
-    /* B: type-is-the-splash variant has no card, content sits bottom-left */
-    .b-content { position: absolute; left: 8%; bottom: 12%; z-index: 2; }
-    .b-content p { color: #9a9a9a; font-size: 15px; margin-bottom: 20px; }
+
+    .chips { position: absolute; z-index: 2; display: flex; gap: 12px; }
+    .lchip {
+      background: rgba(15,15,15,0.9);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 6px;
+      padding: 10px 14px;
+      font-family: ui-monospace, Menlo, monospace;
+      font-size: 11.5px; letter-spacing: 0.1em; color: #c9c9c9;
+    }
+    .lchip .cd { display: block; font-size: 8.5px; letter-spacing: 0.14em; color: #6f6f6f; margin-bottom: 3px; }
+
+    /* V1: planted (current live) */
+    #v1 .panel { left: 8%; top: 44%; transform: translateY(-50%); }
+    #v1 .chips { left: 8%; bottom: 12%; }
+
+    /* V2: centered monument */
+    #v2 .panel { left: 50%; top: 16%; transform: translateX(-50%); text-align: center; }
+    #v2 .panel .btns { justify-content: center; }
+    #v2 .chips { left: 50%; bottom: 11%; transform: translateX(-50%); }
+
+    /* V3: open — no card, type on the field */
+    #v3 .open-copy { position: absolute; left: 8%; top: 18%; z-index: 2; max-width: 640px; }
+    #v3 h2.hl { font-size: clamp(34px, 4.6vw, 58px); text-shadow: 0 2px 26px rgba(0,0,0,0.9); }
+    #v3 .des { margin-bottom: 16px; }
+    #v3 .sub { font-size: 15px; }
+    #v3 .chips { left: 8%; bottom: 10%; }
   </style>
 </head>
 
 <body>
   <div class="head">
-    <h1>Splash Lab</h1>
-    <p>Three replacements for the circuit board, all live. The sand layer stays site-wide regardless; nav chips (PROJECTS / WIN95.SYS / RESUME.PDF) can be kept in any of these. Reply with a letter or a mix.</p>
+    <h1>Splash Lab — terrain compositions</h1>
+    <p>Three arrangements of the same interactive terrain (cursor raises the ground, click ripples). Chips are moored in all three. Reply 1, 2, or 3 — or a mix.</p>
   </div>
 
-  <!-- A: LED Yetim face -->
-  <section class="demo" id="demoA">
+  <!-- V1 -->
+  <section class="demo" id="v1" data-horizon="0.28">
     <canvas></canvas>
-    <div class="tag"><b>A — YETIM LED</b> · dot-matrix ( ._.) on a hardware display · eyes follow your cursor · it blinks</div>
+    <div class="vtag"><b>1 — PLANTED</b> · card left, chips staked in the foreground (current live)</div>
     <div class="panel">
       <div class="des">U1 · Hudson Tinch · Dallas, TX</div>
-      <h2>Studying business.<br>Shipping software.</h2>
-      <p>Developer at Hollis Bloom. Business student at Arkansas.</p>
+      <h2 class="hl">Studying business.<br>Shipping software.</h2>
+      <p class="sub">Developer at Hollis Bloom. Business student at Arkansas.</p>
       <div class="btns"><button class="b1">View projects</button><button class="b2">Resume</button></div>
+    </div>
+    <div class="chips">
+      <span class="lchip"><span class="cd">U2 · 8 ENTRIES</span>PROJECTS →</span>
+      <span class="lchip"><span class="cd">U3 · DO NOT SHIP</span>WIN95.SYS</span>
+      <span class="lchip"><span class="cd">J1 · PDF</span>RESUME.PDF ↓</span>
     </div>
   </section>
 
-  <!-- B: headline built from boiling sand -->
-  <section class="demo" id="demoB">
+  <!-- V2 -->
+  <section class="demo" id="v2" data-horizon="0.38">
     <canvas></canvas>
-    <div class="tag"><b>B — SAND TYPE</b> · the headline itself is made of boiling grain · no card, type is the splash</div>
-    <div class="b-content">
-      <p>Developer at Hollis Bloom. Business student at Arkansas.</p>
-      <div class="btns"><button class="b1">View projects</button><button class="b2">Resume</button></div>
-    </div>
-  </section>
-
-  <!-- C: flowing wireframe terrain -->
-  <section class="demo" id="demoC">
-    <canvas></canvas>
-    <div class="tag"><b>C — TERRAIN</b> · move your cursor — the ground rises to meet it · click for a seismic pulse</div>
+    <div class="vtag"><b>2 — MONUMENT</b> · everything centered, terrain as a stage beneath</div>
     <div class="panel">
-      <div class="des">Hudson Tinch · Dallas, TX</div>
-      <h2>Studying business.<br>Shipping software.</h2>
-      <p>Developer at Hollis Bloom. Business student at Arkansas.</p>
+      <div class="des">U1 · Hudson Tinch · Dallas, TX</div>
+      <h2 class="hl">Studying business.<br>Shipping software.</h2>
+      <p class="sub">Developer at Hollis Bloom. Business student at Arkansas.</p>
       <div class="btns"><button class="b1">View projects</button><button class="b2">Resume</button></div>
+    </div>
+    <div class="chips">
+      <span class="lchip"><span class="cd">U2 · 8 ENTRIES</span>PROJECTS →</span>
+      <span class="lchip"><span class="cd">U3 · DO NOT SHIP</span>WIN95.SYS</span>
+      <span class="lchip"><span class="cd">J1 · PDF</span>RESUME.PDF ↓</span>
+    </div>
+  </section>
+
+  <!-- V3 -->
+  <section class="demo" id="v3" data-horizon="0.24">
+    <canvas></canvas>
+    <div class="vtag"><b>3 — OPEN</b> · no card at all — the type stands directly on the field</div>
+    <div class="open-copy">
+      <div class="des">U1 · Hudson Tinch · Dallas, TX</div>
+      <h2 class="hl">Studying business.<br>Shipping software.</h2>
+      <p class="sub">Developer at Hollis Bloom. Business student at Arkansas.</p>
+      <div class="btns"><button class="b1">View projects</button><button class="b2">Resume</button></div>
+    </div>
+    <div class="chips">
+      <span class="lchip"><span class="cd">U2 · 8 ENTRIES</span>PROJECTS →</span>
+      <span class="lchip"><span class="cd">U3 · DO NOT SHIP</span>WIN95.SYS</span>
+      <span class="lchip"><span class="cd">J1 · PDF</span>RESUME.PDF ↓</span>
     </div>
   </section>
 
@@ -101,228 +143,137 @@
       });
     }
 
-    function setup(section) {
-      var canvas = section.querySelector('canvas');
-      var ctx = canvas.getContext('2d');
-      function resize() {
-        var r = section.getBoundingClientRect();
-        canvas.width = r.width; canvas.height = r.height;
-      }
-      resize();
-      window.addEventListener('resize', resize);
-      return { canvas: canvas, ctx: ctx, sec: section };
+    function hash(x, y) {
+      var h = Math.sin(x * 127.1 + y * 311.7) * 43758.5453;
+      return h - Math.floor(h);
+    }
+    function vnoise(x, y) {
+      var xi = Math.floor(x), yi = Math.floor(y);
+      var xf = x - xi, yf = y - yi;
+      var u = xf * xf * (3 - 2 * xf), v = yf * yf * (3 - 2 * yf);
+      var a = hash(xi, yi), b = hash(xi + 1, yi), c = hash(xi, yi + 1), d = hash(xi + 1, yi + 1);
+      return a + (b - a) * u + (c - a) * v + (a - b - c + d) * u * v;
+    }
+    function fieldN(nx, z, t) {
+      return vnoise(nx * 1.7 + 7.3, (1 - z) * 3.2 - t * 0.05)
+           + 0.35 * vnoise(nx * 3.6 + 2.1, (1 - z) * 6.5 - t * 0.08);
     }
 
-    /* ============ A: LED Yetim face ============ */
-    (function () {
-      var s = setup(document.getElementById('demoA'));
-      var mouse = { x: -9999, y: -9999 };
-      s.sec.addEventListener('pointermove', function (e) {
-        var r = s.sec.getBoundingClientRect();
-        mouse.x = e.clientX - r.left; mouse.y = e.clientY - r.top;
-      });
+    function initTerrain(sec) {
+      var canvas = sec.querySelector('canvas');
+      var ctx = canvas.getContext('2d');
+      var horizonF = parseFloat(sec.getAttribute('data-horizon') || '0.28');
+      var W = 0, H = 0;
+      var chips = Array.prototype.slice.call(sec.querySelectorAll('.lchip'))
+        .map(function (el) { return { el: el, xc: 0, z: 0.5, zz: 0, y0: 0, amp: 0, bottom: 0 }; });
 
-      var off = document.createElement('canvas');
-      var octx = off.getContext('2d', { willReadFrequently: true });
-      var blink = 0, nextBlink = 2.5;
-
-      function frame(ts) {
-        var t = ts / 1000;
-        var W = s.canvas.width, H = s.canvas.height;
-        var ctx = s.ctx;
-        ctx.clearRect(0, 0, W, H);
-
-        // face occupies the right half
-        var fw = Math.min(W * 0.45, 640), fh = fw * 0.5;
-        var fx = W * 0.68 - fw / 2, fy = H * 0.5 - fh / 2;
-
-        // draw glyphs on the offscreen at low res, sample to LED grid
-        var gw = 64, gh = 32;
-        off.width = gw; off.height = gh;
-        octx.clearRect(0, 0, gw, gh);
-        octx.fillStyle = '#fff';
-        octx.font = '700 26px ui-monospace, Menlo, monospace';
-        octx.textBaseline = 'middle';
-        // parens
-        octx.fillText('(', 6, gh / 2);
-        octx.fillText(')', gw - 12, gh / 2);
-        // eyes track cursor (clamped), blink flattens them
-        var cx = fx + fw / 2, cy = fy + fh / 2;
-        var dx = Math.max(-2, Math.min(2, (mouse.x - cx) / 220));
-        var dy = Math.max(-1.5, Math.min(1.5, (mouse.y - cy) / 220));
-        if (t > nextBlink) { blink = 1; nextBlink = t + 2 + Math.random() * 3.5; }
-        if (blink > 0) blink = Math.max(0, blink - 0.09);
-        var eyeGlyph = blink > 0.4 ? '-' : '.';
-        var eyeYOffset = eyeGlyph === '.' ? -4 : 0; // '.' sits low; lift toward center
-        octx.fillText(eyeGlyph, 20 + dx, gh / 2 + eyeYOffset + dy);
-        octx.fillText(eyeGlyph, 36 + dx, gh / 2 + eyeYOffset + dy);
-        // mouth
-        octx.fillText('_', 27, gh / 2 - 2);
-
-        var data = octx.getImageData(0, 0, gw, gh).data;
-        var cellW = fw / gw, cellH = fh / gh;
-        for (var y = 0; y < gh; y++) {
-          for (var x = 0; x < gw; x++) {
-            var a = data[(y * gw + x) * 4 + 3] / 255;
-            var px = fx + x * cellW + cellW / 2;
-            var py = fy + y * cellH + cellH / 2;
-            if (a > 0.12) {
-              ctx.fillStyle = 'rgba(234,234,234,' + (0.25 + 0.75 * a) + ')';
-              ctx.beginPath();
-              ctx.arc(px, py, Math.min(cellW, cellH) * 0.32, 0, 7);
-              ctx.fill();
-            } else {
-              // dark unlit LED — hints the display exists
-              ctx.fillStyle = 'rgba(255,255,255,0.025)';
-              ctx.beginPath();
-              ctx.arc(px, py, Math.min(cellW, cellH) * 0.18, 0, 7);
-              ctx.fill();
-            }
-          }
-        }
-        requestAnimationFrame(frame);
+      function measure() {
+        var sr = sec.getBoundingClientRect();
+        W = canvas.width = Math.round(sr.width);
+        H = canvas.height = Math.round(sr.height);
+        chips.forEach(function (c) {
+          c.el.style.transform = '';
+          var r = c.el.getBoundingClientRect();
+          c.xc = r.left - sr.left + r.width / 2;
+          c.bottom = r.bottom - sr.top;
+          var horizon = H * horizonF;
+          var yTarget = Math.min(H - 26, c.bottom + 52);
+          var zz = Math.max(0.05, Math.min(1, (yTarget - horizon) / ((H - horizon) * 1.05)));
+          c.zz = zz;
+          c.z = Math.pow(zz, 1 / 1.7);
+          c.y0 = horizon + zz * (H - horizon) * 1.05;
+          c.amp = 14 + zz * 74;
+        });
       }
-      requestAnimationFrame(frame);
-    })();
-
-    /* ============ B: headline from boiling sand ============ */
-    (function () {
-      var s = setup(document.getElementById('demoB'));
-      var pts = null;
-
-      function buildMask() {
-        var mw = s.canvas.width, mh = s.canvas.height;
-        var off = document.createElement('canvas');
-        off.width = mw; off.height = mh;
-        var octx = off.getContext('2d');
-        var size = Math.min(mw / 11, 110);
-        octx.font = '800 ' + size + 'px ui-sans-serif, system-ui, sans-serif';
-        octx.fillStyle = '#fff';
-        octx.fillText('Studying business.', mw * 0.08, mh * 0.3);
-        octx.fillText('Shipping software.', mw * 0.08, mh * 0.3 + size * 1.15);
-        var data = octx.getImageData(0, 0, mw, mh).data;
-        pts = [];
-        for (var y = 0; y < mh; y += 1) {
-          for (var x = 0; x < mw; x += 1) {
-            if (data[(y * mw + x) * 4 + 3] > 128) pts.push(x, y);
-          }
-        }
-      }
-      buildMask();
-      window.addEventListener('resize', buildMask);
-
-      function frame() {
-        var ctx = s.ctx, W = s.canvas.width, H = s.canvas.height;
-        ctx.fillStyle = 'rgba(11,11,11,0.18)';
-        ctx.fillRect(0, 0, W, H);
-        if (pts && pts.length) {
-          var n = Math.max(600, (pts.length / 2 / 26) | 0);  // constant density
-          for (var i = 0; i < n; i++) {
-            var k = ((Math.random() * pts.length / 2) | 0) * 2;
-            ctx.fillStyle = 'rgba(234,234,234,' + (0.35 + Math.random() * 0.65) + ')';
-            ctx.fillRect(pts[k], pts[k + 1], 1.6, 1.6);
-          }
-          // stray grains off the letters
-          for (var j = 0; j < 60; j++) {
-            ctx.fillStyle = 'rgba(234,234,234,0.08)';
-            ctx.fillRect((Math.random() * W) | 0, (Math.random() * H) | 0, 1, 1);
-          }
-        }
-        requestAnimationFrame(frame);
-      }
-      requestAnimationFrame(frame);
-    })();
-
-    /* ============ C: flowing wireframe terrain — interactive ============ */
-    (function () {
-      var s = setup(document.getElementById('demoC'));
+      measure();
+      window.addEventListener('resize', measure);
+      setTimeout(measure, 400);
 
       var mouse = { x: -9999, y: -9999, sx: -9999, sy: -9999 };
-      s.sec.addEventListener('pointermove', function (e) {
-        var r = s.sec.getBoundingClientRect();
+      sec.addEventListener('pointermove', function (e) {
+        var r = sec.getBoundingClientRect();
         mouse.x = e.clientX - r.left; mouse.y = e.clientY - r.top;
       });
-      s.sec.addEventListener('pointerleave', function () { mouse.x = -9999; mouse.y = -9999; });
-
+      sec.addEventListener('pointerleave', function () { mouse.x = -9999; mouse.y = -9999; });
       var waves = [];
-      s.sec.addEventListener('pointerdown', function (e) {
-        var r = s.sec.getBoundingClientRect();
+      sec.addEventListener('pointerdown', function (e) {
+        if (e.target.closest('.panel') || e.target.closest('.lchip') || e.target.closest('.open-copy')) return;
+        var r = sec.getBoundingClientRect();
         waves.push({ x: e.clientX - r.left, y: e.clientY - r.top, t0: performance.now() / 1000 });
         if (waves.length > 6) waves.shift();
       });
 
-      function hash(x, y) {
-        var h = Math.sin(x * 127.1 + y * 311.7) * 43758.5453;
-        return h - Math.floor(h);
-      }
-      function vnoise(x, y) {
-        var xi = Math.floor(x), yi = Math.floor(y);
-        var xf = x - xi, yf = y - yi;
-        var u = xf * xf * (3 - 2 * xf), v = yf * yf * (3 - 2 * yf);
-        var a = hash(xi, yi), b = hash(xi + 1, yi), c = hash(xi, yi + 1), d = hash(xi + 1, yi + 1);
-        return a + (b - a) * u + (c - a) * v + (a - b - c + d) * u * v;
+      function extras(x, y0, zz, t) {
+        var d = 0;
+        if (mouse.sx > -999) {
+          var dxm = x - mouse.sx, dym = y0 - mouse.sy;
+          d += Math.exp(-(dxm * dxm + dym * dym) / 30000) * 56 * (0.3 + zz);
+        }
+        for (var w = 0; w < waves.length; w++) {
+          var wv = waves[w];
+          var age = t - wv.t0;
+          if (age > 4.5) continue;
+          var dxw = x - wv.x, dyw = y0 - wv.y;
+          var dist = Math.sqrt(dxw * dxw + dyw * dyw);
+          var band = Math.exp(-Math.pow(dist - age * 170, 2) / 3000);
+          d += band * 42 * Math.exp(-age * 0.9) * (0.3 + zz) * Math.sin(age * 5.5);
+        }
+        return d;
       }
 
       function frame(ts) {
         var t = ts / 1000;
-        var ctx = s.ctx, W = s.canvas.width, H = s.canvas.height;
         ctx.clearRect(0, 0, W, H);
-
-        // cursor spring-lag
         if (mouse.x > -999) {
           if (mouse.sx < -999) { mouse.sx = mouse.x; mouse.sy = mouse.y; }
           mouse.sx += (mouse.x - mouse.sx) * 0.08;
           mouse.sy += (mouse.y - mouse.sy) * 0.08;
         } else { mouse.sx = -9999; mouse.sy = -9999; }
 
-        var horizon = H * 0.42;
-        var rows = 34;
+        var horizon = H * horizonF;
+        var rows = 32;
         for (var r = 0; r < rows; r++) {
           var z = r / rows;
           var zz = Math.pow(z, 1.7);
           var y0 = horizon + zz * (H - horizon) * 1.05;
-          var amp = 14 + zz * 90;
-          var alpha = 0.05 + zz * 0.2;
-          ctx.strokeStyle = 'rgba(234,234,234,' + alpha + ')';
+          var amp = 14 + zz * 74;
+          ctx.strokeStyle = 'rgba(234,234,234,' + (0.05 + zz * 0.18) + ')';
           ctx.lineWidth = 1;
           ctx.beginPath();
-          var steps = 90;
-          for (var i = 0; i <= steps; i++) {
-            var x = (i / steps) * W;
-            var nx = (i / steps - 0.5) / (0.25 + z * 0.75);
-            var n = vnoise(nx * 3 + 7.3, (1 - z) * 5 - t * 0.06)
-                  + 0.5 * vnoise(nx * 6 + 2.1, (1 - z) * 10 - t * 0.1);
-            var y = y0 - n * amp;
-
-            // cursor bump: terrain reaches toward the pointer
-            if (mouse.sx > -999) {
-              var dxm = x - mouse.sx, dym = y0 - mouse.sy;
-              var d2 = dxm * dxm + dym * dym;
-              y -= Math.exp(-d2 / 26000) * 60 * (0.3 + zz);
-            }
-
-            // click waves: radial ripples through the rows
-            for (var w = 0; w < waves.length; w++) {
-              var wv = waves[w];
-              var age = t - wv.t0;
-              if (age > 3) continue;
-              var dxw = x - wv.x, dyw = y0 - wv.y;
-              var dist = Math.sqrt(dxw * dxw + dyw * dyw);
-              var ring = age * 340;
-              var band = Math.exp(-Math.pow(dist - ring, 2) / 2400);
-              y -= band * 46 * Math.exp(-age * 1.4) * (0.3 + zz) * Math.sin(age * 9);
-            }
-
+          for (var i = 0; i <= 110; i++) {
+            var x = (i / 110) * W;
+            var nx = (i / 110 - 0.5) / (0.25 + z * 0.75);
+            var y = y0 - fieldN(nx, z, t) * amp - extras(x, y0, zz, t);
             if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
           }
           ctx.stroke();
         }
-        // prune finished waves
-        waves = waves.filter(function (wv) { return t - wv.t0 < 3; });
+        waves = waves.filter(function (wv) { return t - wv.t0 < 4.5; });
+
+        for (var c = 0; c < chips.length; c++) {
+          var cp = chips[c];
+          if (!cp.xc) continue;
+          var nx2 = (cp.xc / W - 0.5) / (0.25 + cp.z * 0.75);
+          var lineY = cp.y0 - fieldN(nx2, cp.z, t) * cp.amp - extras(cp.xc, cp.y0, cp.zz, t);
+          var rest = cp.y0 - 0.675 * cp.amp;
+          var dy = Math.max(-16, Math.min(16, (lineY - rest) * 0.45));
+          cp.el.style.transform = 'translateY(' + dy.toFixed(2) + 'px)';
+          ctx.strokeStyle = 'rgba(234,234,234,0.1)';
+          ctx.beginPath();
+          ctx.moveTo(cp.xc, cp.bottom + dy + 6);
+          ctx.lineTo(cp.xc, lineY);
+          ctx.stroke();
+          ctx.fillStyle = 'rgba(234,234,234,0.55)';
+          ctx.beginPath();
+          ctx.arc(cp.xc, lineY, 2.4, 0, 7);
+          ctx.fill();
+        }
         requestAnimationFrame(frame);
       }
       requestAnimationFrame(frame);
-    })();
+    }
+
+    document.querySelectorAll('section.demo').forEach(initTerrain);
   })();
   </script>
 </body>

@@ -6,8 +6,8 @@
 
 :root {
   --bg:         #0b0b0b;
-  --bg-card:    #101010;
-  --bg-card-h:  #161616;
+  --bg-card:    rgba(15, 15, 15, 0.84);
+  --bg-card-h:  rgba(23, 23, 23, 0.86);
   --border:     rgba(255, 255, 255, 0.08);
   --border-h:   rgba(255, 255, 255, 0.14);
   --divider:    rgba(255, 255, 255, 0.06);
@@ -723,6 +723,7 @@ html.settled .pcb-comp {
 
 /* Section indicator (bottom-right label) */
 #section-indicator {
+  display: none !important;
   position: fixed;
   bottom: 32px;
   right: 28px;
@@ -1089,6 +1090,7 @@ html.fw-booted .pcb-comp { transition-delay: 0.4s; }
 }
 #cli-input::placeholder { color: #2a2b3d; }
 #cli-slash-hint {
+  display: none !important;
   position: fixed;
   bottom: 18px;
   right: 22px;
@@ -1106,7 +1108,8 @@ html.fw-booted .pcb-comp { transition-delay: 0.4s; }
   transition: color 0.2s ease;
 }
 #cli-slash-hint:hover { color: rgba(236, 233, 241, 0.55); }
-@media (hover: none) { #cli-slash-hint { color: rgba(236, 233, 241, 0.35); } }
+@media (hover: none) { #cli-slash-hint {
+  display: none !important; color: rgba(236, 233, 241, 0.35); } }
 
 /* ---------- Blueprint mode ---------- */
 body.blueprint {

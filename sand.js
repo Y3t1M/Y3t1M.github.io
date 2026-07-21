@@ -120,7 +120,7 @@
     '    vec4 rct = uR[i];',
     '    vec2 d = max(vec2(rct.x - pcss.x, rct.y - pcss.y), vec2(pcss.x - rct.x - rct.z, pcss.y - rct.y - rct.w));',
     '    float outside = length(max(d, 0.0));',
-    '    if (max(d.x, d.y) < 0.0) { f = min(f, 0.08); }',
+    '    if (max(d.x, d.y) < 0.0) { f = min(f, 0.16); }',
     '    else { pile += exp(-outside * outside / 600.0); }',
     '  }',
     '  pile = min(pile, 1.3);',
