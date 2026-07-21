@@ -97,8 +97,12 @@
     var fctx = fx ? fx.getContext('2d') : null;
     var N = slides.length;
     if (!N) return;
-    sec.style.height = (N * 85 + 100) + 'vh';
+    sec.style.height = (N * 100 + 100) + 'vh';
     var sp = 0;
+    var lastActive = -1;
+    var counter = document.createElement('div');
+    counter.className = 'sc-counter';
+    stage.appendChild(counter);
 
     function resizeFx() {
       if (!fx) return;
@@ -112,10 +116,16 @@
       var r = sec.getBoundingClientRect();
       var runway = sec.offsetHeight - window.innerHeight;
       var p = Math.max(0, Math.min(1, -r.top / runway));
-      sp += (p - sp) * 0.12;
+      sp += (p - sp) * 0.085;
 
       var active = Math.round(sp * (N - 1));
       for (var d = 0; d < rail.length; d++) rail[d].classList.toggle('on', d === active);
+      if (counter && active !== lastActive) {
+        lastActive = active;
+        var h3 = slides[active].querySelector('h3');
+        counter.innerHTML = '<b>' + ('0' + (active + 1)).slice(-2) + ' / ' + ('0' + N).slice(-2) + '</b> — ' +
+          (h3 ? h3.textContent : '');
+      }
 
       if (fctx) fctx.clearRect(0, 0, fx.width, fx.height);
       var sh = stage.clientHeight, sw = stage.clientWidth;
@@ -133,6 +143,7 @@
           continue;
         }
         el.style.visibility = 'visible';
+        el.classList.toggle('active', abs < 0.5);
         el.style.pointerEvents = abs < 0.28 ? 'auto' : 'none';
         el.style.zIndex = String(100 - Math.round(abs * 20));
 

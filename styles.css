@@ -6,8 +6,8 @@
 
 :root {
   --bg:         #0b0b0b;
-  --bg-card:    rgba(15, 15, 15, 0.84);
-  --bg-card-h:  rgba(23, 23, 23, 0.86);
+  --bg-card:    rgba(14, 14, 14, 0.72);
+  --bg-card-h:  rgba(20, 20, 20, 0.78);
   --border:     rgba(255, 255, 255, 0.08);
   --border-h:   rgba(255, 255, 255, 0.14);
   --divider:    rgba(255, 255, 255, 0.06);
@@ -690,6 +690,36 @@ html.fx .sc-rail {
   flex-direction: column;
   gap: 10px;
 }
+html.fx .sc-slide .case > *,
+html.fx .sc-slide .case-sm {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+html.fx .sc-slide.active .case > *,
+html.fx .sc-slide.active .case-sm {
+  opacity: 1;
+  transform: none;
+}
+html.fx .sc-slide.active .case > :nth-child(2), html.fx .sc-slide.active .case-sm:nth-child(2) { transition-delay: 0.07s; }
+html.fx .sc-slide.active .case > :nth-child(3), html.fx .sc-slide.active .case-sm:nth-child(3) { transition-delay: 0.14s; }
+html.fx .sc-slide.active .case > :nth-child(4) { transition-delay: 0.21s; }
+html.fx .sc-slide.active .case > :nth-child(5) { transition-delay: 0.28s; }
+
+.sc-counter {
+  display: none;
+  position: absolute;
+  top: 24px;
+  left: 32px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+.sc-counter b { color: var(--text); font-weight: 600; }
+html.fx .sc-counter { display: block; }
+
 .sc-rail i {
   width: 5px;
   height: 5px;
