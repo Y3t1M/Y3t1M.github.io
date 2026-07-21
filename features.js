@@ -15,72 +15,54 @@
     if (sessionStorage.getItem('fw_shown')) return;
     sessionStorage.setItem('fw_shown', '1');
 
+    document.documentElement.classList.add('fw-boot');
+
     var overlay = document.createElement('div');
     overlay.id = 'firmware-overlay';
-    overlay.innerHTML =
-      '<div id="firmware-inner">' +
-        '<div class="fw-topbar">' +
-          '<div class="fw-dot fw-dot-red"></div>' +
-          '<div class="fw-dot fw-dot-yellow"></div>' +
-          '<div class="fw-dot fw-dot-green"></div>' +
-          '<span class="fw-title">hudson@archlinux: ~</span>' +
-        '</div>' +
-        '<div class="fw-body" id="fw-body"></div>' +
-      '</div>';
-
+    overlay.innerHTML = '<div id="firmware-inner"><div class="fw-head">HT-01 REV E &mdash; POWER-ON SELF-TEST</div><div id="fw-body"></div></div>';
     document.body.appendChild(overlay);
 
     var body = document.getElementById('fw-body');
 
-    var art = [
-      '        .o                                            o.',
-      '      .8\'                                              `8.',
-      '     .8\'                                                `8.',
-      '     88                                                  88',
-      '     88                                                  88',
-      '     `8.            .o.                       .o.       .8\'',
-      '      `8.           Y8P      ooooooooooo      Y8P      .8\'',
-      '       `"                                              "\'',
-      '',
-      '',
+    // short lines only — must fit a 320px viewport in 12px mono
+    var lines = [
+      { label: 'vcc',       result: '3.3V ok',  delay: 120 },
+      { label: 'clock',     result: '16 MHz',   delay: 110 },
+      { label: 'traces',    result: 'routed',   delay: 130 },
+      { label: 'd1 status', result: 'blink',    delay: 110 },
+      { label: 'memory',    result: '8/8',      delay: 120 },
+      { label: 'boot',      result: 'hudsontinch.com', delay: 260 }
     ];
 
-    var lines = [];
-    lines.push({ html: '<span class="cli-p-user">hudson</span><span style="color:#888">@</span><span class="cli-p-host">archlinux</span> <span class="cli-p-tilde">~</span><span class="cli-p-dollar"> $</span> <span class="cli-nf-val">neofetch</span>', delay: 0 });
-    lines.push({ html: '', delay: 100 });
-    for (var i = 0; i < art.length; i++) {
-      lines.push({ html: '<span class="cli-nf-art">' + art[i] + '</span>', delay: 48 });
+    var done = false;
+    function finish() {
+      if (done) return;
+      done = true;
+      document.documentElement.classList.remove('fw-boot');
+      document.documentElement.classList.add('fw-booted');
+      overlay.classList.add('fw-fade');
+      setTimeout(function () { overlay.remove(); }, 520);
     }
-    lines.push({ html: '', delay: 60 });
-    lines.push({ html: '<span class="cli-p-user">hudson</span><span style="color:#888">@</span><span class="cli-p-host">archlinux</span>', delay: 0 });
-    lines.push({ html: '<span class="cli-nf-key">-------------------------------</span>', delay: 20 });
-    lines.push({ html: '<span class="cli-nf-key">OS:</span>     <span class="cli-nf-val">HudsonInch GNU/Linux x86_64</span>', delay: 35 });
-    lines.push({ html: '<span class="cli-nf-key">Host:</span>   <span class="cli-nf-val">Y3t1M.github.io</span>', delay: 35 });
-    lines.push({ html: '<span class="cli-nf-key">Role:</span>   <span class="cli-nf-val">Robotics Captain  •  Maker</span>', delay: 35 });
-    lines.push({ html: '<span class="cli-nf-key">Univ:</span>   <span class="cli-nf-val">U of Arkansas  —  Honors College</span>', delay: 35 });
-    lines.push({ html: '<span class="cli-nf-key">Lang:</span>   <span class="cli-nf-val">C++  Python  JS  TS</span>', delay: 35 });
-    lines.push({ html: '<span class="cli-nf-key">HW:</span>     <span class="cli-nf-val">Arduino  PCB  3D Printing</span>', delay: 35 });
-    lines.push({ html: '<span class="cli-nf-key">GPA:</span>    <span class="cli-nf-val">4.0  —  Chancellor\'s List</span>', delay: 35 });
-    lines.push({ html: '', delay: 80 });
-    lines.push({ html: '<span class="cli-p-dollar">$</span> <span class="cli-nf-val" style="color:#4ade80">// portfolio loaded — welcome</span>', delay: 160 });
+
+    // skippable: tap or key ends it immediately
+    overlay.addEventListener('pointerdown', finish);
+    document.addEventListener('keydown', finish, { once: true });
+    // hard guard: never trap the visitor, whatever happens
+    setTimeout(finish, 3500);
 
     var idx = 0;
     function printNext() {
-      if (idx >= lines.length) {
-        setTimeout(function () {
-          overlay.classList.add('fw-fade');
-          setTimeout(function () { overlay.remove(); }, 520);
-        }, 520);
-        return;
-      }
+      if (done) return;
+      if (idx >= lines.length) { setTimeout(finish, 420); return; }
       var line = lines[idx++];
       var el = document.createElement('div');
-      el.className = 'fw-output-line fw-active';
-      el.innerHTML = line.html;
+      el.className = 'fw-output-line';
+      var dots = new Array(Math.max(2, 14 - line.label.length)).join('.');
+      el.innerHTML = '<span class="fw-label">' + line.label + ' ' + dots + '</span> <span class="fw-ok">' + line.result + '</span>';
       body.appendChild(el);
       setTimeout(printNext, line.delay);
     }
-    setTimeout(printNext, 220);
+    setTimeout(printNext, 260);
   })();
 
 
@@ -149,7 +131,7 @@
       printRaw('<span class="cli-p-user">hudson</span><span style="color:#ccc">@</span><span class="cli-p-host">archlinux</span>');
       printRaw('<span class="cli-nf-key">-------------------------------</span>');
       printRaw('<span class="cli-nf-key">OS:</span>     <span class="cli-nf-val">HudsonInch GNU/Linux x86_64</span>');
-      printRaw('<span class="cli-nf-key">Host:</span>   <span class="cli-nf-val">Y3t1M.github.io</span>');
+      printRaw('<span class="cli-nf-key">Host:</span>   <span class="cli-nf-val">hudsontinch.com</span>');
       printRaw('<span class="cli-nf-key">Role:</span>   <span class="cli-nf-val">Robotics Captain  •  Maker</span>');
       printRaw('<span class="cli-nf-key">Univ:</span>   <span class="cli-nf-val">U of Arkansas  —  Honors College</span>');
       printRaw('<span class="cli-nf-key">Lang:</span>   <span class="cli-nf-val">C++  Python  JS  TS</span>');

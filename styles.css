@@ -855,61 +855,68 @@ section { position: relative; z-index: 1; }
 }
 @keyframes pageIn { from { opacity: 0; } to { opacity: 1; } }
 
-/* ---------- Firmware flash overlay ---------- */
+/* ---------- Firmware POST intro (monochrome, mobile-safe) ---------- */
 #firmware-overlay {
   position: fixed;
   inset: 0;
-  background: #141414;
+  background: #0b0b0b;
   z-index: 999999;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Courier New', monospace;
+  padding: 24px;
   transition: opacity 0.5s ease;
+  cursor: pointer;
 }
 #firmware-overlay.fw-fade { opacity: 0; pointer-events: none; }
-#firmware-inner { width: 580px; max-width: 94vw; }
-.fw-topbar {
-  background: #1e1f2e;
-  border-radius: 6px 6px 0 0;
-  padding: 10px 16px;
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  border: 1px solid #2a2b3d;
-  border-bottom: none;
-}
-.fw-dot          { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
-.fw-dot-red      { background: #ff5f57; }
-.fw-dot-yellow   { background: #febc2e; }
-.fw-dot-green    { background: #28c840; }
-.fw-title {
-  font-size: 11px;
-  color: #555;
-  margin-left: 10px;
-  font-family: 'Courier New', monospace;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.fw-body {
-  background: #1a1b26;
-  border: 1px solid #2a2b3d;
-  border-radius: 0 0 6px 6px;
-  padding: 20px 24px 24px;
-  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(255, 255, 255, 0.03);
-  max-height: 80vh;
-  overflow-y: auto;
+#firmware-inner { min-width: min(260px, 90vw); }
+.fw-head {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-bottom: 14px;
 }
 .fw-output-line {
-  font-size: 12.5px;
-  color: #ccc;
-  margin-bottom: 2px;
-  font-family: 'Courier New', monospace;
-  line-height: 1.75;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  line-height: 2;
   white-space: pre;
+  animation: fwLineIn 0.25s ease both;
 }
-.fw-output-line.fw-active { color: #ccc; }
+@keyframes fwLineIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+.fw-label { color: var(--text-faint); }
+.fw-ok { color: var(--text); }
+#fw-body .fw-output-line:last-child .fw-ok::after {
+  content: "\258B";
+  margin-left: 6px;
+  color: var(--text);
+  animation: fwBlink 0.8s step-end infinite;
+}
+@keyframes fwBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+/* hero staggers in as the POST fades */
+html.fw-boot .hero-panel > *,
+html.fw-boot .pcb-comp {
+  opacity: 0;
+  transform: translateY(10px);
+}
+html.fw-booted .hero-panel > *,
+html.fw-booted .pcb-comp {
+  opacity: 1;
+  transform: none;
+  transition: opacity 0.55s ease, transform 0.55s ease;
+}
+html.fw-booted .hero-panel > :nth-child(2) { transition-delay: 0.07s; }
+html.fw-booted .hero-panel > :nth-child(3) { transition-delay: 0.14s; }
+html.fw-booted .hero-panel > :nth-child(4) { transition-delay: 0.21s; }
+html.fw-booted .hero-panel > :nth-child(5) { transition-delay: 0.28s; }
+html.fw-booted .pcb-comp { transition-delay: 0.4s; }
+@media (prefers-reduced-motion: reduce) {
+  html.fw-boot .hero-panel > *, html.fw-boot .pcb-comp { opacity: 1; transform: none; }
+}
 
 /* ---------- CLI terminal overlay ---------- */
 #cli-overlay {
