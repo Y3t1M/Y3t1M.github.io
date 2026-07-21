@@ -14,7 +14,8 @@
   --w-face:     #c0c0c0;   /* gray face */
   --w-lt:       #ffffff;   /* light edge */
   --w-dk:       #808080;   /* dark edge */
-  --w-ddk:      #404040;   /* deep dark */
+  --w-ddk:      #000000;   /* deep dark (authentic W95 outer edge) */
+  --w-dfl:      #dfdfdf;   /* second light tone for the double bevel */
   --w-btn:      #c0c0c0;
   --w-titlebar: #000080;
   --w-titlebar2:#1084d0;
@@ -23,7 +24,7 @@
   --w-select:   #000080;
   --w-select-t: #ffffff;
   /* font */
-  --w-font: "Segoe UI", Tahoma, Arial, sans-serif;
+  --w-font: "MS Sans Serif", "Microsoft Sans Serif", "Pixelated MS Sans Serif", Tahoma, sans-serif;
   /* taskbar */
   --tb-h: 36px;
   /* lock screen background — change this to retheme the lock screen */
@@ -35,7 +36,7 @@
    ---------------------------------------------------------------- */
 html, body {
   margin: 0; padding: 0;
-  font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+  font-family: var(--w-font);
   font-size: 11px;
   user-select: none;
   overflow: hidden;
@@ -81,11 +82,13 @@ body.desktop::before { content: none; }
   background: rgba(0,0,128,0.35);
   border-color: rgba(255,255,255,0.6);
 }
-.icon.selected,
-.icon:active {
-  background: rgba(0,0,128,0.55);
-  border: 1px dotted rgba(255,255,255,0.9);
+.icon:active { background: rgba(0,0,128,0.25); }
+.icon.selected span {
+  background: var(--w-select);
+  color: var(--w-select-t);
+  outline: 1px dotted #ffff88;
 }
+.icon.selected img { filter: brightness(0.8) saturate(1.4) hue-rotate(0deg); }
 
 /* Single-column layout, left side – overridden by JS drag after first move */
 .icon:nth-child(1) { top:  18px; left: 20px; }
@@ -134,9 +137,9 @@ body.desktop::before { content: none; }
   min-width: 200px; min-height: 100px;
   background: var(--w-face);
   /* classic W95 raised outer border */
-  border: 2px solid;
-  border-color: var(--w-lt) var(--w-ddk) var(--w-ddk) var(--w-lt);
-  box-shadow: 1px 1px 0 var(--w-dk), inset 1px 1px 0 var(--w-lt);
+  border: 1px solid;
+  border-color: var(--w-dfl) var(--w-ddk) var(--w-ddk) var(--w-dfl);
+  box-shadow: inset 1px 1px 0 var(--w-lt), inset -1px -1px 0 var(--w-dk), 1px 1px 0 var(--w-ddk);
   display: none;
   flex-direction: column;
   overflow: hidden;
@@ -150,7 +153,7 @@ body.desktop::before { content: none; }
   from { transform: scale(0.92); opacity: 0; }
   to   { transform: scale(1);    opacity: 1; }
 }
-.window.active { animation: winOpen 0.1s ease-out; }
+.window.spawn { animation: winOpen 0.12s ease-out; }
 
 /* ----------------------------------------------------------------
    TITLEBAR
@@ -204,8 +207,8 @@ body.desktop::before { content: none; }
   color: #000;
   /* W95 raised button */
   border: 1px solid;
-  border-color: var(--w-lt) var(--w-ddk) var(--w-ddk) var(--w-lt);
-  box-shadow: inset -1px -1px 0 var(--w-dk);
+  border-color: var(--w-dfl) var(--w-ddk) var(--w-ddk) var(--w-dfl);
+  box-shadow: inset 1px 1px 0 var(--w-lt), inset -1px -1px 0 var(--w-dk);
   font-weight: 900;
   line-height: 1;
 }
