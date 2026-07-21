@@ -17,7 +17,7 @@
   var W = 0, H = 0;
   var desktopLayout = window.matchMedia('(min-width: 861px)');
 
-  function rgba(a) { return 'rgba(124,58,237,' + a + ')'; }
+  function rgba(a) { return 'rgba(255,255,255,' + a + ')'; }
   function white(a) { return 'rgba(255,255,255,' + a + ')'; }
 
   var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -261,7 +261,7 @@
 
       ctx.strokeStyle = rgba((tr.base + tr.glow * 0.4) * B);
       ctx.lineWidth = tr.width;
-      ctx.shadowColor = '#7c3aed'; ctx.shadowBlur = tr.glow * 6;
+      ctx.shadowColor = '#ffffff'; ctx.shadowBlur = tr.glow * 6;
       ctx.beginPath();
       ctx.moveTo(tr.pts[0][0], tr.pts[0][1]);
       for (var p2 = 1; p2 < tr.pts.length; p2++) ctx.lineTo(tr.pts[p2][0], tr.pts[p2][1]);
@@ -282,7 +282,7 @@
         if (tr.wait <= 0 && B > 0.25) {
           var pp = pointAtLen(tr, tr.prog);
           ctx.fillStyle = rgba(0.42 + tr.glow * 0.4);
-          ctx.shadowColor = '#7c3aed'; ctx.shadowBlur = 7;
+          ctx.shadowColor = '#ffffff'; ctx.shadowBlur = 7;
           ctx.beginPath(); ctx.arc(pp[0], pp[1], tr.width > 2 ? 2.2 : 1.8, 0, 7); ctx.fill();
           ctx.shadowBlur = 0;
         }
@@ -307,7 +307,7 @@
         ctx.strokeStyle = rgba(0.22 * B);
         ctx.lineWidth = 1;
         ctx.beginPath(); ctx.arc(d.x, d.y, 3, 0, 7); ctx.stroke();
-        ctx.fillStyle = '#0b0c0f';
+        ctx.fillStyle = '#0b0b0b';
         ctx.beginPath(); ctx.arc(d.x, d.y, 1.2, 0, 7); ctx.fill();
       } else if (d.t === 'hole') {
         ctx.strokeStyle = white(0.08);
@@ -330,7 +330,7 @@
     if (led) {
       ledFlash = Math.max(0, ledFlash - dt * 1.2);
       ctx.fillStyle = rgba((0.14 + ledFlash * 0.7) * B);
-      ctx.shadowColor = '#7c3aed'; ctx.shadowBlur = 3 + ledFlash * 13;
+      ctx.shadowColor = '#ffffff'; ctx.shadowBlur = 3 + ledFlash * 13;
       ctx.beginPath(); ctx.arc(led.x, led.y, 4, 0, 7); ctx.fill();
       ctx.shadowBlur = 0;
     }
