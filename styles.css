@@ -114,6 +114,9 @@ img { max-width: 100%; }
 
 .btn-ghost {
   display: inline-block;
+  background: none;
+  font-family: var(--font);
+  cursor: pointer;
   color: var(--text);
   font-size: 13.5px;
   font-weight: 500;
@@ -779,13 +782,16 @@ section { position: relative; z-index: 1; }
   text-shadow: 0 0 14px rgba(255, 255, 255, 0.9), 0 0 32px rgba(255, 255, 255, 0.5), 0 0 60px rgba(255, 255, 255, 0.2);
 }
 
-/* Grain overlay */
-#grain-canvas {
+/* Old static grain retired in favor of the drifting sand layer */
+#grain-canvas { display: none; }
+
+/* Drifting sand background */
+#sand-canvas {
   position: fixed;
   inset: 0;
   z-index: 2;
   pointer-events: none;
-  opacity: 0.16;
+  opacity: 0.13;
   mix-blend-mode: screen;
 }
 
