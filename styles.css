@@ -99,6 +99,12 @@ a, button, [onclick], .pcb-comp, .nf-sample-btn, .nf-upload, label.nf-check {
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--border);
+  transition: transform 0.4s cubic-bezier(0.22, 0.61, 0.36, 1), opacity 0.4s ease;
+}
+.site-header.nav-hidden {
+  transform: translateY(-101%);
+  opacity: 0;
+  pointer-events: none;
 }
 .site-nav {
   max-width: 1080px;
@@ -903,9 +909,14 @@ html.fx .sc-counter.show { opacity: 1; }
 
 /* Hidden decode message at footer */
 #scroll-decode-wrap {
-  padding: 14px 0 6px;
+  padding: 14px 16px 6px;
   text-align: center;
   cursor: default;
+  line-height: 1.8;
+}
+/* keyboard-only easter-egg hints — pointless and cramped on touch screens */
+@media (max-width: 768px) {
+  #scroll-decode-wrap { display: none; }
 }
 #scroll-decode-hint {
   font-family: var(--font);

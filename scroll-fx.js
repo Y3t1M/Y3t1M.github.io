@@ -34,6 +34,25 @@
   var vh = window.innerHeight;
   window.addEventListener('resize', function () { vh = window.innerHeight; });
 
+  /* ---- auto-hiding header: plain scrolling is immersive; scroll-up,
+     real mouse travel, or nearing the top brings the nav back ---- */
+  var header = document.querySelector('.site-header');
+  if (header) {
+    var hLastY = window.pageYOffset, hpx = -1, hpy = -1;
+    window.addEventListener('scroll', function () {
+      var y = window.pageYOffset;
+      if (y > hLastY + 2 && y > 140) header.classList.add('nav-hidden');
+      else if (y < hLastY - 2 || y <= 140) header.classList.remove('nav-hidden');
+      hLastY = y;
+    }, { passive: true });
+    document.addEventListener('pointermove', function (e) {
+      if (e.pointerType && e.pointerType !== 'mouse') return;
+      var moved = hpx >= 0 && Math.abs(e.clientX - hpx) + Math.abs(e.clientY - hpy) > 2;
+      hpx = e.clientX; hpy = e.clientY;
+      if (moved) header.classList.remove('nav-hidden');
+    });
+  }
+
   /* ---- LED separators: rows of flickering 0/1 ---- */
   var seps = Array.prototype.slice.call(document.querySelectorAll('.led-sep'));
   seps.forEach(function (sep) {
@@ -113,6 +132,7 @@
       hideTimer = setTimeout(function () { counter.classList.remove('show'); }, 1800);
     });
 
+    var LEAD = 0.35;
     var lastSp = 0, velTilt = 0;
     function scTick() {
       var r = sec.getBoundingClientRect();
@@ -124,7 +144,7 @@
       var dsp = sp - lastSp; lastSp = sp;
       velTilt += (Math.max(-4, Math.min(4, dsp * 2200)) - velTilt) * 0.12;
 
-      var active = Math.round(sp * (N - 1));
+      var active = Math.max(0, Math.min(N - 1, Math.round(sp * (N - 1 + LEAD) - LEAD)));
       if (counter && active !== lastActive) {
         lastActive = active;
         var h3 = slides[active].querySelector('h3');
@@ -134,7 +154,9 @@
 
 
       for (var i = 0; i < N; i++) {
-        var q = sp * (N - 1) - i;
+        /* LEAD gives slide 0 a rise-in entrance as the section pins,
+           instead of starting dead-centered */
+        var q = sp * (N - 1 + LEAD) - i - LEAD;
         q = Math.max(-1.5, Math.min(1.5, q));
         var el = slides[i];
         var abs = Math.abs(q);

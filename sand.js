@@ -191,8 +191,13 @@
 
   function resize() {
     var dpr = Math.min(window.devicePixelRatio || 1, 1.5); // chunky 1px grain
-    var w = Math.max(2, Math.floor(window.innerWidth * dpr));
-    var h = Math.max(2, Math.floor(window.innerHeight * dpr));
+    /* size from the canvas's own CSS box, not innerWidth/innerHeight —
+       on iOS the fixed-position box and innerHeight disagree depending
+       on the toolbar state, which stretched the texture and shoved the
+       card-carve rects off their cards (black boxes) */
+    var r = canvas.getBoundingClientRect();
+    var w = Math.max(2, Math.floor(r.width * dpr));
+    var h = Math.max(2, Math.floor(r.height * dpr));
     canvas.width = w; canvas.height = h;
     gl.viewport(0, 0, w, h);
     gl.uniform2f(uRes, w, h);
@@ -200,6 +205,8 @@
   }
   resize();
   window.addEventListener('resize', resize);
+  window.addEventListener('orientationchange', resize);
+  if (window.visualViewport) window.visualViewport.addEventListener('resize', resize);
 
   function draw(t) {
     pushRects();
