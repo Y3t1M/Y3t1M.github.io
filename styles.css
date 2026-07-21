@@ -17,6 +17,7 @@
   --accent:     #eaeaea;   /* monochrome — buttons, glows, board */
   --accent2:    #bdbdbd;   /* soft white — labels, meta accents */
   --amber:      #ffb02e;
+  --gold:       #c9a96e;   /* champagne — micro-accent only */
   --font:       ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-mono:  ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   --font-pixel: var(--font-mono); /* legacy var used by game styles */
@@ -24,7 +25,7 @@
   --section-gap: 112px;    /* between major sections */
   --head-gap: 16px;        /* section heading -> first body element */
   --stack-gap: 32px;       /* between entries within a section */
-  --radius: 10px;          /* cards */
+  --radius: 14px;          /* cards */
   --radius-s: 6px;         /* buttons, chips */
 }
 @media (max-width: 700px) {
@@ -117,8 +118,8 @@ img { max-width: 100%; }
   font-size: 13.5px;
   font-weight: 500;
   border: 1px solid var(--border-h);
-  border-radius: var(--radius-s);
-  padding: 8px 15px;
+  border-radius: 999px;
+  padding: 8px 17px;
   transition: border-color 0.15s ease, background 0.15s ease;
 }
 .btn-ghost:hover { border-color: rgba(255, 255, 255, 0.4); background: rgba(255, 255, 255, 0.05); }
@@ -130,8 +131,8 @@ img { max-width: 100%; }
   font-weight: 650;
   font-size: 14px;
   border: 0;
-  border-radius: var(--radius-s);
-  padding: 11px 20px;
+  border-radius: 999px;
+  padding: 11px 22px;
   cursor: pointer;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
@@ -789,8 +790,8 @@ section { position: relative; z-index: 1; }
   inset: 0;
   z-index: 2;
   pointer-events: none;
-  opacity: 0.4;
-  mix-blend-mode: overlay;
+  opacity: 0.09;
+  mix-blend-mode: screen;
 }
 
 /* Mouse spotlight */

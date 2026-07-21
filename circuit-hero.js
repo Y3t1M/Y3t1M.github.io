@@ -329,8 +329,8 @@
 
     if (led) {
       ledFlash = Math.max(0, ledFlash - dt * 1.2);
-      ctx.fillStyle = rgba((0.14 + ledFlash * 0.7) * B);
-      ctx.shadowColor = '#ffffff'; ctx.shadowBlur = 3 + ledFlash * 13;
+      ctx.fillStyle = 'rgba(201,169,110,' + ((0.2 + ledFlash * 0.75) * B) + ')';
+      ctx.shadowColor = '#c9a96e'; ctx.shadowBlur = 3 + ledFlash * 13;
       ctx.beginPath(); ctx.arc(led.x, led.y, 4, 0, 7); ctx.fill();
       ctx.shadowBlur = 0;
     }

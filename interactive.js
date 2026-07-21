@@ -103,7 +103,7 @@
     draw() {
       ctx.beginPath();
       ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
-      ctx.fillStyle = `hsla(${this.hue}, 70%, 65%, ${this.alpha})`;
+      ctx.fillStyle = `hsla(0, 0%, 88%, ${this.alpha})`;
       ctx.fill();
     }
   }
@@ -122,7 +122,7 @@
           ctx.beginPath();
           ctx.moveTo(particles[i].x, particles[i].y);
           ctx.lineTo(particles[j].x, particles[j].y);
-          ctx.strokeStyle = `rgba(139,92,246,${a})`;
+          ctx.strokeStyle = `rgba(255,255,255,${a})`;
           ctx.lineWidth = 0.6;
           ctx.stroke();
         }
@@ -141,7 +141,7 @@
           ctx.beginPath();
           ctx.moveTo(particles[i].x, particles[i].y);
           ctx.lineTo(mouse.x, mouse.y);
-          ctx.strokeStyle = `rgba(167,139,250,${a})`;
+          ctx.strokeStyle = `rgba(255,255,255,${a})`;
           ctx.lineWidth = 0.7;
           ctx.stroke();
         }
@@ -168,8 +168,8 @@
   document.addEventListener('mousemove', e => {
     spotlight.style.background =
       `radial-gradient(700px circle at ${e.clientX}px ${e.clientY}px,
-        rgba(139,92,246,0.06) 0%,
-        rgba(91,33,182,0.03) 35%,
+        rgba(255,255,255,0.035) 0%,
+        rgba(255,255,255,0.015) 35%,
         transparent 65%)`;
   });
 
@@ -249,7 +249,7 @@
     const pct     = docH > 0 ? (scrollY / docH) * 100 : 0;
     progressBar.style.width = `${pct}%`;
     const hue = lerp(263, 278, pct / 100);
-    progressBar.style.background = `linear-gradient(90deg, hsl(${hue},70%,62%), hsl(263,72%,70%))`;
+    progressBar.style.background = 'rgba(255,255,255,0.6)';
 
     const mid = scrollY + window.innerHeight / 2;
     let active = TRACKED_SECTIONS[0];
@@ -418,7 +418,7 @@
       const glow = Math.max(0, 1 - dist / (r.width * 0.8));
 
       card.style.transform   = `perspective(900px) rotateX(${rx}deg) rotateY(${ry}deg) translateY(-6px) scale(1.01)`;
-      card.style.boxShadow   = `${-ry * 1.5}px ${rx * 1.5}px 40px rgba(0,0,0,0.5), 0 0 ${30 + glow * 30}px rgba(139,92,246,${0.08 + glow * 0.12})`;
+      card.style.boxShadow   = `${-ry * 1.5}px ${rx * 1.5}px 40px rgba(0,0,0,0.5), 0 0 ${30 + glow * 30}px rgba(255,255,255,${0.04 + glow * 0.06})`;
       /* border color stays with the CSS :hover rule (--border-h) so every
          card-like panel shares the exact same hover treatment */
     });
