@@ -682,21 +682,13 @@ html.settled .pcb-comp {
 /* ── Pinned LIFT showcase v2 (html.fx only) ───────────────── */
 #showcase { position: relative; }
 #showcase .sc-stage { position: relative; }
-#sc-fx, .sc-rail { display: none; }
+.sc-rail { display: none; }
 html.fx #showcase .sc-stage {
   position: sticky;
   top: 0;
   height: 100vh;
   overflow: hidden;
   perspective: 70rem;
-}
-html.fx #sc-fx {
-  display: block;
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
 }
 html.fx .sc-slide {
   position: absolute;
@@ -745,7 +737,12 @@ html.fx .sc-slide.active .case > :nth-child(5) { transition-delay: 0.28s; }
   color: var(--text-faint);
 }
 .sc-counter b { color: var(--text); font-weight: 600; }
-html.fx .sc-counter { display: block; }
+html.fx .sc-counter {
+  display: block;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+html.fx .sc-counter.show { opacity: 1; }
 
 .sc-rail i {
   width: 5px;

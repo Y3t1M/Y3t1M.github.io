@@ -92,9 +92,6 @@
     if (!sec) return;
     var stage = sec.querySelector('.sc-stage');
     var slides = sec.querySelectorAll('.sc-slide');
-    var rail = sec.querySelectorAll('.sc-rail i');
-    var fx = document.getElementById('sc-fx');
-    var fctx = fx ? fx.getContext('2d') : null;
     var N = slides.length;
     if (!N) return;
     sec.style.height = (N * 100 + 100) + 'vh';
@@ -103,14 +100,12 @@
     var counter = document.createElement('div');
     counter.className = 'sc-counter';
     stage.appendChild(counter);
-
-    function resizeFx() {
-      if (!fx) return;
-      fx.width = stage.clientWidth;
-      fx.height = stage.clientHeight;
-    }
-    resizeFx();
-    window.addEventListener('resize', resizeFx);
+    var hideTimer = null;
+    document.addEventListener('pointermove', function () {
+      counter.classList.add('show');
+      if (hideTimer) clearTimeout(hideTimer);
+      hideTimer = setTimeout(function () { counter.classList.remove('show'); }, 1800);
+    });
 
     function scTick() {
       var r = sec.getBoundingClientRect();
@@ -119,7 +114,6 @@
       sp += (p - sp) * 0.085;
 
       var active = Math.round(sp * (N - 1));
-      for (var d = 0; d < rail.length; d++) rail[d].classList.toggle('on', d === active);
       if (counter && active !== lastActive) {
         lastActive = active;
         var h3 = slides[active].querySelector('h3');
@@ -127,8 +121,6 @@
           (h3 ? h3.textContent : '');
       }
 
-      if (fctx) fctx.clearRect(0, 0, fx.width, fx.height);
-      var sh = stage.clientHeight, sw = stage.clientWidth;
 
       for (var i = 0; i < N; i++) {
         var q = sp * (N - 1) - i;
@@ -155,17 +147,6 @@
         el.style.transform = 'translate(-50%, -50%) translateY(' + (y + settle) + 'vh) rotateX(' + (-rx) + 'deg) scale(' + sc.toFixed(3) + ')';
         el.style.opacity = op.toFixed(3);
 
-        if (fctx && abs < 0.85) {
-          var slideH = el.offsetHeight || 300;
-          var bow = Math.exp(-abs * 3) * 20;
-          var yline = Math.min(sh - 20, sh / 2 + slideH / 2 + 24);
-          fctx.strokeStyle = 'rgba(234,234,234,' + (0.18 * (1 - abs)).toFixed(3) + ')';
-          fctx.lineWidth = 1;
-          fctx.beginPath();
-          fctx.moveTo(sw / 2 - slideH * 1.6, yline);
-          fctx.quadraticCurveTo(sw / 2, yline - bow, sw / 2 + slideH * 1.6, yline);
-          fctx.stroke();
-        }
       }
       requestAnimationFrame(scTick);
     }
