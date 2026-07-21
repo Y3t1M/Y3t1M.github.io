@@ -34,7 +34,11 @@
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
-html { scroll-behavior: smooth; }
+html {
+  scroll-behavior: smooth;
+  background: #050505;
+  overscroll-behavior-y: none;
+}
 
 body {
   background: radial-gradient(120% 80% at 50% 0%, #141414 0%, #0b0b0b 48%, #050505 100%) fixed var(--bg);
@@ -82,7 +86,7 @@ img { max-width: 100%; }
   position: sticky;
   top: 0;
   z-index: 100;
-  background: rgba(11, 11, 11, 0.85);
+  background: rgba(11, 11, 11, 0.92);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--border);
@@ -791,7 +795,7 @@ section { position: relative; z-index: 1; }
   inset: 0;
   z-index: 2;
   pointer-events: none;
-  opacity: 0.3;
+  opacity: 0.26;
   mix-blend-mode: screen;
 }
 
