@@ -32,13 +32,13 @@
       c.xc = r.left - hr.left + r.width / 2;
       c.bottom = r.bottom - hr.top;
       // anchor the chip to the terrain row ~56px below it
-      var horizon = H * 0.28;
+      var horizon = H * 0.47;
       var yTarget = Math.min(H - 30, c.bottom + 56);
       var zz = Math.max(0.05, Math.min(1, (yTarget - horizon) / ((H - horizon) * 1.05)));
       c.zz = zz;
       c.z = Math.pow(zz, 1 / 1.7);
       c.y0 = horizon + zz * (H - horizon) * 1.05;
-      c.amp = 14 + zz * 74;
+      c.amp = (14 + zz * 74) * 0.40;
     });
   }
 
@@ -88,9 +88,10 @@
   }
 
   /* refined field: two long-wavelength octaves — rolling swells, no jitter */
+  /* Hudson's tuned waves: wl 0.80 · speed 1.45 · detail 0.90 */
   function fieldN(nx, z, t) {
-    return vnoise(nx * 1.7 + 7.3, (1 - z) * 3.2 - t * 0.05)
-         + 0.35 * vnoise(nx * 3.6 + 2.1, (1 - z) * 6.5 - t * 0.08);
+    return vnoise(nx * 2.125 + 7.3, (1 - z) * 3.2 - t * 0.0725)
+         + 0.9 * vnoise(nx * 4.5 + 2.1, (1 - z) * 6.5 - t * 0.116);
   }
 
   /* displacement extras (cursor bump + click ripples) at a base point */
@@ -121,21 +122,21 @@
       mouse.sy += (mouse.y - mouse.sy) * 0.08;
     } else { mouse.sx = -9999; mouse.sy = -9999; }
 
-    var horizon = H * 0.28;
-    var rows = 32;
+    var horizon = H * 0.47;
+    var rows = 18;
     for (var r = 0; r < rows; r++) {
       var z = r / rows;
       var zz = Math.pow(z, 1.7);
       var y0 = horizon + zz * (H - horizon) * 1.05;
-      var amp = 14 + zz * 74;
-      var alpha = 0.05 + zz * 0.18;
+      var amp = (14 + zz * 74) * 0.40;
+      var alpha = Math.min(0.5, (0.05 + zz * 0.18) * 1.65);
       ctx.strokeStyle = 'rgba(234,234,234,' + alpha + ')';
       ctx.lineWidth = 1;
       ctx.beginPath();
       var steps = 110;
       for (var i = 0; i <= steps; i++) {
         var x = (i / steps) * W;
-        var nx = (i / steps - 0.5) / (0.25 + z * 0.75);
+        var nx = (i / steps - 0.5) / (0.25 + z * 1.5);
         var y = y0 - fieldN(nx, z, t) * amp - extras(x, y0, zz, t);
         if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
       }
@@ -148,7 +149,7 @@
       for (var c = 0; c < comps.length; c++) {
         var cp = comps[c];
         if (!cp.xc) continue;
-        var nx2 = (cp.xc / W - 0.5) / (0.25 + cp.z * 0.75);
+        var nx2 = (cp.xc / W - 0.5) / (0.25 + cp.z * 1.5);
         var lineY = cp.y0 - fieldN(nx2, cp.z, t) * cp.amp - extras(cp.xc, cp.y0, cp.zz, t);
         var rest = cp.y0 - 0.675 * cp.amp;   // field mean ≈ 0.675
         var dy = Math.max(-16, Math.min(16, (lineY - rest) * 0.45));
