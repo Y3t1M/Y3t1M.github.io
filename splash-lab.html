@@ -81,7 +81,7 @@
   <!-- C: flowing wireframe terrain -->
   <section class="demo" id="demoC">
     <canvas></canvas>
-    <div class="tag"><b>C — TERRAIN</b> · slow monochrome wireframe topography rolling toward you</div>
+    <div class="tag"><b>C — TERRAIN</b> · move your cursor — the ground rises to meet it · click for a seismic pulse</div>
     <div class="panel">
       <div class="des">Hudson Tinch · Dallas, TX</div>
       <h2>Studying business.<br>Shipping software.</h2>
@@ -233,11 +233,24 @@
       requestAnimationFrame(frame);
     })();
 
-    /* ============ C: flowing wireframe terrain ============ */
+    /* ============ C: flowing wireframe terrain — interactive ============ */
     (function () {
       var s = setup(document.getElementById('demoC'));
 
-      // small value-noise
+      var mouse = { x: -9999, y: -9999, sx: -9999, sy: -9999 };
+      s.sec.addEventListener('pointermove', function (e) {
+        var r = s.sec.getBoundingClientRect();
+        mouse.x = e.clientX - r.left; mouse.y = e.clientY - r.top;
+      });
+      s.sec.addEventListener('pointerleave', function () { mouse.x = -9999; mouse.y = -9999; });
+
+      var waves = [];
+      s.sec.addEventListener('pointerdown', function (e) {
+        var r = s.sec.getBoundingClientRect();
+        waves.push({ x: e.clientX - r.left, y: e.clientY - r.top, t0: performance.now() / 1000 });
+        if (waves.length > 6) waves.shift();
+      });
+
       function hash(x, y) {
         var h = Math.sin(x * 127.1 + y * 311.7) * 43758.5453;
         return h - Math.floor(h);
@@ -254,10 +267,18 @@
         var t = ts / 1000;
         var ctx = s.ctx, W = s.canvas.width, H = s.canvas.height;
         ctx.clearRect(0, 0, W, H);
+
+        // cursor spring-lag
+        if (mouse.x > -999) {
+          if (mouse.sx < -999) { mouse.sx = mouse.x; mouse.sy = mouse.y; }
+          mouse.sx += (mouse.x - mouse.sx) * 0.08;
+          mouse.sy += (mouse.y - mouse.sy) * 0.08;
+        } else { mouse.sx = -9999; mouse.sy = -9999; }
+
         var horizon = H * 0.42;
         var rows = 34;
         for (var r = 0; r < rows; r++) {
-          var z = r / rows;                       // 0 = far, 1 = near
+          var z = r / rows;
           var zz = Math.pow(z, 1.7);
           var y0 = horizon + zz * (H - horizon) * 1.05;
           var amp = 14 + zz * 90;
@@ -268,14 +289,36 @@
           var steps = 90;
           for (var i = 0; i <= steps; i++) {
             var x = (i / steps) * W;
-            var nx = (i / steps - 0.5) / (0.25 + z * 0.75);   // perspective pinch
+            var nx = (i / steps - 0.5) / (0.25 + z * 0.75);
             var n = vnoise(nx * 3 + 7.3, (1 - z) * 5 - t * 0.06)
                   + 0.5 * vnoise(nx * 6 + 2.1, (1 - z) * 10 - t * 0.1);
             var y = y0 - n * amp;
+
+            // cursor bump: terrain reaches toward the pointer
+            if (mouse.sx > -999) {
+              var dxm = x - mouse.sx, dym = y0 - mouse.sy;
+              var d2 = dxm * dxm + dym * dym;
+              y -= Math.exp(-d2 / 26000) * 60 * (0.3 + zz);
+            }
+
+            // click waves: radial ripples through the rows
+            for (var w = 0; w < waves.length; w++) {
+              var wv = waves[w];
+              var age = t - wv.t0;
+              if (age > 3) continue;
+              var dxw = x - wv.x, dyw = y0 - wv.y;
+              var dist = Math.sqrt(dxw * dxw + dyw * dyw);
+              var ring = age * 340;
+              var band = Math.exp(-Math.pow(dist - ring, 2) / 2400);
+              y -= band * 46 * Math.exp(-age * 1.4) * (0.3 + zz) * Math.sin(age * 9);
+            }
+
             if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
           }
           ctx.stroke();
         }
+        // prune finished waves
+        waves = waves.filter(function (wv) { return t - wv.t0 < 3; });
         requestAnimationFrame(frame);
       }
       requestAnimationFrame(frame);
