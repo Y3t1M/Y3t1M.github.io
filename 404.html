@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>404 — Hudson Tinch</title>
+  <link rel="stylesheet" href="/styles.css">
+  <style>
+    .nf-wrap {
+      min-height: calc(100vh - 80px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 26px;
+      position: relative;
+      z-index: 1;
+      padding: 24px;
+    }
+    #led-face { width: min(560px, 92vw); height: auto; }
+    .nf-code {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+    }
+    .nf-code b { color: var(--text); font-weight: 600; }
+  </style>
+</head>
+
+<body>
+
+  <header class="site-header">
+    <nav class="site-nav">
+      <div class="nav-logo"><span class="nav-logo-text">Hudson Tinch</span></div>
+      <div class="nav-links">
+        <a href="/index.html" class="nav-link">Home</a>
+        <a href="/projects.html" class="nav-link">Projects</a>
+      </div>
+      <div class="nav-cta">
+        <a href="/assets/Hudson-Tinch-Resume.pdf" download class="btn-ghost">Resume</a>
+      </div>
+    </nav>
+  </header>
+
+  <div class="nf-wrap">
+    <canvas id="led-face" width="640" height="320"></canvas>
+    <div class="nf-code"><b>404</b> · TRACE NOT FOUND</div>
+    <a href="/index.html" class="btn-primary">Back to the site</a>
+  </div>
+
+  <script>
+  (function () {
+    'use strict';
+    var canvas = document.getElementById('led-face');
+    var ctx = canvas.getContext('2d');
+    var off = document.createElement('canvas');
+    var octx = off.getContext('2d', { willReadFrequently: true });
+    var mouse = { x: -9999, y: -9999 };
+    document.addEventListener('pointermove', function (e) {
+      var r = canvas.getBoundingClientRect();
+      mouse.x = e.clientX - r.left;
+      mouse.y = e.clientY - r.top;
+    });
+    var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var blink = 0, nextBlink = 2.2;
+
+    function draw(t) {
+      var W = canvas.width, H = canvas.height;
+      ctx.clearRect(0, 0, W, H);
+      var gw = 64, gh = 32;
+      off.width = gw; off.height = gh;
+      octx.clearRect(0, 0, gw, gh);
+      octx.fillStyle = '#fff';
+      octx.font = '700 26px ui-monospace, Menlo, monospace';
+      octx.textBaseline = 'middle';
+      octx.fillText('(', 6, gh / 2);
+      octx.fillText(')', gw - 12, gh / 2);
+      var scale = canvas.getBoundingClientRect().width / W || 1;
+      var dx = Math.max(-2, Math.min(2, (mouse.x / scale - W / 2) / 200));
+      var dy = Math.max(-1.5, Math.min(1.5, (mouse.y / scale - H / 2) / 200));
+      if (t > nextBlink) { blink = 1; nextBlink = t + 2 + Math.random() * 3.5; }
+      if (blink > 0) blink = Math.max(0, blink - 0.09);
+      var eyeGlyph = blink > 0.4 ? '-' : '.';
+      var eyeYOffset = eyeGlyph === '.' ? -4 : 0;
+      octx.fillText(eyeGlyph, 20 + dx, gh / 2 + eyeYOffset + dy);
+      octx.fillText(eyeGlyph, 36 + dx, gh / 2 + eyeYOffset + dy);
+      octx.fillText('_', 27, gh / 2 - 2);
+
+      var data = octx.getImageData(0, 0, gw, gh).data;
+      var cellW = W / gw, cellH = H / gh;
+      for (var y = 0; y < gh; y++) {
+        for (var x = 0; x < gw; x++) {
+          var a = data[(y * gw + x) * 4 + 3] / 255;
+          var px = x * cellW + cellW / 2;
+          var py = y * cellH + cellH / 2;
+          ctx.beginPath();
+          if (a > 0.12) {
+            ctx.fillStyle = 'rgba(234,234,234,' + (0.25 + 0.75 * a) + ')';
+            ctx.arc(px, py, Math.min(cellW, cellH) * 0.32, 0, 7);
+          } else {
+            ctx.fillStyle = 'rgba(255,255,255,0.03)';
+            ctx.arc(px, py, Math.min(cellW, cellH) * 0.18, 0, 7);
+          }
+          ctx.fill();
+        }
+      }
+    }
+
+    if (reduced) { draw(1); return; }
+    function frame(ts) { draw(ts / 1000); requestAnimationFrame(frame); }
+    requestAnimationFrame(frame);
+  })();
+  </script>
+  <script src="/sand.js"></script>
+  <script src="/transitions.js"></script>
+</body>
+
+</html>

@@ -33,14 +33,15 @@
 
     var body = document.getElementById('fw-body');
 
-    // narrow art + short lines only — must fit a 320px viewport
+    // the original Yetim face, condensed to fit a 320px viewport
     var art = [
-      '\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510',
-      '\u2502              \u2502',
-      '\u2502    ( ._.)    \u2502',
-      '\u2502              \u2502',
-      '\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518',
-      '    YETIM.SYS',
+      '   .o                      o.',
+      ' .8\'                        `8.',
+      ' 88                          88',
+      ' 88                          88',
+      ' `8.     .o.       .o.     .8\'',
+      '  `8.    Y8P  ooooo Y8P   .8\'',
+      '   `"                      "\'',
     ];
 
     var lines = [];
