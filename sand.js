@@ -119,8 +119,8 @@
     '    if (float(i) >= uNR) break;',
     '    vec4 rct = uR[i];',
     /* rounded-rect SDF so the carve follows the cards 14px corners */
-    '    vec2 half = rct.zw * 0.5;',
-    '    vec2 q = abs(pcss - rct.xy - half) - half + vec2(14.0);',
+    '    vec2 hf = rct.zw * 0.5;',
+    '    vec2 q = abs(pcss - rct.xy - hf) - hf + vec2(14.0);',
     '    float sd = length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - 14.0;',
     '    if (sd < 0.0) { f = min(f, 0.15); }',
     '    else { pile += exp(-sd * sd / 90.0); }',
