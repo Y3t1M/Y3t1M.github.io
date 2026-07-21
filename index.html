@@ -98,13 +98,13 @@
     <div class="section-label">Selected work</div>
     <h2 class="section-title">Projects</h2>
     <div class="projects-row">
-      <a href="projects.html#hollis-bloom" class="project-card">
+      <a href="https://hollisbloom.com" target="_blank" class="project-card">
         <div class="project-card-tag">Production &middot; TypeScript</div>
         <h3>Hollis Bloom Platform</h3>
         <p>Facilities work-order system running Integrity Marketing Group's Dallas offices. Web, email, iOS, and Teams intake; vendor scheduling; invoicing.</p>
         <span class="project-card-arrow">&rarr;</span>
       </a>
-      <a href="projects.html#rh-agentic" class="project-card">
+      <a href="https://rh-agentic.pages.dev" target="_blank" class="project-card">
         <div class="project-card-tag">Live &middot; Python</div>
         <h3>RH Agentic</h3>
         <p>Autonomous trading system on the Robinhood API. Scans, decides, and places orders without a human in the loop.</p>
@@ -295,8 +295,7 @@
   <!-- Footer -->
   <footer class="site-footer">
     <div class="footer-inner">
-      <span class="footer-logo"><span class="led"></span>Hudson Tinch</span>
-      <span class="footer-copy">&copy; 2026 &middot; Dallas, TX &middot; <b id="local-time"></b> &middot; vanilla HTML/CSS/JS</span>
+      <span class="footer-copy">&copy; 2026 &middot; Dallas, TX</span>
       <div class="footer-links">
         <a href="https://github.com/Y3t1M" target="_blank" class="footer-link">GitHub</a>
         <a href="https://linkedin.com/in/hudsontinch" target="_blank" class="footer-link">LinkedIn</a>
@@ -427,16 +426,6 @@
       }
       printNext();
     }
-  })();
-  </script>
-  <script>
-  (function(){
-    var el = document.getElementById('local-time');
-    if(!el) return;
-    function tick(){
-      el.textContent = new Date().toLocaleTimeString('en-US', {timeZone:'America/Chicago', hour:'numeric', minute:'2-digit'}) + ' local';
-    }
-    tick(); setInterval(tick, 30000);
   })();
   </script>
   <script>lucide.createIcons();</script>
