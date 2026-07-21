@@ -624,6 +624,30 @@ section { position: relative; z-index: 1; }
 .award-icon { color: var(--accent2); display: inline-flex; }
 .award-icon svg { width: 14px; height: 14px; }
 
+/* ── Scroll presentation (scroll-fx.js writes --p; CSS owns motion) ── */
+.case, .case-sm, .project-card, .about-card { --p: 1; }
+html.fx .case, html.fx .case-sm, html.fx .project-card, html.fx .about-card {
+  --pe: calc(var(--p) * var(--p) * (3 - 2 * var(--p)));  /* smoothstep */
+  transform: translate3d(0, calc((1 - var(--pe)) * 2.5rem), 0);
+  opacity: calc(0.2 + var(--pe) * 0.8);
+  will-change: transform, opacity;
+}
+
+/* LED flicker separators between case studies */
+.led-sep {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.4em;
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.05);
+  margin: 34px 0 10px;
+  user-select: none;
+}
+.led-sep span.on { color: rgba(255, 255, 255, 0.22); }
+
 /* ── Contact band ───────────────────────────────────────── */
 .contact-band {
   max-width: var(--page-width);
