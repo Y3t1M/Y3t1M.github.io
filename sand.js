@@ -56,6 +56,8 @@
     'uniform float uT;',
     'uniform float uSeed;',
     'uniform float uPx;',   /* CSS px per device px — resolution independence */
+    'uniform vec4 uR[8];',   /* card rects (css px) — sand calms inside, piles at edges */
+    'uniform float uNR;',
     '#define PI 3.141592653589793',
     /* Ashima / stegu 2D simplex noise */
     'vec3 mod289(vec3 x){return x - floor(x * (1.0/289.0)) * 289.0;}',
@@ -110,7 +112,20 @@
     '  vec2 freq = vec2(0.000323, 0.001333) * (1.0 + 0.5 * (1.0 - mask));',
     '  float n = pattern(st * freq + jitter);',
     '  n = smoothstep(0.0, 1.0, pow(n * 1.05, 6.0));',
-    '  gl_FragColor = vec4(vec3(0.55) * n * mask, 1.0);',
+    /* card awareness: calm under any container, grain piles along its border */
+    '  vec2 pcss = vec2(st.x, uRes.y * uPx - st.y);',
+    '  float pile = 0.0; float f = 1.0;',
+    '  for (int i = 0; i < 8; i++) {',
+    '    if (float(i) >= uNR) break;',
+    '    vec4 rct = uR[i];',
+    '    vec2 d = max(vec2(rct.x - pcss.x, rct.y - pcss.y), vec2(pcss.x - rct.x - rct.z, pcss.y - rct.y - rct.w));',
+    '    float outside = length(max(d, 0.0));',
+    '    if (max(d.x, d.y) < 0.0) { f = min(f, 0.08); }',
+    '    else { pile += exp(-outside * outside / 600.0); }',
+    '  }',
+    '  pile = min(pile, 1.3);',
+    '  float s2 = n * f * (1.0 + pile * 1.6) + 0.045 * pile * gr;',
+    '  gl_FragColor = vec4(vec3(0.55) * s2 * mask, 1.0);',
     '}'
   ].join('\n');
 
@@ -142,7 +157,35 @@
   var uT = gl.getUniformLocation(prog, 'uT');
   var uSeed = gl.getUniformLocation(prog, 'uSeed');
   var uPx = gl.getUniformLocation(prog, 'uPx');
+  var uRLoc = gl.getUniformLocation(prog, 'uR[0]');
+  var uNR = gl.getUniformLocation(prog, 'uNR');
   gl.uniform1f(uSeed, Math.random() * 100.0);
+
+  /* containers the sand should respect */
+  var cardEls = [];
+  function collectCards() {
+    cardEls = Array.prototype.slice.call(document.querySelectorAll(
+      '.case, .case-sm, .project-card, .about-card, .awards-list, .contact-inner, .hero-panel, .nf-panel, .nf-controls'
+    ));
+  }
+  collectCards();
+  window.addEventListener('load', collectCards);
+  var rectData = new Float32Array(32);
+  function pushRects() {
+    var vh = window.innerHeight;
+    var n = 0;
+    for (var i = 0; i < cardEls.length && n < 8; i++) {
+      var r = cardEls[i].getBoundingClientRect();
+      if (r.bottom < -40 || r.top > vh + 40 || r.width === 0) continue;
+      rectData[n * 4] = r.left;
+      rectData[n * 4 + 1] = r.top;
+      rectData[n * 4 + 2] = r.width;
+      rectData[n * 4 + 3] = r.height;
+      n++;
+    }
+    gl.uniform4fv(uRLoc, rectData);
+    gl.uniform1f(uNR, n);
+  }
 
   function resize() {
     var dpr = Math.min(window.devicePixelRatio || 1, 1.5); // chunky 1px grain
@@ -157,6 +200,7 @@
   window.addEventListener('resize', resize);
 
   function draw(t) {
+    pushRects();
     gl.uniform1f(uT, t);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
   }

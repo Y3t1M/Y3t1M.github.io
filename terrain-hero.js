@@ -32,7 +32,7 @@
       c.xc = r.left - hr.left + r.width / 2;
       c.bottom = r.bottom - hr.top;
       // anchor the chip to the terrain row ~56px below it
-      var horizon = H * 0.42;
+      var horizon = H * 0.28;
       var yTarget = Math.min(H - 30, c.bottom + 56);
       var zz = Math.max(0.05, Math.min(1, (yTarget - horizon) / ((H - horizon) * 1.05)));
       c.zz = zz;
@@ -121,14 +121,14 @@
       mouse.sy += (mouse.y - mouse.sy) * 0.08;
     } else { mouse.sx = -9999; mouse.sy = -9999; }
 
-    var horizon = H * 0.42;
-    var rows = 26;
+    var horizon = H * 0.28;
+    var rows = 32;
     for (var r = 0; r < rows; r++) {
       var z = r / rows;
       var zz = Math.pow(z, 1.7);
       var y0 = horizon + zz * (H - horizon) * 1.05;
       var amp = 14 + zz * 74;
-      var alpha = 0.04 + zz * 0.18;
+      var alpha = 0.05 + zz * 0.18;
       ctx.strokeStyle = 'rgba(234,234,234,' + alpha + ')';
       ctx.lineWidth = 1;
       ctx.beginPath();

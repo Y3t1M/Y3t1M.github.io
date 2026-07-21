@@ -269,9 +269,15 @@ a, button, [onclick], .pcb-comp, .nf-sample-btn, .nf-upload, label.nf-check {
 .pcb-comp:hover .c-des,
 .pcb-comp.lit .c-des { color: var(--accent2); }
 
-#comp-projects { right: 6%; top: 14%; }
-#comp-desktop  { right: 4%; top: 46%; }
-#comp-resume   { right: 8%; bottom: 14%; }
+.hero-comp-row {
+  position: absolute;
+  left: 8%;
+  bottom: 12%;
+  z-index: 2;
+  display: flex;
+  gap: 12px;
+}
+.pcb-comp { position: static; }
 
 .hero-hint {
   position: absolute;
@@ -304,6 +310,8 @@ a, button, [onclick], .pcb-comp, .nf-sample-btn, .nf-upload, label.nf-check {
   }
   .hero-comp-row {
     position: relative;
+    left: auto;
+    bottom: auto;
     z-index: 2;
     display: flex;
     gap: 10px;
@@ -314,9 +322,7 @@ a, button, [onclick], .pcb-comp, .nf-sample-btn, .nf-upload, label.nf-check {
   }
   .hero-hint { display: none; }
 }
-@media (min-width: 861px) {
-  .hero-comp-row { display: contents; }
-}
+
 
 /* ── Sections ───────────────────────────────────────────── */
 section { position: relative; z-index: 1; }
