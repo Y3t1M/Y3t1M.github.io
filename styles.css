@@ -719,8 +719,44 @@ html.fx .sc-slide.wide .case-grid {
 html.fx .sc-slide.wide .case-sm img { height: 170px; }
 html.fx .sc-slide.wide .case-sm p { font-size: 12.5px; }
 html.fx .sc-slide img {
-  transform: translateY(calc(var(--q, 0) * -14px)) scale(1.06);
+  transform: translateY(calc(var(--q, 0) * -14px));
+  scale: 1.06;
   transition: none;
+}
+
+/* giant ghost index behind the slides — outlined, drifting at its
+   own parallax rate, fading through slide handoffs */
+.sc-ghost { display: none; }
+html.fx .sc-ghost {
+  display: flex;
+  position: absolute;
+  inset: 0;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: min(56vh, 44vw);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(255, 255, 255, 0.16);
+  opacity: 0;
+  pointer-events: none;
+  user-select: none;
+  z-index: 0;
+}
+
+/* photos: monochrome until you touch them — hover pulls the color
+   back in with a slow zoom */
+html.fx .sc-slide.wide .case-sm img { height: 215px; }
+@media (hover: hover) {
+  html.fx .sc-slide .case-sm img {
+    filter: grayscale(0.85) contrast(1.06) brightness(0.94);
+    transition: filter 0.55s ease, scale 0.9s cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
+  html.fx .sc-slide .case-sm:hover img {
+    filter: none;
+    scale: 1.13;
+  }
 }
 /* mobile: the hardware trio becomes a swipeable filmstrip — three
    crushed 1fr columns made the photos unusable on a phone */

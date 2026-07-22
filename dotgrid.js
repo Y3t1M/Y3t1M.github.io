@@ -30,7 +30,9 @@
     ctx.clearRect(0, 0, W, H);
     var g = 24;
     var driftX = (t * 2.2) % g;
-    for (var y = g / 2; y < H; y += g) {
+    /* quarter-speed scroll parallax: the field streams as the page glides */
+    var driftY = (window.pageYOffset * 0.24) % g;
+    for (var y = g / 2 - driftY; y < H + g; y += g) {
       for (var x = g / 2 - driftX; x < W + g; x += g) {
         var dx = x - mouse.x, dy = y - mouse.y;
         var d2 = dx * dx + dy * dy;

@@ -119,6 +119,10 @@
     var counter = document.createElement('div');
     counter.className = 'sc-counter';
     stage.appendChild(counter);
+    var ghost = document.createElement('div');
+    ghost.className = 'sc-ghost';
+    ghost.setAttribute('aria-hidden', 'true');
+    stage.insertBefore(ghost, stage.firstChild);
     var hideTimer = null;
     /* Chrome fires synthetic pointermove (same coords) when the page
        scrolls under a stationary cursor — only real travel counts */
@@ -150,7 +154,13 @@
         var h3 = slides[active].querySelector('h3');
         counter.innerHTML = '<b>' + ('0' + (active + 1)).slice(-2) + ' / ' + ('0' + N).slice(-2) + '</b> — ' +
           (h3 ? h3.textContent : '');
+        ghost.textContent = '0' + (active + 1);
       }
+
+      /* ghost numeral: drifts against the slides, fades through handoffs */
+      var gq = sp * (N - 1 + LEAD) - LEAD - active;
+      ghost.style.transform = 'translateY(' + (gq * 18).toFixed(2) + 'vh)';
+      ghost.style.opacity = Math.max(0, 1 - Math.abs(gq) * 2.4).toFixed(3);
 
 
       for (var i = 0; i < N; i++) {
