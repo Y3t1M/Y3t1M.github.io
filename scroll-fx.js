@@ -123,6 +123,27 @@
     ghost.className = 'sc-ghost';
     ghost.setAttribute('aria-hidden', 'true');
     stage.insertBefore(ghost, stage.firstChild);
+
+    /* splash index: 01–06 jump straight to a slide */
+    var index = document.getElementById('proj-index');
+    if (index) {
+      for (var ii = 0; ii < N; ii++) (function (i) {
+        var s = slides[i];
+        var eb = s.querySelector('.slide-eyebrow');
+        var h3 = s.querySelector('h3');
+        var t = s.classList.contains('wide') && eb ? eb.textContent : (h3 ? h3.textContent : '');
+        var li = document.createElement('li');
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.innerHTML = '<span class="idx">0' + (i + 1) + '</span><span>' + t + '</span><span class="arr">&rarr;</span>';
+        b.addEventListener('click', function () {
+          var target = sec.offsetTop + ((i + LEAD) / (N - 1 + LEAD)) * (sec.offsetHeight - window.innerHeight);
+          window.scrollTo({ top: target, behavior: 'smooth' });
+        });
+        li.appendChild(b);
+        index.appendChild(li);
+      })(ii);
+    }
     var hideTimer = null;
     /* Chrome fires synthetic pointermove (same coords) when the page
        scrolls under a stationary cursor — only real travel counts */
@@ -157,10 +178,12 @@
         ghost.textContent = '0' + (active + 1);
       }
 
-      /* ghost numeral: drifts against the slides, fades through handoffs */
+      /* ghost numeral: drifts against the slides, fades through handoffs.
+         Fully gone by |gq|=0.33 so it never rests visibly off-center
+         at the LEAD entrance (gq=-0.35) */
       var gq = sp * (N - 1 + LEAD) - LEAD - active;
       ghost.style.transform = 'translateY(' + (gq * 18).toFixed(2) + 'vh)';
-      ghost.style.opacity = Math.max(0, 1 - Math.abs(gq) * 2.4).toFixed(3);
+      ghost.style.opacity = Math.max(0, 1 - Math.abs(gq) * 3.05).toFixed(3);
 
 
       for (var i = 0; i < N; i++) {

@@ -743,7 +743,6 @@ html.fx .sc-ghost {
   font-family: var(--font-mono);
   font-size: min(56vh, 44vw);
   font-weight: 700;
-  letter-spacing: -0.04em;
   color: transparent;
   -webkit-text-stroke: 1px rgba(255, 255, 255, 0.16);
   opacity: 0;
@@ -752,19 +751,57 @@ html.fx .sc-ghost {
   z-index: 0;
 }
 
-/* photos: monochrome until you touch them — hover pulls the color
-   back in with a slow zoom */
+/* photos: LED-dot renders; hover gives a slow zoom */
 html.fx .sc-slide.wide .case-sm img { height: 215px; }
 @media (hover: hover) {
   html.fx .sc-slide .case-sm img {
-    filter: grayscale(0.85) contrast(1.06) brightness(0.94);
-    transition: filter 0.55s ease, scale 0.9s cubic-bezier(0.22, 0.61, 0.36, 1);
+    transition: scale 0.9s cubic-bezier(0.22, 0.61, 0.36, 1);
   }
-  html.fx .sc-slide .case-sm:hover img {
-    filter: none;
-    scale: 1.13;
-  }
+  html.fx .sc-slide .case-sm:hover img { scale: 1.13; }
 }
+
+/* projects splash: huge title + jump index */
+.proj-title {
+  font-size: clamp(54px, 8.5vw, 118px);
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+}
+.proj-index {
+  list-style: none;
+  margin: 44px 0 0;
+  padding: 0;
+  max-width: 640px;
+}
+.proj-index button {
+  width: 100%;
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  background: none;
+  border: 0;
+  border-top: 1px solid var(--border);
+  padding: 14px 4px;
+  font-family: inherit;
+  font-size: 15.5px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-align: left;
+  cursor: pointer;
+  transition: color 0.2s ease, padding-left 0.3s ease;
+}
+.proj-index li:last-child button { border-bottom: 1px solid var(--border); }
+.proj-index button:hover { color: var(--text); padding-left: 16px; }
+.proj-index .idx {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-faint);
+}
+.proj-index .arr {
+  margin-left: auto;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.proj-index button:hover .arr { opacity: 1; }
 /* mobile: the hardware trio becomes a swipeable filmstrip — three
    crushed 1fr columns made the photos unusable on a phone */
 @media (max-width: 768px) {
@@ -824,7 +861,7 @@ html.fx .sc-slide.active .case > :nth-child(5) { transition-delay: 0.28s; }
 .sc-counter {
   display: none;
   position: absolute;
-  top: 24px;
+  top: 82px;
   left: 32px;
   font-family: var(--font-mono);
   font-size: 10.5px;

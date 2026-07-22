@@ -23,3 +23,38 @@
     setTimeout(function () { window.location.href = url.href; }, 180);
   });
 })();
+
+/* nav-logo easter egg: click the name, it decodes into the face */
+(function () {
+  'use strict';
+  var logo = document.querySelector('.nav-logo-text');
+  if (!logo) return;
+  var orig = logo.textContent;
+  var FACE = '( ._.)';
+  var CS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789#$%&';
+  var busy = false;
+  function scrambleTo(target, done) {
+    var steps = 12, n = 0;
+    var iv = setInterval(function () {
+      n++;
+      var reveal = Math.floor((n / steps) * target.length);
+      var out = '';
+      for (var i = 0; i < target.length; i++) {
+        out += (i < reveal || target[i] === ' ') ? target[i]
+             : CS[Math.floor(Math.random() * CS.length)];
+      }
+      logo.textContent = out;
+      if (n >= steps) { clearInterval(iv); logo.textContent = target; if (done) done(); }
+    }, 34);
+  }
+  logo.style.cursor = 'pointer';
+  logo.addEventListener('click', function () {
+    if (busy) return;
+    busy = true;
+    scrambleTo(FACE, function () {
+      setTimeout(function () {
+        scrambleTo(orig, function () { busy = false; });
+      }, 1100);
+    });
+  });
+})();
