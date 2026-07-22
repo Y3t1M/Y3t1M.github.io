@@ -692,6 +692,13 @@ html.settled .pcb-comp {
 
 /* ── Pinned LIFT showcase v2 (html.fx only) ───────────────── */
 #showcase { position: relative; }
+/* break out of #projects' max-width container — the sticky stage is
+   overflow:hidden, and a 1032px stage was clipping the 1100px wide
+   slide's outer glyphs on both sides */
+html.fx #showcase {
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+}
 #showcase .sc-stage { position: relative; }
 .sc-rail { display: none; }
 html.fx #showcase .sc-stage {
