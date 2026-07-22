@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Hudson H. Tinch — Resume</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16.png">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <style>
+    @page { size: letter; margin: 0.5in 0.55in; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { background: #fff; }
+    body {
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      color: #17191c;
+      font-size: 9.4pt;
+      line-height: 1.32;
+      max-width: 7.4in;
+      margin: 0 auto;
+      padding: 24px 0;
+      border-top: 3px solid #17191c;
+    }
+    @media print { body { padding: 8px 0 0; } }
+
+    .mono {
+      font-family: "SF Mono", Menlo, Consolas, monospace;
+      font-size: 7.8pt;
+      letter-spacing: 0.04em;
+      color: #6a6e74;
+    }
+
+    /* Header */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 20px;
+      margin: 8px 0 12px;
+    }
+    h1 {
+      font-size: 25pt;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1;
+      margin-bottom: 5px;
+    }
+    .role-line { font-size: 10pt; color: #44484e; }
+    .contact { text-align: right; line-height: 1.6; }
+    .contact a { color: #44484e; text-decoration: none; }
+    .contact div { white-space: nowrap; }
+
+    /* Two columns */
+    .cols {
+      display: grid;
+      grid-template-columns: 1fr 2.05in;
+      gap: 0 0.34in;
+    }
+    .sidebar { border-left: 1px solid #e5e6e9; padding-left: 0.3in; }
+
+    /* Sections */
+    h2 {
+      font-size: 8.6pt;
+      font-weight: 750;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      color: #17191c;
+      margin: 0 0 6px;
+    }
+    h2::before {
+      content: "";
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      background: #17191c;
+      margin-right: 7px;
+      vertical-align: 1px;
+    }
+    section { margin-bottom: 11px; }
+
+    /* Experience entries */
+    .entry { margin-bottom: 7px; }
+    .entry-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 12px;
+    }
+    .entry-head h3 { font-size: 10.3pt; font-weight: 700; }
+    .entry-head h3 span { font-weight: 400; color: #44484e; }
+    .entry-date { text-transform: uppercase; white-space: nowrap; }
+    .entry-org { font-size: 8.8pt; color: #6a6e74; margin: 1px 0 3px; }
+    ul { list-style: none; padding-left: 12px; }
+    li { margin-bottom: 1.5px; color: #26292d; position: relative; }
+    li::before {
+      content: "–";
+      position: absolute;
+      left: -12px;
+      color: #b3b7bd;
+    }
+    li b { font-weight: 650; }
+
+    /* Projects */
+    .proj { margin-bottom: 4px; }
+    .proj b { font-weight: 700; }
+    .proj .mono { margin-left: 4px; }
+    .proj p { color: #26292d; }
+
+    /* Sidebar blocks */
+    .sb-block { margin-bottom: 12px; }
+    .sb-block p { color: #26292d; font-size: 9pt; line-height: 1.4; }
+    .sb-strong { font-weight: 700; font-size: 9.6pt; }
+    .sb-sub { color: #44484e; font-size: 8.8pt; }
+    .sb-row { margin-bottom: 6px; }
+    .skill-line { margin-bottom: 6px; }
+    .skill-line .mono { display: block; margin-bottom: 1px; color: #8a8e94; }
+    .skill-line span.list { color: #26292d; font-size: 9pt; }
+    .award-list div {
+      font-size: 8.8pt;
+      color: #26292d;
+      padding: 2.5px 0;
+      border-bottom: 1px solid #f0f0f2;
+    }
+    .award-list div:last-child { border-bottom: 0; }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div>
+      <h1>Hudson H. Tinch</h1>
+      <div class="role-line">Developer &amp; business student &mdash; production software, hardware, and the systems in between</div>
+    </div>
+    <div class="contact mono">
+      <div>DALLAS, TX &middot; 817-808-2010</div>
+      <div><a href="mailto:hudson.tinch@gmail.com">hudson.tinch@gmail.com</a></div>
+      <div><a href="https://hudsontinch.com">hudsontinch.com</a> &middot; <a href="https://github.com/Y3t1M">github.com/Y3t1M</a></div>
+      <div><a href="https://linkedin.com/in/hudsontinch">linkedin.com/in/hudsontinch</a></div>
+    </div>
+  </header>
+
+  <div class="cols">
+    <main>
+      <section>
+        <h2>Experience</h2>
+
+        <div class="entry">
+          <div class="entry-head">
+            <h3>Developer &amp; Facilities Support Intern <span>&mdash; Integrity Marketing Group</span></h3>
+            <span class="entry-date mono">Summer 2026</span>
+          </div>
+          <div class="entry-org">Via Hollis Bloom &middot; Fountain Place, Dallas, TX</div>
+          <ul>
+            <li>Shipped the facilities work-order platform that runs the building daily &mdash; a React/TypeScript SPA on Supabase with <b>331 serverless functions</b>, <b>1,484 database migrations</b>, and <b>8 role-based portals</b>.</li>
+            <li>Consolidated request intake into <b>5 channels</b> &mdash; web, email, iOS, Siri, and Microsoft Teams &mdash; with AI parsing of emails into routed work orders.</li>
+            <li>Built the Microsoft Teams bot staff use to create and track work orders, get daily briefings, and file job photos from chat.</li>
+            <li>Left the platform in production; rollout across Integrity's Dallas locations is underway.</li>
+          </ul>
+        </div>
+
+        <div class="entry">
+          <div class="entry-head">
+            <h3>Back-End Developer <span>&mdash; Hollis Bloom</span></h3>
+            <span class="entry-date mono">2019 &ndash; Present</span>
+          </div>
+          <div class="entry-org">Dallas, TX</div>
+          <ul>
+            <li>Build and maintain back-end infrastructure for production client sites &mdash; React, TypeScript, Supabase/Postgres, Stripe ACH, QuickBooks, Cloudflare.</li>
+            <li>Shipped an online donation system and fully responsive rebuilds for clients including Prison Chapels.</li>
+          </ul>
+        </div>
+
+        <div class="entry">
+          <div class="entry-head">
+            <h3>C Programmer <span>&mdash; The Farah Law Firm</span></h3>
+            <span class="entry-date mono">2023 &ndash; 2025</span>
+          </div>
+          <div class="entry-org">Dallas, TX</div>
+          <ul>
+            <li>Built a proprietary C system for large-scale data scraping, aggregation, archiving, and marketing distribution.</li>
+            <li>Automated forcible-detainer legal workflows; platform expanding to firms across Texas and Louisiana.</li>
+          </ul>
+        </div>
+
+        <div class="entry">
+          <div class="entry-head">
+            <h3>Founder <span>&mdash; Dimensional Design 3D</span></h3>
+            <span class="entry-date mono">2014 &ndash; 2020</span>
+          </div>
+          <ul>
+            <li>Founded a 3D printing business at age eight; ran design, production, and sales for six years.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <h2>Projects</h2>
+        <div class="proj"><p><b>RH Agentic</b><span class="mono">PYTHON / JS</span><br>Autonomous trading system on the Robinhood API; agents scan markets, run analysis, and place orders, reporting to an encrypted live dashboard.</p></div>
+        <div class="proj"><p><b>Members Moments</b><span class="mono">VANILLA JS</span><br>Shoppable creator-video feed prototyped into the Sam's Club homepage; qualified through the pitch round and presented at McMillon Demo Day, Spring 2026 (largest cohort to date, 18 teams).</p></div>
+        <div class="proj"><p><b>AVR Drone</b><span class="mono">C++ / PYTHON</span><br>Captained an autonomous competition drone using A* pathfinding to a top-10 finish (8th) at Bell Advanced Vertical Robotics nationals &mdash; 3rd in presentation.</p></div>
+        <div class="proj"><p><b>NeatFreak</b><span class="mono">PYTHON / OPENCV</span><br>Turns a photo of an object into a 3D-printable organizer tray (STL/OBJ, Gridfinity); live in-browser demo at hudsontinch.com.</p></div>
+        <div class="proj"><p><b>hudsontinch.com</b><span class="mono">HTML / CSS / JS</span><br>Hand-built portfolio &mdash; interactive wireframe terrain, a WebGL grain shader, and a working Windows 95 desktop hidden inside.</p></div>
+      </section>
+    </main>
+
+    <aside class="sidebar">
+      <div class="sb-block">
+        <h2>Education</h2>
+        <div class="sb-row">
+          <div class="sb-strong">University of Arkansas</div>
+          <div class="sb-sub">Sam M. Walton College of Business &mdash; BSBA</div>
+          <div class="mono" style="margin-top:2px;">EXPECTED MAY 2029</div>
+        </div>
+        <p>Honors College &middot; <b>4.0 GPA throughout</b> &mdash; Chancellor's List every semester &middot; McMillon Innovation Studio</p>
+        <div class="sb-row" style="margin-top:8px;">
+          <div class="sb-strong" style="font-size:9pt;">Highland Park High School</div>
+          <div class="mono" style="margin-top:1px;">2021 &ndash; 2025</div>
+        </div>
+      </div>
+
+      <div class="sb-block">
+        <h2>Skills</h2>
+        <div class="skill-line"><span class="mono">LANGUAGES</span><span class="list">TypeScript, JavaScript, Python, C/C++, SQL</span></div>
+        <div class="skill-line"><span class="mono">WEB &amp; BACK END</span><span class="list">React, Node.js, Supabase/Postgres, Stripe, Cloudflare</span></div>
+        <div class="skill-line"><span class="mono">HARDWARE</span><span class="list">Arduino, KiCad/PCB design, 3D printing, AutoCAD</span></div>
+      </div>
+
+      <div class="sb-block">
+        <h2>Awards &amp; Leadership</h2>
+        <div class="award-list">
+          <div>Chancellor's List &mdash; 4.0 every semester</div>
+          <div>HP Robotics &mdash; Team Captain</div>
+          <div>Wharton GYP &mdash; Best Presentation, elected CEO</div>
+          <div>Duke Pre-College &mdash; Pitch Competition Winner</div>
+          <div>Georgia Tech SI &mdash; Highest Presentation Score</div>
+          <div>Presidential Service Award</div>
+        </div>
+      </div>
+    </aside>
+  </div>
+</body>
+
+</html>

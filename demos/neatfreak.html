@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NeatFreak — Live Demo</title>
+  <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="../assets/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="../assets/favicon-16.png">
+  <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
+  <meta name="description" content="NeatFreak live demo — photo to 3D-printable drawer organizer. Extract a silhouette, tune it, and download an STL or OBJ tray — plain or Gridfinity — right from your browser.">
+  <link rel="stylesheet" href="../styles.css">
+  <style>
+    .demo-wrap { max-width: 1080px; margin: 0 auto; padding: 56px 24px 0; }
+    .nf-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 24px;
+    }
+    @media (max-width: 760px) { .nf-grid { grid-template-columns: 1fr; } }
+    .nf-panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 20px 20px;
+    }
+    .nf-panel h3 {
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+    .nf-panel canvas {
+      display: block;
+      width: 100%;
+      border-radius: 8px;
+      background: #0d0d0d;
+    }
+    .nf-controls {
+      margin-top: 28px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 22px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(215px, 1fr));
+      gap: 18px 28px;
+      align-items: center;
+    }
+    .nf-slider label {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    .nf-slider label b { color: var(--text); font-weight: 400; font-variant-numeric: tabular-nums; }
+    .nf-slider label b .guess { color: var(--text-faint); }
+    input[type="range"] { width: 100%; accent-color: #eaeaea; }
+    .nf-samples { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .nf-sample-btn {
+      background: none;
+      border: 1px solid var(--border-h);
+      border-radius: 8px;
+      padding: 3px;
+      cursor: pointer;
+      line-height: 0;
+    }
+    .nf-sample-btn img { width: 52px; height: 40px; object-fit: cover; border-radius: 5px; filter: saturate(0.85); }
+    .nf-sample-btn.on { border-color: #eaeaea; }
+    .nf-upload {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      border: 1px dashed var(--border-h);
+      border-radius: 8px;
+      padding: 12px 14px;
+      cursor: pointer;
+      transition: border-color 0.15s ease, color 0.15s ease;
+    }
+    .nf-upload:hover { border-color: rgba(255, 255, 255, 0.4); color: var(--text); }
+    .nf-check {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      cursor: pointer;
+      user-select: none;
+    }
+    .nf-check input { accent-color: #eaeaea; width: 15px; height: 15px; }
+    .nf-export {
+      margin-top: 16px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .nf-dims {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      font-variant-numeric: tabular-nums;
+    }
+    .nf-note {
+      margin-top: 14px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+    }
+    .nf-how { margin-top: 48px; max-width: 68ch; }
+    .nf-how p { color: var(--text-muted); font-size: 14.5px; line-height: 1.7; margin-bottom: 10px; }
+    .nf-how p strong { color: var(--text); }
+  </style>
+</head>
+
+<body>
+
+  <header class="site-header">
+    <nav class="site-nav">
+      <div class="nav-logo"><span class="nav-logo-text">Hudson Tinch</span></div>
+      <div class="nav-links">
+        <a href="../index.html" class="nav-link">Home</a>
+        <a href="../projects.html" class="nav-link active">Projects</a>
+      </div>
+      <div class="nav-cta">
+        <a href="../assets/Hudson-Tinch-Resume.pdf" target="_blank" rel="noopener" class="btn-ghost">Resume</a>
+      </div>
+    </nav>
+  </header>
+
+  <section class="demo-wrap">
+    <div class="section-label">Live demo</div>
+    <h1 class="section-title">NeatFreak</h1>
+    <p class="section-description">
+      Photo in, 3D-printable drawer organizer out. Pick a photo, <strong>drag the sliders</strong>
+      until the outline hugs the object, set the real-world size, and download a printable tray —
+      plain or with a Gridfinity-compatible base.
+    </p>
+
+    <div class="nf-controls">
+      <div class="nf-samples" id="nfSamples">
+        <button class="nf-sample-btn on" data-src="../assets/img/arduino_r4.jpg" aria-label="Arduino sample"><img src="../assets/img/arduino_r4.jpg" alt="Arduino"></button>
+        <button class="nf-sample-btn" data-src="../assets/img/ironman_helmettop.jpg" aria-label="Helmet sample"><img src="../assets/img/ironman_helmettop.jpg" alt="Helmet"></button>
+        <button class="nf-sample-btn" data-src="../assets/img/avr_drone.jpg" aria-label="Drone sample"><img src="../assets/img/avr_drone.jpg" alt="Drone"></button>
+        <label class="nf-upload">Use your own photo<input type="file" id="nfFile" accept="image/*" style="display:none"></label>
+      </div>
+      <div class="nf-slider">
+        <label>Threshold <b id="nfThreshVal">46</b></label>
+        <input type="range" id="nfThresh" min="8" max="140" value="46">
+      </div>
+      <div class="nf-slider">
+        <label>Smoothing <b id="nfMorphVal">2</b></label>
+        <input type="range" id="nfMorph" min="0" max="6" value="2">
+      </div>
+      <div class="nf-slider">
+        <label>Object size <b><span id="nfSizeVal">120</span> mm <span class="guess" id="nfSizeGuess">· guessed</span></b></label>
+        <input type="range" id="nfSize" min="20" max="300" value="120">
+      </div>
+      <label class="nf-check"><input type="checkbox" id="nfGrid"> Gridfinity base</label>
+    </div>
+
+    <div class="nf-grid">
+      <div class="nf-panel">
+        <h3>Source &middot; detected silhouette</h3>
+        <canvas id="nfSrc" width="420" height="315"></canvas>
+      </div>
+      <div class="nf-panel">
+        <h3>Generated tray pocket</h3>
+        <canvas id="nfTray" width="420" height="315"></canvas>
+      </div>
+    </div>
+
+    <div class="nf-export">
+      <button class="btn-primary" id="nfStl">Download STL</button>
+      <button class="btn-ghost" id="nfObj">Download OBJ</button>
+      <span class="nf-dims" id="nfDims"></span>
+    </div>
+    <p class="nf-note">Runs entirely in your browser &mdash; photos never leave your device. Gridfinity footprint snaps to 42&nbsp;mm units (simplified feet).</p>
+
+    <div class="nf-how">
+      <div class="section-label">How the real app works</div>
+      <p>
+        The desktop version (Python &middot; OpenCV &middot; CadQuery) estimates the background color from the
+        photo's corners, thresholds the color distance to isolate the object, cleans the mask with
+        morphological passes, traces the largest contour, and extrudes it into a parametric CadQuery
+        tray exported as STL.
+      </p>
+      <p>
+        This page reimplements the pipeline in vanilla JavaScript: canvas pixel ops for extraction,
+        then a watertight heightfield mesh &mdash; tray, pocket, and optional Gridfinity feet &mdash;
+        written as binary STL or OBJ on the fly.
+      </p>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <span class="footer-copy">&copy; 2026 &middot; Dallas, TX</span>
+      <div class="footer-links">
+        <a href="../projects.html" class="footer-link">&larr; Back to projects</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+  (function () {
+    'use strict';
+    var srcCanvas = document.getElementById('nfSrc');
+    var trayCanvas = document.getElementById('nfTray');
+    var sctx = srcCanvas.getContext('2d', { willReadFrequently: true });
+    var tctx = trayCanvas.getContext('2d');
+    var threshEl = document.getElementById('nfThresh');
+    var morphEl = document.getElementById('nfMorph');
+    var sizeEl = document.getElementById('nfSize');
+    var gridEl = document.getElementById('nfGrid');
+    var img = null;
+    var W = 420, H = 315;
+    var last = null;          // { mask, w, h, bbox }
+    var sizeTouched = false;
+
+    var params = new URLSearchParams(location.search);
+
+    function loadImage(src) {
+      var im = new Image();
+      im.onload = function () { img = im; sizeTouched = false; process(); };
+      im.src = src;
+    }
+
+    document.getElementById('nfSamples').addEventListener('click', function (e) {
+      var btn = e.target.closest('.nf-sample-btn');
+      if (!btn) return;
+      var btns = document.querySelectorAll('.nf-sample-btn');
+      for (var i = 0; i < btns.length; i++) btns[i].classList.toggle('on', btns[i] === btn);
+      loadImage(btn.getAttribute('data-src'));
+    });
+
+    document.getElementById('nfFile').addEventListener('change', function (e) {
+      var f = e.target.files && e.target.files[0];
+      if (!f) return;
+      var reader = new FileReader();
+      reader.onload = function () { loadImage(reader.result); };
+      reader.readAsDataURL(f);
+      var btns = document.querySelectorAll('.nf-sample-btn');
+      for (var i = 0; i < btns.length; i++) btns[i].classList.remove('on');
+    });
+
+    var pending = false;
+    function schedule() {
+      document.getElementById('nfThreshVal').textContent = threshEl.value;
+      document.getElementById('nfMorphVal').textContent = morphEl.value;
+      document.getElementById('nfSizeVal').textContent = sizeEl.value;
+      if (pending) return;
+      pending = true;
+      requestAnimationFrame(function () { pending = false; process(); });
+    }
+    threshEl.addEventListener('input', schedule);
+    morphEl.addEventListener('input', schedule);
+    sizeEl.addEventListener('input', function () {
+      sizeTouched = true;
+      document.getElementById('nfSizeGuess').textContent = '';
+      schedule();
+    });
+    gridEl.addEventListener('change', schedule);
+
+    function process() {
+      if (!img) return;
+      var scale = Math.min(W / img.width, H / img.height);
+      var w = Math.round(img.width * scale), h = Math.round(img.height * scale);
+      var ox = (W - w) >> 1, oy = (H - h) >> 1;
+      sctx.fillStyle = '#0d0d0d';
+      sctx.fillRect(0, 0, W, H);
+      sctx.drawImage(img, ox, oy, w, h);
+      var data = sctx.getImageData(ox, oy, w, h);
+      var px = data.data;
+
+      var br = 0, bg = 0, bb = 0, n = 0;
+      function patch(x0, y0) {
+        for (var y = y0; y < y0 + 8; y++) for (var x = x0; x < x0 + 8; x++) {
+          var i = (y * w + x) * 4;
+          br += px[i]; bg += px[i + 1]; bb += px[i + 2]; n++;
+        }
+      }
+      patch(0, 0); patch(w - 8, 0); patch(0, h - 8); patch(w - 8, h - 8);
+      br /= n; bg /= n; bb /= n;
+
+      var thr = +threshEl.value, thr2 = thr * thr * 3;
+      var mask = new Uint8Array(w * h);
+      for (var i2 = 0, p = 0; i2 < mask.length; i2++, p += 4) {
+        var dr = px[p] - br, dg = px[p + 1] - bg, db = px[p + 2] - bb;
+        mask[i2] = (dr * dr + dg * dg + db * db) > thr2 ? 1 : 0;
+      }
+
+      var iters = +morphEl.value;
+      function pass(src, expand) {
+        var dst = new Uint8Array(w * h);
+        for (var y = 0; y < h; y++) {
+          for (var x = 0; x < w; x++) {
+            var v = expand ? 0 : 1;
+            for (var yy = Math.max(0, y - 1); yy <= Math.min(h - 1, y + 1); yy++) {
+              for (var xx = Math.max(0, x - 1); xx <= Math.min(w - 1, x + 1); xx++) {
+                if (expand) { if (src[yy * w + xx]) { v = 1; } }
+                else { if (!src[yy * w + xx]) { v = 0; } }
+              }
+            }
+            dst[y * w + x] = v;
+          }
+        }
+        return dst;
+      }
+      for (var d = 0; d < iters; d++) mask = pass(mask, true);
+      for (var e2 = 0; e2 < iters; e2++) mask = pass(mask, false);
+
+      // bounding box of the mask
+      var minX = w, minY = h, maxX = -1, maxY = -1;
+      for (var y3 = 0; y3 < h; y3++) for (var x3 = 0; x3 < w; x3++) {
+        if (mask[y3 * w + x3]) {
+          if (x3 < minX) minX = x3; if (x3 > maxX) maxX = x3;
+          if (y3 < minY) minY = y3; if (y3 > maxY) maxY = y3;
+        }
+      }
+      var hasObj = maxX >= 0;
+      last = hasObj ? { mask: mask, w: w, h: h, bbox: [minX, minY, maxX, maxY] } : null;
+
+      // size guess: elongated things read as hand tools, boxy things as parts
+      if (hasObj && !sizeTouched) {
+        var bw = maxX - minX + 1, bh = maxY - minY + 1;
+        var aspect = Math.max(bw, bh) / Math.max(1, Math.min(bw, bh));
+        var guess = aspect > 2.2 ? 150 : (aspect > 1.4 ? 120 : 90);
+        sizeEl.value = guess;
+        document.getElementById('nfSizeVal').textContent = guess;
+        document.getElementById('nfSizeGuess').textContent = '· guessed';
+      }
+
+      // green edge overlay
+      for (var y2 = 1; y2 < h - 1; y2++) {
+        for (var x2 = 1; x2 < w - 1; x2++) {
+          var idx = y2 * w + x2;
+          if (mask[idx] && (!mask[idx - 1] || !mask[idx + 1] || !mask[idx - w] || !mask[idx + w])) {
+            var p2 = idx * 4;
+            px[p2] = 74; px[p2 + 1] = 222; px[p2 + 2] = 128;
+            if (x2 + 1 < w) { px[p2 + 4] = 74; px[p2 + 5] = 222; px[p2 + 6] = 128; }
+          }
+        }
+      }
+      sctx.putImageData(data, ox, oy);
+
+      drawTray(mask, w, h);
+      updateDims();
+    }
+
+    /* ---- tray geometry shared by preview + export ---- */
+    function trayParams() {
+      if (!last) return null;
+      var b = last.bbox;
+      var bwPx = b[2] - b[0] + 1, bhPx = b[3] - b[1] + 1;
+      var objMM = +sizeEl.value;
+      var mmPerPx = objMM / Math.max(bwPx, bhPx);
+      var margin = 10;
+      var trayW = bwPx * mmPerPx + margin * 2;
+      var trayD = bhPx * mmPerPx + margin * 2;
+      var grid = gridEl.checked;
+      if (grid) {
+        trayW = Math.max(42, Math.ceil(trayW / 42) * 42);
+        trayD = Math.max(42, Math.ceil(trayD / 42) * 42);
+      }
+      var height = grid ? 21 : 20;          // 3 gridfinity units tall, or plain 20
+      var pocketDepth = Math.min(14, height - 6);
+      return {
+        trayW: trayW, trayD: trayD, height: height, pocketDepth: pocketDepth,
+        mmPerPx: mmPerPx, grid: grid,
+        offX: (trayW - bwPx * mmPerPx) / 2,  // centers the pocket
+        offY: (trayD - bhPx * mmPerPx) / 2
+      };
+    }
+
+    function updateDims() {
+      var el = document.getElementById('nfDims');
+      var t = trayParams();
+      if (!t) { el.textContent = 'no object detected — lower the threshold'; return; }
+      el.textContent = t.trayW.toFixed(0) + ' × ' + t.trayD.toFixed(0) + ' × ' + t.height +
+        ' mm · pocket ' + t.pocketDepth + ' mm' + (t.grid ? ' · ' + (t.trayW / 42) + '×' + (t.trayD / 42) + 'U gridfinity' : '');
+    }
+
+    /* is a tray point (mm) inside the pocket? */
+    function pocketAt(t, xmm, ymm) {
+      var b = last.bbox;
+      var xPx = b[0] + (xmm - t.offX) / t.mmPerPx;
+      var yPx = b[1] + (ymm - t.offY) / t.mmPerPx;
+      var xi = Math.round(xPx), yi = Math.round(yPx);
+      if (xi < 0 || yi < 0 || xi >= last.w || yi >= last.h) return false;
+      return !!last.mask[yi * last.w + xi];
+    }
+
+    function drawTray(mask, w, h) {
+      tctx.clearRect(0, 0, W, H);
+      var t = trayParams();
+      var m = 18;
+      var availW = W - m * 2, availH = H - m * 2;
+      var s2, tw, td;
+      if (t) {
+        s2 = Math.min(availW / t.trayW, availH / t.trayD);
+        tw = t.trayW * s2; td = t.trayD * s2;
+      } else { tw = availW; td = availH; }
+      var x0 = (W - tw) / 2, y0 = (H - td) / 2;
+
+      tctx.fillStyle = '#1c1c1c';
+      roundRect(tctx, x0, y0, tw, td, t && t.grid ? 6 : 14);
+      tctx.fill();
+      tctx.strokeStyle = 'rgba(255,255,255,0.14)';
+      tctx.lineWidth = 1.5;
+      roundRect(tctx, x0, y0, tw, td, t && t.grid ? 6 : 14);
+      tctx.stroke();
+
+      if (t && t.grid) {
+        // 42mm unit seams
+        tctx.strokeStyle = 'rgba(255,255,255,0.06)';
+        tctx.lineWidth = 1;
+        for (var gx2 = 42; gx2 < t.trayW; gx2 += 42) {
+          tctx.beginPath(); tctx.moveTo(x0 + gx2 * s2, y0); tctx.lineTo(x0 + gx2 * s2, y0 + td); tctx.stroke();
+        }
+        for (var gy2 = 42; gy2 < t.trayD; gy2 += 42) {
+          tctx.beginPath(); tctx.moveTo(x0, y0 + gy2 * s2); tctx.lineTo(x0 + tw, y0 + gy2 * s2); tctx.stroke();
+        }
+      }
+
+      if (t) {
+        var b = last.bbox;
+        var bwPx = b[2] - b[0] + 1, bhPx = b[3] - b[1] + 1;
+        var pw = bwPx * t.mmPerPx * s2, ph = bhPx * t.mmPerPx * s2;
+        var px0 = x0 + t.offX * s2, py0 = y0 + t.offY * s2;
+
+        var off = document.createElement('canvas');
+        off.width = bwPx; off.height = bhPx;
+        var octx = off.getContext('2d');
+        var od = octx.createImageData(bwPx, bhPx);
+        for (var y = 0; y < bhPx; y++) for (var x = 0; x < bwPx; x++) {
+          if (mask[(y + b[1]) * w + (x + b[0])]) {
+            var p = (y * bwPx + x) * 4;
+            od.data[p] = 8; od.data[p + 1] = 8; od.data[p + 2] = 8; od.data[p + 3] = 255;
+          }
+        }
+        octx.putImageData(od, 0, 0);
+        tctx.globalAlpha = 0.55;
+        tctx.drawImage(off, px0 + 3, py0 + 4, pw, ph);
+        tctx.globalAlpha = 1;
+        tctx.drawImage(off, px0, py0, pw, ph);
+      }
+
+      tctx.font = '10px ui-monospace, Menlo, monospace';
+      tctx.fillStyle = 'rgba(255,255,255,0.28)';
+      tctx.fillText(t && t.grid ? 'GRIDFINITY TRAY — POCKET FROM SILHOUETTE' : 'TRAY POCKET — EXTRUDED FROM SILHOUETTE', m + 10, H - m - 10);
+    }
+
+    function roundRect(ctx, x, y, w2, h2, r) {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.arcTo(x + w2, y, x + w2, y + h2, r);
+      ctx.arcTo(x + w2, y + h2, x, y + h2, r);
+      ctx.arcTo(x, y + h2, x, y, r);
+      ctx.arcTo(x, y, x + w2, y, r);
+      ctx.closePath();
+    }
+
+    /* ---- mesh generation: watertight heightfield + optional feet ---- */
+    function buildMesh() {
+      var t = trayParams();
+      if (!t) return null;
+      var RES = 140;
+      var cell = Math.max(t.trayW, t.trayD) / RES;
+      var gw = Math.max(2, Math.round(t.trayW / cell));
+      var gh = Math.max(2, Math.round(t.trayD / cell));
+      var floorZ = t.height - t.pocketDepth;
+
+      // per-cell top height; border cells forced solid so outer walls are clean
+      var top = new Float32Array(gw * gh);
+      for (var gy = 0; gy < gh; gy++) {
+        for (var gx = 0; gx < gw; gx++) {
+          var isBorder = gx === 0 || gy === 0 || gx === gw - 1 || gy === gh - 1;
+          var xmm = (gx + 0.5) * cell, ymm = (gy + 0.5) * cell;
+          top[gy * gw + gx] = (!isBorder && pocketAt(t, xmm, ymm)) ? floorZ : t.height;
+        }
+      }
+
+      var tris = []; // flat array of triangles [x1,y1,z1, x2,y2,z2, x3,y3,z3, ...]
+      function quad(ax, ay, az, bx, by, bz, cx, cy, cz, dx, dy, dz) {
+        tris.push(ax, ay, az, bx, by, bz, cx, cy, cz);
+        tris.push(ax, ay, az, cx, cy, cz, dx, dy, dz);
+      }
+
+      for (var gy2 = 0; gy2 < gh; gy2++) {
+        for (var gx2 = 0; gx2 < gw; gx2++) {
+          var z = top[gy2 * gw + gx2];
+          var x1 = gx2 * cell, x2 = (gx2 + 1) * cell;
+          var y1 = gy2 * cell, y2 = (gy2 + 1) * cell;
+          // top face (up)
+          quad(x1, y1, z, x2, y1, z, x2, y2, z, x1, y2, z);
+          // bottom face (down)
+          quad(x1, y1, 0, x1, y2, 0, x2, y2, 0, x2, y1, 0);
+          // walls vs +x neighbor
+          var zr = gx2 + 1 < gw ? top[gy2 * gw + gx2 + 1] : 0;
+          if (zr !== z) {
+            var lo = Math.min(z, zr), hi = Math.max(z, zr);
+            quad(x2, y1, lo, x2, y2, lo, x2, y2, hi, x2, y1, hi);
+          }
+          if (gx2 === 0) quad(x1, y1, 0, x1, y1, z, x1, y2, z, x1, y2, 0);
+          if (gx2 === gw - 1) quad(x2, y1, 0, x2, y2, 0, x2, y2, z, x2, y1, z);
+          // walls vs +y neighbor
+          var zd = gy2 + 1 < gh ? top[(gy2 + 1) * gw + gx2] : 0;
+          if (zd !== z) {
+            var lo2 = Math.min(z, zd), hi2 = Math.max(z, zd);
+            quad(x1, y2, lo2, x2, y2, lo2, x2, y2, hi2, x1, y2, hi2);
+          }
+          if (gy2 === 0) quad(x1, y1, 0, x2, y1, 0, x2, y1, z, x1, y1, z);
+          if (gy2 === gh - 1) quad(x1, y2, 0, x1, y2, z, x2, y2, z, x2, y2, 0);
+        }
+      }
+
+      // simplified gridfinity feet: one chamfered frustum per 42mm unit
+      if (t.grid) {
+        var footH = 4.75, topSz = 41.0, botSz = 37.2;
+        for (var uy = 0; uy < t.trayD / 42; uy++) {
+          for (var ux = 0; ux < t.trayW / 42; ux++) {
+            var cx2 = ux * 42 + 21, cy2 = uy * 42 + 21;
+            var tHalf = topSz / 2, bHalf = botSz / 2;
+            var tx1 = cx2 - tHalf, tx2 = cx2 + tHalf, ty1 = cy2 - tHalf, ty2 = cy2 + tHalf;
+            var bx1 = cx2 - bHalf, bx2 = cx2 + bHalf, by1 = cy2 - bHalf, by2 = cy2 + bHalf;
+            var zT = 0.2, zB = -footH; // top overlaps base slightly for a clean union
+            quad(bx1, by1, zB, bx2, by1, zB, bx2, by2, zB, bx1, by2, zB);           // bottom
+            quad(tx1, ty1, zT, tx1, ty2, zT, tx2, ty2, zT, tx2, ty1, zT);           // top
+            quad(bx1, by1, zB, bx1, by2, zB, tx1, ty2, zT, tx1, ty1, zT);           // -x
+            quad(bx2, by1, zB, tx2, ty1, zT, tx2, ty2, zT, bx2, by2, zB);           // +x
+            quad(bx1, by1, zB, tx1, ty1, zT, tx2, ty1, zT, bx2, by1, zB);           // -y
+            quad(bx1, by2, zB, bx2, by2, zB, tx2, ty2, zT, tx1, ty2, zT);           // +y
+          }
+        }
+      }
+      return { tris: tris, name: t.grid ? 'neatfreak-gridfinity-tray' : 'neatfreak-tray' };
+    }
+
+    function normalOf(t, i) {
+      var ux = t[i + 3] - t[i], uy = t[i + 4] - t[i + 1], uz = t[i + 5] - t[i + 2];
+      var vx = t[i + 6] - t[i], vy = t[i + 7] - t[i + 1], vz = t[i + 8] - t[i + 2];
+      var nx = uy * vz - uz * vy, ny = uz * vx - ux * vz, nz = ux * vy - uy * vx;
+      var l = Math.sqrt(nx * nx + ny * ny + nz * nz) || 1;
+      return [nx / l, ny / l, nz / l];
+    }
+
+    function downloadBlob(blob, name) {
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = name;
+      a.click();
+      setTimeout(function () { URL.revokeObjectURL(a.href); }, 4000);
+    }
+
+    function exportSTL() {
+      var mesh = buildMesh();
+      if (!mesh) return null;
+      var t = mesh.tris, count = t.length / 9;
+      var buf = new ArrayBuffer(84 + count * 50);
+      var dv = new DataView(buf);
+      var head = 'NeatFreak browser export — hudsontinch.com';
+      for (var i = 0; i < Math.min(80, head.length); i++) dv.setUint8(i, head.charCodeAt(i));
+      dv.setUint32(80, count, true);
+      var o = 84;
+      for (var i2 = 0; i2 < t.length; i2 += 9) {
+        var nrm = normalOf(t, i2);
+        dv.setFloat32(o, nrm[0], true); dv.setFloat32(o + 4, nrm[1], true); dv.setFloat32(o + 8, nrm[2], true);
+        for (var v = 0; v < 9; v++) dv.setFloat32(o + 12 + v * 4, t[i2 + v], true);
+        dv.setUint16(o + 48, 0, true);
+        o += 50;
+      }
+      var blob = new Blob([buf], { type: 'model/stl' });
+      if (params.has('selftest')) { console.log('SELFTEST tris=' + count + ' bytes=' + blob.size); return blob; }
+      downloadBlob(blob, mesh.name + '.stl');
+      return blob;
+    }
+
+    function exportOBJ() {
+      var mesh = buildMesh();
+      if (!mesh) return;
+      var t = mesh.tris;
+      var out = ['# NeatFreak browser export — hudsontinch.com'];
+      for (var i = 0; i < t.length; i += 3) {
+        out.push('v ' + t[i].toFixed(3) + ' ' + t[i + 1].toFixed(3) + ' ' + t[i + 2].toFixed(3));
+      }
+      var nv = t.length / 3;
+      for (var f = 1; f <= nv; f += 3) out.push('f ' + f + ' ' + (f + 1) + ' ' + (f + 2));
+      downloadBlob(new Blob([out.join('\n')], { type: 'text/plain' }), mesh.name + '.obj');
+    }
+
+    document.getElementById('nfStl').addEventListener('click', exportSTL);
+    document.getElementById('nfObj').addEventListener('click', exportOBJ);
+
+    if (params.has('grid')) gridEl.checked = true;
+    var initial = params.get('img') || '../assets/img/arduino_r4.jpg';
+    if (params.has('selftest')) {
+      var im0 = new Image();
+      im0.onload = function () { img = im0; process(); exportSTL(); };
+      im0.src = initial;
+    } else {
+      loadImage(initial);
+    }
+  })();
+  </script>
+  <script src="../sand.js"></script>
+  <script src="../transitions.js"></script>
+</body>
+
+</html>

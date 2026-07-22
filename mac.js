@@ -878,3 +878,56 @@ window.addEventListener('load', function() {
   /* auto-open the Finder so something is visible on load */
   openWindow('finder-win');
 });
+
+
+/* ── Collapse boxes (window shade) + Netscape toolbar wiring ── */
+(function () {
+  // inject a collapse box into every titlebar, styled like close/zoom
+  document.querySelectorAll('.mac-titlebar').forEach(function (bar) {
+    var zoom = bar.querySelector('.mac-zoom-box');
+    var box = document.createElement('div');
+    box.className = 'mac-close-box mac-collapse-box';
+    box.title = 'Collapse';
+    if (zoom) { zoom.style.marginLeft = '0'; bar.insertBefore(box, zoom); box.style.marginLeft = 'auto'; }
+    else bar.appendChild(box);
+    box.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var win = bar.closest('.mac-window');
+      if (win) win.classList.toggle('shaded');
+    });
+  });
+
+  // Netscape: Reload and Home work; the rest gray out like idle Navigator
+  var ns = document.getElementById('netscape-win');
+  if (!ns) return;
+  var body = ns.querySelector('.ns-body');
+  var status = document.getElementById('ns-status-text');
+  var fill = document.getElementById('ns-progress-fill');
+  ns.querySelectorAll('.ns-nav-btn').forEach(function (btn) {
+    var label = (btn.textContent || '').trim();
+    if (/Back|Forward|Search|Bookmarks|Stop/.test(label)) {
+      btn.classList.add('ns-disabled');
+      return;
+    }
+    btn.addEventListener('click', function () {
+      if (/Home/.test(label)) { if (body) body.scrollTop = 0; return; }
+      // Reload: fake a period-correct page load
+      if (!body || !status || !fill) return;
+      status.textContent = 'Connect: Contacting host www.hudsontinch.com...';
+      fill.style.transition = 'none';
+      fill.style.width = '0%';
+      body.style.opacity = '0.4';
+      setTimeout(function () {
+        fill.style.transition = 'width 0.7s ease';
+        fill.style.width = '100%';
+      }, 60);
+      setTimeout(function () {
+        body.style.opacity = '1';
+        body.scrollTop = 0;
+        status.textContent = 'Document: Done';
+        fill.style.transition = 'none';
+        fill.style.width = '0%';
+      }, 850);
+    });
+  });
+})();

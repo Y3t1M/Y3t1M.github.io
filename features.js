@@ -15,6 +15,8 @@
     if (sessionStorage.getItem('fw_shown')) return;
     sessionStorage.setItem('fw_shown', '1');
 
+    document.documentElement.classList.add('fw-boot');
+
     var overlay = document.createElement('div');
     overlay.id = 'firmware-overlay';
     overlay.innerHTML =
@@ -27,11 +29,11 @@
         '</div>' +
         '<div class="fw-body" id="fw-body"></div>' +
       '</div>';
-
     document.body.appendChild(overlay);
 
     var body = document.getElementById('fw-body');
 
+    // the ORIGINAL Yetim face, untouched — sized responsively via .fw-art
     var art = [
       '        .o                                            o.',
       '      .8\'                                              `8.',
@@ -41,46 +43,52 @@
       '     `8.            .o.                       .o.       .8\'',
       '      `8.           Y8P      ooooooooooo      Y8P      .8\'',
       '       `"                                              "\'',
-      '',
-      '',
     ];
 
     var lines = [];
-    lines.push({ html: '<span class="cli-p-user">hudson</span><span style="color:#888">@</span><span class="cli-p-host">archlinux</span> <span class="cli-p-tilde">~</span><span class="cli-p-dollar"> $</span> <span class="cli-nf-val">neofetch</span>', delay: 0 });
-    lines.push({ html: '', delay: 100 });
+    lines.push({ html: '<span class="cli-p-user">hudson</span><span style="color:#888">@</span><span class="cli-p-host">archlinux</span> <span class="cli-p-tilde">~</span><span class="cli-p-dollar"> $</span> <span class="cli-nf-val">neofetch</span>', delay: 60 });
+    lines.push({ html: '', delay: 90 });
     for (var i = 0; i < art.length; i++) {
-      lines.push({ html: '<span class="cli-nf-art">' + art[i] + '</span>', delay: 48 });
+      lines.push({ html: '<span class="cli-nf-art">' + art[i] + '</span>', delay: 42, art: true });
     }
     lines.push({ html: '', delay: 60 });
-    lines.push({ html: '<span class="cli-p-user">hudson</span><span style="color:#888">@</span><span class="cli-p-host">archlinux</span>', delay: 0 });
-    lines.push({ html: '<span class="cli-nf-key">-------------------------------</span>', delay: 20 });
-    lines.push({ html: '<span class="cli-nf-key">OS:</span>     <span class="cli-nf-val">HudsonInch GNU/Linux x86_64</span>', delay: 35 });
-    lines.push({ html: '<span class="cli-nf-key">Host:</span>   <span class="cli-nf-val">Y3t1M.github.io</span>', delay: 35 });
-    lines.push({ html: '<span class="cli-nf-key">Role:</span>   <span class="cli-nf-val">Robotics Captain  •  Maker</span>', delay: 35 });
-    lines.push({ html: '<span class="cli-nf-key">Univ:</span>   <span class="cli-nf-val">U of Arkansas  —  Honors College</span>', delay: 35 });
-    lines.push({ html: '<span class="cli-nf-key">Lang:</span>   <span class="cli-nf-val">C++  Python  JS  TS</span>', delay: 35 });
-    lines.push({ html: '<span class="cli-nf-key">HW:</span>     <span class="cli-nf-val">Arduino  PCB  3D Printing</span>', delay: 35 });
-    lines.push({ html: '<span class="cli-nf-key">GPA:</span>    <span class="cli-nf-val">4.0  —  Chancellor\'s List</span>', delay: 35 });
+    lines.push({ html: '<span class="cli-p-user">hudson</span><span style="color:#888">@</span><span class="cli-p-host">archlinux</span>', delay: 30 });
+    lines.push({ html: '<span class="cli-nf-key">--------------------------</span>', delay: 20 });
+    lines.push({ html: '<span class="cli-nf-key">OS:</span>    <span class="cli-nf-val">HudsonTinch x86_64</span>', delay: 35 });
+    lines.push({ html: '<span class="cli-nf-key">Host:</span>  <span class="cli-nf-val">hudsontinch.com</span>', delay: 35 });
+    lines.push({ html: '<span class="cli-nf-key">Univ:</span>  <span class="cli-nf-val">Arkansas — Honors</span>', delay: 35 });
+    lines.push({ html: '<span class="cli-nf-key">Lang:</span>  <span class="cli-nf-val">TS JS Python C++</span>', delay: 35 });
+    lines.push({ html: '<span class="cli-nf-key">HW:</span>    <span class="cli-nf-val">Arduino · PCB · 3DP</span>', delay: 35 });
+    lines.push({ html: '<span class="cli-nf-key">GPA:</span>   <span class="cli-nf-val">4.0</span>', delay: 60 });
     lines.push({ html: '', delay: 80 });
-    lines.push({ html: '<span class="cli-p-dollar">$</span> <span class="cli-nf-val" style="color:#4ade80">// portfolio loaded — welcome</span>', delay: 160 });
+    lines.push({ html: '<span class="cli-p-dollar">$</span> <span style="color:#4ade80">// portfolio loaded — welcome</span>', delay: 220 });
+
+    var done = false;
+    function finish() {
+      if (done) return;
+      done = true;
+      document.documentElement.classList.remove('fw-boot');
+      document.documentElement.classList.add('fw-booted');
+      overlay.classList.add('fw-fade');
+      setTimeout(function () { overlay.remove(); }, 520);
+    }
+
+    overlay.addEventListener('pointerdown', finish);
+    document.addEventListener('keydown', finish, { once: true });
+    setTimeout(finish, 4500); // never trap the visitor
 
     var idx = 0;
     function printNext() {
-      if (idx >= lines.length) {
-        setTimeout(function () {
-          overlay.classList.add('fw-fade');
-          setTimeout(function () { overlay.remove(); }, 520);
-        }, 520);
-        return;
-      }
+      if (done) return;
+      if (idx >= lines.length) { setTimeout(finish, 460); return; }
       var line = lines[idx++];
       var el = document.createElement('div');
-      el.className = 'fw-output-line fw-active';
+      el.className = 'fw-output-line' + (line.art ? ' fw-art' : '');
       el.innerHTML = line.html;
       body.appendChild(el);
       setTimeout(printNext, line.delay);
     }
-    setTimeout(printNext, 220);
+    setTimeout(printNext, 240);
   })();
 
 
@@ -108,7 +116,10 @@
     var slashHint = document.createElement('div');
     slashHint.id = 'cli-slash-hint';
     slashHint.textContent = '[ / ] terminal';
+    slashHint.setAttribute('role', 'button');
+    slashHint.setAttribute('aria-label', 'open terminal');
     document.body.appendChild(slashHint);
+    slashHint.addEventListener('click', function () { if (!isOpen) open(); });
 
     var output   = document.getElementById('cli-output');
     var input    = document.getElementById('cli-input');
@@ -149,7 +160,7 @@
       printRaw('<span class="cli-p-user">hudson</span><span style="color:#ccc">@</span><span class="cli-p-host">archlinux</span>');
       printRaw('<span class="cli-nf-key">-------------------------------</span>');
       printRaw('<span class="cli-nf-key">OS:</span>     <span class="cli-nf-val">HudsonInch GNU/Linux x86_64</span>');
-      printRaw('<span class="cli-nf-key">Host:</span>   <span class="cli-nf-val">Y3t1M.github.io</span>');
+      printRaw('<span class="cli-nf-key">Host:</span>   <span class="cli-nf-val">hudsontinch.com</span>');
       printRaw('<span class="cli-nf-key">Role:</span>   <span class="cli-nf-val">Robotics Captain  •  Maker</span>');
       printRaw('<span class="cli-nf-key">Univ:</span>   <span class="cli-nf-val">U of Arkansas  —  Honors College</span>');
       printRaw('<span class="cli-nf-key">Lang:</span>   <span class="cli-nf-val">C++  Python  JS  TS</span>');

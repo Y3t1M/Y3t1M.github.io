@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Icon dragging
     let dragIconEl = null, iconOffX = 0, iconOffY = 0;
     document.querySelectorAll('.icon').forEach(icon => {
-        icon.addEventListener('mousedown', e => {
+        icon.addEventListener('pointerdown', e => {
             if (e.button !== 0) return;
             const rect = icon.getBoundingClientRect();
             iconOffX = e.clientX - rect.left;
@@ -30,19 +30,21 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
         });
     });
-    document.addEventListener('mousemove', e => {
+    document.addEventListener('pointermove', e => {
         if (!dragIconEl) return;
-        dragIconEl.style.left = (e.clientX - iconOffX) + 'px';
-        dragIconEl.style.top  = (e.clientY - iconOffY) + 'px';
+        var ix = Math.max(0, Math.min(e.clientX - iconOffX, document.documentElement.clientWidth - 40));
+        var iy = Math.max(0, Math.min(e.clientY - iconOffY, document.documentElement.clientHeight - 60));
+        dragIconEl.style.left = ix + 'px';
+        dragIconEl.style.top  = iy + 'px';
     });
-    document.addEventListener('mouseup', () => { dragIconEl = null; });
+    document.addEventListener('pointerup', () => { dragIconEl = null; });
 
     document.querySelectorAll('.folder').forEach(folder => {
         folder.addEventListener('dblclick', () => {
             const windowId = folder.dataset.window;
             const win = document.getElementById(windowId);
             if (win) {
-                win.style.display = 'flex';
+                win.style.display = 'flex'; win.classList.add('spawn'); setTimeout(function(){ win.classList.remove('spawn'); }, 220);
                 win.style.left = '50%';
                 win.style.top = '50%';
                 win.style.transform = 'translate(-50%, -50%)';
@@ -75,13 +77,12 @@ document.addEventListener('DOMContentLoaded', () => {
         let initialX;
         let initialY;
 
-        titlebar.addEventListener('mousedown', dragStart);
 
-        document.addEventListener('mousemove', drag);
-        document.addEventListener('mouseup', dragEnd);
+        document.addEventListener('pointermove', drag);
+        document.addEventListener('pointerup', dragEnd);
 
         // Bring window to front when clicked
-        window.addEventListener('mousedown', () => {
+        window.addEventListener('pointerdown', () => {
             bringToFront(window);
         });
 
@@ -93,7 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         function dragStart(e) {
-            if (e.target === titlebar) {
+            if (e.target.closest('.window-titlebar') === titlebar && !e.target.closest('.window-controls')) {
                 // Calculate offset from current position
                 const rect = window.getBoundingClientRect();
                 initialX = e.clientX - rect.left;
@@ -117,6 +118,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 e.preventDefault();
                 currentX = e.clientX - initialX;
                 currentY = e.clientY - initialY;
+                currentX = Math.max(60 - window.offsetWidth, Math.min(currentX, document.documentElement.clientWidth - 60));
+                currentY = Math.max(0, Math.min(currentY, document.documentElement.clientHeight - 40));
 
                 window.style.left = `${currentX}px`;
                 window.style.top = `${currentY}px`;
@@ -133,7 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const OFFSET_INCREMENT = 20;
 
     function showWindow(window) {
-        window.style.display = 'flex';
+        window.style.display = 'flex'; window.classList.add('spawn'); setTimeout(function(){ window.classList.remove('spawn'); }, 220);
         window.style.left = `calc(50% + ${folderOffset.x}px)`;
         window.style.top  = `calc(50% + ${folderOffset.y}px)`;
         window.style.transform = 'translate(-50%,-50%)';
@@ -188,6 +191,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             switch(action) {
                 case 'shutdown':
+                    try { new Audio('assets/audio/MicrosoftWindowsXPShutdownSound.mp3').play().catch(function(){}); } catch (err) {}
                     document.body.classList.add('shutdown-active');
                     setTimeout(() => {
                         window.location.href = './';
@@ -205,9 +209,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     setTimeout(()=>{ passwordField.focus(); },80);
                     passwordField.value = '';
                     errorMessage.textContent = '';
-                    break;
-                case 'contact':
-                    showContactError();
                     break;
             }
         });
@@ -250,10 +251,10 @@ document.addEventListener('DOMContentLoaded', () => {
             taskbarItem.classList.add('taskbar-item');
             taskbarItem.innerHTML = `
                 <img src="assets/icons/my_computer.png" alt="Window">
-                <span>${window.querySelector('.window-titlebar span').textContent}</span>
+                <span>${(window.querySelector('.window-titlebar span:not(.title-icon)') || window.querySelector('.window-titlebar span')).textContent}</span>
             `;
             taskbarItem.addEventListener('click', () => {
-                window.style.display = 'block';
+                window.style.display = 'flex'; window.classList.add('spawn'); setTimeout(function(){ window.classList.remove('spawn'); }, 220);
                 taskbarItem.remove();
                 bringToFront(window);
             });
@@ -263,6 +264,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (maximizeBtn) maximizeBtn.addEventListener('click', () => {
             if (!isMaximized) {
+                window.classList.add('maximized');
                 // Store original dimensions
                 originalDimensions = {
                     width: window.style.width,
@@ -282,6 +284,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 // Restore original dimensions
                 Object.assign(window.style, originalDimensions);
+                window.classList.remove('maximized');
                 isMaximized = false;
             }
         });
@@ -367,19 +370,19 @@ document.addEventListener('DOMContentLoaded', () => {
         // Draggable
         const tb = pop.querySelector('.window-titlebar');
         let dragging = false, offX = 0, offY = 0;
-        tb.addEventListener('mousedown', e => {
+        tb.addEventListener('pointerdown', e => {
             dragging = true;
             offX = e.clientX - pop.offsetLeft;
             offY = e.clientY - pop.offsetTop;
             pop.style.zIndex = ++virusZ;
             e.preventDefault();
         });
-        document.addEventListener('mousemove', e => {
+        document.addEventListener('pointermove', e => {
             if (!dragging) return;
             pop.style.left = (e.clientX - offX) + 'px';
             pop.style.top  = (e.clientY - offY) + 'px';
         });
-        document.addEventListener('mouseup', () => { dragging = false; });
+        document.addEventListener('pointerup', () => { dragging = false; });
 
         document.body.appendChild(pop);
     }
@@ -405,7 +408,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const cw = document.getElementById('contact-error-window');
         if (!cw) return;
         new Audio('assets/audio/WindowsXPErrorSound.mp3').play().catch(() => {});
-        cw.style.display = 'flex';
+        cw.style.display = 'flex'; cw.classList.add('spawn'); setTimeout(function(){ cw.classList.remove('spawn'); }, 220);
         cw.style.left = '50%';
         cw.style.top = '50%';
         cw.style.transform = 'translate(-50%, -50%)';
@@ -424,7 +427,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 cw.style.display = 'none';
             });
             const tb = cw.querySelector('.window-titlebar');
-            if (tb) tb.addEventListener('mousedown', dragStart);
+            if (tb) tb.addEventListener('pointerdown', dragStart);
         }
     }
 
@@ -432,7 +435,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.start-item[data-action="contact"]').forEach(item => {
         item.addEventListener('click', () => {
             const menu = document.getElementById('start-menu');
-            if (menu) menu.style.display = 'none';
+            if (menu) menu.classList.remove('visible');
             showContactError();
         });
     });
@@ -446,65 +449,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // plays only from the profile-avatar easter egg in main.js (guarded,
     // once per page load). No global click/dblclick listener plays audio.
 
-    // Add event listeners for PixOS window buttons (guarded — desktop only)
-    const pixosWindow = document.getElementById('pixos-window');
-    const pixosMinimizeBtn = pixosWindow ? pixosWindow.querySelector('.minimize-btn') : null;
-    const pixosMaximizeBtn = pixosWindow ? pixosWindow.querySelector('.maximize-btn') : null;
-
-    if (pixosMinimizeBtn) pixosMinimizeBtn.addEventListener('click', () => {
-        pixosWindow.classList.toggle('minimized');
-        if (pixosWindow.classList.contains('minimized')) {
-            // Optionally, add PixOS to taskbar or hidden list
-        } else {
-            bringToFront(pixosWindow);
-        }
-    });
-
-    if (pixosMaximizeBtn) pixosMaximizeBtn.addEventListener('click', () => {
-        pixosWindow.classList.toggle('maximized');
-        bringToFront(pixosWindow);
-    });
-
-    if (pixosWindow) {
-        const maximizeBtn = pixosWindow.querySelector('.maximize-btn');
-        let isMaximized = false;
-        let originalDimensions = {};
-
-        maximizeBtn.addEventListener('click', () => {
-            if (!isMaximized) {
-                // Store original dimensions
-                originalDimensions = {
-                    width: pixosWindow.style.width,
-                    height: pixosWindow.style.height,
-                    left: pixosWindow.style.left,
-                    top: pixosWindow.style.top,
-                    transform: pixosWindow.style.transform
-                };
-
-                // Apply maximized state
-                pixosWindow.classList.add('maximized');
-                pixosWindow.style.width = '100%';
-                pixosWindow.style.height = 'calc(100vh - 44px)';
-                pixosWindow.style.left = '0';
-                pixosWindow.style.top = '0';
-                pixosWindow.style.transform = 'none';
-                
-                // Ensure iframe fills the space
-                const iframe = pixosWindow.querySelector('iframe');
-                if (iframe) {
-                    iframe.style.width = '100%';
-                    iframe.style.height = 'calc(100% - 25px)'; // Account for titlebar
-                }
-            } else {
-                // Restore original dimensions
-                pixosWindow.classList.remove('maximized');
-                Object.assign(pixosWindow.style, originalDimensions);
-            }
-            isMaximized = !isMaximized;
-            bringToFront(pixosWindow);
-        });
-    }
-
     // Handle folder double-clicks
     document.querySelectorAll('.folder').forEach(folder => {
         folder.addEventListener('dblclick', () => {
@@ -515,54 +459,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Update Tetris window controls
-    const tetrisWindow = document.getElementById('tetris-window');
-    if (tetrisWindow) {
-        const minimizeBtn = tetrisWindow.querySelector('.minimize-btn');
-        const maximizeBtn = tetrisWindow.querySelector('.maximize-btn');
-        const closeBtn = tetrisWindow.querySelector('.close-btn');
-        let isMaximized = false;
-        let originalDimensions = {};
-
-        minimizeBtn.addEventListener('click', () => {
-            tetrisWindow.style.display = 'none';
-            // Optionally, handle taskbar item creation
-        });
-
-        maximizeBtn.addEventListener('click', () => {
-            if (!isMaximized) {
-                // Store original dimensions
-                originalDimensions = {
-                    width: tetrisWindow.style.width,
-                    height: tetrisWindow.style.height,
-                    left: tetrisWindow.style.left,
-                    top: tetrisWindow.style.top,
-                    transform: tetrisWindow.style.transform
-                };
-                // Maximize window
-                tetrisWindow.style.width = '100%';
-                tetrisWindow.style.height = 'calc(100vh - 40px)';
-                tetrisWindow.style.left = '0';
-                tetrisWindow.style.top = '0';
-                tetrisWindow.style.transform = 'none';
-                isMaximized = true;
-            } else {
-                // Restore original dimensions
-                Object.assign(tetrisWindow.style, originalDimensions);
-                isMaximized = false;
-            }
-            bringToFront(tetrisWindow);
-        });
-
-        closeBtn.addEventListener('click', () => {
-            tetrisWindow.style.display = 'none';
-        });
-    }
 
     function openWindow(windowId) {
         const windowElement = document.getElementById(windowId);
         if (windowElement) {
-            windowElement.style.display = 'block';
+            windowElement.style.display = 'flex'; windowElement.classList.add('spawn'); setTimeout(function(){ windowElement.classList.remove('spawn'); }, 220);
             bringToFront(windowElement);
         }
     }
@@ -635,7 +536,7 @@ function initEndlessDownload() {
 
 /* Add wake up handler */
 function handleWakeUp(e) {
-    document.removeEventListener('mousemove', handleWakeUp);
+    document.removeEventListener('pointermove', handleWakeUp);
     
     // Create boot elements
     const bootOverlay = document.createElement('div');
@@ -674,7 +575,7 @@ function triggerShutdown() {
             document.body.innerHTML = '';
             // Listen for mouse movement after shutdown
             setTimeout(() => {
-                document.addEventListener('mousemove', handleWakeUp);
+                document.addEventListener('pointermove', handleWakeUp);
             }, 500);
         });
 
@@ -747,7 +648,7 @@ function shutdownComputer() {
 function openWindow(windowId) {
     const windowElement = document.getElementById(windowId);
     if (windowElement) {
-        windowElement.style.display = 'block';
+        windowElement.style.display = 'flex'; windowElement.classList.add('spawn'); setTimeout(function(){ windowElement.classList.remove('spawn'); }, 220);
         bringToFront(windowElement);
     }
 }
@@ -763,3 +664,37 @@ document.querySelectorAll('.folder').forEach(folder => {
 });
 
 // (shutdown already bound above)
+
+/* ── Touch support: single tap opens what double-click opens ── */
+(function () {
+    if (!window.matchMedia('(hover: none)').matches) return;
+    var lastSynth = 0;
+    document.addEventListener('click', function (e) {
+        var el = e.target.closest('.icon, .folder, .game-item, #tetris');
+        if (!el) return;
+        var now = Date.now();
+        if (now - lastSynth < 500) return; // a real double-tap already fired dblclick
+        lastSynth = now;
+        el.dispatchEvent(new MouseEvent('dblclick', { bubbles: true }));
+    });
+})();
+
+
+/* ── Icon selection (single click), authentic label highlight ── */
+(function () {
+    document.addEventListener('click', function (e) {
+        var icon = e.target.closest('.icon');
+        document.querySelectorAll('.icon.selected').forEach(function (el) {
+            if (el !== icon) el.classList.remove('selected');
+        });
+        if (icon) icon.classList.add('selected');
+    });
+})();
+
+
+/* dev/test: skip the lock screen with ?unlock */
+(function () {
+    if (window.location.search.indexOf('unlock') === -1) return;
+    var lock = document.querySelector('.lock-screen');
+    if (lock) lock.classList.remove('visible');
+})();

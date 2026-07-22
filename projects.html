@@ -1,14 +1,18 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Projects &mdash; Hudson Tinch</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16.png">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <meta name="description" content="Selected work — production facilities software, an autonomous trading system, a Sam's Club concept demo, competition robotics, and hardware builds.">
   <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
 
   <!-- Ambient background -->
@@ -19,137 +23,153 @@
   <!-- Navigation -->
   <header class="site-header">
     <nav class="site-nav">
-      <div class="nav-logo"><span class="nav-logo-text">HT</span></div>
+      <div class="nav-logo"><span class="nav-logo-text">Hudson Tinch</span></div>
       <div class="nav-links">
         <a href="index.html" class="nav-link">Home</a>
         <a href="projects.html" class="nav-link active">Projects</a>
       </div>
       <div class="nav-cta">
-        <a href="desktop.html" class="btn-ghost">Enter Desktop &rarr;</a>
+        <a href="assets/Hudson-Tinch-Resume.pdf" target="_blank" rel="noopener" class="btn-ghost">Resume</a>
       </div>
     </nav>
   </header>
 
   <section id="projects">
-    <div class="readout-row" style="justify-content:flex-start;margin-bottom:24px;">
-      <span class="readout"><span class="readout-key">DIR:</span> <span class="readout-val">/PROJECTS</span></span>
-      <span class="readout readout-accent"><span class="led"></span> 05 UNITS LOGGED</span>
-    </div>
-    <div class="section-label" style="margin-bottom: 16px;">Work</div>
-    <h2>Projects</h2>
-
-    <div class="proj-index-head">
-      <span class="pih-l">PROJECTS // INDEX</span>
-      <span class="pih-r">EQUIPMENT MANIFEST &mdash; TEXT ONLY</span>
+    <div class="page-head proj-head">
+      <div class="proj-ghost" aria-hidden="true">06</div>
+      <div class="section-label">Selected work</div>
+      <h2 class="section-title proj-title">Projects</h2>
+      <div class="proj-meta">2019 &mdash; 2026 &middot; Software / Hardware / Retail</div>
+      <ol class="proj-index" id="proj-index"></ol>
     </div>
 
-    <article class="card proj-entry">
-      <div class="proj-num">01</div>
-      <div class="proj-body">
-        <div class="proj-head">
-          <h3 class="proj-name">Arduino R4 Controller</h3>
-          <div class="proj-tags">
-            <span class="proj-tag">Hardware</span>
-            <span class="proj-tag">WiFi</span>
-            <span class="proj-tag">C++</span>
-          </div>
-        </div>
-        <p class="proj-desc">
-          A web-based control panel hosted directly on an Arduino R4 WiFi board &mdash; servos and
-          electromagnets driven remotely from any browser, individually or simultaneously, with
-          real-time status readouts and no extra apps.
-        </p>
-        <a href="https://github.com/Y3t1M/Arduino-R4-Controller-Web-Interface" target="_blank" class="proj-action">VIEW REPO <span class="pa-arrow">-&gt;</span></a>
+    <section id="showcase">
+      <div class="sc-stage">
+    <div class="sc-slide">
+    <!-- Hollis Bloom platform -->
+    <article class="case" id="hollis-bloom">
+      <div class="case-meta"><span>2025 &ndash; 2026</span><span class="dim">Production</span><span class="dim">React &middot; TypeScript &middot; Supabase</span></div>
+      <h3>Hollis Bloom Platform</h3>
+      <p>
+        Facilities work-order software behind <strong>hollisbloom.com</strong>, running Integrity Marketing Group's
+        offices at Fountain Place, Dallas. Requests arrive by web portal, email, iOS share sheet, Siri, or a
+        Microsoft Teams bot; the platform assigns vendors, schedules jobs, captures photos, and handles
+        invoicing with ACH payments and QuickBooks sync. Built and deployed during a summer internship;
+        it runs the building daily and is rolling out to more Dallas locations.
+      </p>
+      <div class="spec-strip">
+        <div class="spec"><b>331</b><span>edge functions</span></div>
+        <div class="spec"><b>1,484</b><span>db migrations</span></div>
+        <div class="spec"><b>8</b><span>role portals</span></div>
+        <div class="spec"><b>5</b><span>intake channels</span></div>
+      </div>
+      <div class="case-links">
+        <a href="https://hollisbloom.com" target="_blank">hollisbloom.com &rarr;</a>
       </div>
     </article>
-
-    <article class="card proj-entry">
-      <div class="proj-num">02</div>
-      <div class="proj-body">
-        <div class="proj-head">
-          <h3 class="proj-name">AVR Drone</h3>
-          <div class="proj-tags">
-            <span class="proj-tag">Robotics</span>
-            <span class="proj-tag">Autonomous</span>
-          </div>
-        </div>
-        <p class="proj-desc">
-          Led the development of an autonomous drone for the Bell Advanced Vertical Robotics
-          Competition, navigating complex environments with A* pathfinding. Placed 8th at nationals.
-        </p>
-        <span class="proj-status">STATUS // FLOWN &mdash; 8TH AT NATIONALS</span>
-      </div>
-    </article>
-
-    <article class="card proj-entry">
-      <div class="proj-num">03</div>
-      <div class="proj-body">
-        <div class="proj-head">
-          <h3 class="proj-name">Iron Man Helmet</h3>
-          <div class="proj-tags">
-            <span class="proj-tag">3D Print</span>
-            <span class="proj-tag">Electronics</span>
-          </div>
-        </div>
-        <p class="proj-desc">
-          A functional Iron Man helmet built with 3D printing and embedded electronics &mdash; moving
-          parts and a magnetic faceplate bring a piece of fictional technology into the real world.
-        </p>
-        <span class="proj-status">STATUS // BUILD COMPLETE</span>
-      </div>
-    </article>
-
-    <article class="card proj-entry">
-      <div class="proj-num">04</div>
-      <div class="proj-body">
-        <div class="proj-head">
-          <h3 class="proj-name">Win95 Desktop</h3>
-          <div class="proj-tags">
-            <span class="proj-tag">Easter Egg</span>
-            <span class="proj-tag">JS</span>
-          </div>
-        </div>
-        <p class="proj-desc">
-          A full Windows-95-style desktop hidden inside this site &mdash; draggable windows, a start
-          menu, a lock screen, error-popup chaos, and a Games folder.
-        </p>
-        <a href="desktop.html" class="proj-action">LAUNCH <span class="pa-arrow">-&gt;</span></a>
-      </div>
-    </article>
-
-    <article class="card proj-entry">
-      <div class="proj-num">05</div>
-      <div class="proj-body">
-        <div class="proj-head">
-          <h3 class="proj-name">Arcade</h3>
-          <div class="proj-tags">
-            <span class="proj-tag">Games</span>
-            <span class="proj-tag">Retro</span>
-          </div>
-        </div>
-        <p class="proj-desc">
-          Tetris, a click-speed test, and an endless download simulator &mdash; playable from the
-          Games folder on the hidden desktop.
-        </p>
-        <a href="desktop.html" class="proj-action">LAUNCH <span class="pa-arrow">-&gt;</span></a>
-      </div>
-    </article>
-
-    <!-- More coming soon -->
-    <div class="coming-soon-block">
-      <div class="csb-glow"></div>
-      <div class="csb-inner">
-        <span class="csb-badge">In Progress</span>
-        <h3 class="csb-title">More projects on the way</h3>
-        <p class="csb-sub">Currently building new things. Check back soon &mdash; or watch the repo for commits.</p>
-        <a href="https://github.com/Y3t1M" target="_blank" class="csb-link">github.com/Y3t1M &rarr;</a>
-      </div>
-      <div class="csb-dots">
-        <span class="csb-dot"></span>
-        <span class="csb-dot"></span>
-        <span class="csb-dot"></span>
-      </div>
     </div>
+
+    <div class="sc-slide">
+    <!-- RH Agentic -->
+    <article class="case" id="rh-agentic">
+      <div class="case-meta"><span>2026</span><span class="dim">Live</span><span class="dim">Python &middot; JavaScript</span></div>
+      <h3>RH Agentic</h3>
+      <p>
+        Autonomous trading system on the Robinhood API. Agents scan markets, run analysis, and place
+        equity and options orders without a human in the loop, reporting to an encrypted live dashboard.
+        Runs against a real account.
+      </p>
+      <div class="case-links">
+        <a href="https://rh-agentic.pages.dev" target="_blank">View the live dashboard &rarr;</a>
+      </div>
+    </article>
+    </div>
+
+    <div class="sc-slide">
+    <!-- Members Moments -->
+    <article class="case" id="members-moments">
+      <div class="case-meta"><span>Spring 2026</span><span class="dim">Concept prototype</span><span class="dim">HTML &middot; CSS &middot; JavaScript</span></div>
+      <h3>Members Moments</h3>
+      <p>
+        A shoppable creator-video feed prototyped into the Sam's Club homepage for the McMillon Innovation
+        Studio's Sam's Club challenge. Open a reel, tap <strong>See products</strong>, add to cart without
+        leaving the video &mdash; full comment threads, cart drawer, and checkout included. Built in three
+        weeks with no framework. Qualified through the pitch round and presented at
+        <strong>Demo Day, Spring 2026</strong>.
+      </p>
+      <div class="case-links">
+        <a href="https://samsclub-demo.pages.dev" target="_blank">Visit the live demo &rarr;</a>
+      </div>
+    </article>
+    </div>
+
+    <div class="sc-slide">
+    <!-- NeatFreak -->
+    <article class="case" id="neatfreak">
+      <div class="case-meta"><span>2026</span><span class="dim">Desktop app</span><span class="dim">Python &middot; OpenCV &middot; CadQuery</span></div>
+      <h3>NeatFreak</h3>
+      <p>
+        Photo in, 3D-printable drawer organizer out. Take a picture of a tool on a plain background;
+        NeatFreak extracts its silhouette, lets you tune the outline with live sliders, and generates
+        an STL tray with a custom-fit pocket ready for the printer. The extraction engine is
+        rebuilt in JavaScript on this site &mdash; try it on your own photo.
+      </p>
+      <div class="case-links">
+        <a href="demos/neatfreak.html">Try the live demo &rarr;</a>
+      </div>
+    </article>
+    </div>
+
+    <div class="sc-slide wide">
+    <!-- Hardware grid -->
+    <div class="slide-eyebrow">Hardware</div>
+    <div class="case-grid">
+      <article class="case-sm" id="avr-drone">
+        <img src="assets/img/avr_drone_ascii.png" alt="AVR competition drone" loading="lazy">
+        <div class="case-sm-body">
+          <div class="case-meta"><span>Robotics</span></div>
+          <h3>AVR Drone</h3>
+          <p>Led the team behind an autonomous drone with A* pathfinding for the Bell Advanced Vertical Robotics competition. 8th at nationals.</p>
+        </div>
+      </article>
+      <article class="case-sm" id="arduino-r4">
+        <img src="assets/img/arduino_r4_ascii.png" alt="Arduino R4 controller board" loading="lazy">
+        <div class="case-sm-body">
+          <div class="case-meta"><span>Hardware &middot; C++</span></div>
+          <h3>Arduino R4 Controller</h3>
+          <p>Web control panel served straight from an Arduino R4 WiFi. Drives servos and electromagnets from any browser &mdash; no app.</p>
+          <a href="https://github.com/Y3t1M/Arduino-R4-Controller-Web-Interface" target="_blank">View repo &rarr;</a>
+        </div>
+      </article>
+      <article class="case-sm" id="iron-man">
+        <img src="assets/img/ironman_helmet_ascii.png" alt="3D-printed Iron Man helmet" loading="lazy">
+        <div class="case-sm-body">
+          <div class="case-meta"><span>3D print &middot; Electronics</span></div>
+          <h3>Iron Man Helmet</h3>
+          <p>3D-printed helmet with embedded electronics. The faceplate opens on command and seats magnetically. It works.</p>
+        </div>
+      </article>
+    </div>
+    </div>
+
+    <div class="sc-slide" data-index-title="Win95.sys">
+    <!-- The site itself -->
+    <article class="case" id="win95">
+      <div class="case-meta"><span>Ongoing</span><span class="dim">JavaScript</span><span class="dim">Easter egg</span></div>
+      <h3>This site runs a second site</h3>
+      <p>
+        A full Windows 95 desktop is hidden inside this portfolio &mdash; draggable windows, a start menu,
+        a lock screen, and a Games folder with Tetris, a click-speed test, and an endless download.
+        There's a Mac OS 9 mode too, if you can find it.
+      </p>
+      <div class="case-links">
+        <a href="desktop.html">Boot the desktop &rarr;</a>
+      </div>
+    </article>
+    </div>
+
+      </div>
+    </section>
   </section>
 
   <!-- Hidden clicker game -->
@@ -165,19 +185,38 @@
     </div>
   </section>
 
+  <!-- Contact -->
+  <section class="contact-band">
+    <div class="contact-inner">
+      <div>
+        <h2>Get in touch</h2>
+        <p>Hiring an intern, or want to talk about a build? Email is fastest.</p>
+      </div>
+      <div class="contact-actions">
+        <a href="mailto:hudson.tinch@gmail.com" class="btn-primary">Email me</a>
+        <a href="https://github.com/Y3t1M" target="_blank" class="btn-ghost">GitHub</a>
+        <a href="https://linkedin.com/in/hudsontinch" target="_blank" class="btn-ghost">LinkedIn</a>
+      </div>
+    </div>
+  </section>
+
   <footer class="site-footer">
     <div class="footer-inner">
-      <span class="footer-logo"><span class="led"></span>HT</span>
-      <span class="footer-copy">HT.SYS V3 // BUILT BY HAND // DALLAS TX // Y3T1M.GITHUB.IO</span>
+      <span class="footer-copy">&copy; 2026 &middot; Dallas, TX</span>
       <div class="footer-links">
         <a href="https://github.com/Y3t1M" target="_blank" class="footer-link">GitHub</a>
+        <a href="https://linkedin.com/in/hudsontinch" target="_blank" class="footer-link">LinkedIn</a>
+        <a href="mailto:hudson.tinch@gmail.com" class="footer-link">Email</a>
       </div>
     </div>
   </footer>
-
+  <script src="dotgrid.js"></script>
+  <script src="scroll-fx.js"></script>
+  <script src="transitions.js"></script>
   <script src="main.js"></script>
   <script src="desktop.js"></script>
   <script src="interactive.js"></script>
-  <script src="rha-cursor.js" defer></script>
+  <script src="features.js"></script>
 </body>
+
 </html>

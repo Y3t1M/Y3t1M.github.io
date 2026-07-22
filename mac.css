@@ -7,7 +7,7 @@
 
 :root {
   --mac-desk:     #818181;   /* classic platinum desktop gray */
-  --mac-face:     #c0c0c0;   /* window chrome / button face    */
+  --mac-face:     #cfcfcf;   /* Platinum window chrome / button face */
   --mac-lt:       #ffffff;   /* light bevel edge               */
   --mac-dk:       #888888;   /* dark bevel edge                */
   --mac-ddk:      #444444;   /* deep dark edge                 */
@@ -15,7 +15,7 @@
   --mac-white:    #ffffff;
   --mac-menubar:  #ffffff;
   --mac-blue:     #2963cc;   /* Platinum highlight / selection */
-  --mac-font:     "Geneva", "Charcoal", "Helvetica Neue", Arial, sans-serif;
+  --mac-font:     "Charcoal", "Geneva", "Helvetica Neue", Arial, sans-serif;
   --mac-font-sz:  11px;
   --menubar-h:    21px;
 }
@@ -183,10 +183,10 @@ html, body {
   flex-shrink: 0;
   background: repeating-linear-gradient(
     to bottom,
-    #000 0px, #000 1px,
-    #fff 1px, #fff 2px
+    #aeaeae 0px, #aeaeae 1px,
+    #dedede 1px, #dedede 2px
   );
-  border-bottom: 1px solid #000;
+  border-bottom: 1px solid #555;
 }
 /* Inactive title bar */
 .mac-window.inactive .mac-titlebar {
@@ -631,3 +631,24 @@ html, body {
   border-bottom: 1px solid var(--mac-dk);
 }
 ::-webkit-scrollbar-corner { background: var(--mac-face); }
+
+
+/* ── Collapse (window-shade) box — OS 9 authentic ── */
+.mac-collapse-box {
+  margin-left: 4px;
+  margin-right: 4px;
+}
+.mac-collapse-box:hover { background: #e0c060; }
+.mac-collapse-box::after {
+  content: "";
+  display: block;
+  margin: 3px 1px;
+  border-top: 1px solid #444;
+  border-bottom: 1px solid #444;
+  height: 2px;
+}
+.mac-window.shaded > :not(.mac-titlebar) { display: none !important; }
+.mac-window.shaded { min-height: 0 !important; height: auto !important; }
+
+/* Netscape: idle buttons gray out like the real Navigator */
+.ns-nav-btn.ns-disabled { opacity: 0.45; pointer-events: none; }

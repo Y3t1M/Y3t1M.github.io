@@ -5,16 +5,18 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Hudson Tinch</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16.png">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <meta name="description" content="Hudson Tinch — business student at Arkansas, developer at Hollis Bloom. Work-order platforms, trading systems, competition drones.">
   <link rel="stylesheet" href="styles.css">
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 </head>
 
 <body>
 
-  <!-- Ambient background blobs -->
+  <!-- Ambient background -->
   <div class="bg-blob bg-blob-1"></div>
   <div class="bg-blob bg-blob-2"></div>
   <div class="bg-grid"></div>
@@ -23,215 +25,174 @@
   <header class="site-header">
     <nav class="site-nav">
       <div class="nav-logo">
-        <span class="nav-logo-text">HT</span>
+        <span class="nav-logo-text">Hudson Tinch</span>
       </div>
       <div class="nav-links">
         <a href="index.html" class="nav-link active">Home</a>
         <a href="projects.html" class="nav-link">Projects</a>
       </div>
-      <div class="nav-cta"></div>
+      <div class="nav-cta">
+        <a href="assets/Hudson-Tinch-Resume.pdf" target="_blank" rel="noopener" class="btn-ghost">Resume</a>
+      </div>
     </nav>
   </header>
 
-  <!-- Hero Section -->
+  <!-- Terrain hero: interactive wireframe topography; nav chips at right -->
   <section class="hero">
-    <div class="hero-panel">
+    <canvas id="pcb-canvas"></canvas>
 
-      <h1 class="hero-title">
-        Building things<br>
-        that <span class="gradient-text">actually work</span>
-      </h1>
-
+    <div class="hero-panel hero-open">
+      <p class="hero-designator">Hudson Tinch · Dallas, TX</p>
+      <h1 class="hero-title">Studying business.<br>Shipping software.</h1>
+      <p class="hero-subtitle">Developer at Hollis Bloom. Business student at Arkansas.</p>
       <div class="hero-actions">
-        <a href="projects.html" class="btn-primary">View Projects</a>
+        <a href="projects.html" class="btn-primary">View projects</a>
+        <a href="assets/Hudson-Tinch-Resume.pdf" target="_blank" rel="noopener" class="btn-ghost">Resume</a>
       </div>
-
-      <!-- Profile avatars -->
-      <div class="hero-avatars">
-        <span class="avatar-link">
-          <img src="assets/img/profile1.jpg" alt="Hudson Tinch" class="hero-avatar" id="profile1">
-        </span>
-        <span class="avatar-link">
-          <img src="assets/img/profile2.jpg" alt="Hudson Tinch" class="hero-avatar" id="profile2">
-        </span>
-      </div>
-
+      <p class="hero-now">Now // sophomore year at Arkansas &middot; building <b>hollisbloom.com</b></p>
     </div>
+
   </section>
 
-  <!-- Stats / highlight bar -->
-  <div class="stats-bar">
-    <div class="stat-item">
-      <span class="stat-number" data-count="3" data-suffix="+">3+</span>
-      <span class="stat-label">Major Projects</span>
-    </div>
-    <div class="stat-divider"></div>
-    <div class="stat-item">
-      <span class="stat-number">C++ / Python / JS</span>
-      <span class="stat-label">Primary Languages</span>
-    </div>
-    <div class="stat-divider"></div>
-    <div class="stat-item">
-      <span class="stat-number">Robotics Captain</span>
-      <span class="stat-label">HP Robotics Team</span>
-    </div>
-    <div class="stat-divider"></div>
-    <div class="stat-item">
-      <span class="stat-number">3D Printing</span>
-      <span class="stat-label">Hardware Prototyping</span>
-    </div>
-  </div>
-
-  <!-- About Section -->
+  <!-- About -->
   <section id="about" class="about-section">
     <div class="section-label">About</div>
     <h2 class="section-title">Who I am</h2>
     <p class="section-description">
-      Hi! I'm <strong>Hudson Tinch</strong> — a business student and part-time engineer who loves building cool things. I mix strategy with hands-on problem solving, then turn ideas into projects that actually ship.
+      I'm <strong>Hudson Tinch</strong> &mdash; Honors College business student at the University of Arkansas
+      who ships production software. My work spans full-stack platforms running daily at real companies,
+      autonomous systems, and hardware &mdash; built for clients and competitions since I was eight. I work the
+      overlap between business and engineering: scope it, build it, sell it.
     </p>
+    <div class="avatar-row">
+      <span class="avatar-link">
+        <img src="assets/img/profile1.jpg" alt="Hudson Tinch" class="about-avatar" id="profile1">
+      </span>
+      <span class="avatar-link">
+        <img src="assets/img/profile2.jpg" alt="Hudson Tinch" class="about-avatar" id="profile2">
+      </span>
+    </div>
 
     <div class="about-grid">
       <div class="about-card">
-        <div class="about-card-icon"><i data-lucide="cog"></i></div>
-        <h3>Robotics Leadership</h3>
-        <p>As captain of the HP robotics team, I combined hands-on building with advanced technology, leading my team through challenging competitions and innovative engineering projects.</p>
-      </div>
-      <div class="about-card">
-        <div class="about-card-icon"><i data-lucide="wrench"></i></div>
-        <h3>Hardware & Making</h3>
-        <p>I have a deep enthusiasm for creating physical objects — particularly through 3D printing. From intricate prototypes to functional components, I thrive on transforming digital concepts into real-world objects.</p>
-      </div>
-      <div class="about-card">
-        <div class="about-card-icon"><i data-lucide="laptop-2"></i></div>
-        <h3>Technical Skills</h3>
-        <p>Proficient in C++, Python, JavaScript, and TypeScript. Experienced with PCB design, microcontrollers, AutoCAD, KiCad, Git, full-stack web development, and mobile app development.</p>
-      </div>
-      <div class="about-card">
         <div class="about-card-icon"><i data-lucide="graduation-cap"></i></div>
         <h3>University of Arkansas</h3>
-        <p>Accepted into the <strong>Honors College</strong> and the selective <strong>McMillon Innovation Studio</strong> &mdash; a Walton College entrepreneurship program named after Walmart CEO Doug McMillon, focused on venture creation and innovation. Earned a spot on the <strong>Chancellor's List</strong> with a perfect <strong>4.0 GPA</strong>.</p>
+        <p>Honors College, Walton College of Business. A 4.0 throughout my college career &mdash; Chancellor's List every semester. McMillon Innovation Studio.</p>
+      </div>
+      <div class="about-card">
+        <div class="about-card-icon"><i data-lucide="briefcase"></i></div>
+        <h3>Hollis Bloom</h3>
+        <p>Production facilities software — a work-order platform with web, email, iOS, and Microsoft Teams intake. 300+ backend functions. In service daily.</p>
+      </div>
+      <div class="about-card">
+        <div class="about-card-icon"><i data-lucide="cpu"></i></div>
+        <h3>Hardware</h3>
+        <p>Arduino firmware, PCB design in KiCad, 3D printing. Captained a drone team to a top-10 finish at Bell AVR nationals &mdash; 3rd in presentation.</p>
+      </div>
+      <div class="about-card">
+        <div class="about-card-icon"><i data-lucide="terminal"></i></div>
+        <h3>This site</h3>
+        <p>There's a full Windows 95 desktop hidden in here, games included. The Konami code is a good place to start.</p>
       </div>
     </div>
   </section>
 
-  <!-- Featured Projects teaser -->
+  <!-- Featured work -->
   <section class="projects-teaser">
-    <div class="section-label">Featured Work</div>
-    <h2 class="section-title">Recent Projects</h2>
+    <div class="section-label">Selected work</div>
+    <h2 class="section-title">Projects</h2>
     <div class="projects-row">
-      <a href="https://github.com/Y3t1M/Arduino-R4-Controller-Web-Interface" target="_blank" class="project-card">
-        <div class="project-card-tag">Hardware &middot; C++</div>
-        <h3>Arduino R4 Controller</h3>
-        <p>Web-based interface on an Arduino R4 WiFi board. Remotely controls multiple servos and electromagnets over WiFi &mdash; no extra apps needed, pure browser UI.</p>
+      <a href="https://hollisbloom.com" target="_blank" class="project-card">
+        <div class="project-card-tag">Production &middot; TypeScript</div>
+        <h3>Hollis Bloom Platform</h3>
+        <p>Facilities work-order system running Integrity Marketing Group's Dallas offices. Web, email, iOS, and Teams intake; vendor scheduling; invoicing.</p>
         <span class="project-card-arrow">&rarr;</span>
       </a>
-      <a href="projects.html" class="project-card">
-        <div class="project-card-tag">Autonomous &middot; Robotics</div>
-        <h3>AVR Drone</h3>
-        <p>Autonomous drone for the Bell Advanced Vertical Robotics Competition using A* pathfinding through complex environments. Placed 8th nationally.</p>
+      <a href="https://samsclub-demo.pages.dev" target="_blank" class="project-card">
+        <div class="project-card-tag">Live demo &middot; Vanilla JS</div>
+        <h3>Members Moments</h3>
+        <p>Shoppable video for Sam's Club &mdash; open a reel, tap See products, check out without leaving the video. Presented at Demo Day, Spring 2026.</p>
         <span class="project-card-arrow">&rarr;</span>
       </a>
-      <a href="projects.html" class="project-card">
-        <div class="project-card-tag">3D Print &middot; Electronics</div>
-        <h3>Iron Man Helmet</h3>
-        <p>Functional 3D-printed helmet with moving parts, magnetic faceplate, and embedded electronics. Combines engineering precision with creative ambition.</p>
+      <a href="demos/neatfreak.html" class="project-card">
+        <div class="project-card-tag">Live demo &middot; Python</div>
+        <h3>NeatFreak</h3>
+        <p>Photo in, 3D-printable drawer organizer out. The extraction engine runs live on this site &mdash; try it on your own photo and download the STL.</p>
         <span class="project-card-arrow">&rarr;</span>
       </a>
     </div>
   </section>
 
-  <!-- GitHub Repos -->
-  <section class="github-section">
-    <div class="section-label">Open Source</div>
-    <h2 class="section-title">GitHub Projects</h2>
-    <p class="section-description">A few things I've shipped publicly on <a href="https://github.com/Y3t1M" target="_blank" style="color:var(--accent2);">github.com/Y3t1M</a></p>
-    <div class="repo-grid">
-      <a href="https://github.com/Y3t1M/Y3t1M.github.io" target="_blank" class="repo-card">
-        <div class="repo-card-top">
-          <span class="repo-icon"><i data-lucide="file-code-2"></i></span>
-          <span class="repo-lang js-lang">JavaScript</span>
-        </div>
-        <h3>Y3t1M.github.io</h3>
-        <p>Personal portfolio website &mdash; dark resend.com-inspired design with a hidden Windows 95 desktop, pixel art editor, and retro games.</p>
-        <div class="repo-meta">
-          <span><i data-lucide="star" class="repo-star-icon"></i> Public</span>
-          <span class="repo-arrow">&rarr;</span>
-        </div>
-      </a>
-      <a href="https://github.com/Y3t1M/PixOS" target="_blank" class="repo-card">
-        <div class="repo-card-top">
-          <span class="repo-icon"><i data-lucide="palette"></i></span>
-          <span class="repo-lang js-lang">JavaScript</span>
-        </div>
-        <h3>PixOS</h3>
-        <p>Browser-based pixel art and sprite editor. Supports multi-frame GIF animation, onion skinning, fill, undo/redo, zoom, and color palette management.</p>
-        <div class="repo-meta">
-          <span><i data-lucide="star" class="repo-star-icon"></i> Public</span>
-          <span class="repo-arrow">&rarr;</span>
-        </div>
-      </a>
-      <a href="https://github.com/Y3t1M/Arduino-R4-Controller-Web-Interface" target="_blank" class="repo-card">
-        <div class="repo-card-top">
-          <span class="repo-icon"><i data-lucide="cpu"></i></span>
-          <span class="repo-lang cpp-lang">C++</span>
-        </div>
-        <h3>Arduino R4 Controller</h3>
-        <p>Firmware + web UI for the Arduino R4 WiFi. Controls servos and electromagnets wirelessly through a browser panel — no apps required.</p>
-        <div class="repo-meta">
-          <span><i data-lucide="star" class="repo-star-icon"></i> Public</span>
-          <span class="repo-arrow">&rarr;</span>
-        </div>
-      </a>
-    </div>
-  </section>
-
-  <!-- Resume / Experience -->
-  <section class="resume-section">
+  <!-- Experience -->
+  <section class="resume-section about-section">
     <div class="resume-cols">
-      <!-- Left: Education + Experience -->
       <div class="resume-col">
         <div class="section-label">Background</div>
         <h2 class="section-title">Experience</h2>
 
         <div class="timeline">
-          <!-- 2026 – Present -->
+          <div class="tl-item">
+            <div class="tl-dot"></div>
+            <div class="tl-body">
+              <span class="tl-date">Summer 2026</span>
+              <h4>Developer &amp; Facilities Support Intern</h4>
+              <span class="tl-org">Integrity Marketing Group &middot; via Hollis Bloom &mdash; Fountain Place, Dallas</span>
+              <p>Built the work-order platform and Teams bot that run the building's facilities requests. The software stays in production; rollout across Integrity's Dallas locations is underway.</p>
+            </div>
+          </div>
           <div class="tl-item tl-edu">
             <div class="tl-dot edu"></div>
             <div class="tl-body">
-              <span class="tl-date">2026 &ndash; Present</span>
+              <span class="tl-date">2026</span>
               <h4>McMillon Innovation Studio</h4>
               <span class="tl-org">University of Arkansas &mdash; Walton College of Business</span>
-              <p>Accepted into this highly selective entrepreneurship program founded in partnership with Walmart CEO Doug McMillon — focused on venture ideation, business creation, and innovation leadership.</p>
+              <p><span class="tl-badge"><i data-lucide="trophy"></i> Demo Day &mdash; Spring 2026</span></p>
+              <p style="margin-top:8px;">Qualified through the pitch round and presented a Sam's Club concept at Demo Day &mdash; the studio's largest cohort to date.</p>
             </div>
           </div>
           <div class="tl-item tl-edu">
             <div class="tl-dot edu"></div>
             <div class="tl-body">
-              <span class="tl-date">2026 &ndash; Present</span>
+              <span class="tl-date">2025 &ndash; Present</span>
               <h4>Honors College</h4>
               <span class="tl-org">University of Arkansas &mdash; Fayetteville</span>
-              <p><span class="tl-badge"><i data-lucide="trophy"></i> Honors College Acceptance</span></p>
-              <p style="margin-top:8px;"><span class="tl-badge"><i data-lucide="star"></i> Chancellor's List &mdash; 4.0 GPA</span></p>
+              <p><span class="tl-badge"><i data-lucide="star"></i> Chancellor's List &mdash; 4.0 every semester</span></p>
             </div>
           </div>
-          <!-- 2025 – Present -->
           <div class="tl-item">
             <div class="tl-dot"></div>
             <div class="tl-body">
               <span class="tl-date">2025 &ndash; Present</span>
-              <h4>Sam's Club Team Member</h4>
+              <h4>Team Member</h4>
               <span class="tl-org">Sam's Club &mdash; Walmart Inc.</span>
-              <p>Part of the Sam's Club team, contributing to retail operations within one of the world's largest membership-based warehouse club networks.</p>
+              <p>Retail operations at one of the largest membership warehouse networks.</p>
             </div>
           </div>
-          <!-- 2024 -->
+          <div class="tl-item">
+            <div class="tl-dot"></div>
+            <div class="tl-body">
+              <span class="tl-date">2019 &ndash; Present</span>
+              <h4>Back-End Developer</h4>
+              <span class="tl-org">Hollis Bloom</span>
+              <p>Back-end infrastructure for client web projects &mdash; online donations, responsive rebuilds, SEO.</p>
+            </div>
+          </div>
+          <div class="tl-item tl-done">
+            <div class="tl-dot done"></div>
+            <div class="tl-body">
+              <span class="tl-date">2023 &ndash; 2025</span>
+              <h4>C Programmer</h4>
+              <span class="tl-org">The Farah Law Firm</span>
+              <p>Data scraping, archiving, and distribution in C; automation for forcible-detainer casework. Expanding to firms across Texas and Louisiana.</p>
+            </div>
+          </div>
           <div class="tl-item tl-edu">
             <div class="tl-dot edu"></div>
             <div class="tl-body">
               <span class="tl-date">2024</span>
               <h4>Wharton Global Youth Program</h4>
-              <span class="tl-org">University of Pennsylvania &mdash; CEO Track</span>
-              <p><span class="tl-badge"><i data-lucide="trophy"></i> Best Presentation Award</span></p>
+              <span class="tl-org">University of Pennsylvania</span>
+              <p><span class="tl-badge"><i data-lucide="trophy"></i> Best Presentation &middot; Elected CEO</span></p>
             </div>
           </div>
           <div class="tl-item tl-edu">
@@ -239,104 +200,98 @@
             <div class="tl-body">
               <span class="tl-date">2024</span>
               <h4>Pre-College Program</h4>
-              <span class="tl-org">Duke University &mdash; CEO Track</span>
+              <span class="tl-org">Duke University</span>
               <p><span class="tl-badge"><i data-lucide="trophy"></i> Pitch Competition Winner</span></p>
             </div>
           </div>
-          <!-- 2019 – 2024 (completed) -->
-          <div class="tl-item tl-done">
-            <div class="tl-dot done"></div>
-            <div class="tl-body">
-              <span class="tl-date">2019 &ndash; 2024</span>
-              <h4>C++ Programmer</h4>
-              <span class="tl-org">Farah Law Firm</span>
-              <p>Developed custom C++ software tools and automation solutions.</p>
-            </div>
-          </div>
-          <!-- 2023 -->
-          <div class="tl-item tl-edu">
-            <div class="tl-dot edu"></div>
-            <div class="tl-body">
-              <span class="tl-date">2023</span>
-              <h4>Summer Institute</h4>
-              <span class="tl-org">Georgia Tech</span>
-              <p><span class="tl-badge"><i data-lucide="trophy"></i> Highest Presentation Score</span></p>
-            </div>
-          </div>
-          <!-- 2019 – Present -->
-          <div class="tl-item">
-            <div class="tl-dot"></div>
-            <div class="tl-body">
-              <span class="tl-date">2019 &ndash; Present</span>
-              <h4>Back-End Web Developer</h4>
-              <span class="tl-org">Hollis Bloom</span>
-              <p>Building and maintaining back-end infrastructure for client web projects.</p>
-            </div>
-          </div>
-          <!-- 2014 – 2020 (completed) -->
           <div class="tl-item tl-done">
             <div class="tl-dot done"></div>
             <div class="tl-body">
               <span class="tl-date">2014 &ndash; 2020</span>
               <h4>Founder</h4>
               <span class="tl-org">Dimensional Design 3D</span>
-              <p>Founded and ran a 3D printing and design business from age 9.</p>
+              <p>3D printing and design business, started at age eight.</p>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Right: Skills + Awards -->
       <div class="resume-col">
-        <div class="section-label">Skills &amp; Awards</div>
+        <div class="section-label">Skills &amp; awards</div>
         <h2 class="section-title">Toolkit</h2>
 
         <div class="skills-groups">
           <div class="skill-group">
             <h4>Languages</h4>
             <div class="skill-tags">
-              <span class="skill-tag">C++</span>
-              <span class="skill-tag">Python</span>
-              <span class="skill-tag">JavaScript</span>
               <span class="skill-tag">TypeScript</span>
-              <span class="skill-tag">HTML / CSS</span>
+              <span class="skill-tag">JavaScript</span>
+              <span class="skill-tag">Python</span>
+              <span class="skill-tag">C / C++</span>
+              <span class="skill-tag">SQL</span>
             </div>
           </div>
           <div class="skill-group">
-            <h4>Hardware &amp; Electronics</h4>
+            <h4>Web &amp; back end</h4>
+            <div class="skill-tags">
+              <span class="skill-tag">React</span>
+              <span class="skill-tag">Node.js</span>
+              <span class="skill-tag">Supabase / Postgres</span>
+              <span class="skill-tag">Stripe</span>
+              <span class="skill-tag">Cloudflare</span>
+            </div>
+          </div>
+          <div class="skill-group">
+            <h4>Hardware</h4>
             <div class="skill-tags">
               <span class="skill-tag">Arduino</span>
-              <span class="skill-tag">PCB Design</span>
-              <span class="skill-tag">KiCad</span>
-              <span class="skill-tag">Microcontrollers</span>
-              <span class="skill-tag">3D Printing</span>
-            </div>
-          </div>
-          <div class="skill-group">
-            <h4>Software &amp; Tools</h4>
-            <div class="skill-tags">
-              <span class="skill-tag">Git / GitHub</span>
+              <span class="skill-tag">KiCad / PCB</span>
+              <span class="skill-tag">3D printing</span>
               <span class="skill-tag">AutoCAD</span>
-              <span class="skill-tag">Node.js</span>
-              <span class="skill-tag">Back-End Dev</span>
-              <span class="skill-tag">App Development</span>
             </div>
           </div>
         </div>
 
         <div class="awards-list">
-          <h4 style="color:#fff;font-size:13px;margin-bottom:14px;font-weight:700;">Awards &amp; Leadership</h4>
-          <div class="award-row"><span class="award-icon"><i data-lucide="trophy"></i></span><span>Bell AVR Nationals &mdash; 8th Place</span></div>
-          <div class="award-row"><span class="award-icon"><i data-lucide="trophy"></i></span><span>Robotics Best Design + Judges Choice</span></div>
-          <div class="award-row"><span class="award-icon"><i data-lucide="trophy"></i></span><span>Presidential Service Award</span></div>
-          <div class="award-row"><span class="award-icon"><i data-lucide="trophy"></i></span><span>HP MAPS Scots Tank Winner</span></div>
-          <div class="award-row"><span class="award-icon"><i data-lucide="star"></i></span><span>Chancellor's List &mdash; Perfect 4.0 GPA</span></div>
-          <div class="award-row"><span class="award-icon"><i data-lucide="graduation-cap"></i></span><span>U of A Honors College &mdash; Accepted</span></div>
-          <div class="award-row"><span class="award-icon"><i data-lucide="lightbulb"></i></span><span>McMillon Innovation Studio &mdash; Accepted</span></div>
-          <div class="award-row"><span class="award-icon"><i data-lucide="user"></i></span><span>HP Robotics Team &mdash; Captain</span></div>
-          <div class="award-row"><span class="award-icon"><i data-lucide="user"></i></span><span>HP Service Team &mdash; Treasurer</span></div>
-          <div class="award-row"><span class="award-icon"><i data-lucide="user"></i></span><span>MAPS Advisory Council Member</span></div>
+          <h4>Awards &amp; leadership</h4>
+          <div class="award-row"><span class="award-icon"><i data-lucide="trophy"></i></span><span>Bell AVR Nationals &mdash; 8th place &middot; 3rd in presentation</span></div>
+          <div class="award-row"><span class="award-icon"><i data-lucide="star"></i></span><span>Chancellor's List &mdash; 4.0 every semester</span></div>
+          <div class="award-row"><span class="award-icon"><i data-lucide="lightbulb"></i></span><span>McMillon Demo Day &mdash; Spring 2026</span></div>
+          <div class="award-row"><span class="award-icon"><i data-lucide="trophy"></i></span><span>Wharton GYP &mdash; Best Presentation</span></div>
+          <div class="award-row"><span class="award-icon"><i data-lucide="trophy"></i></span><span>Duke &mdash; Pitch Competition Winner</span></div>
+          <div class="award-row"><span class="award-icon"><i data-lucide="trophy"></i></span><span>Georgia Tech SI &mdash; Highest Presentation Score</span></div>
+          <div class="award-row"><span class="award-icon"><i data-lucide="trophy"></i></span><span>Robotics &mdash; Best Design, Judges Choice</span></div>
+          <div class="award-row"><span class="award-icon"><i data-lucide="medal"></i></span><span>Presidential Service Award</span></div>
+          <div class="award-row"><span class="award-icon"><i data-lucide="user"></i></span><span>HP Robotics &mdash; Team Captain</span></div>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Hidden clicker game (avatar easter egg) -->
+  <section id="clicker-game-section" style="position:relative; z-index:1;">
+    <div class="clicker-game hidden">
+      <div id="clicker-area" class="clicker-area">
+        <h3>Click!</h3>
+      </div>
+      <div id="score-display" class="score-display">
+        <p id="current-score">Clicks: 0</p>
+        <p id="high-score">High Score: 0</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact -->
+  <section class="contact-band">
+    <div class="contact-inner">
+      <div>
+        <h2>Get in touch</h2>
+        <p>Hiring an intern, or want to talk about a build? Email is fastest.</p>
+      </div>
+      <div class="contact-actions">
+        <a href="mailto:hudson.tinch@gmail.com" class="btn-primary">Email me</a>
+        <a href="https://github.com/Y3t1M" target="_blank" class="btn-ghost">GitHub</a>
+        <a href="https://linkedin.com/in/hudsontinch" target="_blank" class="btn-ghost">LinkedIn</a>
       </div>
     </div>
   </section>
@@ -344,8 +299,7 @@
   <!-- Footer -->
   <footer class="site-footer">
     <div class="footer-inner">
-      <span class="footer-logo"><span class="led"></span>HT</span>
-      <span class="footer-copy">HT.SYS V3 // BUILT BY HAND // DALLAS TX // Y3T1M.GITHUB.IO</span>
+      <span class="footer-copy">&copy; 2026 &middot; Dallas, TX</span>
       <div class="footer-links">
         <a href="https://github.com/Y3t1M" target="_blank" class="footer-link">GitHub</a>
         <a href="https://linkedin.com/in/hudsontinch" target="_blank" class="footer-link">LinkedIn</a>
@@ -371,7 +325,6 @@
   </div>
   <style>
     @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
-
   </style>
   <script>
   (function(){
@@ -407,7 +360,7 @@
         'C:\\WINDOWS> win.com',
         '',
         'Initializing desktop environment...',
-        '\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588  100%',
+        '████████████████████  100%',
         '',
         'Welcome.',
       ];
@@ -447,15 +400,15 @@
         '',
         'Waking from sleep...',
         'Extension Manager v4.0.3',
-        '  Loading QuickTime\u2122... \u2713',
-        '  Loading AppleTalk... \u2713',
-        '  Loading OpenTransport... \u2713',
-        '  Loading Appearance... \u2713',
-        '  Loading Greg\'s Buttons... \u2713',
+        '  Loading QuickTime™... ✓',
+        '  Loading AppleTalk... ✓',
+        '  Loading OpenTransport... ✓',
+        '  Loading Appearance... ✓',
+        '  Loading Greg\'s Buttons... ✓',
         '',
         'Starting Mac OS 9.0.4...',
         '',
-        '\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588  100%',
+        '████████████████████  100%',
         '',
         'Welcome.',
       ];
@@ -480,11 +433,14 @@
   })();
   </script>
   <script>lucide.createIcons();</script>
+  <script src="sand.js"></script>
+  <script src="scroll-fx.js"></script>
+  <script src="transitions.js"></script>
   <script src="main.js"></script>
   <script src="desktop.js"></script>
   <script src="interactive.js"></script>
   <script src="features.js"></script>
-  <script src="rha-cursor.js" defer></script>
+  <script src="terrain-hero.js"></script>
 </body>
 
 </html>
