@@ -131,7 +131,8 @@
         var s = slides[i];
         var eb = s.querySelector('.slide-eyebrow');
         var h3 = s.querySelector('h3');
-        var t = s.classList.contains('wide') && eb ? eb.textContent : (h3 ? h3.textContent : '');
+        var t = s.getAttribute('data-index-title') ||
+                (s.classList.contains('wide') && eb ? eb.textContent : (h3 ? h3.textContent : ''));
         var li = document.createElement('li');
         var b = document.createElement('button');
         b.type = 'button';
