@@ -743,12 +743,29 @@ html.fx .sc-ghost {
   font-family: var(--font-mono);
   font-size: min(56vh, 44vw);
   font-weight: 700;
-  color: transparent;
-  -webkit-text-stroke: 1px rgba(255, 255, 255, 0.16);
+  font-variant-numeric: tabular-nums;
+  color: rgba(255, 255, 255, 0.26);
   opacity: 0;
   pointer-events: none;
   user-select: none;
   z-index: 0;
+  will-change: transform;
+
+  /* Dot-matrix: the site's own mono numeral rendered on an LED panel.
+     mask-image rather than background-clip:text on purpose — if the mask
+     is unsupported the numeral degrades to a solid glyph, whereas a failed
+     background-clip leaves -webkit-text-fill-color transparent and the
+     numeral vanishes entirely.
+     Pitch stays a whole multiple of 4px and never comes from vw/clamp():
+     fractional device pitches (dpr 1.25 / 1.75) put tile edges off-grid
+     and produce static moire even when nothing is moving. */
+  --dot-pitch: 12px;
+  -webkit-mask-image: radial-gradient(circle at 50% 50%, #000 0 3.2px, transparent 4.4px);
+          mask-image: radial-gradient(circle at 50% 50%, #000 0 3.2px, transparent 4.4px);
+  -webkit-mask-size: var(--dot-pitch) var(--dot-pitch);
+          mask-size: var(--dot-pitch) var(--dot-pitch);
+  -webkit-mask-repeat: repeat;
+          mask-repeat: repeat;
 }
 
 /* photos: LED-dot renders; hover gives a slow zoom */

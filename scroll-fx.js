@@ -160,6 +160,16 @@
 
     var LEAD = 0.35;
     var lastSp = 0, velTilt = 0;
+
+    /* A dot-matrix mask is a repeating tile: translate it by a fraction of
+       a device pixel and every dot edge is resampled, which reads as
+       travelling moire across the glyph. Whole-pixel offsets reproduce the
+       raster exactly. */
+    function snapPx(v) {
+      var d = window.devicePixelRatio || 1;
+      return (Math.round(v * d) / d).toFixed(2);
+    }
+
     function scTick() {
       var r = sec.getBoundingClientRect();
       var runway = sec.offsetHeight - window.innerHeight;
@@ -181,9 +191,13 @@
 
       /* ghost numeral: drifts against the slides, fades through handoffs.
          Fully gone by |gq|=0.33 so it never rests visibly off-center
-         at the LEAD entrance (gq=-0.35) */
+         at the LEAD entrance (gq=-0.35). Drifts on X now that the slides
+         traverse horizontally, at a slower rate so it reads as further
+         back. Snapped to whole device pixels: the dot-matrix mask
+         resamples on a fractional translate and shimmers otherwise. */
       var gq = sp * (N - 1 + LEAD) - LEAD - active;
-      ghost.style.transform = 'translateY(' + (gq * 18).toFixed(2) + 'vh)';
+      var gx = gq * 9 * window.innerWidth / 100;
+      ghost.style.transform = 'translate3d(' + snapPx(gx) + 'px,0,0)';
       ghost.style.opacity = Math.max(0, 1 - Math.abs(gq) * 3.05).toFixed(3);
 
 
@@ -195,7 +209,10 @@
         var el = slides[i];
         var abs = Math.abs(q);
 
-        var op = Math.max(0, 1 - Math.max(0, (abs - 0.28) / 0.27));
+        /* Hold the slide fully opaque while it is anywhere near centre —
+           it only starts fading once it is genuinely on its way out, so
+           the copy you are reading is never dimmed. */
+        var op = abs < 0.46 ? 1 : Math.max(0, 1 - (abs - 0.46) / 0.52);
         if (op <= 0.001) {
           el.style.visibility = 'hidden';
           el.style.pointerEvents = 'none';
@@ -206,16 +223,24 @@
         el.style.pointerEvents = abs < 0.28 ? 'auto' : 'none';
         el.style.zIndex = String(100 - Math.round(abs * 20));
 
-        var y, rx;
-        if (q < 0) { y = -q * 62; rx = q * 13; }
-        else { y = -q * 30; rx = q * 9; }
-        var settle = Math.exp(-abs * 6) * Math.sin(abs * 16) * 1.0;
-        var sc = 1 - Math.min(0.05, abs * 0.05);
-        el.style.transform = 'translate(-50%, -50%) translateY(' + (y + settle) + 'vh) rotateX(' + (-(rx + velTilt)) + 'deg) scale(' + sc.toFixed(3) + ')';
+        /* Hang-at-centre. Raising |q| to a power >1 makes the slide cross
+           fast at the edges and almost stop in the middle, where it is
+           readable — the same "objects passing a camera" beat wodniack
+           gets from GSAP slow(0.15,0.6), without the dependency. */
+        /* P > 0 parks the slide to the RIGHT of centre. q is positive once a
+           slide has been passed, so P negates it: upcoming slides wait on
+           the right, cross through centre, and leave to the left. */
+        var P = -(q < 0 ? -1 : 1) * Math.pow(abs, 1.72);
+        var settle = Math.exp(-abs * 6) * Math.sin(abs * 16) * 0.6;
+        var sc = 1 - Math.min(0.07, abs * 0.07);
+        el.style.transform =
+          'translate(-50%, -50%) translate3d(' + (P * 78 + settle).toFixed(2) + 'vw, 0, ' +
+          (-(P * P) * 14).toFixed(2) + 'rem) rotateY(' + (-(P * 15) - velTilt).toFixed(2) + 'deg) ' +
+          'scale(' + sc.toFixed(3) + ')';
         el.style.opacity = op.toFixed(3);
 
-        /* depth: slides soften as they leave center; media drifts inside */
-        var bl = Math.min(4, Math.max(0, abs - 0.3) * 7);
+        /* depth: slides soften only well off-centre; media drifts inside */
+        var bl = Math.min(3.2, Math.max(0, abs - 0.46) * 6);
         el.style.filter = bl > 0.1 ? 'blur(' + bl.toFixed(2) + 'px)' : '';
         el.style.setProperty('--q', q.toFixed(3));
       }
