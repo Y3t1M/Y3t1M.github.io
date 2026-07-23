@@ -2389,3 +2389,254 @@ body.blueprint.bp-ruined * {
   border-color: rgba(144,202,255,0.6);
   color: #ffffff;
 }
+
+/* ============================================================
+   PROJECTS AISLE — pinned horizontal traverse
+   A fixed camera dollies down a rack aisle; bays 01–05 pass by.
+   Rules that are load-bearing, not preference:
+   · The dot-matrix numeral is a SIBLING of .hs-tilt and is only ever
+     translated. Scaling/rotating a masked glyph resamples it and the
+     dots go blocky — that is why the perspective lives inside
+     .hs-tilt's own transform instead of on a preserve-3d ancestor.
+   · --dot-pitch stays a multiple of 4px and never comes from vw or
+     clamp(): fractional device pitches (dpr 1.25/1.75) cause static moiré.
+   · Panel copy never changes opacity with scroll position. Only the
+     aria-hidden numeral ramps, so text stays at full contrast in every bay.
+   · Never scroll-transform a .card — rha-cursor.js writes inline
+     transforms on .card every frame while hovered and would fight it.
+   ============================================================ */
+
+#hs-aisle {
+  --panel-w:  clamp(300px, 42vw, 540px);
+  --gap:      clamp(24px, 3.4vw, 56px);
+  --dot-pitch: 8px;
+  --dot-in:    2.2px;
+  --dot-out:   3.1px;
+  --bed:       #241d33;
+  position: relative;
+  z-index: 1;
+}
+
+.hs-pin {
+  position: sticky;
+  top: 56px;
+  height: calc(100vh - 56px);
+  height: calc(100svh - 56px);
+  overflow: hidden;
+}
+@supports (overflow: clip) {
+  /* clip does not create a scroll container, so a focused link in an
+     off-screen bay cannot scroll the pin sideways and desync the track.
+     No overflow-clip-margin: any bleed here is added to the document's
+     scrollWidth, which gives the whole page horizontal overflow. */
+  .hs-pin { overflow: clip; }
+}
+
+/* ── depth planes behind the rack ── */
+.hs-field, .hs-rules {
+  position: absolute;
+  top: -10%; left: -10%;
+  width: 130%; height: 120%;
+  pointer-events: none;
+  will-change: transform;
+}
+.hs-field {
+  background-image: radial-gradient(circle at 50% 50%, rgba(139,92,246,0.16) 0 1.2px, transparent 1.6px);
+  background-size: 26px 26px;
+  opacity: 0.5;
+}
+.hs-rules {
+  background-image: linear-gradient(to right, rgba(32,28,42,0.9) 0 1px, transparent 1px);
+  background-size: 220px 100%;
+  opacity: 0.55;
+}
+
+/* ── the track ── */
+.hs-track {
+  position: absolute;
+  top: 0; left: 0;
+  height: 100%;
+  width: max-content;
+  display: flex;
+  align-items: center;
+  gap: var(--gap);
+  padding-inline: calc(50% - var(--panel-w) / 2);
+  will-change: transform;
+}
+
+.hs-bay {
+  position: relative;
+  flex: 0 0 var(--panel-w);
+  width: var(--panel-w);
+  contain: layout style;
+}
+
+/* ── PLANE A: the dot-matrix numeral. Translate-only, forever. ── */
+.hs-num {
+  position: absolute;
+  left: -20px;
+  top: -104px;
+  z-index: 0;
+  display: grid;
+  pointer-events: none;
+  font: 700 clamp(96px, 12.5vw, 176px)/0.78 var(--font);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  contain: paint;
+}
+.hs-num__bed, .hs-num__glow { grid-area: 1 / 1; }
+.hs-num__bed { color: var(--bed); }
+.hs-num__lit { color: var(--accent); }
+.hs-bay--next .hs-num__lit { color: var(--amber); }
+
+/* The bloom sits on the WRAPPER. Filters apply before masking, so a
+   drop-shadow on the masked glyph blooms the solid numeral and the dot
+   grid then chops the halo into a muddy rectangle. */
+.hs-num__glow {
+  filter: drop-shadow(0 0 14px var(--glow-purple));
+  opacity: calc(0.16 + 0.84 * var(--lit, 1));
+}
+.hs-bay--next .hs-num__glow { filter: drop-shadow(0 0 14px rgba(255,176,0,0.3)); }
+
+.hs-num__bed, .hs-num__lit {
+  display: block;
+  -webkit-mask-image: radial-gradient(circle at 50% 50%, #000 0 var(--dot-in), transparent var(--dot-out));
+          mask-image: radial-gradient(circle at 50% 50%, #000 0 var(--dot-in), transparent var(--dot-out));
+  -webkit-mask-size: var(--dot-pitch) var(--dot-pitch);
+          mask-size: var(--dot-pitch) var(--dot-pitch);
+  -webkit-mask-repeat: repeat;
+          mask-repeat: repeat;
+}
+
+/* ── PLANE B: everything 3D. Never the numeral. ── */
+.hs-tilt {
+  position: relative;
+  z-index: 1;
+  transform: perspective(1400px) rotateY(calc(var(--q, 0) * -7deg));
+  will-change: transform;
+}
+
+.hs-panel {
+  margin-bottom: 0;
+  padding: 26px 26px 24px;
+  background: rgba(13,11,18,0.92);
+}
+
+.hs-cap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  padding-bottom: 14px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+.hs-cap__key {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+  text-shadow: 0 0 18px var(--glow-purple);
+  white-space: nowrap;
+}
+.hs-bay--next .hs-cap__key { color: var(--amber); text-shadow: 0 0 18px rgba(255,176,0,0.3); }
+
+.hs-panel .proj-name { margin-bottom: 12px; }
+.hs-panel .proj-desc { max-width: none; margin-bottom: 20px; }
+
+/* ── foreground tick rail + HUD ── */
+.hs-rail {
+  position: absolute;
+  left: -10%; bottom: 74px;
+  width: 130%; height: 10px;
+  background-image: linear-gradient(to right, var(--border) 0 1px, transparent 1px);
+  background-size: 44px 100%;
+  opacity: 0.7;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.hs-hud {
+  position: absolute;
+  left: 0; right: 0; bottom: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 clamp(16px, 4vw, 48px);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  pointer-events: none;
+}
+.hs-hud__now { display: inline-flex; align-items: center; gap: 8px; color: var(--accent); }
+.hs-hud__segs { display: inline-flex; gap: 6px; }
+.hs-hud__seg {
+  width: 18px; height: 2px;
+  background: var(--border-h);
+  transition: background 0.25s, box-shadow 0.25s;
+}
+.hs-hud__seg.is-on { background: var(--accent); box-shadow: 0 0 10px var(--glow-purple); }
+
+/* ── skip link ── */
+.hs-skip {
+  position: absolute;
+  left: -9999px;
+  top: auto;
+  width: 1px; height: 1px;
+  overflow: hidden;
+  z-index: 200;
+}
+.hs-skip:focus {
+  position: fixed;
+  left: 16px; top: 68px;
+  width: auto; height: auto;
+  padding: 10px 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+/* This codebase had no focus styling at all. A pinned section makes that
+   dangerous, since a focused link can sit clipped inside .hs-pin. */
+:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 3px;
+}
+
+/* ── stacked fallback: narrow screens and reduced motion ── */
+@media (max-width: 860px), (prefers-reduced-motion: reduce) {
+  #hs-aisle { height: auto !important; --dot-pitch: 4px; --dot-in: 1.1px; --dot-out: 1.6px; }
+  .hs-pin { position: static; height: auto; overflow: visible; }
+  .hs-field, .hs-rules, .hs-rail, .hs-hud { display: none; }
+  .hs-track {
+    position: static;
+    width: auto;
+    display: block;
+    padding: 0 24px;
+    transform: none !important;
+  }
+  .hs-bay {
+    width: auto;
+    max-width: 900px;
+    margin: 0 auto 20px;
+    padding-top: 56px;
+    contain: none;
+  }
+  .hs-num {
+    position: absolute;
+    top: 0; left: 0;
+    font-size: clamp(64px, 17vw, 96px);
+    transform: none !important;
+  }
+  .hs-num__glow { opacity: 1; }
+  .hs-tilt { transform: none !important; }
+}
