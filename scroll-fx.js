@@ -170,6 +170,17 @@
       return (Math.round(v * d) / d).toFixed(2);
     }
 
+    /* DETENT_HOLD 0 = constant glide (every project feels the same),
+       1 = full smootherstep (hard station-to-station indexing).
+       0.78 dwells long enough to read as a lock without feeling stuck. */
+    var DETENT_HOLD = 0.78;
+    function detent(u) {
+      var i = Math.floor(u);
+      var t = u - i;
+      var s = t * t * t * (t * (t * 6 - 15) + 10);
+      return i + t + (s - t) * DETENT_HOLD;
+    }
+
     function scTick() {
       var r = sec.getBoundingClientRect();
       var runway = sec.offsetHeight - window.innerHeight;
@@ -180,7 +191,15 @@
       var dsp = sp - lastSp; lastSp = sp;
       velTilt += (Math.max(-4, Math.min(4, dsp * 2200)) - velTilt) * 0.12;
 
-      var active = Math.max(0, Math.min(N - 1, Math.round(sp * (N - 1 + LEAD) - LEAD)));
+      /* DETENT — this is what makes a project "snap into place".
+         Raw scroll advances the timeline at a constant rate, so every
+         project reads identically and nothing ever arrives. Smootherstep
+         has zero slope at both ends, so remapping the fractional part of
+         the timeline makes it crawl while a project is seated and sprint
+         through the gap between two. Whole numbers are untouched, so a
+         station still lands exactly on its slide. */
+      var u = detent(sp * (N - 1 + LEAD) - LEAD);
+      var active = Math.max(0, Math.min(N - 1, Math.round(u)));
       if (counter && active !== lastActive) {
         lastActive = active;
         var h3 = slides[active].querySelector('h3');
@@ -195,7 +214,7 @@
          traverse horizontally, at a slower rate so it reads as further
          back. Snapped to whole device pixels: the dot-matrix mask
          resamples on a fractional translate and shimmers otherwise. */
-      var gq = sp * (N - 1 + LEAD) - LEAD - active;
+      var gq = u - active;
       var gx = gq * 9 * window.innerWidth / 100;
       ghost.style.transform = 'translate3d(' + snapPx(gx) + 'px,0,0)';
       ghost.style.opacity = Math.max(0, 1 - Math.abs(gq) * 3.05).toFixed(3);
@@ -203,8 +222,10 @@
 
       for (var i = 0; i < N; i++) {
         /* LEAD gives slide 0 a rise-in entrance as the section pins,
-           instead of starting dead-centered */
-        var q = sp * (N - 1 + LEAD) - i - LEAD;
+           instead of starting dead-centered. Read off the DETENTED
+           timeline so the slides seat on the same stations the counter
+           and ghost numeral do. */
+        var q = u - i;
         q = Math.max(-1.5, Math.min(1.5, q));
         var el = slides[i];
         var abs = Math.abs(q);
@@ -219,7 +240,11 @@
           continue;
         }
         el.style.visibility = 'visible';
-        el.classList.toggle('active', abs < 0.5);
+        /* Reveal a little before the slide seats. The staggered content
+           transitions run up to 0.28s, so triggering at the 0.5 handoff
+           left an empty panel visible while it arrived; starting at 0.62
+           means the project is fully formed by the time it locks in. */
+        el.classList.toggle('active', abs < 0.62);
         el.style.pointerEvents = abs < 0.28 ? 'auto' : 'none';
         el.style.zIndex = String(100 - Math.round(abs * 20));
 
@@ -234,7 +259,7 @@
         var settle = Math.exp(-abs * 6) * Math.sin(abs * 16) * 0.6;
         var sc = 1 - Math.min(0.07, abs * 0.07);
         el.style.transform =
-          'translate(-50%, -50%) translate3d(' + (P * 78 + settle).toFixed(2) + 'vw, 0, ' +
+          'translate(-50%, -50%) translate3d(' + (P * 90 + settle).toFixed(2) + 'vw, 0, ' +
           (-(P * P) * 14).toFixed(2) + 'rem) rotateY(' + (-(P * 15) - velTilt).toFixed(2) + 'deg) ' +
           'scale(' + sc.toFixed(3) + ')';
         el.style.opacity = op.toFixed(3);
