@@ -124,6 +124,64 @@
     ghost.setAttribute('aria-hidden', 'true');
     stage.insertBefore(ghost, stage.firstChild);
 
+    /* ---- LED-matrix numeral ----------------------------------------
+       Draw the digits once at ONE PIXEL PER CELL, read that back, then
+       paint a dot for every cell the glyph actually covers. Quantising to
+       the grid is the whole point: a CSS dot-mask over live text just
+       punches holes through the glyph, so any stroke thinner than the
+       pitch breaks up and the digit looks sheared. Sampling coverage
+       instead means a stroke is always a continuous run of lit cells.  */
+    var gCanvas = document.createElement('canvas');
+    var gctx = gCanvas.getContext('2d');
+    var oCanvas = document.createElement('canvas');
+    var octx = oCanvas.getContext('2d', { willReadFrequently: true });
+    ghost.appendChild(gCanvas);
+
+    var MONO = getComputedStyle(document.documentElement)
+      .getPropertyValue('--font-mono').trim() || 'monospace';
+    var gLast = '';
+
+    function paintGhost(txt, force) {
+      if (!txt || (txt === gLast && !force)) return;
+      gLast = txt;
+
+      var dpr = window.devicePixelRatio || 1;
+      var size = Math.min(window.innerHeight * 0.56, window.innerWidth * 0.44);
+      var CELL = Math.max(10, Math.round(size / 34));   /* ~34 cells tall */
+      var rows = Math.round(size / CELL);
+      var cols = Math.round(rows * 1.35);
+
+      /* pass 1 — one pixel per cell, so a pixel IS a cell */
+      oCanvas.width = cols; oCanvas.height = rows;
+      octx.clearRect(0, 0, cols, rows);
+      octx.fillStyle = '#fff';
+      octx.textAlign = 'center';
+      octx.textBaseline = 'middle';
+      octx.font = '700 ' + (rows * 0.98) + 'px ' + MONO;
+      octx.fillText(txt, cols / 2, rows / 2);
+      var data = octx.getImageData(0, 0, cols, rows).data;
+
+      /* pass 2 — one dot per covered cell, at device resolution */
+      var w = cols * CELL, h = rows * CELL;
+      gCanvas.width = Math.round(w * dpr);
+      gCanvas.height = Math.round(h * dpr);
+      gCanvas.style.width = w + 'px';
+      gCanvas.style.height = h + 'px';
+      gctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      gctx.clearRect(0, 0, w, h);
+      gctx.fillStyle = 'rgba(255,255,255,0.34)';
+      var r = CELL * 0.34;
+      for (var y = 0; y < rows; y++) {
+        for (var x = 0; x < cols; x++) {
+          if (data[(y * cols + x) * 4 + 3] < 110) continue;   /* coverage */
+          gctx.beginPath();
+          gctx.arc(x * CELL + CELL / 2, y * CELL + CELL / 2, r, 0, 6.2832);
+          gctx.fill();
+        }
+      }
+    }
+    window.addEventListener('resize', function () { paintGhost(gLast, true); });
+
     /* splash index: 01–06 jump straight to a slide */
     var index = document.getElementById('proj-index');
     if (index) {
@@ -159,7 +217,6 @@
     });
 
     var LEAD = 0.35;
-    var lastSp = 0, velTilt = 0;
 
     /* A dot-matrix mask is a repeating tile: translate it by a fraction of
        a device pixel and every dot edge is resampled, which reads as
@@ -174,6 +231,9 @@
        1 = full smootherstep (hard station-to-station indexing).
        0.78 dwells long enough to read as a lock without feeling stuck. */
     var DETENT_HOLD = 0.78;
+    /* Degrees of yaw at full offset. Positive turns a passing panel to face
+       the centre of the screen. */
+    var YAW = 11;
     function detent(u) {
       var i = Math.floor(u);
       var t = u - i;
@@ -186,10 +246,6 @@
       var runway = sec.offsetHeight - window.innerHeight;
       var p = Math.max(0, Math.min(1, -r.top / runway));
       sp += (p - sp) * 0.085;
-
-      /* scroll velocity -> a whisper of extra tilt while moving */
-      var dsp = sp - lastSp; lastSp = sp;
-      velTilt += (Math.max(-4, Math.min(4, dsp * 2200)) - velTilt) * 0.12;
 
       /* DETENT — this is what makes a project "snap into place".
          Raw scroll advances the timeline at a constant rate, so every
@@ -205,7 +261,7 @@
         var h3 = slides[active].querySelector('h3');
         counter.innerHTML = '<b>' + ('0' + (active + 1)).slice(-2) + ' / ' + ('0' + N).slice(-2) + '</b> — ' +
           (h3 ? h3.textContent : '');
-        ghost.textContent = '0' + (active + 1);
+        paintGhost('0' + (active + 1));
       }
 
       /* ghost numeral: drifts against the slides, fades through handoffs.
@@ -256,11 +312,21 @@
            slide has been passed, so P negates it: upcoming slides wait on
            the right, cross through centre, and leave to the left. */
         var P = -(q < 0 ? -1 : 1) * Math.pow(abs, 1.72);
-        var settle = Math.exp(-abs * 6) * Math.sin(abs * 16) * 0.6;
-        var sc = 1 - Math.min(0.07, abs * 0.07);
+
+        /* One monotonic curve per axis and nothing else. Two things used to
+           break the smoothness here and both were holdovers from the old
+           vertical lift:
+             · a damped SINE settle, which oscillated the panel back and
+               forth in X on approach instead of easing into place, and
+             · scroll-velocity tilt added to the yaw of every slide — so the
+               project you were reading bent while you scrolled and sprang
+               back when you stopped. Nothing at centre should move.
+           Yaw is signed off P so a panel turns to FACE the centre as it
+           passes, which reads as a corridor rather than a fan. */
+        var sc = 1 - Math.min(0.06, abs * 0.06);
         el.style.transform =
-          'translate(-50%, -50%) translate3d(' + (P * 90 + settle).toFixed(2) + 'vw, 0, ' +
-          (-(P * P) * 14).toFixed(2) + 'rem) rotateY(' + (-(P * 15) - velTilt).toFixed(2) + 'deg) ' +
+          'translate(-50%, -50%) translate3d(' + (P * 90).toFixed(2) + 'vw, 0, ' +
+          (-(P * P) * 14).toFixed(2) + 'rem) rotateY(' + (P * YAW).toFixed(2) + 'deg) ' +
           'scale(' + sc.toFixed(3) + ')';
         el.style.opacity = op.toFixed(3);
 

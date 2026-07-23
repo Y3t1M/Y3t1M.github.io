@@ -372,10 +372,21 @@ section { position: relative; z-index: 1; }
 .section-description strong { color: var(--text); }
 
 /* word-split title animation (applied by interactive.js) */
-.word-wrap { display: inline-block; overflow: hidden; vertical-align: bottom; }
+/* The reveal clips to the line box, but headings run line-height < 1
+   (.proj-title is 0.95), so a descender — the j in "Projects" — fell
+   outside it and got sheared off. Pad the clip box downward and pull the
+   same amount back off the margin so nothing shifts, then start the inner
+   lower so it still clears the taller box while hidden. */
+.word-wrap {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: bottom;
+  padding-bottom: 0.2em;
+  margin-bottom: -0.2em;
+}
 .word-inner {
   display: inline-block;
-  transform: translateY(115%);
+  transform: translateY(135%);
   opacity: 0;
   transition: transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1), opacity 0.45s ease;
 }
@@ -751,22 +762,15 @@ html.fx .sc-ghost {
   z-index: 0;
   will-change: transform;
 
-  /* Dot-matrix: the site's own mono numeral rendered on an LED panel.
-     mask-image rather than background-clip:text on purpose — if the mask
-     is unsupported the numeral degrades to a solid glyph, whereas a failed
-     background-clip leaves -webkit-text-fill-color transparent and the
-     numeral vanishes entirely.
-     Pitch stays a whole multiple of 4px and never comes from vw/clamp():
-     fractional device pitches (dpr 1.25 / 1.75) put tile edges off-grid
-     and produce static moire even when nothing is moving. */
-  --dot-pitch: 12px;
-  -webkit-mask-image: radial-gradient(circle at 50% 50%, #000 0 3.2px, transparent 4.4px);
-          mask-image: radial-gradient(circle at 50% 50%, #000 0 3.2px, transparent 4.4px);
-  -webkit-mask-size: var(--dot-pitch) var(--dot-pitch);
-          mask-size: var(--dot-pitch) var(--dot-pitch);
-  -webkit-mask-repeat: repeat;
-          mask-repeat: repeat;
+  /* The numeral is painted as a real LED matrix onto a canvas (see
+     scroll-fx.js). A CSS dot mask was tried first and rejected: masking
+     punches holes through a solid glyph, so any stroke narrower than the
+     pitch fragments and the digit reads as chopped rather than pixelated.
+     Quantising the glyph to the grid instead lights whole cells, so
+     strokes stay continuous runs of dots. */
+  font-size: 0;
 }
+html.fx .sc-ghost canvas { display: block; }
 
 /* photos: LED-dot renders; hover gives a slow zoom */
 html.fx .sc-slide.wide .case-sm img { height: 215px; }
