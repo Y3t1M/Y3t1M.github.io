@@ -802,30 +802,43 @@ html.fx .sc-slide.wide .case-sm img { height: 215px; }
 }
 
 /* projects splash: monument — centered, outlined 06 behind, jump index */
+/* MASTHEAD. The splash used to stack three competing ideas on a centre
+   axis: a 430px outlined numeral floating behind the title, with the eyebrow
+   above it and the meta line below it in an identical mono treatment, so the
+   block read mirrored rather than composed. This goes flush-left, hangs the
+   two metadata lines off the ends of a single rule, and sets the title to the
+   width of the column beneath it. Scale contrast does the work — no ornament.
+
+   The ghost numeral is deleted rather than restyled: it was
+   -webkit-text-stroke over transparent text with no fallback, so it rendered
+   as nothing at all in Firefox. */
 .proj-head {
   position: relative;
-  text-align: center;
+  text-align: left;
   padding-top: 34px;
 }
 .proj-head > * { position: relative; z-index: 1; }
-.proj-ghost {
-  position: absolute;
-  left: 50%;
-  top: 46%;
-  transform: translate(-50%, -50%);
-  font-family: var(--font-mono);
-  font-size: clamp(230px, 30vw, 430px);
-  font-weight: 700;
-  color: transparent;
-  -webkit-text-stroke: 1px rgba(255, 255, 255, 0.09);
-  pointer-events: none;
-  user-select: none;
-  z-index: 0;
+
+/* eyebrow and meta paired on one rail, hung at its two ends */
+.proj-band {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px 24px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
 }
+.proj-band .section-label { margin-bottom: 0; }
+
 .proj-title {
-  font-size: clamp(54px, 8.5vw, 122px);
-  line-height: 0.95;
-  letter-spacing: -0.03em;
+  /* Deliberately capped well below the column width. Every other
+     .section-title on the site tops out at 32px; past roughly 190px this
+     stops being emphasis and becomes the loudest thing on the whole site. */
+  font-size: clamp(52px, 13vw, 190px);
+  line-height: 0.86;
+  letter-spacing: -0.045em;
+  margin: clamp(18px, 2.4vw, 34px) 0 0;
 }
 .proj-meta {
   font-family: var(--font-mono);
@@ -833,16 +846,15 @@ html.fx .sc-slide.wide .case-sm img { height: 215px; }
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--text-faint);
-  margin-top: 14px;
 }
 .proj-index {
   list-style: none;
-  margin: 46px auto 0;
+  margin: clamp(30px, 3.6vw, 52px) 0 0;
   padding: 0;
-  max-width: 860px;
   columns: 2;
   column-gap: 60px;
   text-align: left;
+  border-top: 1px solid var(--border);
 }
 .proj-index li { break-inside: avoid; }
 @media (max-width: 700px) {
@@ -855,7 +867,7 @@ html.fx .sc-slide.wide .case-sm img { height: 215px; }
   gap: 16px;
   background: none;
   border: 0;
-  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
   padding: 14px 4px;
   font-family: inherit;
   font-size: 15.5px;
@@ -865,8 +877,10 @@ html.fx .sc-slide.wide .case-sm img { height: 215px; }
   cursor: pointer;
   transition: color 0.2s ease, padding-left 0.3s ease;
 }
-.proj-index li:last-child button,
-.proj-index li:nth-child(3) button { border-bottom: 1px solid var(--border); }
+/* Was `li:last-child, li:nth-child(3)` — which hardcoded "six entries in two
+   columns" into CSS while the list is actually generated from the slides, so
+   a seventh project would have silently broken the frame. One rule across the
+   top of the list, one under every row, correct at any count. */
 .proj-index button:hover { color: var(--text); padding-left: 16px; }
 .proj-index .idx {
   font-family: var(--font-mono);
