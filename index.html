@@ -21,9 +21,14 @@
       try {
         if (localStorage.getItem('ht-boot-seen')) return;
         if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-        document.documentElement.className += ' booting';
+        // fw-boot holds the hero's staggered entrance back so it plays as the
+        // mark clears, rather than being spent behind the overlay.
+        document.documentElement.className += ' booting fw-boot';
         setTimeout(function () {
-          document.documentElement.classList.remove('booting');
+          var d = document.documentElement;
+          d.classList.remove('booting');
+          d.classList.remove('fw-boot');
+          d.classList.add('fw-booted');
         }, 7000);
       } catch (e) {}
     })();

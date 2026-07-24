@@ -30,6 +30,10 @@
 
   function finish() {                       /* always leave the page usable */
     root.classList.remove('booting');
+    /* release the hero's staggered entrance, so it plays into the reveal
+       instead of being spent behind the overlay */
+    root.classList.remove('fw-boot');
+    root.classList.add('fw-booted');
     var el = document.getElementById('boot');
     if (el && el.parentNode) el.parentNode.removeChild(el);
   }

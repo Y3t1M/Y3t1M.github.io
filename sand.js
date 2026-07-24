@@ -26,7 +26,15 @@
   }
 
   var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var gl = canvas.getContext('webgl', { alpha: false, antialias: false, depth: false, stencil: false });
+  /* alpha:true so the grain carries its own transparency.
+     This used to be an opaque black canvas relying on CSS mix-blend-mode:screen
+     to drop the black — but a blend mode on a fixed element composites against
+     whatever stacking context the browser decides it belongs to, and engines
+     disagree. Where it failed, the sand rendered behind the cards instead of
+     piling on them. Premultiplied alpha needs no blend mode and behaves the
+     same in every browser, desktop and mobile. */
+  var gl = canvas.getContext('webgl', { alpha: true, premultipliedAlpha: true,
+                                        antialias: false, depth: false, stencil: false });
 
   function fallback() {
     var ctx = canvas.getContext('2d');
@@ -38,8 +46,11 @@
       for (var i = 0; i < id.data.length; i += 4) {
         var r = Math.random();
         var v = r < 0.72 ? 0 : Math.floor(((r - 0.72) / 0.28) * 190);
-        id.data[i] = id.data[i + 1] = id.data[i + 2] = v;
-        id.data[i + 3] = 255;
+        /* white grain carried on alpha, to match the WebGL path — an opaque
+           canvas here would paint a black sheet over the whole page now that
+           there is no blend mode to drop it */
+        id.data[i] = id.data[i + 1] = id.data[i + 2] = 255;
+        id.data[i + 3] = v;
       }
       ctx.putImageData(id, 0, 0);
     }
@@ -137,7 +148,14 @@
     '  }',
     '  pile = min(pile, 2.0);',
     '  float s2 = n * f * (1.0 + pile * 0.7);',
-    '  gl_FragColor = vec4(vec3(0.55) * s2 * mask, 1.0);',
+    /* Premultiplied white: the grain IS the alpha, so it lays on top of
+       whatever is beneath — page, card, anything — with no blend mode. The
+       pile term above raises it over a card, which is the sand gathering. */
+    /* 0.55 matches the brightness the screen-blend path produced, so the look
+       is unchanged where it already worked — the fix is that it now works
+       everywhere, not that there is more sand. */
+    '  float a = clamp(0.55 * s2 * mask, 0.0, 1.0);',
+    '  gl_FragColor = vec4(vec3(a), a);',
     '}'
   ].join('\n');
 

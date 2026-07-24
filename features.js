@@ -7,90 +7,18 @@
 
   function init() {
   /* ================================================================
-     1. FIRMWARE FLASH PAGE LOAD
-        Mimics Arduino IDE upload screen on first visit per session.
+     1. (removed) FIRMWARE FLASH PAGE LOAD
+        This printed an Arduino-style `hudson@archlinux` terminal over the
+        whole page on the first load of every session, at z-index 999999.
+        The PLINTH boot in boot.js is the first-visit load screen now, and
+        two of them collided -- the terminal simply covered the mark, so the
+        new boot looked like it was never shipping.
+
+        The hero's staggered entrance used to be driven from here via the
+        html.fw-boot / html.fw-booted classes. boot.js owns those now, so the
+        hero still animates in as the mark clears. Those CSS rules are
+        unchanged and still live in styles.css.
      ================================================================ */
-  (function initFirmwareFlash() {
-    // Only show once per session
-    if (sessionStorage.getItem('fw_shown')) return;
-    sessionStorage.setItem('fw_shown', '1');
-
-    document.documentElement.classList.add('fw-boot');
-
-    var overlay = document.createElement('div');
-    overlay.id = 'firmware-overlay';
-    overlay.innerHTML =
-      '<div id="firmware-inner">' +
-        '<div class="fw-topbar">' +
-          '<div class="fw-dot fw-dot-red"></div>' +
-          '<div class="fw-dot fw-dot-yellow"></div>' +
-          '<div class="fw-dot fw-dot-green"></div>' +
-          '<span class="fw-title">hudson@archlinux: ~</span>' +
-        '</div>' +
-        '<div class="fw-body" id="fw-body"></div>' +
-      '</div>';
-    document.body.appendChild(overlay);
-
-    var body = document.getElementById('fw-body');
-
-    // the ORIGINAL Yetim face, untouched — sized responsively via .fw-art
-    var art = [
-      '        .o                                            o.',
-      '      .8\'                                              `8.',
-      '     .8\'                                                `8.',
-      '     88                                                  88',
-      '     88                                                  88',
-      '     `8.            .o.                       .o.       .8\'',
-      '      `8.           Y8P      ooooooooooo      Y8P      .8\'',
-      '       `"                                              "\'',
-    ];
-
-    var lines = [];
-    lines.push({ html: '<span class="cli-p-user">hudson</span><span style="color:#888">@</span><span class="cli-p-host">archlinux</span> <span class="cli-p-tilde">~</span><span class="cli-p-dollar"> $</span> <span class="cli-nf-val">neofetch</span>', delay: 60 });
-    lines.push({ html: '', delay: 90 });
-    for (var i = 0; i < art.length; i++) {
-      lines.push({ html: '<span class="cli-nf-art">' + art[i] + '</span>', delay: 42, art: true });
-    }
-    lines.push({ html: '', delay: 60 });
-    lines.push({ html: '<span class="cli-p-user">hudson</span><span style="color:#888">@</span><span class="cli-p-host">archlinux</span>', delay: 30 });
-    lines.push({ html: '<span class="cli-nf-key">--------------------------</span>', delay: 20 });
-    lines.push({ html: '<span class="cli-nf-key">OS:</span>    <span class="cli-nf-val">HudsonTinch x86_64</span>', delay: 35 });
-    lines.push({ html: '<span class="cli-nf-key">Host:</span>  <span class="cli-nf-val">hudsontinch.com</span>', delay: 35 });
-    lines.push({ html: '<span class="cli-nf-key">Univ:</span>  <span class="cli-nf-val">Arkansas — Honors</span>', delay: 35 });
-    lines.push({ html: '<span class="cli-nf-key">Lang:</span>  <span class="cli-nf-val">TS JS Python C++</span>', delay: 35 });
-    lines.push({ html: '<span class="cli-nf-key">HW:</span>    <span class="cli-nf-val">Arduino · PCB · 3DP</span>', delay: 35 });
-    lines.push({ html: '<span class="cli-nf-key">GPA:</span>   <span class="cli-nf-val">4.0</span>', delay: 60 });
-    lines.push({ html: '', delay: 80 });
-    lines.push({ html: '<span class="cli-p-dollar">$</span> <span style="color:#4ade80">// portfolio loaded — welcome</span>', delay: 220 });
-
-    var done = false;
-    function finish() {
-      if (done) return;
-      done = true;
-      document.documentElement.classList.remove('fw-boot');
-      document.documentElement.classList.add('fw-booted');
-      overlay.classList.add('fw-fade');
-      setTimeout(function () { overlay.remove(); }, 520);
-    }
-
-    overlay.addEventListener('pointerdown', finish);
-    document.addEventListener('keydown', finish, { once: true });
-    setTimeout(finish, 4500); // never trap the visitor
-
-    var idx = 0;
-    function printNext() {
-      if (done) return;
-      if (idx >= lines.length) { setTimeout(finish, 460); return; }
-      var line = lines[idx++];
-      var el = document.createElement('div');
-      el.className = 'fw-output-line' + (line.art ? ' fw-art' : '');
-      el.innerHTML = line.html;
-      body.appendChild(el);
-      setTimeout(printNext, line.delay);
-    }
-    setTimeout(printNext, 240);
-  })();
-
 
   /* ================================================================
      2. CLI NAVIGATION MODE — Press / to open

@@ -6,8 +6,12 @@
 
 :root {
   --bg:         #0b0b0b;
-  --bg-card:    rgba(14, 14, 14, 0.86);
-  --bg-card-h:  rgba(20, 20, 20, 0.9);
+  /* Solid, not translucent. The cards read as objects the sand gathers ON;
+     letting the background wash through them made them look like haze and
+     muddied the text. The grain still lands on top — it is composited over
+     them by the sand canvas, not showing through from behind. */
+  --bg-card:    #101010;
+  --bg-card-h:  #161616;
   --border:     rgba(255, 255, 255, 0.08);
   --border-h:   rgba(255, 255, 255, 0.14);
   --divider:    rgba(255, 255, 255, 0.06);
@@ -1267,7 +1271,10 @@ html.fx .sc-counter.show { opacity: 1; }
   z-index: 2;
   pointer-events: none;
   opacity: 0.3;
-  mix-blend-mode: screen;
+  /* No mix-blend-mode. The grain carries its own alpha (see sand.js), so it
+     composites normally and lands on top of the cards in every engine. The
+     blend mode used to decide, per browser, whether the sand sat over the
+     cards or behind them. */
 }
 
 /* Mouse spotlight */
