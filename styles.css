@@ -10,8 +10,8 @@
      letting the background wash through them made them look like haze and
      muddied the text. The grain still lands on top — it is composited over
      them by the sand canvas, not showing through from behind. */
-  --bg-card:    #101010;
-  --bg-card-h:  #161616;
+  --bg-card:    #151515;
+  --bg-card-h:  #1c1c1c;
   --border:     rgba(255, 255, 255, 0.08);
   --border-h:   rgba(255, 255, 255, 0.14);
   --divider:    rgba(255, 255, 255, 0.06);

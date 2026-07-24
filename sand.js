@@ -18,7 +18,7 @@
     var syncOp = function () {
       var hb = heroEl.offsetHeight || 600;
       var f = Math.max(0, Math.min(1, (window.pageYOffset - hb * 0.3) / (hb * 0.55)));
-      canvas.style.opacity = (0.26 * f).toFixed(3);
+      canvas.style.opacity = (0.32 * f).toFixed(3);
     };
     syncOp();
     window.addEventListener('scroll', syncOp, { passive: true });
@@ -147,7 +147,7 @@
     '    }',
     '  }',
     '  pile = min(pile, 2.0);',
-    '  float s2 = n * f * (1.0 + pile * 0.7);',
+    '  float s2 = n * f * (1.0 + pile * 1.15);',
     /* Premultiplied white: the grain IS the alpha, so it lays on top of
        whatever is beneath — page, card, anything — with no blend mode. The
        pile term above raises it over a card, which is the sand gathering. */
@@ -245,13 +245,30 @@
   if (reduced) { draw(11.0); return; }
 
   var rafId = null;
+  var lastFrame = performance.now();
   function frame(ts) {
+    lastFrame = performance.now();
     draw(ts / 1000);
     rafId = requestAnimationFrame(frame);
   }
-  rafId = requestAnimationFrame(frame);
+  function start() { if (!rafId) { lastFrame = performance.now(); rafId = requestAnimationFrame(frame); } }
+  start();
   document.addEventListener('visibilitychange', function () {
     if (document.hidden) { if (rafId) cancelAnimationFrame(rafId); rafId = null; }
-    else if (!rafId) rafId = requestAnimationFrame(frame);
+    else start();
   });
+
+  /* Watchdog — same guard terrain-hero.js needed. Mobile Safari suspends rAF
+     under memory pressure and while the address bar animates, and does not
+     always resume it, which leaves the grain frozen with no event to hang a
+     fix on. If frames have stopped while the page is visible, restart. */
+  setInterval(function () {
+    if (document.hidden) return;
+    if (performance.now() - lastFrame > 1200) {
+      if (rafId) cancelAnimationFrame(rafId);
+      rafId = null;
+      start();
+    }
+  }, 1500);
+  window.addEventListener('pageshow', start);
 })();

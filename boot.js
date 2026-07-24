@@ -24,7 +24,7 @@
 (function () {
   'use strict';
 
-  var KEY = 'ht-boot-seen';
+  var KEY = 'ht-boot-seen-v2';
   var root = document.documentElement;
   if (!root.classList.contains('booting')) return;
 
