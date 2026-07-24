@@ -166,7 +166,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const passwordField = document.getElementById('password-field');
     const loginBtn = document.getElementById('login-btn');
     const errorMessage = document.querySelector('.error-message');
-    const errorSound = new Audio('assets/sounds/error.wav');
+    // (removed: an unused `errorSound` Audio for assets/sounds/error.wav — a file
+    // that has never existed in this repo, which ships assets/audio/ instead.
+    // Nothing referenced it, but desktop.js is also loaded by index.html and
+    // projects.html, so constructing it fired a 404 on every page load.)
 
     // Toggle start menu (guarded — absent on the main pages)
     if (startBtn && startMenu) {
