@@ -6,8 +6,8 @@
 
 :root {
   --bg:         #0b0b0b;
-  --bg-card:    rgba(14, 14, 14, 0.88);
-  --bg-card-h:  rgba(20, 20, 20, 0.92);
+  --bg-card:    rgba(14, 14, 14, 0.64);
+  --bg-card-h:  rgba(20, 20, 20, 0.72);
   --border:     rgba(255, 255, 255, 0.08);
   --border-h:   rgba(255, 255, 255, 0.14);
   --divider:    rgba(255, 255, 255, 0.06);
@@ -89,16 +89,13 @@ a, button, [onclick], .pcb-comp, .nf-sample-btn, .nf-upload, label.nf-check {
    then fade-up was the problem). Browsers without cross-document view
    transitions just navigate instantly. */
 @view-transition { navigation: auto; }
-::view-transition-old(root) {
-  animation: liftOut 0.32s cubic-bezier(0.4, 0, 1, 1) both;
-}
-::view-transition-new(root) {
-  animation: liftIn 0.44s cubic-bezier(0.2, 0.7, 0.2, 1) both;
-}
-@keyframes liftOut { to   { opacity: 0; transform: translateY(-16px); } }
-@keyframes liftIn  { from { opacity: 0; transform: translateY(22px); } }
+/* Pure opacity crossfade — no translate, so there is no vertical jump. The
+   two page snapshots dissolve into each other; smoothest possible MPA move. */
+::view-transition-old(root) { animation: ptFadeOut 0.34s ease both; }
+::view-transition-new(root) { animation: ptFadeIn  0.46s ease both; }
+@keyframes ptFadeOut { from { opacity: 1; } to { opacity: 0; } }
+@keyframes ptFadeIn  { from { opacity: 0; } to { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) {
-  /* no lift, and suppress even the browser default cross-fade */
   ::view-transition-old(root), ::view-transition-new(root) { animation: none; }
 }
 
@@ -1256,15 +1253,18 @@ html.fx .sc-counter.show { opacity: 1; }
 /* Old static grain retired in favor of the drifting sand layer */
 #grain-canvas { display: none; }
 
-/* Drifting sand background */
+/* Drifting sand background. z-index 0 keeps it BEHIND the page sections
+   (which are z-index 1), so the grain shows THROUGH the translucent cards
+   rather than washing over their text — the pile reads on the card, the copy
+   on top stays crisp. */
 #sand-canvas {
   position: fixed;
   inset: 0;
   width: 100%;
   height: 100%;
-  z-index: 2;
+  z-index: 0;
   pointer-events: none;
-  opacity: 0.26;
+  opacity: 0.42;
   mix-blend-mode: screen;
 }
 

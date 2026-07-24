@@ -122,15 +122,19 @@
     '    vec2 hf = rct.zw * 0.5;',
     '    vec2 q = abs(pcss - rct.xy - hf) - hf + vec2(14.0);',
     '    float sd = length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - 14.0;',
-    '    if (sd < 0.0) { f = min(f, 0.08); }',
-    '    else { pile += exp(-sd * sd / 40.0); }',
+    '    if (sd < 0.0) {',
+    /* INSIDE a card the sand accumulates toward the middle — a soft pile that
+       is densest at the centre and tapers out to the edges, so the grain
+       visibly gathers on the card rather than going dead. */
+    '      pile += smoothstep(-6.0, -58.0, sd) * 1.35;',
+    '    } else {',
+    /* OUTSIDE, a low drift banked against the border — tight falloff so it
+       hugs the edge and never stacks into the old bright "skeleton" bars. */
+    '      pile += exp(-sd * sd / 70.0) * 0.35;',
+    '    }',
     '  }',
-    '  pile = min(pile, 1.0);',
-    /* The border pile used to boost grain 2.25x, which stacked into harsh
-       bright bars in the narrow gaps between adjacent cards ("skeletons").
-       A gentle 0.3 lift keeps a hint of edge definition without the bars,
-       and the tighter falloff (40 vs 90) keeps it hugging the border. */
-    '  float s2 = n * f * (1.0 + pile * 0.3);',
+    '  pile = min(pile, 1.6);',
+    '  float s2 = n * f * (1.0 + pile * 0.5);',
     '  gl_FragColor = vec4(vec3(0.55) * s2 * mask, 1.0);',
     '}'
   ].join('\n');
