@@ -207,15 +207,20 @@
     }
   }
 
-  if (reduced) { TD.mode = 'static'; TD.reduced = true; draw(4.2); return; }
-  TD.mode = 'live';
+  /* Reduced motion drifts rather than freezing — see the same note in sand.js.
+     These are long, slow swells in a background field, not parallax; frozen,
+     the hero simply looked broken (an empty black band where the terrain
+     should be), which is what a phone with Reduce Motion on was showing. */
+  var TIME_SCALE = reduced ? 0.25 : 1;
+  TD.reduced = reduced;
+  TD.mode = reduced ? 'slow' : 'live';
 
   var rafId = null;
   var lastFrame = performance.now();
   function frame(ts) {
     lastFrame = performance.now();
     TD.frames++;
-    draw(ts / 1000);
+    draw(ts / 1000 * TIME_SCALE);
     rafId = requestAnimationFrame(frame);
   }
   function start() { if (!rafId) { lastFrame = performance.now(); rafId = requestAnimationFrame(frame); } }

@@ -256,27 +256,23 @@
     gl.drawArrays(gl.TRIANGLES, 0, 3);
   }
 
-  /* Reduced motion: no boiling, but the piles must still follow the cards.
-     This used to draw exactly once, at load, while the cards were still below
-     the fold — so pushRects found nothing, no pile was ever computed, and the
-     grain stayed frozen and flat for the whole visit. */
-  if (reduced) {
-    D.mode = 'webgl-static';
-    var redraw = function () { draw(11.0); };
-    redraw();
-    window.addEventListener('scroll', redraw, { passive: true });
-    window.addEventListener('resize', redraw);
-    window.addEventListener('orientationchange', redraw);
-    setTimeout(redraw, 400);
-    return;
-  }
-  D.mode = 'webgl';
+  /* Reduced motion. Freezing this outright was wrong for what it is: a
+     fine-grained background shimmer, not parallax or large-object movement,
+     so it does not carry the vestibular risk the setting exists to prevent.
+     Frozen it also lost the card piles entirely, because the single draw ran
+     while the cards were still below the fold.
+
+     It now drifts, slowly — a quarter speed — which keeps the sand alive and
+     the piles tracking without anything that reads as motion. TIME_SCALE is
+     the one knob if that judgement ever needs revisiting. */
+  var TIME_SCALE = reduced ? 0.25 : 1;
+  D.mode = reduced ? 'webgl-slow' : 'webgl';
 
   var rafId = null;
   var lastFrame = performance.now();
   function frame(ts) {
     lastFrame = performance.now();
-    draw(ts / 1000);
+    draw(ts / 1000 * TIME_SCALE);
     rafId = requestAnimationFrame(frame);
   }
   function start() { if (!rafId) { lastFrame = performance.now(); rafId = requestAnimationFrame(frame); } }
