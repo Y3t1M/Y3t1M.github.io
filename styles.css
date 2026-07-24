@@ -1869,3 +1869,11 @@ html.pt-fade body {
 html.pt-fade.pt-enter body {
   opacity: 0;
 }
+
+/* Blueprint mode is a drafting table, not a beach — no grain in it, ever.
+   sand.js writes opacity inline as you scroll, so this has to win outright.
+   It also sidesteps the fixed-positioning trouble blueprint's perspective
+   transform causes for a position:fixed canvas. */
+body.blueprint #sand-canvas {
+  display: none !important;
+}

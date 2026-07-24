@@ -20,6 +20,18 @@
         unchanged and still live in styles.css.
      ================================================================ */
 
+  var bpStageTimer = null;
+  /* Undo everything that turns <html>/<body> into a containing block, then
+     nudge the fixed backgrounds to re-measure themselves against the viewport
+     again. Safe to call more than once. */
+  function clearBpStage() {
+    clearTimeout(bpStageTimer);
+    bpStageTimer = null;
+    document.body.style.willChange = '';
+    document.documentElement.style.perspective = '';
+    try { window.dispatchEvent(new Event('resize')); } catch (e) {}
+  }
+
   /* ================================================================
      2. CLI NAVIGATION MODE — Press / to open
      ================================================================ */
@@ -574,6 +586,7 @@
   function bpResetBoard() {
     // Remove the overlay
     if (bpHintEl) { bpHintEl.remove(); bpHintEl = null; }
+    clearBpStage();
     // Tear down interactive state but keep blueprint class on
     bpSmudgeCount = 0;
     bpRuined = false;
@@ -676,6 +689,13 @@
     document.body.style.transformOrigin = fx + 'px ' + fy + 'px';
     document.documentElement.style.perspective = '900px';
     document.body.style.willChange = 'transform, opacity, clip-path, border-radius, filter';
+    /* Both of the above make <html>/<body> a containing block for
+       position:fixed, which re-parents the fixed sand canvas and leaves it
+       stretched and stuck. They MUST not outlive the transition — if the
+       sequence is interrupted (crinkle, an early exit, a dropped frame) the
+       happy-path cleanup below never runs. This is the backstop. */
+    clearTimeout(bpStageTimer);
+    bpStageTimer = setTimeout(clearBpStage, 4000);
 
     var startTime = null;
     var DURATION  = 2500;
@@ -897,8 +917,7 @@
         document.body.style.transformOrigin = '';
         document.body.style.clipPath = '';
         document.body.style.borderRadius = '';
-        document.body.style.willChange = '';
-        document.documentElement.style.perspective = '';
+        clearBpStage();
         if (dispEl)   dispEl.setAttribute('scale', '3');
         if (dispBgEl) dispBgEl.setAttribute('scale', '4');
         if (turbEl)   turbEl.setAttribute('baseFrequency', '0.032');
