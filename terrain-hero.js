@@ -12,6 +12,8 @@
   var canvas = document.getElementById('pcb-canvas');
   if (!hero || !canvas) return;
   var ctx = canvas.getContext('2d');
+  /* mirrors __sandDiag — see the ?diag=1 panel in index.html */
+  var TD = window.__terrainDiag = { mode: ctx ? 'init' : 'no-2d', frames:0, w:0, h:0, reduced:false };
 
   var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var desktopLayout = window.matchMedia('(min-width: 861px)');
@@ -52,6 +54,7 @@
        fires resize constantly — bailing when nothing changed is what stops
        the terrain flickering out while you scroll. */
     if (w === W && h === H) return;
+    TD.w = w; TD.h = h;
     W = canvas.width = w;
     H = canvas.height = h;
     measureComps();
@@ -204,12 +207,14 @@
     }
   }
 
-  if (reduced) { draw(4.2); return; }
+  if (reduced) { TD.mode = 'static'; TD.reduced = true; draw(4.2); return; }
+  TD.mode = 'live';
 
   var rafId = null;
   var lastFrame = performance.now();
   function frame(ts) {
     lastFrame = performance.now();
+    TD.frames++;
     draw(ts / 1000);
     rafId = requestAnimationFrame(frame);
   }

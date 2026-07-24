@@ -12,6 +12,12 @@
   canvas.id = 'sand-canvas';
   document.body.prepend(canvas);
 
+  /* Diagnostics. Shader failures used to be silent — the code just fell back
+     and there was no way to tell, from a phone, whether WebGL was refused,
+     the shader failed to compile, or the loop had simply stopped. ?diag=1
+     surfaces this. */
+  var D = window.__sandDiag = { mode:'init', frames:0, log:'', rects:0, err:'' };
+
   // the splash stays clean: sand only fades in once you scroll past the hero
   var heroEl = document.querySelector('.hero');
   if (heroEl) {
@@ -38,7 +44,8 @@
 
   function fallback() {
     var ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    if (!ctx) { D.mode = 'no-2d'; return; }
+    D.mode = D.mode === 'init' ? '2d-fallback' : D.mode + '+2d';
     function paint() {
       var W = canvas.width = window.innerWidth;
       var H = canvas.height = window.innerHeight;
@@ -58,7 +65,7 @@
     window.addEventListener('resize', paint);
   }
 
-  if (!gl) { fallback(); return; }
+  if (!gl) { D.mode = 'no-webgl'; fallback(); return; }
 
   var VS = 'attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}';
   var FS = [
@@ -163,17 +170,22 @@
     var sh = gl.createShader(type);
     gl.shaderSource(sh, src);
     gl.compileShader(sh);
-    if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) return null;
+    if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) {
+      D.log += (type === gl.VERTEX_SHADER ? 'VS: ' : 'FS: ') + gl.getShaderInfoLog(sh) + ' ';
+      return null;
+    }
     return sh;
   }
   var vs = shader(gl.VERTEX_SHADER, VS);
   var fs = shader(gl.FRAGMENT_SHADER, FS);
-  if (!vs || !fs) { fallback(); return; }
+  if (!vs || !fs) { D.mode = 'shader-failed'; fallback(); return; }
   var prog = gl.createProgram();
   gl.attachShader(prog, vs);
   gl.attachShader(prog, fs);
   gl.linkProgram(prog);
-  if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) { fallback(); return; }
+  if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
+    D.mode = 'link-failed'; D.log += 'LINK: ' + gl.getProgramInfoLog(prog);
+    fallback(); return; }
   gl.useProgram(prog);
 
   var buf = gl.createBuffer();
@@ -215,6 +227,7 @@
     }
     gl.uniform4fv(uRLoc, rectData);
     gl.uniform1f(uNR, n);
+    D.rects = n;
   }
 
   function resize() {
@@ -237,12 +250,27 @@
   if (window.visualViewport) window.visualViewport.addEventListener('resize', resize);
 
   function draw(t) {
+    D.frames++;
     pushRects();
     gl.uniform1f(uT, t);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
   }
 
-  if (reduced) { draw(11.0); return; }
+  /* Reduced motion: no boiling, but the piles must still follow the cards.
+     This used to draw exactly once, at load, while the cards were still below
+     the fold — so pushRects found nothing, no pile was ever computed, and the
+     grain stayed frozen and flat for the whole visit. */
+  if (reduced) {
+    D.mode = 'webgl-static';
+    var redraw = function () { draw(11.0); };
+    redraw();
+    window.addEventListener('scroll', redraw, { passive: true });
+    window.addEventListener('resize', redraw);
+    window.addEventListener('orientationchange', redraw);
+    setTimeout(redraw, 400);
+    return;
+  }
+  D.mode = 'webgl';
 
   var rafId = null;
   var lastFrame = performance.now();
@@ -271,4 +299,18 @@
     }
   }, 1500);
   window.addEventListener('pageshow', start);
+
+  /* Mobile GPUs reclaim WebGL contexts under memory pressure. Without this the
+     canvas silently freezes on its last frame and never comes back — the loop
+     keeps running, so the watchdog above cannot see it. */
+  canvas.addEventListener('webglcontextlost', function (e) {
+    e.preventDefault();
+    D.mode = 'context-lost';
+    if (rafId) cancelAnimationFrame(rafId);
+    rafId = null;
+  });
+  canvas.addEventListener('webglcontextrestored', function () {
+    D.mode = 'context-restored';
+    location.reload();          /* simplest correct rebuild of every GL object */
+  });
 })();
