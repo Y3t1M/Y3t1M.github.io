@@ -123,18 +123,20 @@
     '    vec2 q = abs(pcss - rct.xy - hf) - hf + vec2(14.0);',
     '    float sd = length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - 14.0;',
     '    if (sd < 0.0) {',
-    /* INSIDE a card the sand accumulates toward the middle — a soft pile that
-       is densest at the centre and tapers out to the edges, so the grain
-       visibly gathers on the card rather than going dead. */
-    '      pile += smoothstep(-6.0, -58.0, sd) * 1.35;',
+    /* A PILE OF SAND SITTING ON THE CARD: a radial mound that peaks at the
+       card centre and falls to nothing at the edges. length(rel) is the
+       distance from the card centre in normalised card coords (0 at centre,
+       1 at the mid-edges), so 1 - smoothstep gives a soft dome of grain. */
+    '      vec2 cc = rct.xy + rct.zw * 0.5;',
+    '      vec2 rel = (pcss - cc) / (rct.zw * 0.5);',
+    '      pile += (1.0 - smoothstep(0.0, 1.05, length(rel))) * 2.0;',
     '    } else {',
-    /* OUTSIDE, a low drift banked against the border — tight falloff so it
-       hugs the edge and never stacks into the old bright "skeleton" bars. */
-    '      pile += exp(-sd * sd / 70.0) * 0.35;',
+    /* just outside, a whisper of drift so the mound feathers off the edge */
+    '      pile += exp(-sd * sd / 80.0) * 0.2;',
     '    }',
     '  }',
-    '  pile = min(pile, 1.6);',
-    '  float s2 = n * f * (1.0 + pile * 0.5);',
+    '  pile = min(pile, 2.0);',
+    '  float s2 = n * f * (1.0 + pile * 0.7);',
     '  gl_FragColor = vec4(vec3(0.55) * s2 * mask, 1.0);',
     '}'
   ].join('\n');

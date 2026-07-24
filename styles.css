@@ -6,8 +6,8 @@
 
 :root {
   --bg:         #0b0b0b;
-  --bg-card:    rgba(14, 14, 14, 0.64);
-  --bg-card-h:  rgba(20, 20, 20, 0.72);
+  --bg-card:    rgba(14, 14, 14, 0.86);
+  --bg-card-h:  rgba(20, 20, 20, 0.9);
   --border:     rgba(255, 255, 255, 0.08);
   --border-h:   rgba(255, 255, 255, 0.14);
   --divider:    rgba(255, 255, 255, 0.06);
@@ -1253,18 +1253,18 @@ html.fx .sc-counter.show { opacity: 1; }
 /* Old static grain retired in favor of the drifting sand layer */
 #grain-canvas { display: none; }
 
-/* Drifting sand background. z-index 0 keeps it BEHIND the page sections
-   (which are z-index 1), so the grain shows THROUGH the translucent cards
-   rather than washing over their text — the pile reads on the card, the copy
-   on top stays crisp. */
+/* Drifting sand. z-index 2 draws it OVER the solid cards (screen blend), and
+   the shader mounds the grain over each card — densest at the card centre,
+   fading to nothing at the edges — so it reads as a pile of sand sitting on
+   the card. Kept low-opacity so the copy underneath stays legible. */
 #sand-canvas {
   position: fixed;
   inset: 0;
   width: 100%;
   height: 100%;
-  z-index: 0;
+  z-index: 2;
   pointer-events: none;
-  opacity: 0.42;
+  opacity: 0.3;
   mix-blend-mode: screen;
 }
 
