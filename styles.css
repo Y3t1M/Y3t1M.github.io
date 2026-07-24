@@ -160,11 +160,12 @@ a, button, [onclick], .pcb-comp, .nf-sample-btn, .nf-upload, label.nf-check {
 }
 
 .nav-logo { position: relative; }
-.nav-logo::before {           /* datum mark at zero */
+.nav-logo::before {           /* datum mark centered under the wordmark */
   content: "";
   position: absolute;
-  left: 0; bottom: calc(-1 * var(--rule-gap));
+  left: 50%; bottom: calc(-1 * var(--rule-gap));
   width: 1px; height: 8px;
+  transform: translateX(-50%);
   background: rgba(255, 255, 255, 0.16);
 }
 .nav-logo-text {
@@ -192,19 +193,20 @@ a, button, [onclick], .pcb-comp, .nf-sample-btn, .nf-upload, label.nf-check {
 .nav-link::before {
   content: "";
   position: absolute;
-  left: 0; bottom: calc(-1 * var(--rule-gap));
+  left: 50%; bottom: calc(-1 * var(--rule-gap));
   width: 1px; height: 5px;
   background: rgba(255, 255, 255, 0.2);
+  transform: translateX(-50%);           /* tick centered under the label */
   transform-origin: 50% 100%;
   transition: transform 0.18s ease, background-color 0.18s ease, height 0.2s cubic-bezier(0.2,0.7,0.2,1);
 }
 .nav-link:hover { color: var(--text); }
-.nav-link:hover::before { transform: scaleY(1.8); background: rgba(255, 255, 255, 0.55); }
+.nav-link:hover::before { transform: translateX(-50%) scaleY(1.8); background: rgba(255, 255, 255, 0.55); }
 .nav-link:focus-visible { color: var(--text); outline-offset: 5px; }
-.nav-link:focus-visible::before { transform: scaleY(1.8); background: var(--text); }
+.nav-link:focus-visible::before { transform: translateX(-50%) scaleY(1.8); background: var(--text); }
 .nav-link[aria-current="page"], .nav-link.active { color: var(--text); }
 .nav-link[aria-current="page"]::before,
-.nav-link.active::before { height: 9px; background: var(--text); transform: none; }
+.nav-link.active::before { height: 9px; background: var(--text); transform: translateX(-50%); }
 /* honest metadata — the link is literally a PDF */
 .nav-ext {
   font-family: var(--font-mono);

@@ -313,7 +313,7 @@
   /* ================================================================
      SPLIT-WORD TITLE ANIMATION
      ================================================================ */
-  document.querySelectorAll('.section-title').forEach(titleEl => {
+  document.querySelectorAll('.section-title:not(.proj-title)').forEach(titleEl => {
     // Don't double-process
     if (titleEl.querySelector('.word-wrap')) return;
     titleEl.innerHTML = titleEl.innerHTML.split(/(<[^>]+>|\s+)/g).map(tok => {
@@ -332,7 +332,7 @@
       }
     });
   }, { threshold: 0.2 });
-  document.querySelectorAll('.section-title').forEach(el => titleObs.observe(el));
+  document.querySelectorAll('.section-title:not(.proj-title)').forEach(el => titleObs.observe(el));
 
   /* ================================================================
      CLIP-PATH WIPE REVEALS
