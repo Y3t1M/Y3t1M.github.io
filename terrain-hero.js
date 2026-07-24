@@ -44,12 +44,23 @@
 
   function resize() {
     var r = hero.getBoundingClientRect();
-    W = canvas.width = Math.round(r.width);
-    H = canvas.height = Math.round(r.height);
+    var w = Math.round(r.width), h = Math.round(r.height);
+    /* Never let the canvas go degenerate. Mobile fires resize mid-layout and
+       a zero here would blank the field with no later event to undo it. */
+    if (w < 2 || h < 2) return;
+    /* Assigning width/height CLEARS the canvas, and mobile URL-bar collapse
+       fires resize constantly — bailing when nothing changed is what stops
+       the terrain flickering out while you scroll. */
+    if (w === W && h === H) return;
+    W = canvas.width = w;
+    H = canvas.height = h;
     measureComps();
   }
   resize();
   window.addEventListener('resize', resize);
+  window.addEventListener('orientationchange', function () { setTimeout(resize, 120); });
+  /* back/forward cache restores can hand back a stale surface */
+  window.addEventListener('pageshow', function () { W = H = 0; resize(); });
   window.addEventListener('load', function () { setTimeout(measureComps, 100); });
 
   // after the boot stagger settles, drop the CSS transform transition so
@@ -68,12 +79,32 @@
   hero.addEventListener('pointerleave', function () { mouse.x = -9999; mouse.y = -9999; });
 
   var waves = [];
-  hero.addEventListener('pointerdown', function (e) {
-    if (e.target.closest('.hero-panel') || e.target.closest('.pcb-comp')) return;
+  function ripple(cx, cy) {
     var r = hero.getBoundingClientRect();
-    waves.push({ x: e.clientX - r.left, y: e.clientY - r.top, t0: performance.now() / 1000 });
+    waves.push({ x: cx - r.left, y: cy - r.top, t0: performance.now() / 1000 });
     if (waves.length > 6) waves.shift();
+  }
+  hero.addEventListener('pointerdown', function (e) {
+    /* Only real controls are off-limits. The old guard skipped the whole
+       .hero-panel, which on a phone is most of the screen — so tapping the
+       hero did nothing and the field read as decoration. */
+    if (e.target.closest('a, button')) return;
+    ripple(e.clientX, e.clientY);
   });
+
+  /* Touch: pointermove is unreliable once a drag turns into a scroll, so read
+     the touch point directly. Passive — the page must still scroll normally. */
+  hero.addEventListener('touchmove', function (e) {
+    var t = e.touches && e.touches[0];
+    if (!t) return;
+    var r = hero.getBoundingClientRect();
+    mouse.x = t.clientX - r.left;
+    mouse.y = t.clientY - r.top;
+  }, { passive: true });
+  hero.addEventListener('touchend', function () {
+    /* let the swell relax instead of snapping flat the instant you lift */
+    setTimeout(function () { mouse.x = -9999; mouse.y = -9999; }, 420);
+  }, { passive: true });
 
   function hash(x, y) {
     var h = Math.sin(x * 127.1 + y * 311.7) * 43758.5453;
@@ -114,6 +145,9 @@
   }
 
   function draw(t) {
+    /* Self-heal: if anything ever left the surface at zero, rebuild it here
+       rather than waiting for a resize event that may never come. */
+    if (!W || !H) { resize(); if (!W || !H) return; }
     ctx.clearRect(0, 0, W, H);
 
     if (mouse.x > -999) {
@@ -173,13 +207,30 @@
   if (reduced) { draw(4.2); return; }
 
   var rafId = null;
+  var lastFrame = performance.now();
   function frame(ts) {
+    lastFrame = performance.now();
     draw(ts / 1000);
     rafId = requestAnimationFrame(frame);
   }
-  rafId = requestAnimationFrame(frame);
+  function start() { if (!rafId) { lastFrame = performance.now(); rafId = requestAnimationFrame(frame); } }
+  start();
   document.addEventListener('visibilitychange', function () {
     if (document.hidden) { if (rafId) cancelAnimationFrame(rafId); rafId = null; }
-    else if (!rafId) rafId = requestAnimationFrame(frame);
+    else start();
   });
+
+  /* Watchdog. Mobile Safari suspends rAF for offscreen content under memory
+     pressure and does not always resume it, which left the hero blank after
+     scrolling away and back with no event to hang a fix on. If frames have
+     stopped while the page is visible, restart the loop. */
+  setInterval(function () {
+    if (document.hidden) return;
+    if (performance.now() - lastFrame > 1200) {
+      if (rafId) cancelAnimationFrame(rafId);
+      rafId = null;
+      start();
+    }
+  }, 1500);
+  window.addEventListener('pageshow', start);
 })();

@@ -304,8 +304,28 @@ a, button, [onclick], .pcb-comp, .nf-sample-btn, .nf-upload, label.nf-check {
 }
 
 @media (max-width: 860px) {
-  .hero { height: auto; min-height: 0; padding: 56px 0 40px; }
-  #pcb-canvas { opacity: 0.6; }
+  /* The hero used to collapse to its content on mobile — about 390px inside
+     an 844px viewport — so the swells were crammed into the top third and
+     then chopped by the section border. Give it real height so the field has
+     somewhere to go, and centre the panel within it. svh, not vh: the small
+     viewport unit doesn't change when the URL bar collapses, so the terrain
+     can't be resized mid-scroll. */
+  .hero {
+    height: auto;
+    min-height: 78svh;
+    padding: 56px 0 72px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    /* the mask below handles the transition; a hard rule here was the seam */
+    border-bottom: none;
+  }
+  #pcb-canvas {
+    opacity: 0.85;
+    /* Let the swells dissolve into the page instead of ending on an edge. */
+    -webkit-mask-image: linear-gradient(to bottom, #000 0 58%, transparent 100%);
+            mask-image: linear-gradient(to bottom, #000 0 58%, transparent 100%);
+  }
   .hero-panel {
     position: relative;
     left: auto;

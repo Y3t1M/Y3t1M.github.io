@@ -234,6 +234,24 @@
     /* Degrees of yaw at full offset. Positive turns a passing panel to face
        the centre of the screen. */
     var YAW = 11;
+
+    /* Travel must come from the slide's OWN width, not a fixed vw figure.
+       At the handoff each slide sits at |P| = 0.5^1.72 = 0.303 of full
+       travel, so the two in flight are 0.606 x travel apart — that has to
+       exceed the slide width or they overlap as they pass. A desktop slide
+       is ~54% of the viewport and 90vw was fine; a mobile slide is ~90% of
+       it, and the same 90vw put them 213px apart while they were 351px
+       wide. Deriving it per slide fixes every width at once. */
+    var travels = [];
+    function measureTravel() {
+      for (var i = 0; i < N; i++) {
+        var w = slides[i].offsetWidth || window.innerWidth * 0.8;
+        travels[i] = (w + 26) / 0.606;
+      }
+    }
+    measureTravel();
+    window.addEventListener('resize', measureTravel);
+    window.addEventListener('load', measureTravel);
     function detent(u) {
       var i = Math.floor(u);
       var t = u - i;
@@ -325,7 +343,7 @@
            passes, which reads as a corridor rather than a fan. */
         var sc = 1 - Math.min(0.06, abs * 0.06);
         el.style.transform =
-          'translate(-50%, -50%) translate3d(' + (P * 90).toFixed(2) + 'vw, 0, ' +
+          'translate(-50%, -50%) translate3d(' + (P * (travels[i] || 600)).toFixed(2) + 'px, 0, ' +
           (-(P * P) * 14).toFixed(2) + 'rem) rotateY(' + (P * YAW).toFixed(2) + 'deg) ' +
           'scale(' + sc.toFixed(3) + ')';
         el.style.opacity = op.toFixed(3);
