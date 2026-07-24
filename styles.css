@@ -6,13 +6,12 @@
 
 :root {
   --bg:         #0b0b0b;
-  /* Solid, not translucent. The cards read as objects the sand gathers ON;
-     letting the background wash through them made them look like haze and
-     muddied the text. The grain still lands on top — it is composited over
-     them by the sand canvas, not showing through from behind. */
-  --bg-card:    #151515;
-  --bg-card-h:  #1c1c1c;
-  --border:     rgba(255, 255, 255, 0.08);
+  /* Full black, and opaque. The cards are objects SET INTO the sand: their
+     faces stay clear and the grain banks up in the gaps around them, rather
+     than piling on top and hazing the text. See the card block in sand.js. */
+  --bg-card:    #000000;
+  --bg-card-h:  #0a0a0a;
+  --border:     rgba(255, 255, 255, 0.10);
   --border-h:   rgba(255, 255, 255, 0.14);
   --divider:    rgba(255, 255, 255, 0.06);
   --text:       #eaeaea;

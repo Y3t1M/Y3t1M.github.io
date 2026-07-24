@@ -24,7 +24,7 @@
     var syncOp = function () {
       var hb = heroEl.offsetHeight || 600;
       var f = Math.max(0, Math.min(1, (window.pageYOffset - hb * 0.3) / (hb * 0.55)));
-      canvas.style.opacity = (0.32 * f).toFixed(3);
+      canvas.style.opacity = (0.34 * f).toFixed(3);
     };
     syncOp();
     window.addEventListener('scroll', syncOp, { passive: true });
@@ -131,37 +131,32 @@
     '  float n = pattern(st * freq + jitter);',
     '  n = smoothstep(0.0, 1.0, pow(n * 1.05, 6.0));',
     /* card awareness: calm under any container, grain piles along its border */
+    /* THE CARDS ARE OBJECTS SET INTO THE SAND.
+       Not a mound gathered on top of them — that was the earlier model, and it
+       read as haze over the text. A card is a solid black thing pressed into
+       the field: its face stays clear, and the grain banks up in the gaps
+       between and around the cards, the way sand collects against anything you
+       press into it.
+
+       inside — this pixel is on a card face, so the grain is held back.
+       near   — how close it sits to the nearest card edge, 1 right against it
+                and falling away across SEEP_REACH px. That is the banking. */
     '  vec2 pcss = vec2(st.x, uRes.y * uPx - st.y);',
-    '  float pile = 0.0; float f = 1.0;',
+    '  float inside = 0.0;',
+    '  float near = 0.0;',
     '  for (int i = 0; i < 8; i++) {',
     '    if (float(i) >= uNR) break;',
     '    vec4 rct = uR[i];',
-    /* rounded-rect SDF so the carve follows the cards 14px corners */
+    /* rounded-rect SDF, so the banking follows the card's 14px corners */
     '    vec2 hf = rct.zw * 0.5;',
     '    vec2 q = abs(pcss - rct.xy - hf) - hf + vec2(14.0);',
     '    float sd = length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - 14.0;',
-    '    if (sd < 0.0) {',
-    /* A PILE OF SAND SITTING ON THE CARD: a radial mound that peaks at the
-       card centre and falls to nothing at the edges. length(rel) is the
-       distance from the card centre in normalised card coords (0 at centre,
-       1 at the mid-edges), so 1 - smoothstep gives a soft dome of grain. */
-    '      vec2 cc = rct.xy + rct.zw * 0.5;',
-    '      vec2 rel = (pcss - cc) / (rct.zw * 0.5);',
-    '      pile += (1.0 - smoothstep(0.0, 1.05, length(rel))) * 2.0;',
-    '    } else {',
-    /* just outside, a whisper of drift so the mound feathers off the edge */
-    '      pile += exp(-sd * sd / 80.0) * 0.2;',
-    '    }',
+    '    if (sd < 0.0) { inside = 1.0; }',
+    '    else { near = max(near, exp(-sd / 26.0)); }',   /* seep reach 26px */
     '  }',
-    '  pile = min(pile, 2.0);',
-    '  float s2 = n * f * (1.0 + pile * 1.15);',
-    /* Premultiplied white: the grain IS the alpha, so it lays on top of
-       whatever is beneath — page, card, anything — with no blend mode. The
-       pile term above raises it over a card, which is the sand gathering. */
-    /* 0.55 matches the brightness the screen-blend path produced, so the look
-       is unchanged where it already worked — the fix is that it now works
-       everywhere, not that there is more sand. */
-    '  float a = clamp(0.55 * s2 * mask, 0.0, 1.0);',
+    '  float s2 = n * (1.0 + near * 0.75);',             /* seep strength 0.75 */
+    '  float a = clamp(0.55 * s2 * mask, 0.0, 1.0);',    /* grain weight 0.55 */
+    '  a *= (1.0 - inside * 0.20);',                     /* face clearance 0.20 */
     '  gl_FragColor = vec4(vec3(a), a);',
     '}'
   ].join('\n');
