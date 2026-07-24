@@ -23,17 +23,14 @@
 
   <!-- Navigation -->
   <header class="site-header">
-    <nav class="site-nav">
-      <div class="nav-logo">
-        <span class="nav-logo-text">Hudson Tinch</span>
-      </div>
+    <nav class="site-nav" aria-label="Primary">
+      <div class="nav-logo"><span class="nav-logo-text">Hudson Tinch</span></div>
       <div class="nav-links">
-        <a href="index.html" class="nav-link active">Home</a>
-        <a href="projects.html" class="nav-link">Projects</a>
+        <a href="index.html" aria-current="page" class="nav-link active" data-no-magnet>Home</a>
+        <a href="projects.html" class="nav-link" data-no-magnet>Projects</a>
+        <a href="assets/Hudson-Tinch-Resume.pdf" target="_blank" rel="noopener" class="nav-link" data-no-magnet>Resume<span class="nav-ext" aria-hidden="true">PDF</span></a>
       </div>
-      <div class="nav-cta">
-        <a href="assets/Hudson-Tinch-Resume.pdf" target="_blank" rel="noopener" class="btn-ghost">Resume</a>
-      </div>
+      <canvas class="nav-sand" aria-hidden="true"></canvas>
     </nav>
   </header>
 
@@ -436,6 +433,7 @@
   <script src="sand.js"></script>
   <script src="scroll-fx.js"></script>
   <script src="transitions.js"></script>
+  <script src="nav-fx.js"></script>
   <script src="main.js"></script>
   <script src="desktop.js"></script>
   <script src="interactive.js"></script>
