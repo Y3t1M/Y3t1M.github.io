@@ -46,7 +46,15 @@
     }, 34);
   }
   logo.style.cursor = 'pointer';
-  logo.addEventListener('click', function () {
+  logo.addEventListener('click', function (e) {
+    // The logo is a link home. Only play the decode easter egg when you're
+    // ALREADY home (where navigating home would just reload) — otherwise let
+    // the link carry you to the home page.
+    var here = true;
+    try { here = new URL(logo.getAttribute('href'), location.href).pathname === location.pathname; } catch (err) {}
+    if (!here) return;                 // let the <a href> navigate home
+    e.preventDefault();
+    e.stopPropagation();               // don't let the nav handler flag an arrival
     if (busy) return;
     busy = true;
     scrambleTo(FACE, function () {
