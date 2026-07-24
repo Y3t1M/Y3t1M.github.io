@@ -1860,7 +1860,6 @@ html.booting, html.booting body { overflow: hidden; }
 html.pt-fade body {
   transition: opacity var(--pt-out, 170ms) ease;
 }
-html.pt-fade.pt-enter body,
-html.pt-fade.pt-leave body {
+html.pt-fade.pt-enter body {
   opacity: 0;
 }
