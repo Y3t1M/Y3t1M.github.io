@@ -765,3 +765,18 @@ body::before {
 .mac-window.shaded > :not(.mac-titlebar) { display: none !important; }
 .mac-window.shaded { min-height: 0 !important; height: auto !important; padding-bottom: 0; }
 .mac-window.shaded .mac-titlebar { border-bottom: none; }
+
+/* ── Mobile — same courtesy the Win95 side already had: nothing wider
+      than the screen, and the menu bar keeps to one line ── */
+@media (max-width: 760px) {
+  .mac-window {
+    max-width: 94vw !important;
+    left: 3vw !important;
+    max-height: 76vh !important;
+  }
+  .mac-menu-item { padding: 0 7px; font-size: 11px; }
+  #apple-menu-btn { width: 28px; }
+  #mac-clock { font-size: 11px; white-space: nowrap; }
+  #mac-menubar-right { padding-right: 6px; }
+  .mac-win-body { -webkit-overflow-scrolling: touch; }
+}
