@@ -1,0 +1,30 @@
+# Cloudflare Pages response headers.
+#
+# WHY THIS EXISTS
+# Pages serves HTML with max-age=0 but static assets with max-age=14400 (4h).
+# That split means a deploy can land the new markup while the browser -- or any
+# proxy between it and the edge, including a filtering DNS/HTTP appliance --
+# keeps serving the previous CSS and JS for hours. The symptom is a site that
+# looks half-updated: current copy, stale styling and stale behaviour, and any
+# newly added stylesheet rule silently missing.
+#
+# no-cache does NOT mean "don't store". It means "store, but revalidate before
+# reusing". Responses still 304 when nothing changed, so repeat loads stay cheap
+# while a deploy takes effect immediately.
+
+/*.css
+  Cache-Control: no-cache
+
+/*.js
+  Cache-Control: no-cache
+
+# Images and fonts are content-addressed by filename in practice -- they change
+# name when they change -- so they keep a long cache.
+/assets/img/*
+  Cache-Control: public, max-age=604800
+
+/assets/icons/*
+  Cache-Control: public, max-age=604800
+
+/assets/audio/*
+  Cache-Control: public, max-age=604800
