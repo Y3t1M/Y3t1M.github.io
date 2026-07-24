@@ -16,7 +16,9 @@
   const style = document.createElement('style');
   style.textContent = `
     body.rha-cur, body.rha-cur * { cursor: none !important; }
-    #rhaCur { position: fixed; left: 0; top: 0; pointer-events: none; z-index: 99999; will-change: transform; }
+    #rhaCur { position: fixed; left: 0; top: 0; pointer-events: none; z-index: 99999; will-change: transform;
+      opacity: 1; transition: opacity .28s ease; }
+    #rhaCur.hid { opacity: 0; }
     #rhaCur .dot { position: absolute; width: 4px; height: 4px; margin: -2px; border-radius: 50%; background: ${ACCENT}; }
     #rhaCur .ring { position: absolute; width: 30px; height: 30px; margin: -15px; border-radius: 50%;
       border: 1.5px solid ${ACCENT}; opacity: .85; transition: opacity .18s;
@@ -50,7 +52,19 @@
   let mx = innerWidth / 2, my = innerHeight / 2, rx = mx, ry = my;
   let lockEl = null, lock = null, squeeze = 1;
 
-  addEventListener('mousemove', (e) => { mx = e.clientX; my = e.clientY; });
+  /* Hide the cursor while scrolling with no real pointer movement, so a
+     scroll-through (the pinned projects showcase especially) stays immersive.
+     Wheel/trackpad scroll fires a synthetic mousemove with UNCHANGED coords,
+     so only a genuine change in position brings the cursor back. */
+  let lastMX = -1, lastMY = -1;
+  addEventListener('mousemove', (e) => {
+    mx = e.clientX; my = e.clientY;
+    if (e.clientX !== lastMX || e.clientY !== lastMY) {
+      lastMX = e.clientX; lastMY = e.clientY;
+      cur.classList.remove('hid');
+    }
+  });
+  addEventListener('scroll', () => { cur.classList.add('hid'); }, { passive: true });
   document.addEventListener('mouseover', (e) => {
     const t = e.target.closest(MAGNETIC);
     if (t && !t.dataset.noMagnet) { lockEl = t; t.style.transition = 'transform .18s cubic-bezier(.2,.7,.3,1)'; }

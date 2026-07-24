@@ -6,8 +6,8 @@
 
 :root {
   --bg:         #0b0b0b;
-  --bg-card:    rgba(14, 14, 14, 0.72);
-  --bg-card-h:  rgba(20, 20, 20, 0.78);
+  --bg-card:    rgba(14, 14, 14, 0.88);
+  --bg-card-h:  rgba(20, 20, 20, 0.92);
   --border:     rgba(255, 255, 255, 0.08);
   --border-h:   rgba(255, 255, 255, 0.14);
   --divider:    rgba(255, 255, 255, 0.06);
@@ -38,13 +38,17 @@ html {
   scroll-behavior: smooth;
   background: #050505;
   overscroll-behavior-y: none;
-  /* Clip stray horizontal overflow from the fixed .bg-blob ambients and from
-     the body's brief transform during the Lift transition. `clip`, not
-     `hidden`: it does not create a scroll container, so position:sticky (the
-     nav and the projects showcase) still resolves against the viewport. */
+  /* Clip stray horizontal overflow from the fixed .bg-blob ambients. `clip`,
+     not `hidden`: it does not create a scroll container, so position:sticky
+     (the nav and the projects showcase) still resolves against the viewport. */
   overflow-x: hidden;
+  /* Hide the scrollbar for a cleaner, more immersive page — scrolling still
+     works by wheel, trackpad, keyboard, and drag. */
+  scrollbar-width: none;         /* Firefox */
+  -ms-overflow-style: none;      /* old Edge */
 }
 @supports (overflow: clip) { html { overflow-x: clip; } }
+html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; display: none; }  /* Chrome/Safari */
 
 body {
   background: radial-gradient(120% 80% at 50% 0%, #141414 0%, #0b0b0b 48%, #050505 100%) fixed var(--bg);
@@ -78,19 +82,24 @@ a, button, [onclick], .pcb-comp, .nf-sample-btn, .nf-upload, label.nf-check {
 
 
 /* ── Page transitions ───────────────────────────────────── */
-@media (prefers-reduced-motion: no-preference) {
-  /* Lift transition: the page you leave drops and dims; the page you land on
-     rises from below and settles. Same gesture as the projects showcase. */
-  html.pt-ready body { animation: pageIn 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
-  html.pt-out body {
-    opacity: 0;
-    transform: translateY(-14px);
-    transition: opacity 0.24s ease, transform 0.26s cubic-bezier(0.4, 0, 1, 1);
-  }
+/* Lift page transition via the View Transitions API. The browser holds a
+   snapshot of BOTH the old and new document and animates between them, so
+   the page you leave lifts up and out while the page you land on rises in —
+   they overlap, with no black gap between navigations (the old fade-to-black
+   then fade-up was the problem). Browsers without cross-document view
+   transitions just navigate instantly. */
+@view-transition { navigation: auto; }
+::view-transition-old(root) {
+  animation: liftOut 0.32s cubic-bezier(0.4, 0, 1, 1) both;
 }
-@keyframes pageIn {
-  from { opacity: 0; transform: translateY(22px); }
-  to   { opacity: 1; transform: translateY(0); }
+::view-transition-new(root) {
+  animation: liftIn 0.44s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+@keyframes liftOut { to   { opacity: 0; transform: translateY(-16px); } }
+@keyframes liftIn  { from { opacity: 0; transform: translateY(22px); } }
+@media (prefers-reduced-motion: reduce) {
+  /* no lift, and suppress even the browser default cross-fade */
+  ::view-transition-old(root), ::view-transition-new(root) { animation: none; }
 }
 
 /* ── Ambient background ─────────────────────────────────── */
@@ -484,8 +493,11 @@ section { position: relative; z-index: 1; }
   display: inline-block;
   overflow: hidden;
   vertical-align: bottom;
-  padding-bottom: 0.2em;
-  margin-bottom: -0.2em;
+  /* Bottom room for descenders (the j in "Projects") and side room for the
+     right-hand overhang of heavy glyphs (the s in "Projects" was shearing on
+     the clip edge). The negative margins cancel the padding so nothing shifts. */
+  padding: 0 0.08em 0.2em;
+  margin: 0 -0.08em -0.2em;
 }
 .word-inner {
   display: inline-block;
@@ -528,6 +540,19 @@ section { position: relative; z-index: 1; }
   transition: border-color 0.15s ease, background 0.15s ease;
 }
 .about-card:hover { border-color: var(--border-h); background: var(--bg-card-h); }
+.konami-hint {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.86em;
+  letter-spacing: 0.14em;
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 2px 8px;
+  margin-left: 2px;
+  white-space: nowrap;
+}
 .about-card-icon {
   color: var(--accent2);
   margin-bottom: 12px;
@@ -1307,20 +1332,7 @@ a, button, [onclick], .pcb-comp, .nf-sample-btn, .nf-upload, label.nf-check {
 
 
 /* ── Page transitions ───────────────────────────────────── */
-@media (prefers-reduced-motion: no-preference) {
-  /* Lift transition: the page you leave drops and dims; the page you land on
-     rises from below and settles. Same gesture as the projects showcase. */
-  html.pt-ready body { animation: pageIn 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
-  html.pt-out body {
-    opacity: 0;
-    transform: translateY(-14px);
-    transition: opacity 0.24s ease, transform 0.26s cubic-bezier(0.4, 0, 1, 1);
-  }
-}
-@keyframes pageIn {
-  from { opacity: 0; transform: translateY(22px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
+/* (page transition defined once above, via @view-transition) */
 
 /* ---------- Firmware console intro (mobile-safe) ---------- */
 #firmware-overlay {

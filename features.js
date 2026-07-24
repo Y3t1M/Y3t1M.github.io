@@ -1020,6 +1020,28 @@
     toggleBlueprint();
   });
 
+  /* Konami code — the terminal and the projects card both hint it; make it
+     real. The full sequence boots the hidden Windows 95 desktop. */
+  var KONAMI = ['arrowup','arrowup','arrowdown','arrowdown','arrowleft','arrowright','arrowleft','arrowright','b','a'];
+  var kPos = 0;
+  document.addEventListener('keydown', function (e) {
+    var tag = document.activeElement ? document.activeElement.tagName : '';
+    if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+    var cli = document.getElementById('cli-overlay');
+    if (cli && cli.classList.contains('cli-open')) return;
+    var key = e.key.toLowerCase();
+    if (key === KONAMI[kPos]) {
+      kPos++;
+      if (kPos === KONAMI.length) {
+        kPos = 0;
+        if (typeof toast === 'function') toast('Booting desktop…');
+        setTimeout(function () { window.location.href = 'desktop.html'; }, 480);
+      }
+    } else {
+      kPos = (key === KONAMI[0]) ? 1 : 0;   // allow a fresh start on the first key
+    }
+  });
+
   } // end init()
 
   if (document.readyState === 'loading') {
