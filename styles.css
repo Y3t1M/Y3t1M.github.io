@@ -1814,3 +1814,29 @@ body.blueprint.bp-ruined * {
   border-color: rgba(144, 202, 255, 0.6);
   color: #ffffff;
 }
+
+/* ============================================================
+   FIRST-VISIT BOOT
+   The overlay is in the markup and shown by html.booting, which
+   an inline <head> script sets before the body is parsed — added
+   later by JS it would flash the page first. Colours are literal
+   rather than tokens so the boot can never inherit a theme.
+   ============================================================ */
+#boot {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: #0b0b0b;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+html.booting #boot { display: flex; }
+html.booting, html.booting body { overflow: hidden; }
+#boot svg { width: min(30vmin, 280px); height: auto; display: block; }
+#boot rect { fill: #eaeaea; transform-box: fill-box; }
+/* never hold a reduced-motion visitor behind a held animation */
+@media (prefers-reduced-motion: reduce) {
+  #boot { display: none !important; }
+  html.booting, html.booting body { overflow: auto; }
+}

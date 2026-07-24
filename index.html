@@ -12,9 +12,26 @@
   <meta name="description" content="Hudson Tinch — business student at Arkansas, developer at Hollis Bloom. Work-order platforms, trading systems, competition drones.">
   <link rel="stylesheet" href="styles.css">
   <script src="icons.js" defer></script>
+  <!-- First-visit boot gate. Runs before the body is parsed so the page never
+       flashes ahead of the overlay. The timeout is a hard safety net: if
+       boot.js 404s or throws at parse time, nothing can leave the site
+       permanently covered. -->
+  <script>
+    (function () {
+      try {
+        if (localStorage.getItem('ht-boot-seen')) return;
+        if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        document.documentElement.className += ' booting';
+        setTimeout(function () {
+          document.documentElement.classList.remove('booting');
+        }, 7000);
+      } catch (e) {}
+    })();
+  </script>
 </head>
 
 <body>
+  <div id="boot" aria-hidden="true"></div>
 
   <!-- Ambient background -->
   <div class="bg-blob bg-blob-1"></div>
@@ -429,6 +446,7 @@
     }
   })();
   </script>
+  <script src="boot.js" defer></script>
   <script src="sand.js"></script>
   <script src="scroll-fx.js"></script>
   <script src="transitions.js"></script>
