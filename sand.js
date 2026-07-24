@@ -260,8 +260,14 @@
      It now drifts, slowly — a quarter speed — which keeps the sand alive and
      the piles tracking without anything that reads as motion. TIME_SCALE is
      the one knob if that judgement ever needs revisiting. */
-  var TIME_SCALE = reduced ? 0.25 : 1;
-  D.mode = reduced ? 'webgl-slow' : 'webgl';
+  /* Full speed regardless of prefers-reduced-motion — Hudson's call, asked for
+     twice, and defensible: this is ambient background texture, not parallax or
+     large-object movement, which is what the setting exists to prevent. At
+     quarter speed it read as lifeless rather than calm. The blocking boot
+     animation still honours the setting; that one is a real event you can be
+     held behind. */
+  var TIME_SCALE = 1;
+  D.mode = 'webgl';
 
   var rafId = null;
   var lastFrame = performance.now();

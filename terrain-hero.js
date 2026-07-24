@@ -211,9 +211,15 @@
      These are long, slow swells in a background field, not parallax; frozen,
      the hero simply looked broken (an empty black band where the terrain
      should be), which is what a phone with Reduce Motion on was showing. */
-  var TIME_SCALE = reduced ? 0.25 : 1;
+  /* Full speed regardless of prefers-reduced-motion — Hudson's call, asked for
+     twice, and defensible: this is ambient background texture, not parallax or
+     large-object movement, which is what the setting exists to prevent. At
+     quarter speed it read as lifeless rather than calm. The blocking boot
+     animation still honours the setting; that one is a real event you can be
+     held behind. */
+  var TIME_SCALE = 1;
   TD.reduced = reduced;
-  TD.mode = reduced ? 'slow' : 'live';
+  TD.mode = 'live';
 
   var rafId = null;
   var lastFrame = performance.now();

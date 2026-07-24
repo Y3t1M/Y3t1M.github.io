@@ -533,6 +533,12 @@ section { position: relative; z-index: 1; }
   margin-top: var(--stack-gap);
 }
 @media (max-width: 1000px) { .about-grid { grid-template-columns: repeat(2, 1fr); } }
+/* Phone screens sit the cards against a brighter surround and the seep reads
+   differently at one column, so pure black loses its edge entirely. Lift them
+   just clear of the ground. Desktop keeps #000000. */
+@media (max-width: 860px) {
+  :root { --bg-card: #121212; --bg-card-h: #181818; }
+}
 @media (max-width: 560px)  { .about-grid { grid-template-columns: 1fr; } }
 .about-card {
   background: var(--bg-card);
