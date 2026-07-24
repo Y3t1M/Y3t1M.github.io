@@ -1847,3 +1847,21 @@ html.booting, html.booting body { overflow: hidden; }
   #boot { display: none !important; }
   html.booting, html.booting body { overflow: auto; }
 }
+
+/* ============================================================
+   PAGE TRANSITION FALLBACK
+   @view-transition above only fires in browsers with CROSS-document
+   view transitions. Firefox has the same-document API but not the
+   navigation one, so there the declaration is inert and every page
+   change is a bare reload. transitions.js detects that and adds
+   .pt-fade, which turns on this opacity-only crossfade instead.
+   Nothing moves, so it is safe under prefers-reduced-motion — it
+   just runs shorter (see --pt-out).
+   ============================================================ */
+html.pt-fade body {
+  transition: opacity var(--pt-out, 170ms) ease;
+}
+html.pt-fade.pt-enter body,
+html.pt-fade.pt-leave body {
+  opacity: 0;
+}

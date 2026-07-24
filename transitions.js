@@ -5,20 +5,65 @@
    arrival so the destination settles its nav tick. */
 (function () {
   'use strict';
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  /* @view-transition in the stylesheet only does anything in browsers that
+     support CROSS-document view transitions. Firefox does not — it has the
+     same-document API but not the navigation one — so there the declaration is
+     inert and every page change is a bare reload. The pagereveal event ships
+     with the cross-document feature, so it is the honest test for it. */
+  var NATIVE = ('onpagereveal' in window);
+
+  /* An opacity crossfade is not what prefers-reduced-motion exists to prevent
+     — nothing moves. Under the setting it just runs shorter. Killing it
+     outright meant reduced-motion visitors got the hardest transition of all. */
+  var REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var OUT = REDUCED ? 90 : 170;
+
+  if (!NATIVE) {
+    document.documentElement.classList.add('pt-fade');
+    document.documentElement.style.setProperty('--pt-out', OUT + 'ms');
+    /* arrive faded, then let it up on the next frame */
+    document.documentElement.classList.add('pt-enter');
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        document.documentElement.classList.remove('pt-enter');
+      });
+    });
+    window.addEventListener('pageshow', function (e) {
+      /* back/forward out of the bfcache must not land on a faded page */
+      if (e.persisted) document.documentElement.classList.remove('pt-leave', 'pt-enter');
+    });
+  }
+
+  var leaving = false;
 
   document.addEventListener('click', function (e) {
+    if (e.defaultPrevented) return;
     if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
-    var a = e.target.closest('a[href]');
+    var a = e.target.closest && e.target.closest('a[href]');
     if (!a || a.target === '_blank' || a.hasAttribute('download')) return;
     var url;
     try { url = new URL(a.getAttribute('href'), window.location.href); } catch (err) { return; }
     if (url.origin !== window.location.origin) return;
     if (url.pathname === window.location.pathname && url.hash) return; // same-page anchor
-    // Flag the arrival so the next page settles its nav tick, then let the
-    // navigation happen natively — no preventDefault, no timer. The View
-    // Transition fires on the navigation.
+    if (!/\.html?$|\/$/.test(url.pathname)) return;                    // PDFs and the like
+
+    // Flag the arrival so the next page settles its nav tick.
     try { sessionStorage.setItem('pt-arrive', '1'); } catch (err2) {}
+
+    // Where the browser can crossfade the navigation itself, let it: native is
+    // smoother than anything a timer can do, and it needs no preventDefault.
+    if (NATIVE) return;
+
+    if (leaving) return;
+    leaving = true;
+    e.preventDefault();
+    document.documentElement.classList.add('pt-leave');
+    var went = false;
+    var go = function () { if (!went) { went = true; window.location.href = url.href; } };
+    setTimeout(go, OUT);
+    /* never let a dropped transitionend strand someone on a faded page */
+    setTimeout(go, OUT + 400);
   });
 })();
 
