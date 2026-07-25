@@ -24,9 +24,6 @@
 
   var running = false;
 
-  /* How far out the grain is drawn from, each side of the tick. Symmetric by
-     construction, so the gather reads as centred on the mark. */
-  var SPREAD = 150;
 
   function pour(target) {
     if (!target) return;
@@ -45,7 +42,12 @@
     var tickX = linkBox.left + linkBox.width / 2 - navBox.left;
     var cy = h / 2;
 
-    var grains = [], N = 260;
+    /* The pour scales to the bar it lives on. A fixed ±150px was fine on a
+       1080px desktop rule but swallowed three quarters of a phone's — the
+       "way too fat" pour. ~16% of the bar each side keeps the same visual
+       weight at every size, and the grain count follows the spread. */
+    var SPREAD = Math.min(150, Math.max(44, w * 0.16));
+    var grains = [], N = Math.round(SPREAD * 1.5);
     for (var i = 0; i < N; i++) {
       /* pow biases the spawn toward the far end of the spread, so the rule
          reads as sand sweeping in rather than a blob sitting on the tick */

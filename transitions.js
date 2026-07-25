@@ -1,40 +1,49 @@
-/* Page navigation.
-   This is a multi-page site, so every link is a real document load — which is
-   why the tab spins, the favicon blinks and the scroll resets. No amount of
-   fading hides that; the only thing that actually helps is making the load
-   short. So: prefetch on intent, and never add a delay of our own.
+/* Page navigation — the Datum Scan.
 
-   An earlier version faded to black for 170ms BEFORE navigating, which stacked
-   a deliberate blackout on top of a load that was already visible. Filmed in
-   Firefox it read as ~800ms of darkness. That is removed. */
+   MODE picks the treatment. 'scan' is live for Hudson to test; flipping the
+   word back to 'fade' restores the plain crossfade, nothing else to touch.
+
+   The scan is a cover-then-reveal handshake, identical in every browser:
+
+     leaving  — the datum rule detaches and sweeps DOWN, drawing the page
+                background behind it until the screen is owned; a timestamped
+                sessionStorage flag is set and the navigation fires.
+     arriving — an inline head gate on the three nav pages stamps
+                html.pt-covered BEFORE first paint, so there is never a flash;
+                this file then swaps that for the real cover and the rule
+                sweeps down again, uncovering the new page above the line.
+
+   Native cross-document View Transitions are disabled in the stylesheet —
+   the handshake owns the screen in Chrome and Firefox alike. Prefetch on
+   intent stays, so the document swap under the cover is near-instant. */
 (function () {
   'use strict';
 
-  /* @view-transition in the stylesheet only does anything where CROSS-document
-     view transitions are supported. Firefox has the same-document API but not
-     the navigation one, so there the declaration is inert. The pagereveal event
-     ships with the cross-document feature, so it is the honest test. */
-  var NATIVE = ('onpagereveal' in window);
+  var MODE = 'scan';                                   /* 'scan' | 'fade' */
 
-  function internal(a) {
-    if (!a || a.target === '_blank' || a.hasAttribute('download')) return null;
+  var REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var OUT_MS = 360, IN_MS = 440;
+  var EASE_OUT = 'cubic-bezier(.2,.7,.2,1)';
+
+  /* the scan runs between the three pages that carry the datum-rule nav;
+     everything else (portals, demos, PDFs) navigates plainly */
+  var SCAN_PAGES = /(\/|index\.html|projects\.html|404\.html)$/;
+
+  function internal(a2) {
+    if (!a2 || a2.target === '_blank' || a2.hasAttribute('download')) return null;
     var url;
-    try { url = new URL(a.getAttribute('href'), window.location.href); } catch (e) { return null; }
+    try { url = new URL(a2.getAttribute('href'), window.location.href); } catch (e) { return null; }
     if (url.origin !== window.location.origin) return null;
     if (url.pathname === window.location.pathname) return null;
-    if (!/\.html?$|\/$/.test(url.pathname)) return null;      /* PDFs and the like */
+    if (!/\.html?$|\/$/.test(url.pathname)) return null;
     return url;
   }
 
-  /* PREFETCH ON INTENT.
-     By the time a click lands, the document is usually already in the cache, so
-     the browser paints the next page almost immediately. This is what makes the
-     navigation feel instant — not a transition. Hover fires on desktop well
-     before the click; touchstart fires ~90ms before it on mobile. */
+  /* ── prefetch on intent — what actually makes navigation feel instant ── */
   var seen = {};
   function prefetch(e) {
-    var a = e.target && e.target.closest && e.target.closest('a[href]');
-    var url = internal(a);
+    var a2 = e.target && e.target.closest && e.target.closest('a[href]');
+    var url = internal(a2);
     if (!url || seen[url.href]) return;
     seen[url.href] = 1;
     var l = document.createElement('link');
@@ -47,31 +56,118 @@
     document.addEventListener(ev, prefetch, { passive: true, capture: true });
   });
 
-  /* A short fade IN on arrival. It costs nothing — it runs after the new page
-     has painted — and it takes the hard edge off the swap. There is
-     deliberately no fade OUT: that would only delay the navigation. */
-  if (!NATIVE) {
+  /* ── the sweeping rule ────────────────────────────────────────────── */
+  function buildLine() {
+    var line = document.createElement('div');
+    line.className = 'pt-scan-line';
+    line.innerHTML = '<span></span>';
+    document.body.appendChild(line);
+    return line;
+  }
+
+  /* leaving: cover grows down from the top, the rule at its leading edge */
+  function scanOut(href) {
+    var cover = document.createElement('div');
+    cover.className = 'pt-scan-cover';
+    cover.style.clipPath = 'inset(0 0 100% 0)';
+    document.body.appendChild(cover);
+    var line = buildLine();
+    var tag = line.firstChild;
+    var H = window.innerHeight;
+    var t0 = null, went = false;
+    function go() {
+      if (went) return;
+      went = true;
+      try { sessionStorage.setItem('pt-cover', String(Date.now())); } catch (e) {}
+      window.location.href = href;
+    }
+    function frame(ts) {
+      if (!t0) t0 = ts;
+      var p = Math.min(1, (ts - t0) / OUT_MS);
+      var e2 = 1 - Math.pow(1 - p, 3);
+      cover.style.clipPath = 'inset(0 0 ' + ((1 - e2) * 100).toFixed(2) + '% 0)';
+      line.style.transform = 'translateY(' + (e2 * H).toFixed(1) + 'px)';
+      tag.textContent = 'Y ' + String(Math.round(e2 * H)).padStart(4, '0');
+      if (p < 1) requestAnimationFrame(frame);
+      else go();
+    }
+    requestAnimationFrame(frame);
+    setTimeout(go, OUT_MS + 350);          /* never strand the click */
+  }
+
+  /* arriving: swap the pre-paint pseudo cover for the real one, sweep open */
+  function scanIn() {
+    var root = document.documentElement;
+    if (!root.classList.contains('pt-covered')) return;
+    var cover = document.createElement('div');
+    cover.className = 'pt-scan-cover';
+    document.body.appendChild(cover);
+    root.classList.remove('pt-covered');   /* the real cover owns it now */
+
+    if (REDUCED) {
+      cover.style.transition = 'opacity 140ms ease';
+      cover.style.opacity = '0';
+      setTimeout(function () { cover.remove(); }, 160);
+      return;
+    }
+    var line = buildLine();
+    var tag = line.firstChild;
+    var H = window.innerHeight;
+    var t0 = null;
+    function cleanup() {
+      if (cover.parentNode) cover.remove();
+      if (line.parentNode) line.remove();
+    }
+    function frame(ts) {
+      if (!t0) t0 = ts;
+      var p = Math.min(1, (ts - t0) / IN_MS);
+      var e2 = 1 - Math.pow(1 - p, 3);
+      cover.style.clipPath = 'inset(' + (e2 * 100).toFixed(2) + '% 0 0 0)';
+      line.style.transform = 'translateY(' + (e2 * H).toFixed(1) + 'px)';
+      tag.textContent = 'Y ' + String(Math.round(e2 * H)).padStart(4, '0');
+      if (p < 1) requestAnimationFrame(frame);
+      else cleanup();
+    }
+    requestAnimationFrame(frame);
+    setTimeout(cleanup, IN_MS + 800);      /* dead-man: never a stuck cover */
+  }
+
+  /* ── fade mode (the crossfade, kept one flip away) ────────────────── */
+  function fadeArrive() {
     var root = document.documentElement;
     root.classList.add('pt-fade', 'pt-enter');
     root.style.setProperty('--pt-out', '120ms');
     requestAnimationFrame(function () {
       requestAnimationFrame(function () { root.classList.remove('pt-enter'); });
     });
-    window.addEventListener('pageshow', function (e) {
-      if (e.persisted) root.classList.remove('pt-enter');
-    });
-    /* never leave anyone on a faded page if a frame is dropped */
     setTimeout(function () { root.classList.remove('pt-enter'); }, 600);
   }
 
+  /* ── wire up ──────────────────────────────────────────────────────── */
+  if (MODE === 'scan') scanIn(); else fadeArrive();
+
+  window.addEventListener('pageshow', function (e) {
+    if (!e.persisted) return;              /* bfcache return: clear everything */
+    document.documentElement.classList.remove('pt-covered', 'pt-enter');
+    document.querySelectorAll('.pt-scan-cover, .pt-scan-line').forEach(function (el) { el.remove(); });
+  });
+
+  var leaving = false;
   document.addEventListener('click', function (e) {
     if (e.defaultPrevented) return;
     if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
     var url = internal(e.target.closest && e.target.closest('a[href]'));
     if (!url) return;
-    /* Flag the arrival so the next page settles its nav tick, then get out of
-       the way — the navigation is native and immediate. */
+
     try { sessionStorage.setItem('pt-arrive', '1'); } catch (err) {}
+
+    if (MODE !== 'scan') return;                        /* fade: navigate natively */
+    if (REDUCED) return;                                /* reduced: plain instant nav */
+    if (!SCAN_PAGES.test(url.pathname)) return;         /* portals/demos: plain nav */
+    if (leaving) { e.preventDefault(); return; }
+    leaving = true;
+    e.preventDefault();
+    scanOut(url.href);
   });
 })();
 
