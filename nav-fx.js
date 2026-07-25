@@ -42,12 +42,13 @@
     var tickX = linkBox.left + linkBox.width / 2 - navBox.left;
     var cy = h / 2;
 
-    /* The pour scales to the bar it lives on. A fixed ±150px was fine on a
-       1080px desktop rule but swallowed three quarters of a phone's — the
-       "way too fat" pour. ~16% of the bar each side keeps the same visual
-       weight at every size, and the grain count follows the spread. */
-    var SPREAD = Math.min(150, Math.max(44, w * 0.16));
-    var grains = [], N = Math.round(SPREAD * 1.5);
+    /* The pour scales to the bar it lives on — and on a phone it is a
+       whisper, not a pour: narrower spread, fewer grains, fainter ink.
+       A fixed ±150px used to swallow three quarters of a small bar. */
+    var small = w < 640;
+    var SPREAD = Math.min(150, Math.max(34, w * (small ? 0.11 : 0.16)));
+    var INK = small ? 0.34 : 0.5;
+    var grains = [], N = Math.round(SPREAD * (small ? 1.05 : 1.5));
     for (var i = 0; i < N; i++) {
       /* pow biases the spawn toward the far end of the spread, so the rule
          reads as sand sweeping in rather than a blob sitting on the tick */
@@ -79,7 +80,7 @@
         p.x += (p.tx - p.x) * 0.055;
         p.y += (p.ty - p.y) * 0.055;
         var a = k < 0.2 ? (k / 0.2) : (1 - (k - 0.2) / 0.8);
-        g.fillStyle = 'rgba(234,234,234,' + (a * 0.5).toFixed(3) + ')';
+        g.fillStyle = 'rgba(234,234,234,' + (a * INK).toFixed(3) + ')';
         g.fillRect(p.x, p.y, 1, 1);
       }
       if (alive) requestAnimationFrame(frame);

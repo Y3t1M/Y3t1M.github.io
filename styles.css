@@ -1278,12 +1278,15 @@ html.fx .sc-counter.show { opacity: 1; }
   width: 1px;
   height: 40px;
   background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.55));
-  animation: scrollLineAnim 1.6s ease-in-out infinite;
+  /* a slow breath — at 1.6s this read as blinking */
+  animation: scrollLineAnim 3.2s cubic-bezier(.45,0,.35,1) infinite;
 }
 @keyframes scrollLineAnim {
   0%   { transform: scaleY(0); transform-origin: top; }
+  42%  { transform: scaleY(1); transform-origin: top; }
   50%  { transform: scaleY(1); transform-origin: top; }
   51%  { transform: scaleY(1); transform-origin: bottom; }
+  92%  { transform: scaleY(0); transform-origin: bottom; }
   100% { transform: scaleY(0); transform-origin: bottom; }
 }
 .scroll-hint-text {
