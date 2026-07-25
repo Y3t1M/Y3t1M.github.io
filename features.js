@@ -578,12 +578,12 @@
         e.stopPropagation(); triggerCrinkle();
       });
       document.getElementById('bp-reset-btn').addEventListener('click', function(e){
-        e.stopPropagation(); bpResetBoard();
+        e.stopPropagation(); triggerReset();
       });
     }
   }
 
-  function bpResetBoard() {
+  function bpResetBoard(quiet) {
     // Remove the overlay
     if (bpHintEl) { bpHintEl.remove(); bpHintEl = null; }
     clearBpStage();
@@ -606,7 +606,7 @@
       el.dataset.bpTy = '0';
       el.style.transform = '';
     });
-    showToast('[ BLUEPRINT RESET ]');
+    if (!quiet) showToast('[ BLUEPRINT RESET ]');
   }
 
   // Build transform preserving drag translate + smudge skew
@@ -636,7 +636,7 @@
          crumpled paper has corners, not a circle.
        - Then the wad: a small tumbling ball, tossed away.
   ─────────────────────────────────────────────────────────────── */
-  function triggerCrinkle() {
+  function triggerCrinkle(after) {
     if (bpHintEl) { bpHintEl.remove(); bpHintEl = null; }
 
     var dispEl   = document.getElementById('bp-disp');
@@ -660,13 +660,13 @@
       showToast('[ BLUEPRINT MODE OFF ]');
     }
 
-    /* reduced motion: no crumple theatre, just leave */
+    /* reduced motion: no crumple theatre — fade, then whichever ending */
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       document.body.style.transition = 'opacity 380ms ease';
       document.body.style.opacity = '0';
       setTimeout(function () {
         document.body.style.transition = '';
-        teardown();
+        (after || teardown)();
       }, 400);
       return;
     }
@@ -934,7 +934,7 @@
       document.body.style.opacity = String(p < 0.62 ? 1 : clamp01(1 - (p - 0.62) / 0.16));
 
       if (p < 1) requestAnimationFrame(step);
-      else { cvs.remove(); teardown(); }
+      else { cvs.remove(); (after || teardown)(); }
     }
 
     /* stable per-index jitter for the wad's crease arcs */
@@ -946,7 +946,42 @@
 
     requestAnimationFrame(step);
   }
-  try { window.__bpCrinkle = triggerCrinkle; } catch (e) {}
+  /* RESET: the ruined sheet gets crumpled and tossed exactly like the exit —
+     you do not un-smudge a blueprint, you bin it — and then a clean sheet is
+     laid on the table. Blueprint mode stays on throughout. */
+  function triggerReset() {
+    triggerCrinkle(function () {
+      /* clear every style the crumple drove */
+      document.body.style.transform     = '';
+      document.body.style.opacity      = '0';
+      document.body.style.filter        = '';
+      document.body.style.pointerEvents = '';
+      document.body.style.transformOrigin = '';
+      document.body.style.clipPath      = '';
+      document.body.style.borderRadius  = '';
+      clearBpStage();
+      var dEl  = document.getElementById('bp-disp');
+      var dbEl = document.getElementById('bp-disp-bg');
+      var tEl  = document.getElementById('bp-turb');
+      if (dEl)  dEl.setAttribute('scale', '3');
+      if (dbEl) dbEl.setAttribute('scale', '4');
+      if (tEl)  tEl.setAttribute('baseFrequency', '0.032');
+
+      bpResetBoard(true);                       /* wipe smudges, keep the mode */
+
+      /* the fresh sheet: laid in from just above, like a new page on the table */
+      document.body.style.opacity = '';
+      try {
+        document.body.animate([
+          { opacity: 0, transform: 'translateY(-20px) scale(0.988)' },
+          { opacity: 1, transform: 'none' }
+        ], { duration: 480, easing: 'cubic-bezier(.16,1,.3,1)' });
+      } catch (e2) {}
+      showToast('[ FRESH SHEET ]');
+    });
+  }
+
+  try { window.__bpCrinkle = triggerCrinkle; window.__bpReset = triggerReset; } catch (e) {}
 
   function toggleBlueprint() {
     var turningOn = !document.body.classList.contains('blueprint');
