@@ -387,7 +387,14 @@
   /* ================================================================
      SCROLL HINT INDICATOR
      ================================================================ */
+  /* Once you have seen the hint and actually scrolled, you know how the
+     site works — it never comes back, on any page. Dismissal by scroll is
+     what marks it learned; leaving without scrolling keeps it unlearned. */
+  const HINT_KEY = 'ht-hint-done';
+  let hintLearned = false;
+  try { hintLearned = !!localStorage.getItem(HINT_KEY); } catch (e) {}
   const scrollHint = document.createElement('div');
+  if (!hintLearned) {
   scrollHint.id = 'scroll-hint';
   scrollHint.innerHTML = '<span class="scroll-hint-line"></span><span class="scroll-hint-text">scroll</span>';
   document.body.append(scrollHint);
@@ -403,11 +410,13 @@
   window.addEventListener('scroll', () => {
     if (!hintGone && window.scrollY > HINT_GONE_AT()) {
       hintGone = true;
+      try { localStorage.setItem(HINT_KEY, '1'); } catch (e) {}
       scrollHint.classList.add('hint-hide');
       setTimeout(() => scrollHint.remove(), 700);
     }
   }, { passive: true });
   setTimeout(() => scrollHint.classList.add('hint-show'), HINT_SHOW_MS);
+  }
 
 
   /* ================================================================
