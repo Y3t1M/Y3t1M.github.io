@@ -391,15 +391,23 @@
   scrollHint.id = 'scroll-hint';
   scrollHint.innerHTML = '<span class="scroll-hint-line"></span><span class="scroll-hint-text">scroll</span>';
   document.body.append(scrollHint);
+  /* On the projects corridor the old numbers made the hint invisible in
+     practice: it appeared at 2200ms and was killed forever by the first 60px
+     of scroll — so anyone who moved at all never saw it. There it now shows
+     almost immediately and only leaves once you are genuinely inside the
+     corridor (a full viewport deep). The home page keeps the patient timing. */
+  const inCorridor = !!document.querySelector('.sc-slide');
+  const HINT_SHOW_MS = inCorridor ? 600 : 2200;
+  const HINT_GONE_AT = () => (inCorridor ? window.innerHeight : 60);
   let hintGone = false;
   window.addEventListener('scroll', () => {
-    if (!hintGone && window.scrollY > 60) {
+    if (!hintGone && window.scrollY > HINT_GONE_AT()) {
       hintGone = true;
       scrollHint.classList.add('hint-hide');
       setTimeout(() => scrollHint.remove(), 700);
     }
   }, { passive: true });
-  setTimeout(() => scrollHint.classList.add('hint-show'), 2200);
+  setTimeout(() => scrollHint.classList.add('hint-show'), HINT_SHOW_MS);
 
 
   /* ================================================================

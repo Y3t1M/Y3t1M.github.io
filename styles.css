@@ -260,9 +260,14 @@ html.booting .nav-mark { opacity: 0; }
 @media (max-width: 480px) {
   .site-nav { --rule-gap: 11px; padding: 15px 16px var(--rule-gap); gap: 16px; }
   .site-nav::after { left: 16px; right: 16px; }
-  .nav-logo-text { font-size: 14px; }
-  .nav-links { gap: 18px; }
-  .nav-link { font-size: 12.5px; }
+  /* phone header: fewer competing weights, more air. The PDF chip is honest
+     metadata but at this width it is the thing making the row feel crowded. */
+  .nav-logo { gap: 7px; }
+  .nav-mark { width: 15px; height: 15px; flex: 0 0 15px; }
+  .nav-logo-text { font-size: 13.5px; }
+  .nav-links { gap: 14px; }
+  .nav-link { font-size: 12px; }
+  .nav-ext { display: none; }
 }
 
 .btn-ghost {
