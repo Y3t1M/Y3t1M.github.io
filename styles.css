@@ -94,7 +94,7 @@ a, button, [onclick], .pcb-comp, .nf-sample-btn, .nf-upload, label.nf-check {
 @view-transition { navigation: auto; }
 ::view-transition-old(root) { animation: none; }
 ::view-transition-new(root) {
-  animation: ptScanIn 640ms cubic-bezier(.22, .68, .16, 1) both;   /* 440 read as rushed */
+  animation: ptScanIn 800ms cubic-bezier(.22, .68, .16, 1) both;   /* 440 and 640 both read as rushed */
 }
 @keyframes ptScanIn {
   from { clip-path: inset(0 0 100% 0); }

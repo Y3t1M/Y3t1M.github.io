@@ -23,7 +23,7 @@
 
   var NATIVE = ('onpagereveal' in window);             /* cross-doc VT ships this */
   var REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var IN_MS = 640;                                     /* matches the CSS wipe */
+  var IN_MS = 800;                                     /* matches the CSS wipe */
 
   var SCAN_PAGES = /(\/|index\.html|projects\.html|404\.html)$/;
 
