@@ -968,27 +968,13 @@
     var cx = W * (0.42 + (seed % 17) / 100), cy = H * 0.46;
     var baseR = Math.min(W, H) * 0.155;
 
-    /* throw: up and out with spin, one squashing bounce, roll off right */
-    function ballPath(fly) {
-      var g = 2.6;
-      var x = cx + fly * W * 0.58;
-      var vy0 = -1.9;                                  /* tossed UP first */
-      var yy = vy0 * fly * H * 0.35 + g * fly * fly * H * 0.42;
-      var y = cy + yy;
-      var floor = H * 0.80, squash = 0;
-      if (y > floor) {
-        var over = fly - 0.52 > 0 ? fly - 0.52 : 0.001; /* after first landing */
-        var b2 = Math.abs(Math.sin(over * 9.0)) * H * 0.085 * Math.max(0, 1 - over * 2.1);
-        y = floor - b2;
-        squash = Math.max(0, 1 - b2 / (H * 0.02)) * 0.22 * Math.max(0, 1 - over * 2.4);
-      }
-      return { x: x, y: y, squash: squash };
-    }
-
+    /* no throw, no ball physics — the crumple is the show. The sheet packs
+       into the fist and is simply gone, lifted off as it fades, leaving the
+       normal site standing. */
     function displace(u, v, t) {
-      var grabG = bpSS(0.02, 0.52, t);                 /* global crumple window */
-      var crush = bpSS(0.46, 0.66, t);
-      var fly   = bpSS(0.66, 1, t);
+      var grabG = bpSS(0.03, 0.66, t);                 /* global crumple window */
+      var crush = bpSS(0.58, 0.88, t);
+      var gone  = bpSS(0.84, 1, t);                    /* lifted away */
 
       /* collapse order: rim early, centre late, noised */
       var rim = Math.max(Math.abs(u - 0.5), Math.abs(v - 0.5)) * 2;
@@ -1016,15 +1002,16 @@
       gx += (no(u * 4.1 + 2.2, v * 4.1) - 0.5) * amp * 0.55;
       gy += (no(u * 4.1, v * 4.1 + 6.1) - 0.5) * amp * 0.55;
 
-      /* stage 2 — the packed wad: seeded lumps, never a sphere */
-      var bp2 = ballPath(fly);
-      var spin = t * 6.5 + seed + fly * 6.0;
+      /* stage 2 — the packed wad: seeded lumps, never a sphere. It stays in
+         the hand, tightens, and lifts away as it goes. */
+      var spin = t * 5.5 + seed;
       var th = u * 6.28318 + spin, ph = v * 3.14159;
       var lump = 0.58 + 1.05 * no(Math.cos(th) * 1.6 + 3.1, ph * 1.3 + Math.sin(th));
       lump += 0.35 * Math.pow(no(th * 0.9, ph * 2.2 + 7.0), 2.0);
-      var R = baseR * (1 - crush * 0.2) * lump;
-      var sx2 = bp2.x + Math.sin(ph) * Math.cos(th) * R * (1 + bp2.squash * 0.5);
-      var sy2 = bp2.y + Math.cos(ph) * R * (0.9 + 0.2 * no(th, 9.0)) * (1 - bp2.squash);
+      var R = baseR * (1 - crush * 0.24) * (1 - gone * 0.45) * lump;
+      var wx = fistX, wy = fistY - gone * H * 0.10;
+      var sx2 = wx + Math.sin(ph) * Math.cos(th) * R;
+      var sy2 = wy + Math.cos(ph) * R * (0.9 + 0.2 * no(th, 9.0));
       var sz2 = Math.sin(ph) * Math.sin(th) * R + 210;
 
       /* the bridge: each vertex joins the wad only late in ITS OWN fold,
@@ -1054,7 +1041,7 @@
       }
     }
 
-    var DURATION = 2450;
+    var DURATION = 1650;
     var startTime = null, done = false;
     function finishAll() {
       if (done) return; done = true;
@@ -1103,30 +1090,13 @@
       gl.clearColor(0, 0, 0, 0);
       gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
       gl.drawElements(gl.TRIANGLES, COLS * ROWS * 6, gl.UNSIGNED_SHORT, 0);
+      wrap.style.opacity = String(1 - bpSS(0.86, 1, t));
 
-      /* contact shadow */
-      if (sCv.width !== wpx) { sCv.width = wpx; sCv.height = hpx; }
-      sg.clearRect(0, 0, wpx, hpx);
-      var grab2 = bpSS(0.02, 0.52, t), fly2 = bpSS(0.66, 1, t);
-      if (grab2 > 0.55) {
-        var bp3 = ballPath(fly2);
-        var alpha = 0.30 * Math.min(1, (grab2 - 0.55) * 4) * (t > 0.97 ? (1 - t) / 0.03 : 1);
-        var groundD = Math.max(0.25, 1 - (H * 0.80 - bp3.y) / (H * 0.5));
-        sg.fillStyle = 'rgba(0,0,0,' + (alpha * groundD).toFixed(3) + ')';
-        sg.beginPath();
-        sg.ellipse(bp3.x * d2, H * 0.84 * d2,
-          baseR * (1.5 - fly2 * 0.4) * d2 * groundD, baseR * 0.28 * d2 * groundD, 0, 0, 6.2832);
-        sg.fill();
-      }
       if (t < 1) requestAnimationFrame(frame);
-      else {
-        wrap.style.transition = 'opacity 180ms ease';
-        wrap.style.opacity = '0';
-        setTimeout(finishAll, 200);
-      }
+      else finishAll();
     }
     requestAnimationFrame(frame);
-    setTimeout(finishAll, DURATION + 1200);      /* dead-man */
+    setTimeout(finishAll, DURATION + 1000);      /* dead-man */
   }
 
   /* RESET / START FROM SCRATCH: the wad flies off a fresh blueprint */
