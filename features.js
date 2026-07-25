@@ -972,53 +972,38 @@
        into the fist and is simply gone, lifted off as it fades, leaving the
        normal site standing. */
     function displace(u, v, t) {
-      var grabG = bpSS(0.03, 0.66, t);                 /* global crumple window */
-      var crush = bpSS(0.58, 0.88, t);
-      var gone  = bpSS(0.84, 1, t);                    /* lifted away */
+      /* No wad, no sphere, no glob — the sheet only ever behaves like a
+         sheet. It crumples rim-first into the fist, keeps buckling as it
+         compresses into a scrunched heap of folds, and fades out mid-crush.
+         What it reveals is the point: the normal site underneath. */
+      var grabG = bpSS(0.03, 0.82, t);
+      var gone  = bpSS(0.78, 1, t);
 
-      /* collapse order: rim early, centre late, noised */
       var rim = Math.max(Math.abs(u - 0.5), Math.abs(v - 0.5)) * 2;
       var ord = 1 - (0.62 * rim + 0.38 * no(u * 3.1 + 9.0, v * 3.1));
       ord = Math.max(0, Math.min(1, ord));
-      /* this vertex's own progress — the cascade */
       var g = bpSS(ord * 0.52, ord * 0.52 + 0.44, grabG);
 
       var px = bpMix(-0.03, 1.03, u) * W, py = bpMix(-0.03, 1.03, v) * H;
 
-      /* stage 1 — curl and gather: pulled toward the fist along its own
-         radial, lifting and rolling as it goes, creases deepening */
       var fistX = cx + Math.sin(grabG * 2.6) * 26, fistY = cy + Math.cos(grabG * 2.1) * 18;
       var dxr = px - fistX, dyr = py - fistY;
-      var dist = Math.hypot(dxr, dyr) || 1;
-      var pull = g * 0.86;
+      var pull = g * 0.92;
       var gx = px - dxr * pull, gy = py - dyr * pull;
-      /* the roll: rim lifts high as it comes over the top of the pile */
+
       var lift = Math.sin(Math.min(1, g * 1.15) * 3.14159);
-      var gz = lift * (70 + 150 * no(u * 2.2 + 4.0, v * 2.2)) + g * 60;
-      /* creases: sharpest mid-fold, calmer once packed */
-      var amp = Math.sin(g * 3.14159) * Math.min(W, H) * 0.16 + g * 26;
+      var gz = lift * (70 + 150 * no(u * 2.2 + 4.0, v * 2.2)) + g * 50;
+      /* creases never relax — the heap stays crinkled to the last frame */
+      var amp = Math.sin(g * 3.14159) * Math.min(W, H) * 0.16 + g * 44;
       var nz = (no(u * 5.4, v * 5.4) - 0.5) * 2;
       gz += nz * amp;
-      gx += (no(u * 4.1 + 2.2, v * 4.1) - 0.5) * amp * 0.55;
-      gy += (no(u * 4.1, v * 4.1 + 6.1) - 0.5) * amp * 0.55;
+      gx += (no(u * 4.1 + 2.2, v * 4.1) - 0.5) * amp * 0.7;
+      gy += (no(u * 4.1, v * 4.1 + 6.1) - 0.5) * amp * 0.7;
 
-      /* stage 2 — the packed wad: seeded lumps, never a sphere. It stays in
-         the hand, tightens, and lifts away as it goes. */
-      var spin = t * 5.5 + seed;
-      var th = u * 6.28318 + spin, ph = v * 3.14159;
-      var lump = 0.58 + 1.05 * no(Math.cos(th) * 1.6 + 3.1, ph * 1.3 + Math.sin(th));
-      lump += 0.35 * Math.pow(no(th * 0.9, ph * 2.2 + 7.0), 2.0);
-      var R = baseR * (1 - crush * 0.24) * (1 - gone * 0.45) * lump;
-      var wx = fistX, wy = fistY - gone * H * 0.10;
-      var sx2 = wx + Math.sin(ph) * Math.cos(th) * R;
-      var sy2 = wy + Math.cos(ph) * R * (0.9 + 0.2 * no(th, 9.0));
-      var sz2 = Math.sin(ph) * Math.sin(th) * R + 210;
-
-      /* the bridge: each vertex joins the wad only late in ITS OWN fold,
-         so the mass assembles fold over fold instead of jump-morphing */
-      var join = bpSS(0.62, 1.0, g) * Math.max(bpSS(0.3, 0.55, grabG), crush);
-      join = Math.max(join, crush);
-      return [bpMix(gx, sx2, join), bpMix(gy, sy2, join), bpMix(gz, sz2, join)];
+      /* the crushed heap tightens a little more and lifts as it goes */
+      var kx = fistX + (gx - fistX) * (1 - gone * 0.45);
+      var ky = fistY + (gy - fistY) * (1 - gone * 0.45) - gone * H * 0.07;
+      return [kx, ky, gz];
     }
 
     document.body.style.pointerEvents = 'none';
@@ -1041,7 +1026,7 @@
       }
     }
 
-    var DURATION = 1650;
+    var DURATION = 1500;
     var startTime = null, done = false;
     function finishAll() {
       if (done) return; done = true;
@@ -1090,7 +1075,7 @@
       gl.clearColor(0, 0, 0, 0);
       gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
       gl.drawElements(gl.TRIANGLES, COLS * ROWS * 6, gl.UNSIGNED_SHORT, 0);
-      wrap.style.opacity = String(1 - bpSS(0.86, 1, t));
+      wrap.style.opacity = String(1 - bpSS(0.8, 1, t));
 
       if (t < 1) requestAnimationFrame(frame);
       else finishAll();
