@@ -85,12 +85,31 @@ a, button, [onclick], .pcb-comp, .nf-sample-btn, .nf-upload, label.nf-check {
 
 
 /* ── Page transitions ───────────────────────────────────── */
-/* Page transitions are owned by transitions.js in EVERY browser now — the
-   Datum Scan (and the crossfade fallback mode) both use a cover-then-reveal
-   handshake, so native cross-document View Transitions are switched off to
-   stop Chrome layering its own crossfade on top of the scan.
+/* THE DATUM SCAN, one pass, no held black frame.
 
-   THE SCAN, arrival half: the inline head gate stamps html.pt-covered before
+   Chromium/Safari: cross-document View Transitions carry it — the OLD page
+   snapshot holds still while the NEW page wipes down over it behind the
+   rule, so the line scans directly from yesterday into tomorrow. The JS in
+   transitions.js rides the pagereveal event to draw the rule itself.  */
+@view-transition { navigation: auto; }
+::view-transition-old(root) { animation: none; }
+::view-transition-new(root) {
+  animation: ptScanIn 440ms cubic-bezier(.2, .7, .2, 1) both;
+}
+@keyframes ptScanIn {
+  from { clip-path: inset(0 0 100% 0); }
+  to   { clip-path: inset(0 0 0 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root), ::view-transition-new(root) { animation: none; }
+}
+
+/* Firefox (no cross-document VT): the click navigates natively — paint
+   holding keeps the old page on screen while the prefetched document loads —
+   and the new page arrives pre-covered, then a SINGLE sweep reveals it.
+   One pass, no leave sweep, no held black.
+
+   The arrival half: the inline head gate stamps html.pt-covered before
    first paint whenever the previous page left through the scan, and this
    pseudo-element owns the screen until transitions.js swaps it for the real
    sweeping cover. No DOM needed, so there is no flash-of-new-page ever. */

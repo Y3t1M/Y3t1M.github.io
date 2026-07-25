@@ -21,12 +21,10 @@
 
   var MODE = 'scan';                                   /* 'scan' | 'fade' */
 
+  var NATIVE = ('onpagereveal' in window);             /* cross-doc VT ships this */
   var REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var OUT_MS = 360, IN_MS = 440;
-  var EASE_OUT = 'cubic-bezier(.2,.7,.2,1)';
+  var IN_MS = 440;
 
-  /* the scan runs between the three pages that carry the datum-rule nav;
-     everything else (portals, demos, PDFs) navigates plainly */
   var SCAN_PAGES = /(\/|index\.html|projects\.html|404\.html)$/;
 
   function internal(a2) {
@@ -39,7 +37,7 @@
     return url;
   }
 
-  /* ── prefetch on intent — what actually makes navigation feel instant ── */
+  /* ── prefetch on intent — the swap has to be instant for one-pass to read ── */
   var seen = {};
   function prefetch(e) {
     var a2 = e.target && e.target.closest && e.target.closest('a[href]');
@@ -56,53 +54,47 @@
     document.addEventListener(ev, prefetch, { passive: true, capture: true });
   });
 
-  /* ── the sweeping rule ────────────────────────────────────────────── */
-  function buildLine() {
+  /* ── the rule itself, ridden down the screen ─────────────────────── */
+  function sweepLine(ms) {
     var line = document.createElement('div');
     line.className = 'pt-scan-line';
     line.innerHTML = '<span></span>';
     document.body.appendChild(line);
-    return line;
-  }
-
-  /* leaving: cover grows down from the top, the rule at its leading edge */
-  function scanOut(href) {
-    var cover = document.createElement('div');
-    cover.className = 'pt-scan-cover';
-    cover.style.clipPath = 'inset(0 0 100% 0)';
-    document.body.appendChild(cover);
-    var line = buildLine();
     var tag = line.firstChild;
     var H = window.innerHeight;
-    var t0 = null, went = false;
-    function go() {
-      if (went) return;
-      went = true;
-      try { sessionStorage.setItem('pt-cover', String(Date.now())); } catch (e) {}
-      window.location.href = href;
-    }
+    var t0 = null;
     function frame(ts) {
       if (!t0) t0 = ts;
-      var p = Math.min(1, (ts - t0) / OUT_MS);
+      var p = Math.min(1, (ts - t0) / ms);
       var e2 = 1 - Math.pow(1 - p, 3);
-      cover.style.clipPath = 'inset(0 0 ' + ((1 - e2) * 100).toFixed(2) + '% 0)';
       line.style.transform = 'translateY(' + (e2 * H).toFixed(1) + 'px)';
       tag.textContent = 'Y ' + String(Math.round(e2 * H)).padStart(4, '0');
       if (p < 1) requestAnimationFrame(frame);
-      else go();
+      else line.remove();
     }
     requestAnimationFrame(frame);
-    setTimeout(go, OUT_MS + 350);          /* never strand the click */
+    setTimeout(function () { if (line.parentNode) line.remove(); }, ms + 600);
   }
 
-  /* arriving: swap the pre-paint pseudo cover for the real one, sweep open */
+  /* Chromium/Safari: the View Transition wipes the new page down over the
+     old one; we just draw the rule at its leading edge. pagereveal fires on
+     the NEW document before its first frame. */
+  if (NATIVE && MODE === 'scan' && !REDUCED) {
+    window.addEventListener('pagereveal', function (e) {
+      if (e.viewTransition) sweepLine(IN_MS);
+    });
+  }
+
+  /* Firefox path — the new page arrives pre-covered (inline gate), one
+     sweep reveals it. No leave sweep: paint holding keeps the old page up
+     while the prefetched document loads, so there is no held black frame. */
   function scanIn() {
     var root = document.documentElement;
     if (!root.classList.contains('pt-covered')) return;
     var cover = document.createElement('div');
     cover.className = 'pt-scan-cover';
     document.body.appendChild(cover);
-    root.classList.remove('pt-covered');   /* the real cover owns it now */
+    root.classList.remove('pt-covered');
 
     if (REDUCED) {
       cover.style.transition = 'opacity 140ms ease';
@@ -110,7 +102,10 @@
       setTimeout(function () { cover.remove(); }, 160);
       return;
     }
-    var line = buildLine();
+    var line = document.createElement('div');
+    line.className = 'pt-scan-line';
+    line.innerHTML = '<span></span>';
+    document.body.appendChild(line);
     var tag = line.firstChild;
     var H = window.innerHeight;
     var t0 = null;
@@ -132,7 +127,7 @@
     setTimeout(cleanup, IN_MS + 800);      /* dead-man: never a stuck cover */
   }
 
-  /* ── fade mode (the crossfade, kept one flip away) ────────────────── */
+  /* ── fade mode (kept one flip away) ───────────────────────────────── */
   function fadeArrive() {
     var root = document.documentElement;
     root.classList.add('pt-fade', 'pt-enter');
@@ -143,16 +138,15 @@
     setTimeout(function () { root.classList.remove('pt-enter'); }, 600);
   }
 
-  /* ── wire up ──────────────────────────────────────────────────────── */
-  if (MODE === 'scan') scanIn(); else fadeArrive();
+  if (MODE === 'scan') { if (!NATIVE) scanIn(); else document.documentElement.classList.remove('pt-covered'); }
+  else fadeArrive();
 
   window.addEventListener('pageshow', function (e) {
-    if (!e.persisted) return;              /* bfcache return: clear everything */
+    if (!e.persisted) return;
     document.documentElement.classList.remove('pt-covered', 'pt-enter');
     document.querySelectorAll('.pt-scan-cover, .pt-scan-line').forEach(function (el) { el.remove(); });
   });
 
-  var leaving = false;
   document.addEventListener('click', function (e) {
     if (e.defaultPrevented) return;
     if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
@@ -161,13 +155,12 @@
 
     try { sessionStorage.setItem('pt-arrive', '1'); } catch (err) {}
 
-    if (MODE !== 'scan') return;                        /* fade: navigate natively */
-    if (REDUCED) return;                                /* reduced: plain instant nav */
-    if (!SCAN_PAGES.test(url.pathname)) return;         /* portals/demos: plain nav */
-    if (leaving) { e.preventDefault(); return; }
-    leaving = true;
-    e.preventDefault();
-    scanOut(url.href);
+    /* only the non-VT path needs the covered-arrival handshake, and only
+       between the three nav pages */
+    if (MODE === 'scan' && !NATIVE && !REDUCED && SCAN_PAGES.test(url.pathname)) {
+      try { sessionStorage.setItem('pt-cover', String(Date.now())); } catch (err2) {}
+    }
+    /* no preventDefault anywhere — the navigation is always native now */
   });
 })();
 
