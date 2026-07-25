@@ -7,90 +7,30 @@
 
   function init() {
   /* ================================================================
-     1. FIRMWARE FLASH PAGE LOAD
-        Mimics Arduino IDE upload screen on first visit per session.
+     1. (removed) FIRMWARE FLASH PAGE LOAD
+        This printed an Arduino-style `hudson@archlinux` terminal over the
+        whole page on the first load of every session, at z-index 999999.
+        The PLINTH boot in boot.js is the first-visit load screen now, and
+        two of them collided -- the terminal simply covered the mark, so the
+        new boot looked like it was never shipping.
+
+        The hero's staggered entrance used to be driven from here via the
+        html.fw-boot / html.fw-booted classes. boot.js owns those now, so the
+        hero still animates in as the mark clears. Those CSS rules are
+        unchanged and still live in styles.css.
      ================================================================ */
-  (function initFirmwareFlash() {
-    // Only show once per session
-    if (sessionStorage.getItem('fw_shown')) return;
-    sessionStorage.setItem('fw_shown', '1');
 
-    document.documentElement.classList.add('fw-boot');
-
-    var overlay = document.createElement('div');
-    overlay.id = 'firmware-overlay';
-    overlay.innerHTML =
-      '<div id="firmware-inner">' +
-        '<div class="fw-topbar">' +
-          '<div class="fw-dot fw-dot-red"></div>' +
-          '<div class="fw-dot fw-dot-yellow"></div>' +
-          '<div class="fw-dot fw-dot-green"></div>' +
-          '<span class="fw-title">hudson@archlinux: ~</span>' +
-        '</div>' +
-        '<div class="fw-body" id="fw-body"></div>' +
-      '</div>';
-    document.body.appendChild(overlay);
-
-    var body = document.getElementById('fw-body');
-
-    // the ORIGINAL Yetim face, untouched — sized responsively via .fw-art
-    var art = [
-      '        .o                                            o.',
-      '      .8\'                                              `8.',
-      '     .8\'                                                `8.',
-      '     88                                                  88',
-      '     88                                                  88',
-      '     `8.            .o.                       .o.       .8\'',
-      '      `8.           Y8P      ooooooooooo      Y8P      .8\'',
-      '       `"                                              "\'',
-    ];
-
-    var lines = [];
-    lines.push({ html: '<span class="cli-p-user">hudson</span><span style="color:#888">@</span><span class="cli-p-host">archlinux</span> <span class="cli-p-tilde">~</span><span class="cli-p-dollar"> $</span> <span class="cli-nf-val">neofetch</span>', delay: 60 });
-    lines.push({ html: '', delay: 90 });
-    for (var i = 0; i < art.length; i++) {
-      lines.push({ html: '<span class="cli-nf-art">' + art[i] + '</span>', delay: 42, art: true });
-    }
-    lines.push({ html: '', delay: 60 });
-    lines.push({ html: '<span class="cli-p-user">hudson</span><span style="color:#888">@</span><span class="cli-p-host">archlinux</span>', delay: 30 });
-    lines.push({ html: '<span class="cli-nf-key">--------------------------</span>', delay: 20 });
-    lines.push({ html: '<span class="cli-nf-key">OS:</span>    <span class="cli-nf-val">HudsonTinch x86_64</span>', delay: 35 });
-    lines.push({ html: '<span class="cli-nf-key">Host:</span>  <span class="cli-nf-val">hudsontinch.com</span>', delay: 35 });
-    lines.push({ html: '<span class="cli-nf-key">Univ:</span>  <span class="cli-nf-val">Arkansas — Honors</span>', delay: 35 });
-    lines.push({ html: '<span class="cli-nf-key">Lang:</span>  <span class="cli-nf-val">TS JS Python C++</span>', delay: 35 });
-    lines.push({ html: '<span class="cli-nf-key">HW:</span>    <span class="cli-nf-val">Arduino · PCB · 3DP</span>', delay: 35 });
-    lines.push({ html: '<span class="cli-nf-key">GPA:</span>   <span class="cli-nf-val">4.0</span>', delay: 60 });
-    lines.push({ html: '', delay: 80 });
-    lines.push({ html: '<span class="cli-p-dollar">$</span> <span style="color:#4ade80">// portfolio loaded — welcome</span>', delay: 220 });
-
-    var done = false;
-    function finish() {
-      if (done) return;
-      done = true;
-      document.documentElement.classList.remove('fw-boot');
-      document.documentElement.classList.add('fw-booted');
-      overlay.classList.add('fw-fade');
-      setTimeout(function () { overlay.remove(); }, 520);
-    }
-
-    overlay.addEventListener('pointerdown', finish);
-    document.addEventListener('keydown', finish, { once: true });
-    setTimeout(finish, 4500); // never trap the visitor
-
-    var idx = 0;
-    function printNext() {
-      if (done) return;
-      if (idx >= lines.length) { setTimeout(finish, 460); return; }
-      var line = lines[idx++];
-      var el = document.createElement('div');
-      el.className = 'fw-output-line' + (line.art ? ' fw-art' : '');
-      el.innerHTML = line.html;
-      body.appendChild(el);
-      setTimeout(printNext, line.delay);
-    }
-    setTimeout(printNext, 240);
-  })();
-
+  var bpStageTimer = null;
+  /* Undo everything that turns <html>/<body> into a containing block, then
+     nudge the fixed backgrounds to re-measure themselves against the viewport
+     again. Safe to call more than once. */
+  function clearBpStage() {
+    clearTimeout(bpStageTimer);
+    bpStageTimer = null;
+    document.body.style.willChange = '';
+    document.documentElement.style.perspective = '';
+    try { window.dispatchEvent(new Event('resize')); } catch (e) {}
+  }
 
   /* ================================================================
      2. CLI NAVIGATION MODE — Press / to open
@@ -638,14 +578,15 @@
         e.stopPropagation(); triggerCrinkle();
       });
       document.getElementById('bp-reset-btn').addEventListener('click', function(e){
-        e.stopPropagation(); bpResetBoard();
+        e.stopPropagation(); triggerReset();
       });
     }
   }
 
-  function bpResetBoard() {
+  function bpResetBoard(quiet) {
     // Remove the overlay
     if (bpHintEl) { bpHintEl.remove(); bpHintEl = null; }
+    clearBpStage();
     // Tear down interactive state but keep blueprint class on
     bpSmudgeCount = 0;
     bpRuined = false;
@@ -665,7 +606,7 @@
       el.dataset.bpTy = '0';
       el.style.transform = '';
     });
-    showToast('[ BLUEPRINT RESET ]');
+    if (!quiet) showToast('[ BLUEPRINT RESET ]');
   }
 
   // Build transform preserving drag translate + smudge skew
@@ -683,305 +624,364 @@
        45%–75% : 3D perspective fold — page bends in 3D
        65%–100%: paper crumples to a ball and vanishes
   ─────────────────────────────────────────────────────────────── */
-  function triggerCrinkle() {
+  /* ── Crinkle exit ──────────────────────────────────────────────
+     A real sheet of paper being crumpled, not a page spun into a
+     blender. What sells it:
+       - FOLD SNAPS, not a smooth ease: six discrete crushes, each
+         arriving hard and holding, like a fist closing in stages.
+       - CREASES that run edge to edge and STAY — each drawn as a
+         V-groove (shadow line + light line) the instant its snap
+         lands, with faceted light/dark wedges between them.
+       - A silhouette that collapses as a jagged polygon, because
+         crumpled paper has corners, not a circle.
+       - Then the wad: a small tumbling ball, tossed away.
+  ─────────────────────────────────────────────────────────────── */
+  function triggerCrinkle(after) {
     if (bpHintEl) { bpHintEl.remove(); bpHintEl = null; }
-
-    var W = window.innerWidth;
-    var H = window.innerHeight;
-
-    // Full-screen canvas for crease lines drawn on top of page
-    var cvs = document.createElement('canvas');
-    cvs.style.cssText = 'position:fixed;inset:0;z-index:999997;pointer-events:none;';
-    cvs.width  = W;
-    cvs.height = H;
-    document.body.appendChild(cvs);
-    var ctx = cvs.getContext('2d');
-
-    var fx = W * (0.42 + Math.random() * 0.16);
-    var fy = H * (0.36 + Math.random() * 0.2);
-    var diag = Math.sqrt(W * W + H * H);
-
-    var corners = [
-      { x: 0, y: 0 },
-      { x: W, y: 0 },
-      { x: W, y: H },
-      { x: 0, y: H }
-    ];
-
-    var ridges = [];
-    var RIDGE_COUNT = Math.max(220, Math.min(360, Math.round((W * H) / 5000)));
-    for (var i = 0; i < RIDGE_COUNT; i++) {
-      var a = Math.random() * Math.PI * 2;
-      var r = Math.pow(Math.random(), 0.62) * diag * 0.68;
-      var x = fx + Math.cos(a) * r + (Math.random() - 0.5) * 26;
-      var y = fy + Math.sin(a) * r + (Math.random() - 0.5) * 26;
-      var cornerIdx = (x < W * 0.5 ? (y < H * 0.5 ? 0 : 3) : (y < H * 0.5 ? 1 : 2));
-      ridges.push({
-        x: x,
-        y: y,
-        a: a + Math.PI * 0.5 + (Math.random() - 0.5) * 1.9,
-        len: 10 + Math.random() * 34,
-        bend: (Math.random() - 0.5) * 20,
-        thick: 0.35 + Math.random() * 1.25,
-        alpha: 0.03 + Math.random() * 0.09,
-        pull: 0.26 + Math.random() * 1.25,
-        phase: Math.random() * Math.PI * 2,
-        cornerIdx: cornerIdx
-      });
-    }
-
-    var paperGrain = [];
-    for (var g = 0; g < 85; g++) {
-      paperGrain.push({
-        x: Math.random() * W,
-        y: Math.random() * H,
-        r: 0.6 + Math.random() * 1.9,
-        a: 0.018 + Math.random() * 0.05
-      });
-    }
 
     var dispEl   = document.getElementById('bp-disp');
     var dispBgEl = document.getElementById('bp-disp-bg');
     var turbEl   = document.getElementById('bp-turb');
 
-    document.body.style.pointerEvents  = 'none';
-    document.body.style.transformOrigin = fx + 'px ' + fy + 'px';
-    document.documentElement.style.perspective = '900px';
-    document.body.style.willChange = 'transform, opacity, clip-path, border-radius, filter';
+    function teardown() {
+      document.body.style.transform     = '';
+      document.body.style.opacity       = '';
+      document.body.style.filter        = '';
+      document.body.style.pointerEvents = '';
+      document.body.style.transformOrigin = '';
+      document.body.style.clipPath      = '';
+      document.body.style.borderRadius  = '';
+      clearBpStage();
+      if (dispEl)   dispEl.setAttribute('scale', '3');
+      if (dispBgEl) dispBgEl.setAttribute('scale', '4');
+      if (turbEl)   turbEl.setAttribute('baseFrequency', '0.032');
+      destroyBlueprintInteractive();
+      document.body.classList.remove('blueprint', 'bp-ruined');
+      showToast('[ BLUEPRINT MODE OFF ]');
+    }
 
-    var startTime = null;
-    var DURATION  = 2500;
-    var maxR      = Math.hypot(Math.max(fx, W - fx), Math.max(fy, H - fy));
-    var fromCx    = W * 0.5;
-    var fromCy    = H * 0.5;
-    var toCx      = fx;
-    var toCy      = fy;
+    /* reduced motion: no crumple theatre — fade, then whichever ending */
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      document.body.style.transition = 'opacity 380ms ease';
+      document.body.style.opacity = '0';
+      setTimeout(function () {
+        document.body.style.transition = '';
+        (after || teardown)();
+      }, 400);
+      return;
+    }
 
-    function lerp(a, b, t) { return a + (b - a) * t; }
+    var W = window.innerWidth, H = window.innerHeight;
+
+    var cvs = document.createElement('canvas');
+    cvs.style.cssText = 'position:fixed;inset:0;z-index:999997;pointer-events:none;';
+    cvs.width = W; cvs.height = H;
+    document.body.appendChild(cvs);
+    var ctx = cvs.getContext('2d');
+
+    /* where the fist closes */
+    var fx = W * (0.42 + Math.random() * 0.16);
+    var fy = H * (0.38 + Math.random() * 0.18);
+    var nuclei = [
+      { x: fx, y: fy },
+      { x: Math.min(W * 0.9, fx + W * 0.17), y: Math.max(H * 0.1, fy - H * 0.13) },
+      { x: Math.max(W * 0.1, fx - W * 0.15), y: Math.min(H * 0.9, fy + H * 0.14) }
+    ];
+
+    function lerp(a2, b2, t) { return a2 + (b2 - a2) * t; }
     function clamp01(v) { return Math.max(0, Math.min(1, v)); }
-    function easeIn(t)  { return t * t * t; }
-    function easeIO(t)  { return t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2,3)/2; }
+    function jit(n2) { return (Math.random() - 0.5) * n2; }
 
-    function drawCrumpleField(p, fold, gather, crunch, elapsed) {
-      ctx.clearRect(0, 0, W, H);
+    /* a random point on one of the sheet's four edges */
+    function edgePoint(e) {
+      var t = 0.08 + Math.random() * 0.84;
+      if (e === 0) return { x: W * t, y: 0 };
+      if (e === 1) return { x: W, y: H * t };
+      if (e === 2) return { x: W * t, y: H };
+      return { x: 0, y: H * t };
+    }
 
-      var baseShade = ctx.createRadialGradient(fx, fy, 26, fx, fy, diag * 0.66);
-      baseShade.addColorStop(0, 'rgba(8,16,28,' + (0.08 + fold * 0.12 + crunch * 0.1).toFixed(3) + ')');
-      baseShade.addColorStop(0.58, 'rgba(8,16,28,' + (0.035 + gather * 0.08).toFixed(3) + ')');
-      baseShade.addColorStop(1, 'rgba(8,16,28,0)');
-      ctx.fillStyle = baseShade;
-      ctx.fillRect(0, 0, W, H);
+    /* MAJOR creases: edge-to-edge polylines bent toward a nucleus.
+       Real creases cross the whole sheet — that is what was missing. */
+    var majors = [];
+    for (var i = 0; i < 14; i++) {
+      var e1 = i % 4;
+      var e2 = (e1 + 1 + Math.floor(Math.random() * 3)) % 4;
+      var p0 = edgePoint(e1), p3 = edgePoint(e2);
+      var nu = nuclei[i % 3];
+      var pull = 0.55 + Math.random() * 0.28;
+      var m1 = { x: lerp(lerp(p0.x, p3.x, 0.33), nu.x, pull) + jit(46),
+                 y: lerp(lerp(p0.y, p3.y, 0.33), nu.y, pull) + jit(46) };
+      var m2 = { x: lerp(lerp(p0.x, p3.x, 0.67), nu.x, pull) + jit(46),
+                 y: lerp(lerp(p0.y, p3.y, 0.67), nu.y, pull) + jit(46) };
+      majors.push({ pts: [p0, m1, m2, p3], snap: i % 6, nuc: i % 3, reveal: 0 });
+    }
 
-      corners.forEach(function(c) {
-        var px = c.x + (fx - c.x) * (0.18 + fold * 0.58);
-        var py = c.y + (fy - c.y) * (0.18 + fold * 0.58);
-        var nx = (c.x === 0 ? 1 : -1) * (42 + fold * 95);
-        var ny = (c.y === 0 ? 1 : -1) * (42 + fold * 95);
+    function pointOnPoly(pts, t) {
+      var seg = t * (pts.length - 1);
+      var k2 = Math.min(pts.length - 2, Math.floor(seg));
+      var f = seg - k2;
+      return { x: lerp(pts[k2].x, pts[k2 + 1].x, f), y: lerp(pts[k2].y, pts[k2 + 1].y, f) };
+    }
 
-        ctx.beginPath();
-        ctx.moveTo(c.x, c.y);
-        ctx.lineTo(px + nx * 0.28, py);
-        ctx.lineTo(px, py + ny * 0.28);
-        ctx.closePath();
-
-        var cornerShade = ctx.createRadialGradient(c.x, c.y, 1, px, py, Math.max(Math.abs(nx), Math.abs(ny)) * 1.8);
-        cornerShade.addColorStop(0, 'rgba(0,8,18,' + (0.05 + fold * 0.16).toFixed(3) + ')');
-        cornerShade.addColorStop(1, 'rgba(0,8,18,0)');
-        ctx.fillStyle = cornerShade;
-        ctx.fill();
+    /* SECONDARY creases: short connectors between majors — the network */
+    var seconds = [];
+    for (var s2 = 0; s2 < 24; s2++) {
+      var A = majors[Math.floor(Math.random() * majors.length)];
+      var B = majors[Math.floor(Math.random() * majors.length)];
+      if (A === B) continue;
+      seconds.push({
+        a: pointOnPoly(A.pts, 0.2 + Math.random() * 0.6),
+        b: pointOnPoly(B.pts, 0.2 + Math.random() * 0.6),
+        snap: Math.min(5, Math.max(A.snap, B.snap) + 1),
+        reveal: 0
       });
+    }
 
-      paperGrain.forEach(function(pt) {
-        ctx.fillStyle = 'rgba(180,215,248,' + (pt.a * (0.7 + fold * 0.6)).toFixed(3) + ')';
-        ctx.beginPath();
-        ctx.arc(pt.x, pt.y, pt.r, 0, Math.PI * 2);
-        ctx.fill();
+    /* FACETS: wedges between angle-adjacent creases around each nucleus.
+       Alternating light/shadow is what makes folded paper read as planes. */
+    var facets = [];
+    nuclei.forEach(function (nu, ni) {
+      var mine = majors.filter(function (m) { return m.nuc === ni; });
+      mine.sort(function (m1x, m2x) {
+        var a1 = Math.atan2(pointOnPoly(m1x.pts, 0.5).y - nu.y, pointOnPoly(m1x.pts, 0.5).x - nu.x);
+        var a2 = Math.atan2(pointOnPoly(m2x.pts, 0.5).y - nu.y, pointOnPoly(m2x.pts, 0.5).x - nu.x);
+        return a1 - a2;
       });
+      for (var f2 = 0; f2 < mine.length; f2++) {
+        var mA = mine[f2], mB = mine[(f2 + 1) % mine.length];
+        facets.push({ nu: nu, a: pointOnPoly(mA.pts, 0.45), b: pointOnPoly(mB.pts, 0.45),
+                      light: f2 % 2 === 0, ra: mA, rb: mB });
+      }
+    });
 
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
-      ridges.forEach(function(r) {
-        var corner = corners[r.cornerIdx];
-        var cx0 = lerp(r.x, fx, gather * r.pull * 0.64);
-        var cy0 = lerp(r.y, fy, gather * r.pull * 0.64);
-
-        var cpx = cx0 + (fx - corner.x) * fold * 0.06;
-        var cpy = cy0 + (fy - corner.y) * fold * 0.06;
-
-        var ang = r.a + Math.sin(elapsed * 0.0038 + r.phase) * 0.24 * (1 - crunch);
-        var len = r.len * (1 - gather * 0.32 - crunch * 0.2);
-        var half = len * 0.5;
-
-        var sx = cpx - Math.cos(ang) * half;
-        var sy = cpy - Math.sin(ang) * half;
-        var tx = cpx + Math.cos(ang) * half;
-        var ty = cpy + Math.sin(ang) * half;
-        var nx = -Math.sin(ang);
-        var ny =  Math.cos(ang);
-        var b = r.bend * (1 - gather * 0.36);
-        var mx = (sx + tx) * 0.5 + nx * b;
-        var my = (sy + ty) * 0.5 + ny * b;
-
-        ctx.globalCompositeOperation = 'multiply';
-        ctx.beginPath();
-        ctx.moveTo(sx, sy);
-        ctx.quadraticCurveTo(mx, my, tx, ty);
-        ctx.strokeStyle = 'rgba(3,10,18,' + (r.alpha + gather * 0.03 + fold * 0.025).toFixed(3) + ')';
-        ctx.lineWidth = r.thick;
-        ctx.stroke();
-
-        ctx.globalCompositeOperation = 'screen';
-        ctx.beginPath();
-        ctx.moveTo(sx + nx * 0.8, sy + ny * 0.8);
-        ctx.quadraticCurveTo(mx + nx * 0.8, my + ny * 0.8, tx + nx * 0.8, ty + ny * 0.8);
-        ctx.strokeStyle = 'rgba(188,226,255,' + (r.alpha * 0.58 + gather * 0.02).toFixed(3) + ')';
-        ctx.lineWidth = Math.max(0.3, r.thick * 0.48);
-        ctx.stroke();
+    /* the collapsing silhouette: ten verts, per-stage targets */
+    /* strict perimeter order — an out-of-order vertex makes the clip edge
+       slice ACROSS the sheet instead of around it */
+    var baseV = [
+      { x: 0, y: 0 }, { x: W * 0.5, y: 0 }, { x: W, y: 0 },
+      { x: W, y: H * 0.4 }, { x: W, y: H * 0.78 },
+      { x: W * 0.55, y: H }, { x: 0, y: H },
+      { x: 0, y: H * 0.6 }, { x: 0, y: H * 0.22 }
+    ];
+    var VIN = [0, 0.05, 0.11, 0.19, 0.30, 0.42, 0.55, 0.86];
+    var VP = VIN.map(function (inw, k2) {
+      return baseV.map(function (v) {
+        var j = k2 === 0 ? 0 : (7 + k2 * 8);
+        return { x: lerp(v.x, fx, inw) + jit(j), y: lerp(v.y, fy, inw) + jit(j) };
       });
+    });
+    var vcur = baseV.map(function (v) { return { x: v.x, y: v.y }; });
 
+    /* the six snaps: where the body lands after each crush */
+    function v(n2, s3) { return n2 * (1 + jit(s3)); }
+    var TF = [
+      { t: 0,    sx: 1,          sy: 1,          r: 0,        kx: 0,        ky: 0 },
+      { t: 0.06, sx: v(.965,.02), sy: v(.945,.02), r: v(-1.6,.3), kx: v(1.6,.3),  ky: v(-0.6,.3) },
+      { t: 0.13, sx: v(.895,.02), sy: v(.845,.02), r: v(2.3,.3),  kx: v(-2.4,.3), ky: v(1.4,.3) },
+      { t: 0.22, sx: v(.795,.02), sy: v(.715,.02), r: v(-3.8,.3), kx: v(3.0,.3),  ky: v(-2.0,.3) },
+      { t: 0.33, sx: v(.655,.02), sy: v(.565,.02), r: v(5.2,.3),  kx: v(-3.4,.3), ky: v(2.2,.3) },
+      { t: 0.45, sx: v(.50,.03),  sy: v(.415,.03), r: v(-7.0,.3), kx: v(3.8,.3),  ky: v(-2.6,.3) },
+      { t: 0.56, sx: v(.355,.03), sy: v(.29,.03),  r: v(9.0,.3),  kx: v(-3.0,.3), ky: v(2.0,.3) },
+      { t: 1,    sx: 0.13,        sy: 0.11,        r: v(24,.4),   kx: 0,        ky: 0 }
+    ];
+    var DS = [6, 18, 30, 46, 62, 80, 88, 26];      /* displacement per stage */
+    var SNAPS = [0.05, 0.15, 0.26, 0.38, 0.50, 0.61];
+
+    var cs = { t: 0, sx: 1, sy: 1, r: 0, kx: 0, ky: 0, disp: 6 };
+
+    document.body.style.pointerEvents = 'none';
+    document.body.style.transformOrigin = fx + 'px ' + fy + 'px';
+    document.body.style.willChange = 'transform, opacity, clip-path, filter';
+    clearTimeout(bpStageTimer);
+    bpStageTimer = setTimeout(clearBpStage, 4200);
+
+    var DURATION = 2400;
+    var startTime = null, lastTs = null;
+    var ballVX = 90 + Math.random() * 70, ballVY = -60, ballX = fx, ballY = fy, ballR0 = 30;
+
+    function drawCrease(pts, reveal, wBase) {
+      if (reveal <= 0) return;
+      var wLine = wBase * (0.4 + 0.6 * reveal);
+      /* shadow side */
+      ctx.globalCompositeOperation = 'multiply';
+      ctx.strokeStyle = 'rgba(2,10,24,' + (0.30 * reveal).toFixed(3) + ')';
+      ctx.lineWidth = wLine * 1.8;
+      ctx.beginPath();
+      ctx.moveTo(pts[0].x, pts[0].y);
+      for (var q = 1; q < pts.length; q++) ctx.lineTo(pts[q].x, pts[q].y);
+      ctx.stroke();
+      /* lit side, offset a hair — the V-groove */
+      ctx.globalCompositeOperation = 'screen';
+      ctx.strokeStyle = 'rgba(205,232,255,' + (0.22 * reveal).toFixed(3) + ')';
+      ctx.lineWidth = Math.max(0.5, wLine * 0.7);
+      ctx.beginPath();
+      ctx.moveTo(pts[0].x + 1.2, pts[0].y - 1.2);
+      for (var q2 = 1; q2 < pts.length; q2++) ctx.lineTo(pts[q2].x + 1.2, pts[q2].y - 1.2);
+      ctx.stroke();
       ctx.globalCompositeOperation = 'source-over';
-      var broadLight = ctx.createRadialGradient(fx - diag * 0.09, fy - diag * 0.1, 16, fx - diag * 0.06, fy - diag * 0.08, diag * 0.5);
-      broadLight.addColorStop(0, 'rgba(174,214,250,' + (0.08 + gather * 0.12).toFixed(3) + ')');
-      broadLight.addColorStop(1, 'rgba(174,214,250,0)');
-      ctx.fillStyle = broadLight;
-      ctx.fillRect(0, 0, W, H);
-
-      var centerPocket = ctx.createRadialGradient(fx, fy, 0, fx, fy, diag * 0.33);
-      centerPocket.addColorStop(0, 'rgba(0,10,20,' + (0.13 + crunch * 0.25).toFixed(3) + ')');
-      centerPocket.addColorStop(1, 'rgba(0,10,20,0)');
-      ctx.fillStyle = centerPocket;
-      ctx.fillRect(0, 0, W, H);
     }
 
     function step(ts) {
-      if (!startTime) startTime = ts;
-      var elapsed = ts - startTime;
-      var p = clamp01(elapsed / DURATION);
+      if (!startTime) { startTime = ts; lastTs = ts; }
+      var dt = Math.min(50, ts - lastTs); lastTs = ts;
+      var p = clamp01((ts - startTime) / DURATION);
 
-      var foldEase = easeIO(clamp01((p - 0.02) / 0.34));
-      var gather = easeIO(clamp01((p - 0.21) / 0.5));
-      var scrunchEase = easeIn(clamp01((p - 0.58) / 0.42));
-      drawCrumpleField(p, foldEase, gather, scrunchEase, elapsed);
+      var k = 0;
+      for (var s3 = 0; s3 < SNAPS.length; s3++) if (p >= SNAPS[s3]) k = s3 + 1;
+      var wad = p >= 0.62;
+      var stage = wad ? 7 : k;
 
-      var turbP = clamp01((p - 0.1) / 0.74);
-      var turbEase = easeIO(turbP);
-      if (dispEl)   dispEl.setAttribute('scale', (3 + turbEase * 102 + Math.sin(p * 22 * Math.PI) * 4).toFixed(2));
-      if (dispBgEl) dispBgEl.setAttribute('scale', (4 + turbEase * 126 + Math.cos(p * 19 * Math.PI) * 4).toFixed(2));
-      if (turbEl) {
-        var freq = 0.024 + turbEase * 0.085 + Math.sin(p * 18 * Math.PI) * 0.0028;
-        turbEl.setAttribute('baseFrequency', Math.max(0.01, freq).toFixed(4));
+      /* hard approach — arrives fast, then HOLDS. That is the snap. */
+      var blend = 1 - Math.exp(-dt / 42);
+      var tf = TF[stage];
+      cs.t  += (tf.t  - cs.t)  * blend;
+      cs.sx += (tf.sx - cs.sx) * blend;
+      cs.sy += (tf.sy - cs.sy) * blend;
+      cs.r  += (tf.r  - cs.r)  * blend;
+      cs.kx += (tf.kx - cs.kx) * blend;
+      cs.ky += (tf.ky - cs.ky) * blend;
+      cs.disp += (DS[stage] - cs.disp) * blend;
+
+      var vt = VP[Math.min(stage, VP.length - 1)];
+      for (var vi = 0; vi < vcur.length; vi++) {
+        vcur[vi].x += (vt[vi].x - vcur[vi].x) * blend;
+        vcur[vi].y += (vt[vi].y - vcur[vi].y) * blend;
       }
 
-      var centerX = lerp(fromCx, toCx, gather * 0.9 + scrunchEase * 0.1);
-      var centerY = lerp(fromCy, toCy, gather * 0.9 + scrunchEase * 0.1);
-      var scale = Math.max(0.016, 1 - scrunchEase * 0.984);
-      var rotX = Math.sin(p * 7 * Math.PI) * foldEase * (17 + 7 * (1 - scrunchEase));
-      var rotY = Math.cos(p * 6 * Math.PI) * foldEase * (13 + 6 * (1 - scrunchEase));
-      var rotZ = gather * 120 + scrunchEase * 640 + Math.sin(p * 6 * Math.PI) * foldEase * 10;
-      var skewX = Math.sin(p * 12 * Math.PI) * foldEase * 6;
-      var skewY = Math.cos(p * 10 * Math.PI) * foldEase * 4;
-      var drift = (1 - scrunchEase) * (3.5 + turbEase * 4.5);
-      var shiftX = (toCx - fromCx) * gather + Math.sin(elapsed * 0.04) * drift;
-      var shiftY = (toCy - fromCy) * gather + Math.cos(elapsed * 0.037) * drift;
-      var clipCrunch = easeIn(clamp01((p - 0.46) / 0.54));
-      var radius = lerp(maxR, 13, clipCrunch);
-      var roundness = Math.floor(lerp(0, 50, scrunchEase));
-      var wobbleR = radius * (1 + Math.sin(p * 10 * Math.PI) * 0.028 * (1 - clipCrunch));
+      /* creases reveal the moment their snap lands */
+      majors.forEach(function (m) { if (m.snap < k) m.reveal = clamp01(m.reveal + dt / 90); });
+      seconds.forEach(function (m) { if (m.snap < k) m.reveal = clamp01(m.reveal + dt / 110); });
 
-      document.body.style.clipPath = 'circle(' + wobbleR.toFixed(1) + 'px at ' + centerX.toFixed(1) + 'px ' + centerY.toFixed(1) + 'px)';
-      document.body.style.borderRadius = roundness + 'px';
-      document.body.style.filter =
-        'contrast(' + (1 + turbEase * 0.17).toFixed(3) + ') ' +
-        'saturate(' + (1 - scrunchEase * 0.18).toFixed(3) + ') ' +
-        'brightness(' + (1 - scrunchEase * 0.08).toFixed(3) + ')';
+      /* ── canvas ── */
+      ctx.clearRect(0, 0, W, H);
+      if (!wad || p < 0.7) {
+        /* facets first, creases over them */
+        facets.forEach(function (f3) {
+          var rv = Math.min(f3.ra.reveal, f3.rb.reveal);
+          if (rv <= 0) return;
+          ctx.fillStyle = f3.light
+            ? 'rgba(196,226,255,' + (0.055 * rv).toFixed(3) + ')'
+            : 'rgba(2,10,24,'     + (0.085 * rv).toFixed(3) + ')';
+          ctx.beginPath();
+          ctx.moveTo(f3.nu.x, f3.nu.y);
+          ctx.lineTo(f3.a.x, f3.a.y);
+          ctx.lineTo(f3.b.x, f3.b.y);
+          ctx.closePath();
+          ctx.fill();
+        });
+        majors.forEach(function (m) { drawCrease(m.pts, m.reveal, 1.6); });
+        seconds.forEach(function (m) { drawCrease([m.a, m.b], m.reveal, 1.0); });
 
-      document.body.style.transform =
-        'translate(' + shiftX.toFixed(2) + 'px, ' + shiftY.toFixed(2) + 'px) ' +
-        'scale(' + scale.toFixed(4) + ') ' +
-        'rotateX(' + rotX.toFixed(2) + 'deg) ' +
-        'rotateY(' + rotY.toFixed(2) + 'deg) ' +
-        'rotate('  + rotZ.toFixed(2) + 'deg) ' +
-        'skewX('   + skewX.toFixed(2) + 'deg) ' +
-        'skewY('   + skewY.toFixed(2) + 'deg)';
-
-      document.body.style.opacity = String(clamp01(1 - scrunchEase * 1.16));
-
-      if (foldEase > 0) {
-        var shadowAlpha = foldEase * 0.36 + scrunchEase * 0.42;
-        ctx.fillStyle = 'rgba(0,8,20,' + shadowAlpha.toFixed(3) + ')';
+        /* the fist's shadow */
+        var g2 = ctx.createRadialGradient(fx, fy, 10, fx, fy, Math.max(W, H) * 0.5);
+        g2.addColorStop(0, 'rgba(0,8,20,' + (0.05 + cs.t * 0.22).toFixed(3) + ')');
+        g2.addColorStop(1, 'rgba(0,8,20,0)');
+        ctx.fillStyle = g2;
         ctx.fillRect(0, 0, W, H);
       }
 
-      if (scrunchEase > 0.3) {
-        var ballP = clamp01((scrunchEase - 0.3) / 0.7);
-        var ballR = lerp(34, 9, ballP);
-        var bx = toCx + Math.sin(elapsed * 0.032) * (1 - ballP) * 5;
-        var by = toCy + Math.cos(elapsed * 0.028) * (1 - ballP) * 4;
-
-        var ballGrad = ctx.createRadialGradient(
-          bx - ballR * 0.38, by - ballR * 0.42, ballR * 0.1,
-          bx, by, ballR
-        );
-        ballGrad.addColorStop(0, 'rgba(236,245,255,' + (0.72 * (1 - ballP * 0.3)).toFixed(3) + ')');
-        ballGrad.addColorStop(0.54, 'rgba(138,176,221,' + (0.66 * (1 - ballP * 0.18)).toFixed(3) + ')');
-        ballGrad.addColorStop(1, 'rgba(14,28,52,' + (0.9 * (1 - ballP * 0.05)).toFixed(3) + ')');
-
-        ctx.save();
-        ctx.globalCompositeOperation = 'screen';
-        ctx.fillStyle = ballGrad;
+      /* the wad: tumbling ball, tossed off */
+      if (wad) {
+        var bp2 = clamp01((p - 0.62) / 0.38);
+        if (p > 0.74) {
+          ballVY += dt * 0.5;                       /* gravity */
+          ballX += ballVX * dt / 1000 * 8;
+          ballY += ballVY * dt / 1000 * 6;
+        }
+        var br = lerp(ballR0, 16, bp2);
+        var fade = p > 0.9 ? 1 - (p - 0.9) / 0.1 : 1;
+        var bg2 = ctx.createRadialGradient(ballX - br * 0.4, ballY - br * 0.4, br * 0.1, ballX, ballY, br);
+        bg2.addColorStop(0, 'rgba(232,243,255,' + (0.85 * fade).toFixed(3) + ')');
+        bg2.addColorStop(0.55, 'rgba(140,178,222,' + (0.75 * fade).toFixed(3) + ')');
+        bg2.addColorStop(1, 'rgba(10,24,48,' + (0.9 * fade).toFixed(3) + ')');
+        ctx.fillStyle = bg2;
         ctx.beginPath();
-        ctx.arc(bx, by, ballR, 0, Math.PI * 2);
+        /* a lumpy wad, not a sphere */
+        for (var w2 = 0; w2 <= 12; w2++) {
+          var aa = (w2 / 12) * Math.PI * 2;
+          var rr = br * (0.82 + 0.18 * Math.sin(aa * 3 + p * 9));
+          var px2 = ballX + Math.cos(aa + p * 4) * rr;
+          var py2 = ballY + Math.sin(aa + p * 4) * rr;
+          w2 ? ctx.lineTo(px2, py2) : ctx.moveTo(px2, py2);
+        }
+        ctx.closePath();
         ctx.fill();
-        ctx.restore();
-
-        var creaseAlpha = 0.25 * (1 - ballP);
-        for (var k = 0; k < 6; k++) {
-          var a0 = (k / 6) * Math.PI * 2 + elapsed * 0.0018;
-          var a1 = a0 + Math.PI * (0.35 + 0.08 * k);
+        ctx.strokeStyle = 'rgba(4,14,30,' + (0.4 * fade).toFixed(3) + ')';
+        ctx.lineWidth = 1;
+        for (var c2 = 0; c2 < 5; c2++) {
           ctx.beginPath();
-          ctx.strokeStyle = 'rgba(6,12,20,' + creaseAlpha.toFixed(3) + ')';
-          ctx.lineWidth = Math.max(0.6, ballR * 0.08);
-          ctx.arc(bx, by, ballR * (0.5 + k * 0.08), a0, a1);
+          ctx.arc(ballX + jitStable(c2) * br * 0.3, ballY + jitStable(c2 + 5) * br * 0.3,
+                  br * (0.3 + c2 * 0.12), c2, c2 + 2.2);
           ctx.stroke();
         }
-
-        for (var n = 0; n < 24; n++) {
-          var na = (n / 24) * Math.PI * 2 + elapsed * 0.0015;
-          var nr = ballR * (0.25 + (n % 5) * 0.13);
-          var nx = bx + Math.cos(na) * nr;
-          var ny = by + Math.sin(na) * nr;
-          ctx.fillStyle = 'rgba(8,16,30,' + (0.09 * (1 - ballP)).toFixed(3) + ')';
-          ctx.beginPath();
-          ctx.arc(nx, ny, Math.max(0.45, ballR * 0.028), 0, Math.PI * 2);
-          ctx.fill();
-        }
       }
 
-      if (p < 1) {
-        requestAnimationFrame(step);
-      } else {
-        // Tear down
-        cvs.remove();
-        document.body.style.transform    = '';
-        document.body.style.opacity      = '';
-        document.body.style.filter       = '';
-        document.body.style.pointerEvents= '';
-        document.body.style.transformOrigin = '';
-        document.body.style.clipPath = '';
-        document.body.style.borderRadius = '';
-        document.body.style.willChange = '';
-        document.documentElement.style.perspective = '';
-        if (dispEl)   dispEl.setAttribute('scale', '3');
-        if (dispBgEl) dispBgEl.setAttribute('scale', '4');
-        if (turbEl)   turbEl.setAttribute('baseFrequency', '0.032');
-        destroyBlueprintInteractive();
-        document.body.classList.remove('blueprint', 'bp-ruined');
-        showToast('[ BLUEPRINT MODE OFF ]');
-      }
+      /* ── the sheet itself ── */
+      if (dispEl)   dispEl.setAttribute('scale', cs.disp.toFixed(1));
+      if (dispBgEl) dispBgEl.setAttribute('scale', (cs.disp * 1.2).toFixed(1));
+      if (turbEl)   turbEl.setAttribute('baseFrequency', (0.02 + cs.t * 0.055).toFixed(4));
+
+      var poly = 'polygon(' + vcur.map(function (v2) {
+        return v2.x.toFixed(1) + 'px ' + v2.y.toFixed(1) + 'px';
+      }).join(',') + ')';
+      document.body.style.clipPath = poly;
+      document.body.style.transform =
+        'scale(' + cs.sx.toFixed(4) + ',' + cs.sy.toFixed(4) + ')' +
+        ' rotate(' + cs.r.toFixed(2) + 'deg)' +
+        ' skew(' + cs.kx.toFixed(2) + 'deg,' + cs.ky.toFixed(2) + 'deg)';
+      document.body.style.filter = 'contrast(' + (1 + cs.t * 0.14).toFixed(3) + ')';
+      document.body.style.opacity = String(p < 0.62 ? 1 : clamp01(1 - (p - 0.62) / 0.16));
+
+      if (p < 1) requestAnimationFrame(step);
+      else { cvs.remove(); (after || teardown)(); }
+    }
+
+    /* stable per-index jitter for the wad's crease arcs */
+    var jitCache = {};
+    function jitStable(n2) {
+      if (!(n2 in jitCache)) jitCache[n2] = (Math.random() - 0.5) * 2;
+      return jitCache[n2];
     }
 
     requestAnimationFrame(step);
   }
+  /* RESET: the ruined sheet gets crumpled and tossed exactly like the exit —
+     you do not un-smudge a blueprint, you bin it — and then a clean sheet is
+     laid on the table. Blueprint mode stays on throughout. */
+  function triggerReset() {
+    triggerCrinkle(function () {
+      /* clear every style the crumple drove */
+      document.body.style.transform     = '';
+      document.body.style.opacity      = '0';
+      document.body.style.filter        = '';
+      document.body.style.pointerEvents = '';
+      document.body.style.transformOrigin = '';
+      document.body.style.clipPath      = '';
+      document.body.style.borderRadius  = '';
+      clearBpStage();
+      var dEl  = document.getElementById('bp-disp');
+      var dbEl = document.getElementById('bp-disp-bg');
+      var tEl  = document.getElementById('bp-turb');
+      if (dEl)  dEl.setAttribute('scale', '3');
+      if (dbEl) dbEl.setAttribute('scale', '4');
+      if (tEl)  tEl.setAttribute('baseFrequency', '0.032');
+
+      bpResetBoard(true);                       /* wipe smudges, keep the mode */
+
+      /* the fresh sheet: laid in from just above, like a new page on the table */
+      document.body.style.opacity = '';
+      try {
+        document.body.animate([
+          { opacity: 0, transform: 'translateY(-20px) scale(0.988)' },
+          { opacity: 1, transform: 'none' }
+        ], { duration: 480, easing: 'cubic-bezier(.16,1,.3,1)' });
+      } catch (e2) {}
+      showToast('[ FRESH SHEET ]');
+    });
+  }
+
+  try { window.__bpCrinkle = triggerCrinkle; window.__bpReset = triggerReset; } catch (e) {}
 
   function toggleBlueprint() {
     var turningOn = !document.body.classList.contains('blueprint');

@@ -1,1 +1,15 @@
-<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="1" width="62" height="62" rx="14" fill="#0b0b0b" stroke="rgba(255,255,255,0.22)" stroke-width="1"/><rect x="21" y="11" width="5.5" height="19" fill="#eaeaea"/><rect x="37.5" y="11" width="5.5" height="19" fill="#eaeaea"/><rect x="21" y="18" width="22" height="5" fill="#eaeaea"/><rect x="21" y="36" width="22" height="5" fill="#eaeaea"/><rect x="29.5" y="36" width="5.5" height="17" fill="#eaeaea"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <!-- PLINTH: the HTH monogram, mirror-symmetric about x=60.
+       Scaled up from the boot mark so it gets whole pixels of air in a 16px tab. -->
+  <rect width="120" height="120" rx="26" fill="#0b0b0b"/>
+  <g fill="#eaeaea" transform="translate(60 60) scale(0.90) translate(-60 -60)">
+    <rect x="20"   y="24"   width="11" height="72"/>
+    <rect x="38"   y="24"   width="11" height="72"/>
+    <rect x="54.5" y="24"   width="11" height="72"/>
+    <rect x="71"   y="24"   width="11" height="72"/>
+    <rect x="89"   y="24"   width="11" height="72"/>
+    <rect x="20"   y="54.5" width="29" height="11"/>
+    <rect x="71"   y="54.5" width="29" height="11"/>
+    <rect x="44"   y="24"   width="32" height="11"/>
+  </g>
+</svg>

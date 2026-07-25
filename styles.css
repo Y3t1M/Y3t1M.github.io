@@ -6,9 +6,12 @@
 
 :root {
   --bg:         #0b0b0b;
-  --bg-card:    rgba(14, 14, 14, 0.86);
-  --bg-card-h:  rgba(20, 20, 20, 0.9);
-  --border:     rgba(255, 255, 255, 0.08);
+  /* Full black, and opaque. The cards are objects SET INTO the sand: their
+     faces stay clear and the grain banks up in the gaps around them, rather
+     than piling on top and hazing the text. See the card block in sand.js. */
+  --bg-card:    #000000;
+  --bg-card-h:  #0a0a0a;
+  --border:     rgba(255, 255, 255, 0.10);
   --border-h:   rgba(255, 255, 255, 0.14);
   --divider:    rgba(255, 255, 255, 0.06);
   --text:       #eaeaea;
@@ -82,21 +85,68 @@ a, button, [onclick], .pcb-comp, .nf-sample-btn, .nf-upload, label.nf-check {
 
 
 /* ── Page transitions ───────────────────────────────────── */
-/* Lift page transition via the View Transitions API. The browser holds a
-   snapshot of BOTH the old and new document and animates between them, so
-   the page you leave lifts up and out while the page you land on rises in —
-   they overlap, with no black gap between navigations (the old fade-to-black
-   then fade-up was the problem). Browsers without cross-document view
-   transitions just navigate instantly. */
+/* THE DATUM SCAN, one pass, no held black frame.
+
+   Chromium/Safari: cross-document View Transitions carry it — the OLD page
+   snapshot holds still while the NEW page wipes down over it behind the
+   rule, so the line scans directly from yesterday into tomorrow. The JS in
+   transitions.js rides the pagereveal event to draw the rule itself.  */
 @view-transition { navigation: auto; }
-/* Pure opacity crossfade — no translate, so there is no vertical jump. The
-   two page snapshots dissolve into each other; smoothest possible MPA move. */
-::view-transition-old(root) { animation: ptFadeOut 0.34s ease both; }
-::view-transition-new(root) { animation: ptFadeIn  0.46s ease both; }
-@keyframes ptFadeOut { from { opacity: 1; } to { opacity: 0; } }
-@keyframes ptFadeIn  { from { opacity: 0; } to { opacity: 1; } }
+::view-transition-old(root) { animation: none; }
+::view-transition-new(root) {
+  animation: ptScanIn 640ms cubic-bezier(.22, .68, .16, 1) both;   /* 440 read as rushed */
+}
+@keyframes ptScanIn {
+  from { clip-path: inset(0 0 100% 0); }
+  to   { clip-path: inset(0 0 0 0); }
+}
 @media (prefers-reduced-motion: reduce) {
   ::view-transition-old(root), ::view-transition-new(root) { animation: none; }
+}
+
+/* Firefox (no cross-document VT): the click navigates natively — paint
+   holding keeps the old page on screen while the prefetched document loads —
+   and the new page arrives pre-covered, then a SINGLE sweep reveals it.
+   One pass, no leave sweep, no held black.
+
+   The arrival half: the inline head gate stamps html.pt-covered before
+   first paint whenever the previous page left through the scan, and this
+   pseudo-element owns the screen until transitions.js swaps it for the real
+   sweeping cover. No DOM needed, so there is no flash-of-new-page ever. */
+html.pt-covered::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 99990;
+  background: var(--bg);
+}
+.pt-scan-cover {
+  position: fixed;
+  inset: 0;
+  z-index: 99991;
+  background: var(--bg);
+  pointer-events: none;
+}
+.pt-scan-line {
+  position: fixed;
+  left: 0; right: 0; top: 0;
+  height: 1px;
+  z-index: 99992;
+  background: var(--text);
+  box-shadow: 0 0 12px rgba(234, 234, 234, 0.65);
+  pointer-events: none;
+  will-change: transform;
+}
+.pt-scan-line span {
+  position: absolute;
+  right: 14px; top: -17px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  color: var(--text-faint);
+  font-variant-numeric: tabular-nums;
+}
+@media (prefers-reduced-motion: reduce) {
 }
 
 /* ── Ambient background ─────────────────────────────────── */
@@ -159,7 +209,14 @@ a, button, [onclick], .pcb-comp, .nf-sample-btn, .nf-upload, label.nf-check {
   z-index: 1;
 }
 
-.nav-logo { position: relative; }
+.nav-logo { position: relative; display: flex; align-items: center; gap: 9px; }
+/* The PLINTH mark, seated top-left on the rule. On the home page's first
+   visit it is hidden until the boot's built mark flies up and docks here —
+   the swap happens the frame the flight ends, geometry identical, so it
+   reads as the same object coming to rest. Everywhere else it just is. */
+.nav-mark { width: 18px; height: 18px; flex: 0 0 18px; }
+.nav-mark svg { display: block; width: 100%; height: 100%; fill: var(--text); }
+html.booting .nav-mark { opacity: 0; }
 .nav-logo::before {           /* datum mark centered under the wordmark */
   content: "";
   position: absolute;
@@ -222,9 +279,14 @@ a, button, [onclick], .pcb-comp, .nf-sample-btn, .nf-upload, label.nf-check {
 @media (max-width: 480px) {
   .site-nav { --rule-gap: 11px; padding: 15px 16px var(--rule-gap); gap: 16px; }
   .site-nav::after { left: 16px; right: 16px; }
-  .nav-logo-text { font-size: 14px; }
-  .nav-links { gap: 18px; }
-  .nav-link { font-size: 12.5px; }
+  /* phone header: fewer competing weights, more air. The PDF chip is honest
+     metadata but at this width it is the thing making the row feel crowded. */
+  .nav-logo { gap: 7px; }
+  .nav-mark { width: 15px; height: 15px; flex: 0 0 15px; }
+  .nav-logo-text { font-size: 13.5px; }
+  .nav-links { gap: 14px; }
+  .nav-link { font-size: 12px; }
+  .nav-ext { display: none; }
 }
 
 .btn-ghost {
@@ -530,6 +592,12 @@ section { position: relative; z-index: 1; }
   margin-top: var(--stack-gap);
 }
 @media (max-width: 1000px) { .about-grid { grid-template-columns: repeat(2, 1fr); } }
+/* Phone screens sit the cards against a brighter surround and the seep reads
+   differently at one column, so pure black loses its edge entirely. Lift them
+   just clear of the ground. Desktop keeps #000000. */
+@media (max-width: 860px) {
+  :root { --bg-card: #121212; --bg-card-h: #181818; }
+}
 @media (max-width: 560px)  { .about-grid { grid-template-columns: 1fr; } }
 .about-card {
   background: var(--bg-card);
@@ -855,6 +923,11 @@ html.fx .sc-slide {
   will-change: transform, opacity;
 }
 html.fx .sc-slide .case { margin: 0; max-height: 76vh; overflow-y: auto; }
+/* In the corridor the ghost index numeral sits BEHIND the card — a touch of
+   translucency lets its LED dots glow through the plate. Scoped here so the
+   home-page cards stay the solid objects-in-sand Hudson approved. */
+html.fx .sc-slide .case { background: rgba(8, 8, 8, 0.82); }
+html.fx .sc-slide .case:hover { background: rgba(12, 12, 12, 0.86); }
 html.fx .sc-slide .case-grid { margin: 0; }
 html.fx .sc-slide.wide { width: min(1100px, 94vw); }
 html.fx .sc-slide.wide .case-grid {
@@ -1000,23 +1073,54 @@ html.fx .sc-slide.wide .case-sm img { height: 215px; }
   transition: opacity 0.2s ease;
 }
 .proj-index button:hover .arr { opacity: 1; }
-/* mobile: the hardware trio becomes a swipeable filmstrip — three
-   crushed 1fr columns made the photos unusable on a phone */
+/* mobile: the hardware trio stacks as three compact media rows.
+   The filmstrip needed a horizontal swipe INSIDE a scroll-driven corridor,
+   which iOS fought — cards showed up cut off mid-frame. Rows always fit,
+   nothing inside a slide scrolls or swipes. */
 @media (max-width: 768px) {
+  html.fx .sc-slide.wide { width: 92vw; }
   html.fx .sc-slide.wide .case-grid {
     display: flex;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scroll-snap-type: x mandatory;
-    scrollbar-width: none;
-    gap: 12px;
-    padding-bottom: 4px;
+    flex-direction: column;
+    gap: 9px;
+    overflow: visible;
+    padding-bottom: 0;
   }
-  html.fx .sc-slide.wide .case-grid::-webkit-scrollbar { display: none; }
   html.fx .sc-slide.wide .case-sm {
-    flex: 0 0 76vw;
-    scroll-snap-align: center;
+    display: grid;
+    grid-template-columns: 86px 1fr;
+    gap: 0 12px;
+    align-items: start;
+    width: 100%;
+    padding: 10px 12px;
   }
+  html.fx .sc-slide.wide .case-sm img {
+    width: 86px; height: 86px; object-fit: cover;
+    margin: 0; border-radius: 6px;
+  }
+  html.fx .sc-slide.wide .case-sm h3 { font-size: 13px; margin: 2px 0 4px; }
+  html.fx .sc-slide.wide .case-sm .case-meta { font-size: 8.5px; }
+  html.fx .sc-slide.wide .case-sm p {
+    font-size: 11px; line-height: 1.45;
+    display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  html.fx .sc-slide.wide .case-sm a { font-size: 11px; }
+
+  /* Cards never scroll inside themselves on a phone — they FIT instead.
+     The Hollis Bloom card is the tall one, so the compression is sized to it:
+     tighter body type, 2x2 stat tiles at reduced padding. */
+  html.fx .sc-slide .case {
+    max-height: none;
+    overflow: visible;
+    padding: 18px 16px 16px;
+  }
+  html.fx .sc-slide .case p { font-size: 12px; line-height: 1.5; }
+  html.fx .sc-slide .case h3 { font-size: 19px; }
+  .spec-strip { gap: 8px; }
+  .spec { padding: 8px 10px; }
+  .spec b { font-size: 14px; }
+  .spec span { font-size: 8.5px; }
   html.fx .sc-slide.wide .case-sm img { height: 190px; }
 }
 .slide-eyebrow { display: none; }
@@ -1193,12 +1297,15 @@ html.fx .sc-counter.show { opacity: 1; }
   width: 1px;
   height: 40px;
   background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.55));
-  animation: scrollLineAnim 1.6s ease-in-out infinite;
+  /* a slow breath — at 1.6s this read as blinking */
+  animation: scrollLineAnim 3.2s cubic-bezier(.45,0,.35,1) infinite;
 }
 @keyframes scrollLineAnim {
   0%   { transform: scaleY(0); transform-origin: top; }
+  42%  { transform: scaleY(1); transform-origin: top; }
   50%  { transform: scaleY(1); transform-origin: top; }
   51%  { transform: scaleY(1); transform-origin: bottom; }
+  92%  { transform: scaleY(0); transform-origin: bottom; }
   100% { transform: scaleY(0); transform-origin: bottom; }
 }
 .scroll-hint-text {
@@ -1267,7 +1374,10 @@ html.fx .sc-counter.show { opacity: 1; }
   z-index: 2;
   pointer-events: none;
   opacity: 0.3;
-  mix-blend-mode: screen;
+  /* No mix-blend-mode. The grain carries its own alpha (see sand.js), so it
+     composites normally and lands on top of the cards in every engine. The
+     blend mode used to decide, per browser, whether the sand sat over the
+     cards or behind them. */
 }
 
 /* Mouse spotlight */
@@ -1813,4 +1923,55 @@ body.blueprint.bp-ruined * {
   background: rgba(144, 202, 255, 0.07);
   border-color: rgba(144, 202, 255, 0.6);
   color: #ffffff;
+}
+
+/* ============================================================
+   FIRST-VISIT BOOT
+   The overlay is in the markup and shown by html.booting, which
+   an inline <head> script sets before the body is parsed — added
+   later by JS it would flash the page first. Colours are literal
+   rather than tokens so the boot can never inherit a theme.
+   ============================================================ */
+#boot {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: #0b0b0b;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+html.booting #boot { display: flex; }
+html.booting, html.booting body { overflow: hidden; }
+#boot svg { width: min(30vmin, 280px); height: auto; display: block; }
+#boot rect { fill: #eaeaea; transform-box: fill-box; }
+/* never hold a reduced-motion visitor behind a held animation */
+@media (prefers-reduced-motion: reduce) {
+  #boot { display: none !important; }
+  html.booting, html.booting body { overflow: auto; }
+}
+
+/* ============================================================
+   PAGE TRANSITION FALLBACK
+   @view-transition above only fires in browsers with CROSS-document
+   view transitions. Firefox has the same-document API but not the
+   navigation one, so there the declaration is inert and every page
+   change is a bare reload. transitions.js detects that and adds
+   .pt-fade, which turns on this opacity-only crossfade instead.
+   Nothing moves, so it is safe under prefers-reduced-motion — it
+   just runs shorter (see --pt-out).
+   ============================================================ */
+html.pt-fade body {
+  transition: opacity var(--pt-out, 170ms) ease;
+}
+html.pt-fade.pt-enter body {
+  opacity: 0;
+}
+
+/* Blueprint mode is a drafting table, not a beach — no grain in it, ever.
+   sand.js writes opacity inline as you scroll, so this has to win outright.
+   It also sidesteps the fixed-positioning trouble blueprint's perspective
+   transform causes for a position:fixed canvas. */
+body.blueprint #sand-canvas {
+  display: none !important;
 }

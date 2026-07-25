@@ -10,6 +10,11 @@
   <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16.png">
   <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
   <link rel="stylesheet" href="/styles.css">
+  <script>/* scan-arrival gate: cover before first paint, never a flash */
+  (function(){try{var t=+sessionStorage.getItem('pt-cover')||0;
+  if(t&&Date.now()-t<4000)document.documentElement.classList.add('pt-covered');
+  sessionStorage.removeItem('pt-cover');}catch(e){}})();</script>
+
   <style>
     html, body { height: 100%; overflow: hidden; }
     #led-bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
@@ -41,7 +46,7 @@
 
   <header class="site-header" style="position: relative; z-index: 2;">
     <nav class="site-nav" aria-label="Primary">
-      <div class="nav-logo"><a href="/index.html" class="nav-logo-text" data-no-magnet>Hudson Tinch</a></div>
+      <div class="nav-logo"><span class="nav-mark" aria-hidden="true"><svg viewBox="0 0 120 120"><rect x="20" y="24" width="11" height="72"/><rect x="38" y="24" width="11" height="72"/><rect x="54.5" y="24" width="11" height="72"/><rect x="71" y="24" width="11" height="72"/><rect x="89" y="24" width="11" height="72"/><rect x="20" y="54.5" width="29" height="11"/><rect x="71" y="54.5" width="29" height="11"/><rect x="44" y="24" width="32" height="11"/></svg></span><a href="/index.html" class="nav-logo-text" data-no-magnet>Hudson Tinch</a></div>
       <div class="nav-links">
         <a href="/index.html" class="nav-link" data-no-magnet>Home</a>
         <a href="/projects.html" class="nav-link" data-no-magnet>Projects</a>

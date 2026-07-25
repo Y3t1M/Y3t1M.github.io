@@ -11,10 +11,37 @@
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
   <meta name="description" content="Hudson Tinch — business student at Arkansas, developer at Hollis Bloom. Work-order platforms, trading systems, competition drones.">
   <link rel="stylesheet" href="styles.css">
-  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <script>/* scan-arrival gate: cover before first paint, never a flash */
+  (function(){try{var t=+sessionStorage.getItem('pt-cover')||0;
+  if(t&&Date.now()-t<4000)document.documentElement.classList.add('pt-covered');
+  sessionStorage.removeItem('pt-cover');}catch(e){}})();</script>
+
+  <script src="icons.js" defer></script>
+  <!-- First-visit boot gate. Runs before the body is parsed so the page never
+       flashes ahead of the overlay. The timeout is a hard safety net: if
+       boot.js 404s or throws at parse time, nothing can leave the site
+       permanently covered. -->
+  <script>
+    (function () {
+      try {
+        if (localStorage.getItem('ht-boot-seen-v2')) return;
+        if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        // fw-boot holds the hero's staggered entrance back so it plays as the
+        // mark clears, rather than being spent behind the overlay.
+        document.documentElement.className += ' booting fw-boot';
+        setTimeout(function () {
+          var d = document.documentElement;
+          d.classList.remove('booting');
+          d.classList.remove('fw-boot');
+          d.classList.add('fw-booted');
+        }, 7000);
+      } catch (e) {}
+    })();
+  </script>
 </head>
 
 <body>
+  <div id="boot" aria-hidden="true"></div>
 
   <!-- Ambient background -->
   <div class="bg-blob bg-blob-1"></div>
@@ -24,7 +51,7 @@
   <!-- Navigation -->
   <header class="site-header">
     <nav class="site-nav" aria-label="Primary">
-      <div class="nav-logo"><a href="index.html" class="nav-logo-text" data-no-magnet>Hudson Tinch</a></div>
+      <div class="nav-logo"><span class="nav-mark" aria-hidden="true"><svg viewBox="0 0 120 120"><rect x="20" y="24" width="11" height="72"/><rect x="38" y="24" width="11" height="72"/><rect x="54.5" y="24" width="11" height="72"/><rect x="71" y="24" width="11" height="72"/><rect x="89" y="24" width="11" height="72"/><rect x="20" y="54.5" width="29" height="11"/><rect x="71" y="54.5" width="29" height="11"/><rect x="44" y="24" width="32" height="11"/></svg></span><a href="index.html" class="nav-logo-text" data-no-magnet>Hudson Tinch</a></div>
       <div class="nav-links">
         <a href="index.html" aria-current="page" class="nav-link active" data-no-magnet>Home</a>
         <a href="projects.html" class="nav-link" data-no-magnet>Projects</a>
@@ -66,7 +93,10 @@
         <img src="assets/img/profile1.jpg" alt="Hudson Tinch" class="about-avatar" id="profile1">
       </span>
       <span class="avatar-link">
-        <img src="assets/img/profile2.jpg" alt="Hudson Tinch" class="about-avatar" id="profile2">
+        <!-- monochrome cut of the face: profile2.jpg is a saturated blue, which was
+             the only colour on the whole site. The blue original still ships, and
+             the Win95 desktop keeps using it — colour is period-correct there. -->
+        <img src="assets/img/face-mono.png" alt="" aria-hidden="true" class="about-avatar" id="profile2">
       </span>
     </div>
 
@@ -429,7 +459,67 @@
     }
   })();
   </script>
-  <script>lucide.createIcons();</script>
+
+  <!-- Diagnostics: hudsontinch.com/?diag=1
+       Renders nothing unless asked for. Exists because the sand and the terrain
+       are canvas work that can fail silently on a real phone in ways no desktop
+       browser reproduces — WebGL refused, a shader rejected by the actual GPU,
+       or the render loop suspended by the OS. This reports which. -->
+  <script>
+  (function () {
+    if (!/[?&]diag=1/.test(location.search)) return;
+    var errs = [];
+    window.addEventListener('error', function (e) {
+      errs.push((e.message || 'error') + ' @ ' + (e.filename || '?').split('/').pop() + ':' + (e.lineno || '?'));
+    });
+    function paint() {
+      var S = window.__sandDiag || {mode:'script did not run'};
+      var T = window.__terrainDiag || {mode:'script did not run'};
+      var sc = document.getElementById('sand-canvas');
+      var pc = document.getElementById('pcb-canvas');
+      function box(el) {
+        if (!el) return 'missing';
+        var r = el.getBoundingClientRect();
+        return Math.round(r.width) + 'x' + Math.round(r.height) + ' css, ' +
+               el.width + 'x' + el.height + ' buf';
+      }
+      var webgl = (function () {
+        try { var c = document.createElement('canvas');
+              return !!(c.getContext('webgl') || c.getContext('experimental-webgl')); }
+        catch (e) { return false; }
+      })();
+      var rows = [
+        ['UA', navigator.userAgent.slice(0, 78)],
+        ['viewport', innerWidth + 'x' + innerHeight + ' dpr ' + (devicePixelRatio || 1)],
+        ['reduced motion', matchMedia('(prefers-reduced-motion: reduce)').matches ? 'ON  <-- freezes the sand' : 'off'],
+        ['webgl available', webgl ? 'yes' : 'NO  <-- sand cannot render'],
+        ['sand mode', S.mode],
+        ['sand frames', S.frames],
+        ['sand card rects', S.rects],
+        ['sand canvas', box(sc) + ' op ' + (sc ? sc.style.opacity || '?' : '-')],
+        ['sand shader log', S.log || '(none)'],
+        ['terrain mode', T.mode],
+        ['terrain frames', T.frames],
+        ['terrain canvas', box(pc)],
+        ['js errors', errs.length ? errs.join(' | ') : '(none)']
+      ];
+      var el = document.getElementById('__diag') || (function () {
+        var d = document.createElement('div');
+        d.id = '__diag';
+        d.style.cssText = 'position:fixed;left:0;right:0;top:0;z-index:2147483647;background:#000;' +
+          'color:#eaeaea;font:11px ui-monospace,Menlo,monospace;padding:10px 12px;line-height:1.5;' +
+          'border-bottom:1px solid #333;white-space:pre-wrap;word-break:break-word;max-height:70vh;overflow:auto';
+        document.body.appendChild(d);
+        return d;
+      })();
+      el.textContent = rows.map(function (r) {
+        return (r[0] + '                ').slice(0, 16) + ' ' + r[1];
+      }).join('\n');
+    }
+    addEventListener('load', function () { paint(); setInterval(paint, 700); });
+  })();
+  </script>
+  <script src="boot.js" defer></script>
   <script src="sand.js"></script>
   <script src="scroll-fx.js"></script>
   <script src="transitions.js"></script>
