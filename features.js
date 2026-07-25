@@ -962,22 +962,16 @@
        Not a morph: every vertex carries a COLLAPSE ORDER — rim first,
        centre last, noised so no two runs fold alike — and its own local
        progress. The edges curl up and roll inward while the middle is
-       still flat and readable, folds pile onto the gathering mass, and
-       only then does the whole thing tighten into the lumpy wad. The
-       reference is a crumpled-paper unfurl played backwards.          */
+       still flat and readable, and the folds pile onto the gathering
+       mass. The reference is a crumpled-paper unfurl played backwards. */
     var cx = W * (0.42 + (seed % 17) / 100), cy = H * 0.46;
-    var baseR = Math.min(W, H) * 0.155;
 
-    /* no throw, no ball physics — the crumple is the show. The sheet packs
-       into the fist and is simply gone, lifted off as it fades, leaving the
-       normal site standing. */
+    /* no throw, no ball, no wad — the crumple IS the whole show. The pull
+       is capped so the sheet only ever scrunches to sheet scale, and it
+       dissolves while it is still obviously paper, leaving the normal
+       site standing. */
     function displace(u, v, t) {
-      /* No wad, no sphere, no glob — the sheet only ever behaves like a
-         sheet. It crumples rim-first into the fist, keeps buckling as it
-         compresses into a scrunched heap of folds, and fades out mid-crush.
-         What it reveals is the point: the normal site underneath. */
-      var grabG = bpSS(0.03, 0.82, t);
-      var gone  = bpSS(0.78, 1, t);
+      var grabG = bpSS(0.03, 0.9, t);
 
       var rim = Math.max(Math.abs(u - 0.5), Math.abs(v - 0.5)) * 2;
       var ord = 1 - (0.62 * rim + 0.38 * no(u * 3.1 + 9.0, v * 3.1));
@@ -987,23 +981,18 @@
       var px = bpMix(-0.03, 1.03, u) * W, py = bpMix(-0.03, 1.03, v) * H;
 
       var fistX = cx + Math.sin(grabG * 2.6) * 26, fistY = cy + Math.cos(grabG * 2.1) * 18;
-      var dxr = px - fistX, dyr = py - fistY;
-      var pull = g * 0.92;
-      var gx = px - dxr * pull, gy = py - dyr * pull;
+      var pull = g * 0.62;      /* capped: a scrunched sheet, never a fist-sized wad */
+      var gx = px - (px - fistX) * pull, gy = py - (py - fistY) * pull;
 
       var lift = Math.sin(Math.min(1, g * 1.15) * 3.14159);
-      var gz = lift * (70 + 150 * no(u * 2.2 + 4.0, v * 2.2)) + g * 50;
-      /* creases never relax — the heap stays crinkled to the last frame */
-      var amp = Math.sin(g * 3.14159) * Math.min(W, H) * 0.16 + g * 44;
+      var gz = lift * (70 + 150 * no(u * 2.2 + 4.0, v * 2.2)) + g * 40;
+      /* creases only ever deepen — rise fast, then hold to the last frame */
+      var amp = Math.min(W, H) * 0.17 * bpSS(0, 0.55, g) + g * 30;
       var nz = (no(u * 5.4, v * 5.4) - 0.5) * 2;
       gz += nz * amp;
       gx += (no(u * 4.1 + 2.2, v * 4.1) - 0.5) * amp * 0.7;
       gy += (no(u * 4.1, v * 4.1 + 6.1) - 0.5) * amp * 0.7;
-
-      /* the crushed heap tightens a little more and lifts as it goes */
-      var kx = fistX + (gx - fistX) * (1 - gone * 0.45);
-      var ky = fistY + (gy - fistY) * (1 - gone * 0.45) - gone * H * 0.07;
-      return [kx, ky, gz];
+      return [gx, gy, gz];
     }
 
     document.body.style.pointerEvents = 'none';
@@ -1015,10 +1004,10 @@
     function swapUnder() {
       if (swapped) return; swapped = true;
       if (after) {
-        /* reset: a fresh blueprint behind the wad */
+        /* reset: a fresh blueprint behind the crumpling sheet */
         bpResetBoard(true);
       } else {
-        /* exit: the NORMAL site is what the wad flies away from */
+        /* exit: the NORMAL site is what the sheet crumples away to reveal */
         restoreFilters();
         clearBpStage();
         destroyBlueprintInteractive();
@@ -1075,7 +1064,9 @@
       gl.clearColor(0, 0, 0, 0);
       gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
       gl.drawElements(gl.TRIANGLES, COLS * ROWS * 6, gl.UNSIGNED_SHORT, 0);
-      wrap.style.opacity = String(1 - bpSS(0.8, 1, t));
+      /* dissolve WHILE it is still a sheet — by the time the pull could
+         read as compact, the paper is already gone */
+      wrap.style.opacity = String(1 - bpSS(0.6, 0.95, t));
 
       if (t < 1) requestAnimationFrame(frame);
       else finishAll();
@@ -1084,7 +1075,7 @@
     setTimeout(finishAll, DURATION + 1000);      /* dead-man */
   }
 
-  /* RESET / START FROM SCRATCH: the wad flies off a fresh blueprint */
+  /* RESET / START FROM SCRATCH: the sheet crumples off a fresh blueprint */
   function triggerReset() {
     triggerCrinkle(function () {
       document.body.style.opacity = '';
