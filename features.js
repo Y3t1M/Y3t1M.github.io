@@ -369,10 +369,14 @@
   /* Elements that are too small/inline to drag but can always be smudged */
   var BP_ANY_SMUDGE = true;
 
+  var bpEraseState = null, bpCrumbCanvas = null, bpCrumbCtx = null,
+      bpCrumbs = [], bpCrumbRaf = null, bpScratchBtn = null, bpEraseToastShown = false;
+
   function initBlueprintInteractive() {
     bpSmudgeCount = 0;
     bpRuined = false;
     bpJustDragged = false;
+    bpEraseState = null; bpCrumbs = []; bpEraseToastShown = false;
 
     // Inject SVG turbulence filter for hand-drawn/sketched look
     bpSvgWrap = document.createElement('div');
@@ -411,6 +415,26 @@
       el.dataset.bpTy = '0';
     });
 
+    /* crumbs fly above the content, below any overlays */
+    bpCrumbCanvas = document.createElement('canvas');
+    bpCrumbCanvas.id = 'bp-crumb-canvas';
+    bpCrumbCanvas.width = window.innerWidth;
+    bpCrumbCanvas.height = window.innerHeight;
+    bpCrumbCanvas.style.cssText = 'position:fixed;inset:0;z-index:99000;pointer-events:none;';
+    document.body.appendChild(bpCrumbCanvas);
+    bpCrumbCtx = bpCrumbCanvas.getContext('2d');
+
+    /* the way out is ON the sheet: a drafting-table control, always there */
+    bpScratchBtn = document.createElement('button');
+    bpScratchBtn.id = 'bp-scratch-btn';
+    bpScratchBtn.type = 'button';
+    bpScratchBtn.textContent = '\u27F2 start from scratch';
+    bpScratchBtn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      triggerReset();
+    });
+    document.body.appendChild(bpScratchBtn);
+
     document.addEventListener('mousedown', bpMouseDown);
     document.addEventListener('mousemove', bpMouseMove);
     document.addEventListener('mouseup',   bpMouseUp);
@@ -442,6 +466,10 @@
     });
 
     document.body.classList.remove('bp-ruined');
+    if (bpCrumbCanvas) { bpCrumbCanvas.remove(); bpCrumbCanvas = null; bpCrumbCtx = null; }
+    if (bpScratchBtn)  { bpScratchBtn.remove();  bpScratchBtn = null; }
+    if (bpCrumbRaf) { cancelAnimationFrame(bpCrumbRaf); bpCrumbRaf = null; }
+    bpCrumbs = []; bpEraseState = null;
     document.removeEventListener('mousedown', bpMouseDown);
     document.removeEventListener('mousemove', bpMouseMove);
     document.removeEventListener('mouseup',   bpMouseUp);
@@ -450,8 +478,13 @@
 
   function bpMouseDown(e) {
     if (!document.body.classList.contains('blueprint') || bpRuined) return;
+    if (e.target.closest('#bp-scratch-btn, .bp-ruined-overlay')) return;
     var el = e.target.closest('[data-bp-drag]');
-    if (!el) return;
+    if (!el) {
+      /* not a draggable: this press might become an ERASE scrub */
+      bpEraseState = { x: e.clientX, y: e.clientY, dist: 0, active: false, lastHit: 0 };
+      return;
+    }
     e.preventDefault();
     var tx = parseFloat(el.dataset.bpTx) || 0;
     var ty = parseFloat(el.dataset.bpTy) || 0;
@@ -460,6 +493,7 @@
   }
 
   function bpMouseMove(e) {
+    if (bpEraseState && (e.buttons & 1)) { bpEraseMove(e); return; }
     if (!bpDragState) return;
     var dx = e.clientX - bpDragState.ox;
     var dy = e.clientY - bpDragState.oy;
@@ -473,6 +507,10 @@
   }
 
   function bpMouseUp() {
+    if (bpEraseState) {
+      if (bpEraseState.active) bpJustDragged = true;   /* a scrub is not a click */
+      bpEraseState = null;
+    }
     if (!bpDragState) return;
     if (bpDragState.moved) bpJustDragged = true;
     bpDragState.el.classList.remove('bp-dragging');
@@ -495,6 +533,92 @@
 
     // Smudge the actual element clicked (could be a span, h1, icon, card, anything)
     bpSmudgeAny(el, e.clientX, e.clientY);
+  }
+
+  function bpEraseMove(e) {
+    var st = bpEraseState;
+    var dx = e.clientX - st.x, dy = e.clientY - st.y;
+    var d = Math.hypot(dx, dy);
+    st.dist += d;
+    if (!st.active && st.dist > 14) {
+      st.active = true;
+      if (!bpEraseToastShown) { bpEraseToastShown = true; showToast('[ ERASING ]'); }
+    }
+    if (!st.active) { st.x = e.clientX; st.y = e.clientY; return; }
+
+    /* lift the ink under the stroke */
+    if (bpBgCtx) {
+      bpBgCtx.save();
+      bpBgCtx.globalCompositeOperation = 'destination-out';
+      var steps = Math.max(1, Math.ceil(d / 10));
+      for (var i = 0; i <= steps; i++) {
+        var x = st.x + dx * i / steps, y = st.y + dy * i / steps;
+        var grd = bpBgCtx.createRadialGradient(x, y, 0, x, y, 34);
+        grd.addColorStop(0, 'rgba(0,0,0,0.8)');
+        grd.addColorStop(1, 'rgba(0,0,0,0)');
+        bpBgCtx.fillStyle = grd;
+        bpBgCtx.beginPath(); bpBgCtx.arc(x, y, 34, 0, 6.2832); bpBgCtx.fill();
+      }
+      bpBgCtx.restore();
+    }
+
+    /* crumbs off the tip, more when you scrub harder */
+    var n = Math.min(6, Math.floor(d / 8));
+    for (var j = 0; j < n; j++) {
+      bpCrumbs.push({
+        x: e.clientX + (Math.random() - 0.5) * 22, y: e.clientY + (Math.random() - 0.5) * 12,
+        vx: (Math.random() - 0.5) * 2.6 + dx * 0.05, vy: -Math.random() * 2.2,
+        r: 1.2 + Math.random() * 2.4, rot: Math.random() * 6.28, vr: (Math.random() - 0.5) * 0.3,
+        a: 0.9
+      });
+    }
+    if (bpCrumbs.length > 380) bpCrumbs.splice(0, bpCrumbs.length - 380);
+    if (!bpCrumbRaf && bpCrumbs.length) bpCrumbRaf = requestAnimationFrame(bpCrumbFrame);
+
+    /* scrubbing over a smudged element cleans it a level; every 300px of
+       honest scrubbing also walks the ruin counter back one */
+    var now = performance.now();
+    if (now - st.lastHit > 120) {
+      st.lastHit = now;
+      var el = document.elementFromPoint(e.clientX, e.clientY);
+      if (el) {
+        var sm = el.closest('.bp-smudged-1, .bp-smudged-2, .bp-smudged-3');
+        if (sm) {
+          var lvl = sm.classList.contains('bp-smudged-3') ? 3 :
+                    sm.classList.contains('bp-smudged-2') ? 2 : 1;
+          sm.classList.remove('bp-smudged-1', 'bp-smudged-2', 'bp-smudged-3');
+          if (lvl > 1) sm.classList.add('bp-smudged-' + (lvl - 1));
+          var tx = parseFloat(sm.dataset.bpTx) || 0, ty = parseFloat(sm.dataset.bpTy) || 0;
+          sm.style.transform = bpBuildTransform(sm, tx, ty);
+          bpSmudgeCount = Math.max(0, bpSmudgeCount - 1);
+        }
+      }
+    }
+    if (st.dist > 300) { st.dist = 0; bpSmudgeCount = Math.max(0, bpSmudgeCount - 1); }
+    st.x = e.clientX; st.y = e.clientY;
+  }
+
+  var bpCrumbLast = 0;
+  function bpCrumbFrame(ts) {
+    bpCrumbRaf = null;
+    if (!bpCrumbCtx || !bpCrumbCanvas) return;
+    var dt = Math.min(40, ts - bpCrumbLast || 16); bpCrumbLast = ts;
+    var W2 = bpCrumbCanvas.width, H2 = bpCrumbCanvas.height;
+    bpCrumbCtx.clearRect(0, 0, W2, H2);
+    for (var i = 0; i < bpCrumbs.length; i++) {
+      var c2 = bpCrumbs[i];
+      c2.vy += dt * 0.011; c2.x += c2.vx * dt / 16; c2.y += c2.vy * dt / 16; c2.rot += c2.vr;
+      if (c2.y > H2 - 12) { c2.y = H2 - 12; c2.vy *= -0.25; c2.vx *= 0.7; c2.a -= 0.02; }
+      c2.a -= dt * 0.00022;
+      if (c2.a <= 0) { bpCrumbs.splice(i, 1); i--; continue; }
+      bpCrumbCtx.save();
+      bpCrumbCtx.translate(c2.x, c2.y); bpCrumbCtx.rotate(c2.rot);
+      bpCrumbCtx.fillStyle = 'rgba(170,200,235,' + c2.a.toFixed(3) + ')';
+      bpCrumbCtx.fillRect(-c2.r, -c2.r * 0.5, c2.r * 2, c2.r);
+      bpCrumbCtx.restore();
+    }
+    if (bpCrumbs.length) bpCrumbRaf = requestAnimationFrame(bpCrumbFrame);
+    else bpCrumbCtx.clearRect(0, 0, W2, H2);
   }
 
   function bpSmudgeAny(el, cx, cy) {
@@ -624,18 +748,93 @@
        45%–75% : 3D perspective fold — page bends in 3D
        65%–100%: paper crumples to a ball and vanishes
   ─────────────────────────────────────────────────────────────── */
-  /* ── Crinkle exit ──────────────────────────────────────────────
-     A real sheet of paper being crumpled, not a page spun into a
-     blender. What sells it:
-       - FOLD SNAPS, not a smooth ease: six discrete crushes, each
-         arriving hard and holding, like a fist closing in stages.
-       - CREASES that run edge to edge and STAY — each drawn as a
-         V-groove (shadow line + light line) the instant its snap
-         lands, with faceted light/dark wedges between them.
-       - A silhouette that collapses as a jagged polygon, because
-         crumpled paper has corners, not a circle.
-       - Then the wad: a small tumbling ball, tossed away.
+  /* ── The wad ────────────────────────────────────────────────────
+     A real WebGL cloth: the blueprint page is rasterized onto a
+     44x30 sheet (actual glyphs on the first line of every text node,
+     bars for the wraps, the visitor's own smudges baked in), then
+     crushed into a LUMPY WAD — radius driven by seeded noise so no
+     two crumples fold alike and it never becomes a neat sphere —
+     lit per-vertex, tossed with a bounce, while the page underneath
+     has already switched to its destination state. Crumple to exit:
+     the normal site is what the wad flies away from. Start from
+     scratch: a fresh blueprint is what's left.
   ─────────────────────────────────────────────────────────────── */
+
+  function bpRasterize() {
+    var W = window.innerWidth, H = window.innerHeight;
+    var c = document.createElement('canvas');
+    c.width = W; c.height = H;
+    var g = c.getContext('2d');
+    g.fillStyle = '#04244e';
+    g.fillRect(0, 0, W, H);
+    g.strokeStyle = 'rgba(144,202,255,0.08)'; g.lineWidth = 1;
+    for (var x = 0; x <= W; x += 24) { g.beginPath(); g.moveTo(x, 0); g.lineTo(x, H); g.stroke(); }
+    for (var y = 0; y <= H; y += 24) { g.beginPath(); g.moveTo(0, y); g.lineTo(W, y); g.stroke(); }
+    g.strokeStyle = 'rgba(144,202,255,0.16)';
+    for (x = 0; x <= W; x += 120) { g.beginPath(); g.moveTo(x, 0); g.lineTo(x, H); g.stroke(); }
+    for (y = 0; y <= H; y += 120) { g.beginPath(); g.moveTo(0, y); g.lineTo(W, y); g.stroke(); }
+
+    /* boxes for the card-like things */
+    document.querySelectorAll('.about-card, .project-card, .case, .case-sm, .hero-panel, .site-nav').forEach(function (el) {
+      var r = el.getBoundingClientRect();
+      if (r.width < 8 || r.bottom < 0 || r.top > H) return;
+      g.strokeStyle = 'rgba(144,202,255,0.35)';
+      g.strokeRect(r.left, r.top, r.width, r.height);
+    });
+
+    /* text: real glyphs on each node's first line box, bars for the rest */
+    var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
+      acceptNode: function (n) {
+        if (!n.textContent || !n.textContent.trim()) return NodeFilter.FILTER_REJECT;
+        var p = n.parentElement;
+        if (!p || p.closest('#boot, script, style, .bp-ruined-overlay')) return NodeFilter.FILTER_REJECT;
+        return NodeFilter.FILTER_ACCEPT;
+      }
+    });
+    var drawn = 0, node;
+    while ((node = walker.nextNode()) && drawn < 260) {
+      var range = document.createRange();
+      range.selectNodeContents(node);
+      var rects = range.getClientRects();
+      if (!rects.length) continue;
+      var st = getComputedStyle(node.parentElement);
+      if (st.visibility === 'hidden' || parseFloat(st.opacity) < 0.05) continue;
+      for (var i = 0; i < rects.length && drawn < 260; i++) {
+        var r2 = rects[i];
+        if (r2.bottom < 0 || r2.top > H || r2.width < 2) continue;
+        drawn++;
+        if (i === 0) {
+          g.font = st.fontWeight + ' ' + st.fontSize + ' ' + st.fontFamily;
+          g.fillStyle = 'rgba(214,232,255,0.92)';
+          g.save();
+          g.beginPath(); g.rect(r2.left, r2.top, r2.width + 2, r2.height); g.clip();
+          g.fillText(node.textContent.trim(), r2.left, r2.top + r2.height * 0.78);
+          g.restore();
+        } else {
+          g.fillStyle = 'rgba(214,232,255,0.5)';
+          g.fillRect(r2.left, r2.top + r2.height * 0.28, r2.width, Math.min(10, r2.height * 0.42));
+        }
+      }
+    }
+    /* the visitor's own smears go into the wad */
+    if (bpBgCanvas) { try { g.drawImage(bpBgCanvas, 0, 0, W, H); } catch (e) {} }
+    return c;
+  }
+
+  /* seeded value noise for the lumps */
+  function bpNoise(seed) {
+    function h(x, y) { var s2 = Math.sin(x * 127.1 + y * 311.7 + seed * 74.7) * 43758.5453; return s2 - Math.floor(s2); }
+    function n(x, y) {
+      var xi = Math.floor(x), yi = Math.floor(y), xf = x - xi, yf = y - yi;
+      var a2 = h(xi, yi), b2 = h(xi + 1, yi), c2 = h(xi, yi + 1), d2 = h(xi + 1, yi + 1);
+      var ux = xf * xf * (3 - 2 * xf), uy = yf * yf * (3 - 2 * yf);
+      return a2 + (b2 - a2) * ux + (c2 - a2) * uy + (a2 - b2 - c2 + d2) * ux * uy;
+    }
+    return function (x, y) { return n(x, y) * 0.6 + n(x * 2.3, y * 2.3) * 0.28 + n(x * 5.1, y * 5.1) * 0.12; };
+  }
+  function bpSS(a2, b2, x) { x = Math.max(0, Math.min(1, (x - a2) / (b2 - a2))); return x * x * (3 - 2 * x); }
+  function bpMix(a2, b2, t) { return a2 + (b2 - a2) * t; }
+
   function triggerCrinkle(after) {
     if (bpHintEl) { bpHintEl.remove(); bpHintEl = null; }
 
@@ -643,339 +842,253 @@
     var dispBgEl = document.getElementById('bp-disp-bg');
     var turbEl   = document.getElementById('bp-turb');
 
-    function teardown() {
-      document.body.style.transform     = '';
-      document.body.style.opacity       = '';
-      document.body.style.filter        = '';
-      document.body.style.pointerEvents = '';
-      document.body.style.transformOrigin = '';
-      document.body.style.clipPath      = '';
-      document.body.style.borderRadius  = '';
-      clearBpStage();
+    function restoreFilters() {
       if (dispEl)   dispEl.setAttribute('scale', '3');
       if (dispBgEl) dispBgEl.setAttribute('scale', '4');
       if (turbEl)   turbEl.setAttribute('baseFrequency', '0.032');
+    }
+    function exitTeardown() {
+      restoreFilters();
+      clearBpStage();
       destroyBlueprintInteractive();
       document.body.classList.remove('blueprint', 'bp-ruined');
       showToast('[ BLUEPRINT MODE OFF ]');
     }
 
-    /* reduced motion: no crumple theatre — fade, then whichever ending */
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       document.body.style.transition = 'opacity 380ms ease';
       document.body.style.opacity = '0';
       setTimeout(function () {
         document.body.style.transition = '';
-        (after || teardown)();
+        document.body.style.opacity = '';
+        (after || exitTeardown)();
       }, 400);
       return;
     }
 
     var W = window.innerWidth, H = window.innerHeight;
+    var tex = bpRasterize();
+    var seed = Math.floor(Math.random() * 1000) + 1;
+    var no = bpNoise(seed);
 
-    var cvs = document.createElement('canvas');
-    cvs.style.cssText = 'position:fixed;inset:0;z-index:999997;pointer-events:none;';
-    cvs.width = W; cvs.height = H;
-    document.body.appendChild(cvs);
-    var ctx = cvs.getContext('2d');
+    /* the overlay: a 2D shadow layer under a GL cloth */
+    var wrap = document.createElement('div');
+    wrap.style.cssText = 'position:fixed;inset:0;z-index:999996;pointer-events:none;';
+    var sCv = document.createElement('canvas');
+    sCv.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;';
+    var glCv = document.createElement('canvas');
+    glCv.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;';
+    wrap.appendChild(sCv); wrap.appendChild(glCv);
+    document.body.appendChild(wrap);
+    var sg = sCv.getContext('2d');
 
-    /* where the fist closes */
-    var fx = W * (0.42 + Math.random() * 0.16);
-    var fy = H * (0.38 + Math.random() * 0.18);
-    var nuclei = [
-      { x: fx, y: fy },
-      { x: Math.min(W * 0.9, fx + W * 0.17), y: Math.max(H * 0.1, fy - H * 0.13) },
-      { x: Math.max(W * 0.1, fx - W * 0.15), y: Math.min(H * 0.9, fy + H * 0.14) }
-    ];
+    var gl = glCv.getContext('webgl', { antialias: true, alpha: true, premultipliedAlpha: true });
 
-    function lerp(a2, b2, t) { return a2 + (b2 - a2) * t; }
-    function clamp01(v) { return Math.max(0, Math.min(1, v)); }
-    function jit(n2) { return (Math.random() - 0.5) * n2; }
-
-    /* a random point on one of the sheet's four edges */
-    function edgePoint(e) {
-      var t = 0.08 + Math.random() * 0.84;
-      if (e === 0) return { x: W * t, y: 0 };
-      if (e === 1) return { x: W, y: H * t };
-      if (e === 2) return { x: W * t, y: H };
-      return { x: 0, y: H * t };
+    /* if WebGL is refused, fall back to a quick fade — never strand the page */
+    if (!gl) {
+      wrap.remove();
+      document.body.style.transition = 'opacity 320ms ease';
+      document.body.style.opacity = '0';
+      setTimeout(function () {
+        document.body.style.transition = ''; document.body.style.opacity = '';
+        (after || exitTeardown)();
+      }, 340);
+      return;
     }
 
-    /* MAJOR creases: edge-to-edge polylines bent toward a nucleus.
-       Real creases cross the whole sheet — that is what was missing. */
-    var majors = [];
-    for (var i = 0; i < 14; i++) {
-      var e1 = i % 4;
-      var e2 = (e1 + 1 + Math.floor(Math.random() * 3)) % 4;
-      var p0 = edgePoint(e1), p3 = edgePoint(e2);
-      var nu = nuclei[i % 3];
-      var pull = 0.55 + Math.random() * 0.28;
-      var m1 = { x: lerp(lerp(p0.x, p3.x, 0.33), nu.x, pull) + jit(46),
-                 y: lerp(lerp(p0.y, p3.y, 0.33), nu.y, pull) + jit(46) };
-      var m2 = { x: lerp(lerp(p0.x, p3.x, 0.67), nu.x, pull) + jit(46),
-                 y: lerp(lerp(p0.y, p3.y, 0.67), nu.y, pull) + jit(46) };
-      majors.push({ pts: [p0, m1, m2, p3], snap: i % 6, nuc: i % 3, reveal: 0 });
+    var VS2 = 'attribute vec3 aPos;attribute vec3 aNrm;attribute vec2 aUV;attribute float aAO;' +
+      'uniform vec2 uRes;varying vec2 vUV;varying vec3 vN;varying float vAO;' +
+      'void main(){vUV=aUV;vN=aNrm;vAO=aAO;' +
+      'float persp=1.0/(1.0+aPos.z*0.0016);' +
+      'vec2 xy=(aPos.xy-uRes*0.5)*persp+uRes*0.5;' +
+      'vec2 clip=xy/uRes*2.0-1.0;' +
+      'gl_Position=vec4(clip.x,-clip.y,aPos.z*0.0004,1.0);}';
+    var FS2 = 'precision mediump float;uniform sampler2D uTex;' +
+      'varying vec2 vUV;varying vec3 vN;varying float vAO;' +
+      'void main(){vec3 N=normalize(vN);' +
+      'vec3 L=normalize(vec3(0.35,-0.5,0.79));' +
+      'float dif=max(0.0,dot(N,L));' +
+      'float back=max(0.0,dot(N,vec3(-0.3,0.4,-0.87)));' +
+      'vec4 t=texture2D(uTex,vUV);' +
+      'float light=0.36+dif*0.74+back*0.10;' +
+      'float spec=pow(max(0.0,dot(N,normalize(L+vec3(0.0,0.0,1.0)))),24.0)*0.15;' +
+      'gl_FragColor=vec4(t.rgb*light*vAO+vec3(spec),1.0);}';
+    function mkSh(t2, src) { var o = gl.createShader(t2); gl.shaderSource(o, src); gl.compileShader(o);
+      return gl.getShaderParameter(o, gl.COMPILE_STATUS) ? o : null; }
+    var prog = gl.createProgram();
+    var vsh = mkSh(gl.VERTEX_SHADER, VS2), fsh = mkSh(gl.FRAGMENT_SHADER, FS2);
+    if (!vsh || !fsh) { wrap.remove(); (after || exitTeardown)(); return; }
+    gl.attachShader(prog, vsh); gl.attachShader(prog, fsh); gl.linkProgram(prog);
+    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) { wrap.remove(); (after || exitTeardown)(); return; }
+    gl.useProgram(prog);
+    gl.enable(gl.DEPTH_TEST);
+
+    var texture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, tex);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+    var COLS = 44, ROWS = 30, vcount = (COLS + 1) * (ROWS + 1);
+    var uv = new Float32Array(vcount * 2), k = 0;
+    for (var r3 = 0; r3 <= ROWS; r3++) for (var c3 = 0; c3 <= COLS; c3++) {
+      uv[k * 2] = c3 / COLS; uv[k * 2 + 1] = r3 / ROWS; k++;
     }
-
-    function pointOnPoly(pts, t) {
-      var seg = t * (pts.length - 1);
-      var k2 = Math.min(pts.length - 2, Math.floor(seg));
-      var f = seg - k2;
-      return { x: lerp(pts[k2].x, pts[k2 + 1].x, f), y: lerp(pts[k2].y, pts[k2 + 1].y, f) };
+    var idx = new Uint16Array(COLS * ROWS * 6), q = 0;
+    for (r3 = 0; r3 < ROWS; r3++) for (c3 = 0; c3 < COLS; c3++) {
+      var a3 = r3 * (COLS + 1) + c3, b3 = a3 + 1, c4 = a3 + COLS + 1, d4 = c4 + 1;
+      idx[q++] = a3; idx[q++] = c4; idx[q++] = b3; idx[q++] = b3; idx[q++] = c4; idx[q++] = d4;
     }
-
-    /* SECONDARY creases: short connectors between majors — the network */
-    var seconds = [];
-    for (var s2 = 0; s2 < 24; s2++) {
-      var A = majors[Math.floor(Math.random() * majors.length)];
-      var B = majors[Math.floor(Math.random() * majors.length)];
-      if (A === B) continue;
-      seconds.push({
-        a: pointOnPoly(A.pts, 0.2 + Math.random() * 0.6),
-        b: pointOnPoly(B.pts, 0.2 + Math.random() * 0.6),
-        snap: Math.min(5, Math.max(A.snap, B.snap) + 1),
-        reveal: 0
-      });
+    var pos = new Float32Array(vcount * 3), nrm = new Float32Array(vcount * 3), ao = new Float32Array(vcount);
+    function mkBuf(data, name, size, dyn) {
+      var b4 = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, b4);
+      gl.bufferData(gl.ARRAY_BUFFER, data, dyn ? gl.DYNAMIC_DRAW : gl.STATIC_DRAW);
+      var loc = gl.getAttribLocation(prog, name);
+      gl.enableVertexAttribArray(loc);
+      gl.vertexAttribPointer(loc, size, gl.FLOAT, false, 0, 0);
+      return b4;
     }
+    var bPos = mkBuf(pos, 'aPos', 3, true), bNrm = mkBuf(nrm, 'aNrm', 3, true);
+    mkBuf(uv, 'aUV', 2, false);
+    var bAO = mkBuf(ao, 'aAO', 1, true);
+    var bIdx = gl.createBuffer();
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, bIdx);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, idx, gl.STATIC_DRAW);
+    var uRes = gl.getUniformLocation(prog, 'uRes');
 
-    /* FACETS: wedges between angle-adjacent creases around each nucleus.
-       Alternating light/shadow is what makes folded paper read as planes. */
-    var facets = [];
-    nuclei.forEach(function (nu, ni) {
-      var mine = majors.filter(function (m) { return m.nuc === ni; });
-      mine.sort(function (m1x, m2x) {
-        var a1 = Math.atan2(pointOnPoly(m1x.pts, 0.5).y - nu.y, pointOnPoly(m1x.pts, 0.5).x - nu.x);
-        var a2 = Math.atan2(pointOnPoly(m2x.pts, 0.5).y - nu.y, pointOnPoly(m2x.pts, 0.5).x - nu.x);
-        return a1 - a2;
-      });
-      for (var f2 = 0; f2 < mine.length; f2++) {
-        var mA = mine[f2], mB = mine[(f2 + 1) % mine.length];
-        facets.push({ nu: nu, a: pointOnPoly(mA.pts, 0.45), b: pointOnPoly(mB.pts, 0.45),
-                      light: f2 % 2 === 0, ra: mA, rb: mB });
-      }
-    });
-
-    /* the collapsing silhouette: ten verts, per-stage targets */
-    /* strict perimeter order — an out-of-order vertex makes the clip edge
-       slice ACROSS the sheet instead of around it */
-    var baseV = [
-      { x: 0, y: 0 }, { x: W * 0.5, y: 0 }, { x: W, y: 0 },
-      { x: W, y: H * 0.4 }, { x: W, y: H * 0.78 },
-      { x: W * 0.55, y: H }, { x: 0, y: H },
-      { x: 0, y: H * 0.6 }, { x: 0, y: H * 0.22 }
-    ];
-    var VIN = [0, 0.05, 0.11, 0.19, 0.30, 0.42, 0.55, 0.86];
-    var VP = VIN.map(function (inw, k2) {
-      return baseV.map(function (v) {
-        var j = k2 === 0 ? 0 : (7 + k2 * 8);
-        return { x: lerp(v.x, fx, inw) + jit(j), y: lerp(v.y, fy, inw) + jit(j) };
-      });
-    });
-    var vcur = baseV.map(function (v) { return { x: v.x, y: v.y }; });
-
-    /* the six snaps: where the body lands after each crush */
-    function v(n2, s3) { return n2 * (1 + jit(s3)); }
-    var TF = [
-      { t: 0,    sx: 1,          sy: 1,          r: 0,        kx: 0,        ky: 0 },
-      { t: 0.06, sx: v(.965,.02), sy: v(.945,.02), r: v(-1.6,.3), kx: v(1.6,.3),  ky: v(-0.6,.3) },
-      { t: 0.13, sx: v(.895,.02), sy: v(.845,.02), r: v(2.3,.3),  kx: v(-2.4,.3), ky: v(1.4,.3) },
-      { t: 0.22, sx: v(.795,.02), sy: v(.715,.02), r: v(-3.8,.3), kx: v(3.0,.3),  ky: v(-2.0,.3) },
-      { t: 0.33, sx: v(.655,.02), sy: v(.565,.02), r: v(5.2,.3),  kx: v(-3.4,.3), ky: v(2.2,.3) },
-      { t: 0.45, sx: v(.50,.03),  sy: v(.415,.03), r: v(-7.0,.3), kx: v(3.8,.3),  ky: v(-2.6,.3) },
-      { t: 0.56, sx: v(.355,.03), sy: v(.29,.03),  r: v(9.0,.3),  kx: v(-3.0,.3), ky: v(2.0,.3) },
-      { t: 1,    sx: 0.13,        sy: 0.11,        r: v(24,.4),   kx: 0,        ky: 0 }
-    ];
-    var DS = [6, 18, 30, 46, 62, 80, 88, 26];      /* displacement per stage */
-    var SNAPS = [0.05, 0.15, 0.26, 0.38, 0.50, 0.61];
-
-    var cs = { t: 0, sx: 1, sy: 1, r: 0, kx: 0, ky: 0, disp: 6 };
+    /* ── the wad itself: a lumpy, seeded radius — never a sphere ── */
+    var cx = W * (0.42 + (seed % 17) / 100), cy = H * 0.46;
+    var baseR = Math.min(W, H) * 0.155;
+    function displace(u, v, t) {
+      var grab = bpSS(0.04, 0.56, t), crush = bpSS(0.46, 0.76, t), fly = bpSS(0.76, 1, t);
+      /* toss right-down with one bounce off the floor line */
+      var bx = cx + fly * W * 0.52;
+      var floor = H * 0.82;
+      var by;
+      if (fly < 0.5) by = cy + fly * fly * (floor - cy) * 4 * 0.5;
+      else { var f2 = (fly - 0.5) / 0.5; by = floor - Math.abs(Math.sin(f2 * 3.14159)) * H * 0.10 * (1 - f2 * 0.7); }
+      var spin = t * 7.5 + seed;
+      var th = u * 6.28318 + spin, ph = v * 3.14159;
+      /* THE LUMPS: seeded noise on the wad's direction — deep folds, flats,
+         a silhouette that reads as scrunched paper, not geometry */
+      var lump = 0.58 + 1.05 * no(Math.cos(th) * 1.6 + 3.1, ph * 1.3 + Math.sin(th));
+      lump += 0.35 * Math.pow(no(th * 0.9, ph * 2.2 + 7.0), 2.0);
+      var R = baseR * (1 - crush * 0.22) * lump;
+      var sx2 = bx + Math.sin(ph) * Math.cos(th) * R;
+      var sy2 = by + Math.cos(ph) * R * (0.9 + 0.2 * no(th, 9.0));
+      var sz2 = Math.sin(ph) * Math.sin(th) * R + 210;
+      /* sheet phase: overscan so the flat sheet covers the viewport edges */
+      var px = bpMix(-0.03, 1.03, u) * W, py = bpMix(-0.03, 1.03, v) * H;
+      var amp = bpSS(0.02, 0.3, t) * (1 - crush * 0.4) * Math.min(W, H) * 0.11;
+      var nz = (no(u * 5.4, v * 5.4) - 0.5) * 2;
+      var curl = bpSS(0.02, 0.4, t) * Math.sin(u * 3.14159) * 60;
+      return [bpMix(px, sx2, grab), bpMix(py, sy2, grab), bpMix(nz * amp + curl, sz2 + nz * R * 0.5, grab)];
+    }
 
     document.body.style.pointerEvents = 'none';
-    document.body.style.transformOrigin = fx + 'px ' + fy + 'px';
-    document.body.style.willChange = 'transform, opacity, clip-path, filter';
     clearTimeout(bpStageTimer);
     bpStageTimer = setTimeout(clearBpStage, 4200);
 
-    var DURATION = 2400;
-    var startTime = null, lastTs = null;
-    var ballVX = 90 + Math.random() * 70, ballVY = -60, ballX = fx, ballY = fy, ballR0 = 30;
-
-    function drawCrease(pts, reveal, wBase) {
-      if (reveal <= 0) return;
-      var wLine = wBase * (0.4 + 0.6 * reveal);
-      /* shadow side */
-      ctx.globalCompositeOperation = 'multiply';
-      ctx.strokeStyle = 'rgba(2,10,24,' + (0.30 * reveal).toFixed(3) + ')';
-      ctx.lineWidth = wLine * 1.8;
-      ctx.beginPath();
-      ctx.moveTo(pts[0].x, pts[0].y);
-      for (var q = 1; q < pts.length; q++) ctx.lineTo(pts[q].x, pts[q].y);
-      ctx.stroke();
-      /* lit side, offset a hair — the V-groove */
-      ctx.globalCompositeOperation = 'screen';
-      ctx.strokeStyle = 'rgba(205,232,255,' + (0.22 * reveal).toFixed(3) + ')';
-      ctx.lineWidth = Math.max(0.5, wLine * 0.7);
-      ctx.beginPath();
-      ctx.moveTo(pts[0].x + 1.2, pts[0].y - 1.2);
-      for (var q2 = 1; q2 < pts.length; q2++) ctx.lineTo(pts[q2].x + 1.2, pts[q2].y - 1.2);
-      ctx.stroke();
-      ctx.globalCompositeOperation = 'source-over';
+    /* the page beneath switches state the moment the flat sheet covers it */
+    var swapped = false;
+    function swapUnder() {
+      if (swapped) return; swapped = true;
+      if (after) {
+        /* reset: a fresh blueprint behind the wad */
+        bpResetBoard(true);
+      } else {
+        /* exit: the NORMAL site is what the wad flies away from */
+        restoreFilters();
+        clearBpStage();
+        destroyBlueprintInteractive();
+        document.body.classList.remove('blueprint', 'bp-ruined');
+      }
     }
 
-    function step(ts) {
-      if (!startTime) { startTime = ts; lastTs = ts; }
-      var dt = Math.min(50, ts - lastTs); lastTs = ts;
-      var p = clamp01((ts - startTime) / DURATION);
-
-      var k = 0;
-      for (var s3 = 0; s3 < SNAPS.length; s3++) if (p >= SNAPS[s3]) k = s3 + 1;
-      var wad = p >= 0.62;
-      var stage = wad ? 7 : k;
-
-      /* hard approach — arrives fast, then HOLDS. That is the snap. */
-      var blend = 1 - Math.exp(-dt / 42);
-      var tf = TF[stage];
-      cs.t  += (tf.t  - cs.t)  * blend;
-      cs.sx += (tf.sx - cs.sx) * blend;
-      cs.sy += (tf.sy - cs.sy) * blend;
-      cs.r  += (tf.r  - cs.r)  * blend;
-      cs.kx += (tf.kx - cs.kx) * blend;
-      cs.ky += (tf.ky - cs.ky) * blend;
-      cs.disp += (DS[stage] - cs.disp) * blend;
-
-      var vt = VP[Math.min(stage, VP.length - 1)];
-      for (var vi = 0; vi < vcur.length; vi++) {
-        vcur[vi].x += (vt[vi].x - vcur[vi].x) * blend;
-        vcur[vi].y += (vt[vi].y - vcur[vi].y) * blend;
-      }
-
-      /* creases reveal the moment their snap lands */
-      majors.forEach(function (m) { if (m.snap < k) m.reveal = clamp01(m.reveal + dt / 90); });
-      seconds.forEach(function (m) { if (m.snap < k) m.reveal = clamp01(m.reveal + dt / 110); });
-
-      /* ── canvas ── */
-      ctx.clearRect(0, 0, W, H);
-      if (!wad || p < 0.7) {
-        /* facets first, creases over them */
-        facets.forEach(function (f3) {
-          var rv = Math.min(f3.ra.reveal, f3.rb.reveal);
-          if (rv <= 0) return;
-          ctx.fillStyle = f3.light
-            ? 'rgba(196,226,255,' + (0.055 * rv).toFixed(3) + ')'
-            : 'rgba(2,10,24,'     + (0.085 * rv).toFixed(3) + ')';
-          ctx.beginPath();
-          ctx.moveTo(f3.nu.x, f3.nu.y);
-          ctx.lineTo(f3.a.x, f3.a.y);
-          ctx.lineTo(f3.b.x, f3.b.y);
-          ctx.closePath();
-          ctx.fill();
-        });
-        majors.forEach(function (m) { drawCrease(m.pts, m.reveal, 1.6); });
-        seconds.forEach(function (m) { drawCrease([m.a, m.b], m.reveal, 1.0); });
-
-        /* the fist's shadow */
-        var g2 = ctx.createRadialGradient(fx, fy, 10, fx, fy, Math.max(W, H) * 0.5);
-        g2.addColorStop(0, 'rgba(0,8,20,' + (0.05 + cs.t * 0.22).toFixed(3) + ')');
-        g2.addColorStop(1, 'rgba(0,8,20,0)');
-        ctx.fillStyle = g2;
-        ctx.fillRect(0, 0, W, H);
-      }
-
-      /* the wad: tumbling ball, tossed off */
-      if (wad) {
-        var bp2 = clamp01((p - 0.62) / 0.38);
-        if (p > 0.74) {
-          ballVY += dt * 0.5;                       /* gravity */
-          ballX += ballVX * dt / 1000 * 8;
-          ballY += ballVY * dt / 1000 * 6;
-        }
-        var br = lerp(ballR0, 16, bp2);
-        var fade = p > 0.9 ? 1 - (p - 0.9) / 0.1 : 1;
-        var bg2 = ctx.createRadialGradient(ballX - br * 0.4, ballY - br * 0.4, br * 0.1, ballX, ballY, br);
-        bg2.addColorStop(0, 'rgba(232,243,255,' + (0.85 * fade).toFixed(3) + ')');
-        bg2.addColorStop(0.55, 'rgba(140,178,222,' + (0.75 * fade).toFixed(3) + ')');
-        bg2.addColorStop(1, 'rgba(10,24,48,' + (0.9 * fade).toFixed(3) + ')');
-        ctx.fillStyle = bg2;
-        ctx.beginPath();
-        /* a lumpy wad, not a sphere */
-        for (var w2 = 0; w2 <= 12; w2++) {
-          var aa = (w2 / 12) * Math.PI * 2;
-          var rr = br * (0.82 + 0.18 * Math.sin(aa * 3 + p * 9));
-          var px2 = ballX + Math.cos(aa + p * 4) * rr;
-          var py2 = ballY + Math.sin(aa + p * 4) * rr;
-          w2 ? ctx.lineTo(px2, py2) : ctx.moveTo(px2, py2);
-        }
-        ctx.closePath();
-        ctx.fill();
-        ctx.strokeStyle = 'rgba(4,14,30,' + (0.4 * fade).toFixed(3) + ')';
-        ctx.lineWidth = 1;
-        for (var c2 = 0; c2 < 5; c2++) {
-          ctx.beginPath();
-          ctx.arc(ballX + jitStable(c2) * br * 0.3, ballY + jitStable(c2 + 5) * br * 0.3,
-                  br * (0.3 + c2 * 0.12), c2, c2 + 2.2);
-          ctx.stroke();
-        }
-      }
-
-      /* ── the sheet itself ── */
-      if (dispEl)   dispEl.setAttribute('scale', cs.disp.toFixed(1));
-      if (dispBgEl) dispBgEl.setAttribute('scale', (cs.disp * 1.2).toFixed(1));
-      if (turbEl)   turbEl.setAttribute('baseFrequency', (0.02 + cs.t * 0.055).toFixed(4));
-
-      var poly = 'polygon(' + vcur.map(function (v2) {
-        return v2.x.toFixed(1) + 'px ' + v2.y.toFixed(1) + 'px';
-      }).join(',') + ')';
-      document.body.style.clipPath = poly;
-      document.body.style.transform =
-        'scale(' + cs.sx.toFixed(4) + ',' + cs.sy.toFixed(4) + ')' +
-        ' rotate(' + cs.r.toFixed(2) + 'deg)' +
-        ' skew(' + cs.kx.toFixed(2) + 'deg,' + cs.ky.toFixed(2) + 'deg)';
-      document.body.style.filter = 'contrast(' + (1 + cs.t * 0.14).toFixed(3) + ')';
-      document.body.style.opacity = String(p < 0.62 ? 1 : clamp01(1 - (p - 0.62) / 0.16));
-
-      if (p < 1) requestAnimationFrame(step);
-      else { cvs.remove(); (after || teardown)(); }
+    var DURATION = 2050;
+    var startTime = null, done = false;
+    function finishAll() {
+      if (done) return; done = true;
+      wrap.remove();
+      document.body.style.pointerEvents = '';
+      clearBpStage();
+      if (after) { after(); }
+      else { showToast('[ BLUEPRINT MODE OFF ]'); }
     }
 
-    /* stable per-index jitter for the wad's crease arcs */
-    var jitCache = {};
-    function jitStable(n2) {
-      if (!(n2 in jitCache)) jitCache[n2] = (Math.random() - 0.5) * 2;
-      return jitCache[n2];
-    }
+    function frame(ts) {
+      if (done) return;
+      if (!startTime) startTime = ts;
+      var t = Math.min(1, (ts - startTime) / DURATION);
+      if (t > 0.04) swapUnder();                 /* one frame of full cover is enough */
 
-    requestAnimationFrame(step);
+      var d2 = Math.min(devicePixelRatio || 1, 1.75);
+      var wpx = Math.floor(W * d2), hpx = Math.floor(H * d2);
+      if (glCv.width !== wpx) { glCv.width = wpx; glCv.height = hpx; }
+      gl.viewport(0, 0, wpx, hpx);
+      gl.uniform2f(uRes, wpx, hpx);
+
+      var scale = d2;
+      for (var i2 = 0; i2 < vcount; i2++) {
+        var u2 = uv[i2 * 2], v2 = uv[i2 * 2 + 1];
+        var o2 = displace(u2, v2, t);
+        pos[i2 * 3] = o2[0] * scale; pos[i2 * 3 + 1] = o2[1] * scale; pos[i2 * 3 + 2] = o2[2] * scale;
+      }
+      var eps = 1 / Math.max(COLS, ROWS);
+      for (i2 = 0; i2 < vcount; i2++) {
+        var u3 = uv[i2 * 2], v3 = uv[i2 * 2 + 1];
+        var pa = displace(Math.min(1, u3 + eps), v3, t), pb = displace(Math.max(0, u3 - eps), v3, t);
+        var pc = displace(u3, Math.min(1, v3 + eps), t), pd = displace(u3, Math.max(0, v3 - eps), t);
+        var tx = [pa[0] - pb[0], pa[1] - pb[1], pa[2] - pb[2]];
+        var ty = [pc[0] - pd[0], pc[1] - pd[1], pc[2] - pd[2]];
+        var nx = ty[1] * tx[2] - ty[2] * tx[1], ny = ty[2] * tx[0] - ty[0] * tx[2], nz2 = ty[0] * tx[1] - ty[1] * tx[0];
+        var ln = Math.hypot(nx, ny, nz2) || 1;
+        nrm[i2 * 3] = nx / ln; nrm[i2 * 3 + 1] = ny / ln; nrm[i2 * 3 + 2] = nz2 / ln;
+        var here = displace(u3, v3, t);
+        var bend = Math.abs(pa[2] + pb[2] - 2 * here[2]) + Math.abs(pc[2] + pd[2] - 2 * here[2]);
+        ao[i2] = Math.max(0.42, 1 - bend * 0.011);
+      }
+      gl.bindBuffer(gl.ARRAY_BUFFER, bPos); gl.bufferSubData(gl.ARRAY_BUFFER, 0, pos);
+      gl.bindBuffer(gl.ARRAY_BUFFER, bNrm); gl.bufferSubData(gl.ARRAY_BUFFER, 0, nrm);
+      gl.bindBuffer(gl.ARRAY_BUFFER, bAO);  gl.bufferSubData(gl.ARRAY_BUFFER, 0, ao);
+      gl.clearColor(0, 0, 0, 0);
+      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+      gl.drawElements(gl.TRIANGLES, COLS * ROWS * 6, gl.UNSIGNED_SHORT, 0);
+
+      /* contact shadow */
+      if (sCv.width !== wpx) { sCv.width = wpx; sCv.height = hpx; }
+      sg.clearRect(0, 0, wpx, hpx);
+      var grab2 = bpSS(0.04, 0.56, t), fly2 = bpSS(0.76, 1, t);
+      if (grab2 > 0.5) {
+        var sxc = (cx + fly2 * W * 0.52) * d2;
+        var alpha = 0.30 * Math.min(1, (grab2 - 0.5) * 4) * (1 - fly2 * 0.55);
+        sg.fillStyle = 'rgba(0,0,0,' + alpha.toFixed(3) + ')';
+        sg.beginPath();
+        sg.ellipse(sxc, H * 0.86 * d2, baseR * 1.35 * d2 * (1 - fly2 * 0.3), baseR * 0.3 * d2, 0, 0, 6.2832);
+        sg.fill();
+      }
+
+      if (t < 1) requestAnimationFrame(frame);
+      else {
+        wrap.style.transition = 'opacity 180ms ease';
+        wrap.style.opacity = '0';
+        setTimeout(finishAll, 200);
+      }
+    }
+    requestAnimationFrame(frame);
+    setTimeout(finishAll, DURATION + 1200);      /* dead-man */
   }
-  /* RESET: the ruined sheet gets crumpled and tossed exactly like the exit —
-     you do not un-smudge a blueprint, you bin it — and then a clean sheet is
-     laid on the table. Blueprint mode stays on throughout. */
+
+  /* RESET / START FROM SCRATCH: the wad flies off a fresh blueprint */
   function triggerReset() {
     triggerCrinkle(function () {
-      /* clear every style the crumple drove */
-      document.body.style.transform     = '';
-      document.body.style.opacity      = '0';
-      document.body.style.filter        = '';
-      document.body.style.pointerEvents = '';
-      document.body.style.transformOrigin = '';
-      document.body.style.clipPath      = '';
-      document.body.style.borderRadius  = '';
-      clearBpStage();
-      var dEl  = document.getElementById('bp-disp');
-      var dbEl = document.getElementById('bp-disp-bg');
-      var tEl  = document.getElementById('bp-turb');
-      if (dEl)  dEl.setAttribute('scale', '3');
-      if (dbEl) dbEl.setAttribute('scale', '4');
-      if (tEl)  tEl.setAttribute('baseFrequency', '0.032');
-
-      bpResetBoard(true);                       /* wipe smudges, keep the mode */
-
-      /* the fresh sheet: laid in from just above, like a new page on the table */
       document.body.style.opacity = '';
       try {
         document.body.animate([
-          { opacity: 0, transform: 'translateY(-20px) scale(0.988)' },
-          { opacity: 1, transform: 'none' }
-        ], { duration: 480, easing: 'cubic-bezier(.16,1,.3,1)' });
+          { opacity: 0.35 }, { opacity: 1 }
+        ], { duration: 320, easing: 'ease-out' });
       } catch (e2) {}
       showToast('[ FRESH SHEET ]');
     });

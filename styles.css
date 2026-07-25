@@ -1975,3 +1975,27 @@ html.pt-fade.pt-enter body {
 body.blueprint #sand-canvas {
   display: none !important;
 }
+
+/* The way out is on the sheet: a drafting-table control, blueprint voice */
+#bp-scratch-btn {
+  position: fixed;
+  right: 18px; bottom: 18px;
+  z-index: 99500;
+  font-family: 'Courier New', monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #b8dfff;
+  background: rgba(0, 22, 55, 0.92);
+  border: 1.5px dashed rgba(144, 202, 255, 0.5);
+  border-radius: 3px;
+  padding: 10px 14px;
+  cursor: pointer !important;
+  display: none;
+}
+body.blueprint #bp-scratch-btn { display: block; }
+#bp-scratch-btn:hover {
+  background: rgba(144, 202, 255, 0.16);
+  border-style: solid;
+  color: #e4f2ff;
+}
