@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
   <!-- PLINTH: the HTH monogram, mirror-symmetric about x=60.
-       Scaled up from the boot mark so it still reads in a 16px tab. -->
+       Scaled up from the boot mark so it gets whole pixels of air in a 16px tab. -->
   <rect width="120" height="120" rx="26" fill="#0b0b0b"/>
-  <g fill="#eaeaea" transform="translate(60 60) scale(1.18) translate(-60 -60)">
+  <g fill="#eaeaea" transform="translate(60 60) scale(0.90) translate(-60 -60)">
     <rect x="20"   y="24"   width="11" height="72"/>
     <rect x="38"   y="24"   width="11" height="72"/>
     <rect x="54.5" y="24"   width="11" height="72"/>
