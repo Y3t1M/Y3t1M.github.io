@@ -31,8 +31,13 @@
     cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
     g.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-    // target: the active link's left edge, where its tick sits
-    var tickX = active.getBoundingClientRect().left - navBox.left;
+    // target: the active link's tick, which sits CENTERED under the label
+    // (styles.css: .nav-link::before { left: 50%; transform: translateX(-50%) }).
+    // This used to aim at the link's left edge, which was correct only while the
+    // ticks were left-anchored — after they were centered the grain gathered
+    // ~25px short of the tick, on empty rule.
+    var linkBox = active.getBoundingClientRect();
+    var tickX = linkBox.left + linkBox.width / 2 - navBox.left;
     var cy = h / 2;
 
     var grains = [], N = Math.round(w * 0.5);
