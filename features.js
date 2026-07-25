@@ -428,10 +428,10 @@
     bpScratchBtn = document.createElement('button');
     bpScratchBtn.id = 'bp-scratch-btn';
     bpScratchBtn.type = 'button';
-    bpScratchBtn.textContent = '\u27F2 start from scratch';
+    bpScratchBtn.textContent = '\u27F2 crumple it up';
     bpScratchBtn.addEventListener('click', function (e) {
       e.stopPropagation();
-      triggerReset();
+      triggerCrinkle();
     });
     document.body.appendChild(bpScratchBtn);
 
@@ -691,46 +691,17 @@
           '<h2 class="bp-ruined-title">you ruined it.</h2>' +
           '<p class="bp-ruined-sub">the blueprint is completely smudged.</p>' +
           '<div class="bp-ruined-actions">' +
-            '<button class="bp-btn bp-btn-crinkle" id="bp-crinkle-btn">crinkle &amp; exit</button>' +
-            '<button class="bp-btn bp-btn-reset"  id="bp-reset-btn">reset blueprint</button>' +
+            '<button class="bp-btn bp-btn-crinkle" id="bp-crinkle-btn">crumple it up</button>' +
           '</div>' +
         '</div>';
       document.body.appendChild(bpHintEl);
 
-      // Wire buttons — stopPropagation so bpClick doesn't double-fire
+      // Wire button — stopPropagation so bpClick doesn't double-fire.
+      // One action only: every crumple lands back on the normal site.
       document.getElementById('bp-crinkle-btn').addEventListener('click', function(e){
         e.stopPropagation(); triggerCrinkle();
       });
-      document.getElementById('bp-reset-btn').addEventListener('click', function(e){
-        e.stopPropagation(); triggerReset();
-      });
     }
-  }
-
-  function bpResetBoard(quiet) {
-    // Remove the overlay
-    if (bpHintEl) { bpHintEl.remove(); bpHintEl = null; }
-    clearBpStage();
-    // Tear down interactive state but keep blueprint class on
-    bpSmudgeCount = 0;
-    bpRuined = false;
-    bpDragState = null;
-    bpJustDragged = false;
-    document.body.classList.remove('bp-ruined');
-    // Clear smudge classes and transforms from every element
-    document.querySelectorAll('.bp-smudged-1, .bp-smudged-2, .bp-smudged-3').forEach(function(el){
-      el.classList.remove('bp-smudged-1','bp-smudged-2','bp-smudged-3');
-      el.style.transform = '';
-    });
-    // Clear background canvas
-    if (bpBgCtx && bpBgCanvas) bpBgCtx.clearRect(0,0,bpBgCanvas.width,bpBgCanvas.height);
-    // Reset drag position on all draggables
-    document.querySelectorAll('[data-bp-drag]').forEach(function(el){
-      el.dataset.bpTx = '0';
-      el.dataset.bpTy = '0';
-      el.style.transform = '';
-    });
-    if (!quiet) showToast('[ BLUEPRINT RESET ]');
   }
 
   // Build transform preserving drag translate + smudge skew
@@ -741,23 +712,15 @@
     return 'translate(' + tx + 'px, ' + ty + 'px)' + skew;
   }
 
-  /* ── Crinkle exit animation ────────────────────────────────────
-     Stages:
-       0%–30%  : crease/fold lines draw across the page
-       20%–60% : page surface distorts heavily (turbulence up)
-       45%–75% : 3D perspective fold — page bends in 3D
-       65%–100%: paper crumples to a ball and vanishes
-  ─────────────────────────────────────────────────────────────── */
-  /* ── The wad ────────────────────────────────────────────────────
+  /* ── Crinkle exit ───────────────────────────────────────────────
      A real WebGL cloth: the blueprint page is rasterized onto a
      44x30 sheet (actual glyphs on the first line of every text node,
      bars for the wraps, the visitor's own smudges baked in), then
-     crushed into a LUMPY WAD — radius driven by seeded noise so no
-     two crumples fold alike and it never becomes a neat sphere —
-     lit per-vertex, tossed with a bounce, while the page underneath
-     has already switched to its destination state. Crumple to exit:
-     the normal site is what the wad flies away from. Start from
-     scratch: a fresh blueprint is what's left.
+     crumpled rim-first into the grab — folds deepening, seeded noise
+     so no two crumples fold alike, never compacting to a ball — and
+     dissolved while it still reads as paper. The page underneath has
+     already switched back to the NORMAL site: every crumple, from
+     the sheet button or the ruined overlay, ends there.
   ─────────────────────────────────────────────────────────────── */
 
   function bpRasterize() {
@@ -835,7 +798,7 @@
   function bpSS(a2, b2, x) { x = Math.max(0, Math.min(1, (x - a2) / (b2 - a2))); return x * x * (3 - 2 * x); }
   function bpMix(a2, b2, t) { return a2 + (b2 - a2) * t; }
 
-  function triggerCrinkle(after) {
+  function triggerCrinkle() {
     if (bpHintEl) { bpHintEl.remove(); bpHintEl = null; }
 
     var dispEl   = document.getElementById('bp-disp');
@@ -861,7 +824,7 @@
       setTimeout(function () {
         document.body.style.transition = '';
         document.body.style.opacity = '';
-        (after || exitTeardown)();
+        exitTeardown();
       }, 400);
       return;
     }
@@ -891,7 +854,7 @@
       document.body.style.opacity = '0';
       setTimeout(function () {
         document.body.style.transition = ''; document.body.style.opacity = '';
-        (after || exitTeardown)();
+        exitTeardown();
       }, 340);
       return;
     }
@@ -917,9 +880,9 @@
       return gl.getShaderParameter(o, gl.COMPILE_STATUS) ? o : null; }
     var prog = gl.createProgram();
     var vsh = mkSh(gl.VERTEX_SHADER, VS2), fsh = mkSh(gl.FRAGMENT_SHADER, FS2);
-    if (!vsh || !fsh) { wrap.remove(); (after || exitTeardown)(); return; }
+    if (!vsh || !fsh) { wrap.remove(); exitTeardown(); return; }
     gl.attachShader(prog, vsh); gl.attachShader(prog, fsh); gl.linkProgram(prog);
-    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) { wrap.remove(); (after || exitTeardown)(); return; }
+    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) { wrap.remove(); exitTeardown(); return; }
     gl.useProgram(prog);
     gl.enable(gl.DEPTH_TEST);
 
@@ -999,20 +962,15 @@
     clearTimeout(bpStageTimer);
     bpStageTimer = setTimeout(clearBpStage, 4200);
 
-    /* the page beneath switches state the moment the flat sheet covers it */
+    /* the page beneath switches state the moment the flat sheet covers it —
+       the NORMAL site is what the sheet crumples away to reveal, always */
     var swapped = false;
     function swapUnder() {
       if (swapped) return; swapped = true;
-      if (after) {
-        /* reset: a fresh blueprint behind the crumpling sheet */
-        bpResetBoard(true);
-      } else {
-        /* exit: the NORMAL site is what the sheet crumples away to reveal */
-        restoreFilters();
-        clearBpStage();
-        destroyBlueprintInteractive();
-        document.body.classList.remove('blueprint', 'bp-ruined');
-      }
+      restoreFilters();
+      clearBpStage();
+      destroyBlueprintInteractive();
+      document.body.classList.remove('blueprint', 'bp-ruined');
     }
 
     var DURATION = 1500;
@@ -1022,8 +980,7 @@
       wrap.remove();
       document.body.style.pointerEvents = '';
       clearBpStage();
-      if (after) { after(); }
-      else { showToast('[ BLUEPRINT MODE OFF ]'); }
+      showToast('[ BLUEPRINT MODE OFF ]');
     }
 
     function frame(ts) {
@@ -1075,20 +1032,7 @@
     setTimeout(finishAll, DURATION + 1000);      /* dead-man */
   }
 
-  /* RESET / START FROM SCRATCH: the sheet crumples off a fresh blueprint */
-  function triggerReset() {
-    triggerCrinkle(function () {
-      document.body.style.opacity = '';
-      try {
-        document.body.animate([
-          { opacity: 0.35 }, { opacity: 1 }
-        ], { duration: 320, easing: 'ease-out' });
-      } catch (e2) {}
-      showToast('[ FRESH SHEET ]');
-    });
-  }
-
-  try { window.__bpCrinkle = triggerCrinkle; window.__bpReset = triggerReset; } catch (e) {}
+  try { window.__bpCrinkle = triggerCrinkle; } catch (e) {}
 
   function toggleBlueprint() {
     var turningOn = !document.body.classList.contains('blueprint');
