@@ -871,6 +871,11 @@ html.fx .sc-slide {
   will-change: transform, opacity;
 }
 html.fx .sc-slide .case { margin: 0; max-height: 76vh; overflow-y: auto; }
+/* In the corridor the ghost index numeral sits BEHIND the card — a touch of
+   translucency lets its LED dots glow through the plate. Scoped here so the
+   home-page cards stay the solid objects-in-sand Hudson approved. */
+html.fx .sc-slide .case { background: rgba(8, 8, 8, 0.82); }
+html.fx .sc-slide .case:hover { background: rgba(12, 12, 12, 0.86); }
 html.fx .sc-slide .case-grid { margin: 0; }
 html.fx .sc-slide.wide { width: min(1100px, 94vw); }
 html.fx .sc-slide.wide .case-grid {
@@ -1016,23 +1021,54 @@ html.fx .sc-slide.wide .case-sm img { height: 215px; }
   transition: opacity 0.2s ease;
 }
 .proj-index button:hover .arr { opacity: 1; }
-/* mobile: the hardware trio becomes a swipeable filmstrip — three
-   crushed 1fr columns made the photos unusable on a phone */
+/* mobile: the hardware trio stacks as three compact media rows.
+   The filmstrip needed a horizontal swipe INSIDE a scroll-driven corridor,
+   which iOS fought — cards showed up cut off mid-frame. Rows always fit,
+   nothing inside a slide scrolls or swipes. */
 @media (max-width: 768px) {
+  html.fx .sc-slide.wide { width: 92vw; }
   html.fx .sc-slide.wide .case-grid {
     display: flex;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scroll-snap-type: x mandatory;
-    scrollbar-width: none;
-    gap: 12px;
-    padding-bottom: 4px;
+    flex-direction: column;
+    gap: 9px;
+    overflow: visible;
+    padding-bottom: 0;
   }
-  html.fx .sc-slide.wide .case-grid::-webkit-scrollbar { display: none; }
   html.fx .sc-slide.wide .case-sm {
-    flex: 0 0 76vw;
-    scroll-snap-align: center;
+    display: grid;
+    grid-template-columns: 86px 1fr;
+    gap: 0 12px;
+    align-items: start;
+    width: 100%;
+    padding: 10px 12px;
   }
+  html.fx .sc-slide.wide .case-sm img {
+    width: 86px; height: 86px; object-fit: cover;
+    margin: 0; border-radius: 6px;
+  }
+  html.fx .sc-slide.wide .case-sm h3 { font-size: 13px; margin: 2px 0 4px; }
+  html.fx .sc-slide.wide .case-sm .case-meta { font-size: 8.5px; }
+  html.fx .sc-slide.wide .case-sm p {
+    font-size: 11px; line-height: 1.45;
+    display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  html.fx .sc-slide.wide .case-sm a { font-size: 11px; }
+
+  /* Cards never scroll inside themselves on a phone — they FIT instead.
+     The Hollis Bloom card is the tall one, so the compression is sized to it:
+     tighter body type, 2x2 stat tiles at reduced padding. */
+  html.fx .sc-slide .case {
+    max-height: none;
+    overflow: visible;
+    padding: 18px 16px 16px;
+  }
+  html.fx .sc-slide .case p { font-size: 12px; line-height: 1.5; }
+  html.fx .sc-slide .case h3 { font-size: 19px; }
+  .spec-strip { gap: 8px; }
+  .spec { padding: 8px 10px; }
+  .spec b { font-size: 14px; }
+  .spec span { font-size: 8.5px; }
   html.fx .sc-slide.wide .case-sm img { height: 190px; }
 }
 .slide-eyebrow { display: none; }

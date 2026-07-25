@@ -210,12 +210,17 @@
   var rectData = new Float32Array(32);
   function pushRects() {
     var vh = window.innerHeight;
+    /* Rect coords must be in CANVAS space, not viewport space. On iOS the
+       fixed canvas's box shifts against the layout viewport while the toolbar
+       collapses, so raw client coords land the banking a card-height off —
+       phantom card-shaped "skeletons" floating above the real cards. */
+    var cb = canvas.getBoundingClientRect();
     var n = 0;
     for (var i = 0; i < cardEls.length && n < 8; i++) {
       var r = cardEls[i].getBoundingClientRect();
       if (r.bottom < -40 || r.top > vh + 40 || r.width === 0) continue;
-      rectData[n * 4] = r.left;
-      rectData[n * 4 + 1] = r.top;
+      rectData[n * 4] = r.left - cb.left;
+      rectData[n * 4 + 1] = r.top - cb.top;
       rectData[n * 4 + 2] = r.width;
       rectData[n * 4 + 3] = r.height;
       n++;

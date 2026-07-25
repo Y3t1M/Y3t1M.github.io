@@ -94,21 +94,9 @@
     pour(a);
   }, { passive: true });
 
-  /* ON ARRIVAL — settle the destination's own tick. */
-  var viaNav = false;
-  try {
-    viaNav = sessionStorage.getItem('pt-arrive') === '1';
-    sessionStorage.removeItem('pt-arrive');
-  } catch (e) {}
-  if (!viaNav) return;
-
-  var active = nav.querySelector('.nav-link[aria-current="page"], .nav-link.active');
-  if (!active) return;
-
-  // wait for layout + fonts so the tick position is final
-  if (document.fonts && document.fonts.ready) {
-    document.fonts.ready.then(function () { requestAnimationFrame(function () { pour(active); }); });
-  } else {
-    requestAnimationFrame(function () { pour(active); });
-  }
+  /* One pulse only — the press is the event. The old arrival settle made a
+     second pour on the destination page ~400ms after the first, which read as
+     a stutter rather than an answer. The flag is still consumed so it never
+     goes stale in sessionStorage. */
+  try { sessionStorage.removeItem('pt-arrive'); } catch (e) {}
 })();
