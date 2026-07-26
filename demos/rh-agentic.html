@@ -3,265 +3,249 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RH Agentic — Example Dashboard</title>
+  <title>RH Agentic — How it works</title>
   <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
   <link rel="icon" type="image/png" sizes="32x32" href="../assets/favicon-32.png">
   <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
-  <meta name="description" content="RH Agentic example dashboard — an illustrative view of the autonomous Robinhood-API trading system: equity curve, open positions, and a live agent activity feed. Sample data only.">
+  <meta name="description" content="RH Agentic — how the system is wired: a nine-stage pipeline where a language model does judgment and deterministic code holds veto. Architecture only; no live data, positions, or performance.">
   <link rel="stylesheet" href="../styles.css">
   <style>
-    .rh-wrap { max-width: 1120px; margin: 0 auto; padding: 40px 24px 80px; }
+    .rh-wrap { max-width: 1060px; margin: 0 auto; padding: 40px 24px 90px; }
 
     .rh-top { display: flex; align-items: flex-end; justify-content: space-between;
       flex-wrap: wrap; gap: 14px 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
     .rh-back { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em;
       text-transform: uppercase; color: var(--text-muted); text-decoration: none; }
-    .rh-back:hover { color: var(--text); }
+    .rh-back:hover, .rh-back:focus-visible { color: var(--text); }
     .rh-title { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
     .rh-title h1 { font-size: clamp(26px, 4vw, 40px); font-weight: 750; letter-spacing: -0.02em;
       margin: 6px 0 0; color: #f2f2f2; }
-    .rh-sample { font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.18em;
-      text-transform: uppercase; color: var(--amber, #ffb000); border: 1px solid rgba(255,176,0,0.4);
+    .rh-sample { font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.16em;
+      text-transform: uppercase; color: #ffb000; border: 1px solid rgba(255,176,0,0.4);
       border-radius: 3px; padding: 4px 9px; white-space: nowrap; }
-    .rh-live { display: inline-flex; align-items: center; gap: 7px; font-family: var(--font-mono);
-      font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-faint); }
-    .rh-dot { width: 7px; height: 7px; border-radius: 50%; background: #eaeaea;
-      box-shadow: 0 0 8px rgba(234,234,234,0.6); animation: rhpulse 2.2s ease-in-out infinite; }
-    @keyframes rhpulse { 0%,100% { opacity: 0.3; } 50% { opacity: 1; } }
 
-    .rh-stats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1px;
-      background: var(--border); border: 1px solid var(--border); margin: 22px 0 24px; }
-    @media (max-width: 720px) { .rh-stats { grid-template-columns: repeat(2, 1fr); } }
-    .rh-stat { background: var(--bg-card); padding: 16px 18px; }
-    .rh-stat .k { font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.16em;
-      text-transform: uppercase; color: var(--text-faint); }
-    .rh-stat .v { font-size: 22px; font-weight: 700; letter-spacing: -0.01em; color: #fff;
-      margin-top: 8px; font-variant-numeric: tabular-nums; }
-    .rh-stat .v.pos::before { content: "▲ "; font-size: 12px; color: var(--text-muted); }
-    .rh-stat .v.neg::before { content: "▼ "; font-size: 12px; color: var(--text-muted); }
+    .rh-lede { max-width: 70ch; color: var(--text-muted); font-size: 15.5px; margin: 22px 0 0;
+      line-height: 1.7; }
+    .rh-lede b { color: var(--text); font-weight: 600; }
 
-    .rh-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 16px; }
-    @media (max-width: 860px) { .rh-grid { grid-template-columns: 1fr; } }
-    .rh-panel { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); }
-    .rh-panel-h { display: flex; align-items: center; justify-content: space-between;
-      padding: 13px 18px; border-bottom: 1px solid var(--border);
-      font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.16em;
-      text-transform: uppercase; color: var(--text-faint); }
-    .rh-panel-h b { color: var(--text-muted); font-weight: 400; font-variant-numeric: tabular-nums; }
+    /* the governing rule */
+    .rh-rule { margin: 34px 0 0; border: 1px solid var(--border); border-radius: var(--radius);
+      background: var(--bg-card); padding: 24px 26px; }
+    .rh-rule p.k { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.16em;
+      text-transform: uppercase; color: var(--text-faint); margin: 0 0 12px; }
+    .rh-rule blockquote { margin: 0; font-size: clamp(19px, 2.6vw, 26px); font-weight: 650;
+      letter-spacing: -0.015em; color: #f2f2f2; line-height: 1.32; }
+    .rh-rule .sub { margin: 13px 0 0; color: var(--text-muted); font-size: 14.5px; max-width: 66ch;
+      line-height: 1.65; }
+    .rh-rule .sub b { color: var(--text); font-weight: 600; }
 
-    #equity { display: block; width: 100%; height: 260px; }
+    h2.rh-h { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.16em;
+      text-transform: uppercase; color: var(--text-faint); font-weight: 400;
+      margin: 48px 0 0; padding-bottom: 11px; border-bottom: 1px solid var(--border); }
 
-    table.rh-pos { width: 100%; border-collapse: collapse; font-size: 13px; }
-    .rh-pos th { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.14em;
-      text-transform: uppercase; color: var(--text-faint); font-weight: 400; text-align: right;
-      padding: 11px 18px; border-bottom: 1px solid var(--border); }
-    .rh-pos th:first-child, .rh-pos td:first-child { text-align: left; }
-    .rh-pos td { padding: 12px 18px; border-bottom: 1px solid rgba(255,255,255,0.04);
-      text-align: right; font-variant-numeric: tabular-nums; color: var(--text-muted); }
-    .rh-pos td.sym { color: var(--text); font-weight: 600; font-family: var(--font-mono); letter-spacing: 0.02em; }
-    .rh-pos tr:last-child td { border-bottom: 0; }
-    .rh-pos .pl-pos { color: #eaeaea; }
-    .rh-pos .pl-neg { color: #8f8f8f; }
+    /* pipeline */
+    .rh-pipe { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 20px; }
+    .rh-stage { appearance: none; cursor: pointer; font-family: var(--font-mono); font-size: 10.5px;
+      letter-spacing: 0.1em; text-transform: uppercase; border: 1px solid var(--border);
+      border-radius: 3px; background: none; color: var(--text-muted); padding: 9px 13px;
+      transition: border-color .13s, color .13s, background .13s; }
+    .rh-stage:hover { color: var(--text); border-color: var(--text-faint); }
+    .rh-stage[aria-selected="true"] { background: #eaeaea; color: #0a0a0a; border-color: #eaeaea;
+      font-weight: 600; }
+    .rh-stage:focus-visible { outline: 2px solid #eaeaea; outline-offset: 2px; }
+    .rh-stage.gate { color: #ffb000; border-color: rgba(255,176,0,0.35); }
+    .rh-stage.gate[aria-selected="true"] { background: #ffb000; border-color: #ffb000; color: #140d00; }
 
-    .rh-feed { height: 420px; overflow: hidden; padding: 8px 0; position: relative; }
-    .rh-feed::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 40px;
-      background: linear-gradient(transparent, var(--bg-card)); pointer-events: none; }
-    .rh-line { display: grid; grid-template-columns: 62px 66px 1fr; gap: 10px; align-items: baseline;
-      padding: 5px 18px; font-family: var(--font-mono); font-size: 11.5px; line-height: 1.5;
-      animation: rhIn 0.3s ease both; }
-    @keyframes rhIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
-    .rh-line .t { color: var(--text-faint); }
-    .rh-line .tag { font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; padding-top: 1px; }
-    .rh-line .tag.scan { color: var(--text-muted); }
-    .rh-line .tag.analyze { color: var(--accent2, #a78bfa); }
-    .rh-line .tag.order { color: #eaeaea; }
-    .rh-line .tag.fill { color: var(--amber, #ffb000); }
-    .rh-line .msg { color: var(--text-muted); }
-    .rh-line .msg b { color: var(--text); font-weight: 600; }
+    .rh-detail { margin-top: 16px; border: 1px solid var(--border); border-radius: var(--radius);
+      background: var(--bg-card); padding: 22px 24px; min-height: 200px; }
+    .rh-detail h3 { margin: 0 0 4px; font-size: 19px; font-weight: 700; letter-spacing: -0.015em; }
+    .rh-detail .role { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--text-faint); margin: 0 0 14px; }
+    .rh-detail p.body { margin: 0 0 12px; color: var(--text-muted); font-size: 14.5px;
+      line-height: 1.65; max-width: 68ch; }
+    .rh-detail b { color: var(--text); font-weight: 600; }
+    .rh-detail ul { margin: 0; padding-left: 18px; color: var(--text-muted); font-size: 14px;
+      line-height: 1.7; max-width: 66ch; }
+    .rh-detail li::marker { color: var(--text-faint); }
 
-    .rh-note { margin-top: 26px; padding: 16px 18px; border: 1px solid var(--border);
-      border-radius: var(--radius); background: rgba(255,255,255,0.02);
-      font-size: 12.5px; color: var(--text-faint); line-height: 1.6; }
-    .rh-note b { color: var(--text-muted); font-weight: 600; }
+    /* gate list */
+    .rh-gates { display: grid; grid-template-columns: repeat(auto-fit, minmax(198px, 1fr));
+      gap: 8px; margin-top: 18px; }
+    .rh-gate { border: 1px solid var(--border); border-radius: 4px; background: var(--bg-card);
+      padding: 11px 13px; }
+    .rh-gate b { display: block; font-family: var(--font-mono); font-size: 10.5px;
+      letter-spacing: 0.08em; text-transform: uppercase; color: var(--text); font-weight: 500; }
+    .rh-gate span { display: block; margin-top: 5px; font-size: 12.5px; color: var(--text-muted);
+      line-height: 1.5; }
 
-    /* ── phone: this has to be a dashboard you can actually read one-handed.
-       The positions table drops its two glance-optional columns (Type, Entry),
-       everything tightens, the feed shortens so the page has a bottom. ── */
-    @media (max-width: 600px) {
-      .rh-wrap { padding: 26px 14px 56px; }
-      .rh-stat { padding: 12px 13px; }
-      .rh-stat .v { font-size: 17px; margin-top: 5px; }
-      #equity { height: 190px; }
-      .rh-pos th, .rh-pos td { padding: 9px 10px; font-size: 11.5px; }
-      .rh-pos th:nth-child(2), .rh-pos td:nth-child(2),
-      .rh-pos th:nth-child(4), .rh-pos td:nth-child(4) { display: none; }
-      .rh-feed { height: 300px; }
-      .rh-line { grid-template-columns: 44px 50px 1fr; gap: 8px; padding: 4px 12px; font-size: 10.5px; }
-      .rh-title h1 { font-size: 24px; }
-      .rh-sample { font-size: 8.5px; padding: 3px 7px; }
+    .rh-note { margin-top: 34px; padding-top: 18px; border-top: 1px solid var(--border);
+      color: var(--text-muted); font-size: 13.5px; max-width: 72ch; line-height: 1.72; }
+    .rh-note b { color: var(--text); font-weight: 600; }
+
+    @media (max-width: 620px) {
+      .rh-wrap { padding: 30px 18px 70px; }
+      .rh-stage { font-size: 9.5px; padding: 8px 10px; }
+      .rh-detail { padding: 18px 17px; }
     }
   </style>
 </head>
 <body>
+
   <div class="rh-wrap">
-    <div class="rh-top">
+    <header class="rh-top">
       <div>
-        <a class="rh-back" href="../projects.html">&larr; Hudson Tinch · Projects</a>
+        <a href="../projects.html" class="rh-back">&larr; Projects</a>
         <div class="rh-title">
           <h1>RH Agentic</h1>
-          <span class="rh-sample">Example dashboard · sample data</span>
+          <span class="rh-sample">Architecture &middot; no live data</span>
         </div>
       </div>
-      <span class="rh-live"><span class="rh-dot"></span> agents active</span>
+    </header>
+
+    <p class="rh-lede">An agentic research and execution system. Nine stages, each an independently
+      runnable script that writes a file the next one reads &mdash; so a crash never loses the chain
+      and every step stays auditable afterward. <b>What follows is the design, not the
+      deployment:</b> the production system runs privately, and nothing here shows holdings,
+      performance, or account data.</p>
+
+    <div class="rh-rule">
+      <p class="k">The governing rule</p>
+      <blockquote>The model proposes. Code disposes.</blockquote>
+      <p class="sub">The language model does judgment &mdash; research, scoring, thesis.
+        Deterministic scripts do gatekeeping and measurement. A code-level <b>DENY</b> is
+        unconditional: there is no override and no retry with better phrasing. That split is the
+        entire point, because it is what stops a model allowed to touch real money from talking
+        itself into a position.</p>
     </div>
 
-    <div class="rh-stats" id="stats">
-      <div class="rh-stat"><div class="k">Portfolio</div><div class="v" id="s-port">$128,450</div></div>
-      <div class="rh-stat"><div class="k">Today</div><div class="v pos" id="s-day">1.84%</div></div>
-      <div class="rh-stat"><div class="k">Return · 90d</div><div class="v pos" id="s-tot">+22.6%</div></div>
-      <div class="rh-stat"><div class="k">Win rate</div><div class="v" id="s-win">61%</div></div>
-      <div class="rh-stat"><div class="k">Open positions</div><div class="v" id="s-pos">7</div></div>
-    </div>
+    <h2 class="rh-h">The pipeline &mdash; click a stage</h2>
+    <div class="rh-pipe" role="tablist" aria-label="Pipeline stages"></div>
+    <div class="rh-detail" role="tabpanel" id="rh-detail" tabindex="0"></div>
 
-    <div class="rh-grid">
-      <div>
-        <div class="rh-panel" style="margin-bottom:16px;">
-          <div class="rh-panel-h"><span>Equity curve · 90 days</span><b id="eq-val">$128,450</b></div>
-          <canvas id="equity"></canvas>
-        </div>
-        <div class="rh-panel">
-          <div class="rh-panel-h"><span>Open positions</span><b>sample</b></div>
-          <table class="rh-pos">
-            <thead><tr><th>Symbol</th><th>Type</th><th>Qty</th><th>Entry</th><th>Mark</th><th>P/L</th></tr></thead>
-            <tbody id="pos-body"></tbody>
-          </table>
-        </div>
-      </div>
-      <div class="rh-panel">
-        <div class="rh-panel-h"><span>Agent activity</span><b id="feed-count">live</b></div>
-        <div class="rh-feed" id="feed"></div>
-      </div>
-    </div>
+    <h2 class="rh-h">What the risk engine checks before anything executes</h2>
+    <div class="rh-gates" id="rh-gates"></div>
 
-    <p class="rh-note">
-      <b>This is an illustrative demo with sample data.</b> The production system runs privately
-      against a real brokerage account and is not linked here. It's an autonomous trading stack on
-      the Robinhood API: agents scan the market universe, run analysis, and place equity and options
-      orders without a human in the loop, reporting to an encrypted dashboard. Numbers and activity
-      on this page are generated for illustration only and are not investment advice or a record of
-      real performance.
-    </p>
+    <p class="rh-note"><b>Why it is built this way.</b> Trades are deliberately rare, which means
+      real outcomes arrive far too slowly to learn from. So the system manufactures its own sample:
+      every scored candidate is also carried as a virtual trade across several exit policies, and
+      results are measured in <b>R-units</b> rather than win rate &mdash; expectancy, profit factor
+      and bootstrapped confidence intervals, so that a lucky streak cannot read as skill. A drawdown
+      ladder steps the whole system from active, to reducing, to halted, and the validator enforces
+      it whether or not the model agrees.</p>
   </div>
 
-  <script>
-  (function () {
-    'use strict';
-    var reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+<script>
+(function () {
+  'use strict';
 
-    /* ── mock positions ─────────────────────────────────── */
-    var positions = [
-      { sym: 'NVDA', type: 'Equity', qty: 40, entry: 118.20, mark: 121.65 },
-      { sym: 'AAPL', type: 'Equity', qty: 60, entry: 224.10, mark: 226.80 },
-      { sym: 'SPY 20C', type: 'Option', qty: 5, entry: 4.20, mark: 4.95 },
-      { sym: 'MSFT', type: 'Equity', qty: 22, entry: 418.00, mark: 415.30 },
-      { sym: 'AMD', type: 'Equity', qty: 75, entry: 142.40, mark: 146.10 },
-      { sym: 'TSLA 250P', type: 'Option', qty: 3, entry: 6.10, mark: 5.40 },
-      { sym: 'META', type: 'Equity', qty: 18, entry: 572.00, mark: 581.20 }
-    ];
-    var pb = document.getElementById('pos-body');
-    positions.forEach(function (p) {
-      var pl = (p.mark - p.entry) * p.qty * (p.type === 'Option' ? 100 : 1);
-      var cls = pl >= 0 ? 'pl-pos' : 'pl-neg';
-      var sign = pl >= 0 ? '+' : '−';
-      var tr = document.createElement('tr');
-      tr.innerHTML = '<td class="sym">' + p.sym + '</td><td>' + p.type + '</td><td>' + p.qty +
-        '</td><td>' + p.entry.toFixed(2) + '</td><td>' + p.mark.toFixed(2) +
-        '</td><td class="' + cls + '">' + sign + '$' + Math.abs(pl).toFixed(0) + '</td>';
-      pb.appendChild(tr);
+  var STAGES = [
+    { id: 'scan', name: 'Scan', role: 'Layer 1 · sourcing',
+      body: 'Every session opens with a deterministic sweep that costs no model tokens and needs no API keys — so it runs whether or not the model is working. A regime read on the broad indices sets how picky the session is allowed to be, and the rest of the funnel fills from there.',
+      list: ['Regime — index trend and distribution days set the session’s risk posture',
+             'Insider cluster buys parsed from public filings — the primary edge',
+             'A second, independent scrape of the same filing universe, as failover',
+             'Relative-volume names in play, off-index runners, social attention',
+             'Earnings-drift and all-time-high pullback watchlists'] },
+    { id: 'contend', name: 'Contend', role: 'Layer 2 · memory',
+      body: 'Before this stage existed, every scan overwrote its own output and each check began with amnesia. The contender pool is the memory between runs: one list keyed by symbol, unified from every source, with the most active names re-quoted live so movement is real rather than stale.',
+      list: ['Tracks whether a name is new, moving up, fading, or stalled',
+             'Priority tiers separate genuine candidates from shadow-only ones',
+             'Only high-priority movers earn an expensive deep pass'] },
+    { id: 'research', name: 'Research', role: 'Layer 3 · judgment',
+      body: 'Nothing can be scored without a written dossier first. It covers structure, liquidity, the catalyst map, earnings behaviour, short interest, institutional flow, policy exposure and sentiment — and it is required to end with a bear case and a pre-mortem.',
+      list: ['The pre-mortem is mandatory: argue why this fails before sizing it',
+             'Breadth fans out to cheaper scout models; synthesis stays on the strong one'] },
+    { id: 'score', name: 'Score', role: 'Layer 4 · judgment',
+      body: 'The dossier is converted into a single number by a weighted factor model — catalyst, policy tailwind, institutional flow, technicals, sentiment gap, source signal, macro fit and liquidity. A threshold gates entry entirely; below it nothing proceeds, regardless of how good the narrative sounds.',
+      list: ['The model file is versioned and carries every prior configuration',
+             'Each revision records the evidence and rationale that motivated it'] },
+    { id: 'validate', name: 'Validate', role: 'Layer 5 · the chokepoint', gate: true,
+      body: 'Every order passes through one deterministic gate, and this is the stage the whole design exists to protect. DENY is unconditional. Every verdict is appended to an audit log, and rejections are treated as training data rather than noise.',
+      list: ['Eligibility differs by strategy sleeve; each has its own hard preconditions',
+             'Universal gates apply on top of eligibility — listed below',
+             'A denied proposal is re-validated next cycle, never grandfathered through'] },
+    { id: 'execute', name: 'Execute', role: 'Layer 6 · action', gate: true,
+      body: 'Entry and protection are a single indivisible step: an order is always paired with a broker-side stop placed immediately at the exchange, never held in local state. There is no such thing as an unprotected position — including through a crash, a restart, or the machine going offline.',
+      list: ['The stop lives at the broker, so it survives the system dying'] },
+    { id: 'manage', name: 'Manage', role: 'Layer 7 · action',
+      body: 'While a position is open, a zero-token watchdog checks live price against every level on the exit ladder on a fifteen-minute cycle, and escalates to a full management pass when one is approached.',
+      list: ['The ladder covers stop proximity, thesis break, reversal and profit targets',
+             'Break-even moves, trailing, time decay and partial trims are all rule-driven'] },
+    { id: 'log', name: 'Log', role: 'Layer 8 · the record',
+      body: 'Everything is append-only. Decisions link to the score that produced them, scores link to their dossier, and lessons link to the evidence behind them — so any position can be reconstructed months later, including the reasoning and the alternatives that were rejected.',
+      list: ['Append-only means history is never rewritten, only added to',
+             'Rejections are recorded as fully as executions'] },
+    { id: 'learn', name: 'Learn', role: 'Layer 9 · the loop back',
+      body: 'The output of measurement is a change to the scoring model, which changes what gets proposed, which produces new evidence. This is the only stage permitted to alter the model, and it must cite the evidence that justified the change.',
+      list: ['Virtual trades supply the sample size that real trades cannot',
+             'Performance is measured in R-units, never raw win rate',
+             'Confidence intervals decide whether a change is signal or noise'] }
+  ];
+
+  var GATES = [
+    ['Trading state', 'A drawdown ladder moves the system from active, to reducing, to halted — and the gate enforces it.'],
+    ['Stop distance', 'A cap on how far the stop may sit from entry. Wider means smaller, or nothing at all.'],
+    ['Risk / reward floor', 'Proposals whose target does not justify their risk are refused outright.'],
+    ['Settled cash', 'Blocks trading on unsettled funds rather than discovering the problem at the broker.'],
+    ['Concentration', 'Hard limits on simultaneous positions and on how many entries a day allows.'],
+    ['Cooldowns', 'A name recently stopped out cannot be re-entered on the rebound.'],
+    ['Chase cap', 'Refuses entries extended too far above the breakout level.'],
+    ['Trend guard', 'Denies entry beneath a falling medium-term average. No catching knives.'],
+    ['Source channel', 'Signal channels measured as negative-expectancy are blocked from real capital.']
+  ];
+
+  var pipe = document.querySelector('.rh-pipe');
+  var detail = document.getElementById('rh-detail');
+
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
+
+  function render(i) {
+    var s = STAGES[i];
+    var html = '<h3>' + esc(s.name) + '</h3><p class="role">' + esc(s.role) + '</p>' +
+               '<p class="body">' + esc(s.body) + '</p>';
+    if (s.list) {
+      html += '<ul>' + s.list.map(function (l) { return '<li>' + esc(l) + '</li>'; }).join('') + '</ul>';
+    }
+    detail.innerHTML = html;
+    Array.prototype.forEach.call(pipe.children, function (b, n) {
+      b.setAttribute('aria-selected', n === i ? 'true' : 'false');
+      b.tabIndex = n === i ? 0 : -1;
     });
+  }
 
-    /* ── equity curve (deterministic mock, gentle uptrend) ─ */
-    var cv = document.getElementById('equity'), g = cv.getContext('2d');
-    var series = [];
-    (function () {
-      var v = 104800, s = 12.9;
-      for (var i = 0; i <= 90; i++) {
-        s = (s * 9301 + 49297) % 233280;              // deterministic LCG, no Math.random
-        var r = s / 233280;
-        v = v * (1 + (r - 0.46) * 0.012);
-        series.push(v);
-      }
-      // scale the whole curve so it ends at the shown value — proportional,
-      // so the shape is preserved and there's no artificial end spike
-      var f = 128450 / series[series.length - 1];
-      for (var j = 0; j < series.length; j++) series[j] *= f;
-    })();
-    function drawEquity() {
-      var dpr = window.devicePixelRatio || 1;
-      var w = cv.clientWidth, h = 260;
-      cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
-      g.setTransform(dpr, 0, 0, dpr, 0, 0);
-      g.clearRect(0, 0, w, h);
-      var lo = Math.min.apply(null, series), hi = Math.max.apply(null, series);
-      var padY = 22, padX = 0;
-      function X(i) { return padX + (i / (series.length - 1)) * (w - padX * 2); }
-      function Y(v) { return padY + (1 - (v - lo) / (hi - lo)) * (h - padY * 2); }
-      // faint grid
-      g.strokeStyle = 'rgba(255,255,255,0.05)'; g.lineWidth = 1;
-      for (var r = 0; r <= 4; r++) { var yy = padY + r / 4 * (h - padY * 2);
-        g.beginPath(); g.moveTo(0, yy); g.lineTo(w, yy); g.stroke(); }
-      // area fill
-      var grad = g.createLinearGradient(0, padY, 0, h);
-      grad.addColorStop(0, 'rgba(234,234,234,0.16)');
-      grad.addColorStop(1, 'rgba(234,234,234,0)');
-      g.beginPath(); g.moveTo(X(0), Y(series[0]));
-      series.forEach(function (v, i) { g.lineTo(X(i), Y(v)); });
-      g.lineTo(X(series.length - 1), h); g.lineTo(X(0), h); g.closePath();
-      g.fillStyle = grad; g.fill();
-      // line
-      g.beginPath(); g.moveTo(X(0), Y(series[0]));
-      series.forEach(function (v, i) { g.lineTo(X(i), Y(v)); });
-      g.strokeStyle = '#eaeaea'; g.lineWidth = 1.5; g.stroke();
-      // emphasized endpoint
-      var ex = X(series.length - 1), ey = Y(series[series.length - 1]);
-      g.beginPath(); g.arc(ex, ey, 3.2, 0, 6.2832); g.fillStyle = '#eaeaea'; g.fill();
-      g.beginPath(); g.arc(ex, ey, 6.5, 0, 6.2832);
-      g.strokeStyle = 'rgba(234,234,234,0.4)'; g.lineWidth = 1; g.stroke();
-    }
-    drawEquity();
-    window.addEventListener('resize', drawEquity);
+  STAGES.forEach(function (s, i) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'rh-stage' + (s.gate ? ' gate' : '');
+    b.setAttribute('role', 'tab');
+    b.setAttribute('aria-selected', 'false');
+    b.setAttribute('aria-controls', 'rh-detail');
+    b.tabIndex = -1;
+    b.textContent = (i + 1) + ' · ' + s.name;
+    b.addEventListener('click', function () { render(i); });
+    b.addEventListener('keydown', function (e) {
+      var d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+      if (!d) return;
+      e.preventDefault();
+      var n = (i + d + STAGES.length) % STAGES.length;
+      render(n);
+      pipe.children[n].focus();
+    });
+    pipe.appendChild(b);
+  });
 
-    /* ── live agent activity feed (illustrative) ─────────── */
-    var feed = document.getElementById('feed');
-    var TICKERS = ['NVDA','AAPL','MSFT','AMD','META','TSLA','AVGO','SPY','QQQ','GOOGL','AMZN','NFLX'];
-    var seed = 7301;
-    function rnd() { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; }
-    function pick(a) { return a[Math.floor(rnd() * a.length)]; }
-    var clock = 9 * 3600 + 41 * 60;   // 09:41 market-ish clock
-    function stamp() {
-      clock += 3 + Math.floor(rnd() * 25);
-      var hh = Math.floor(clock / 3600) % 24, mm = Math.floor(clock / 60) % 60, ss = clock % 60;
-      function z(n) { return (n < 10 ? '0' : '') + n; }
-      return z(hh) + ':' + z(mm) + ':' + z(ss);
-    }
-    function emit() {
-      var roll = rnd(), tk = pick(TICKERS), tag, msg;
-      if (roll < 0.4) { tag = 'scan'; msg = 'universe ' + (480 + Math.floor(rnd() * 60)) + ' · <b>' + (12 + Math.floor(rnd() * 40)) + '</b> candidates'; }
-      else if (roll < 0.72) { tag = 'analyze'; var sig = pick(['momentum','mean-revert','IV-rank ' + (40 + Math.floor(rnd()*45)),'earnings drift','vol breakout']); msg = '<b>' + tk + '</b> ' + sig + ' → ' + pick(['long','call spread','put hedge','scale in']); }
-      else if (roll < 0.9) { tag = 'order'; msg = pick(['BUY','SELL']) + ' <b>' + tk + '</b> ' + (1 + Math.floor(rnd()*80)) + ' @ ' + (4 + rnd()*400).toFixed(2); }
-      else { tag = 'fill'; msg = '<b>' + tk + '</b> filled · ' + pick(['partial','complete']) + ' ✓'; }
-      var line = document.createElement('div');
-      line.className = 'rh-line';
-      line.innerHTML = '<span class="t">' + stamp() + '</span><span class="tag ' + tag + '">' + tag + '</span><span class="msg">' + msg + '</span>';
-      feed.insertBefore(line, feed.firstChild);
-      while (feed.childNodes.length > 22) feed.removeChild(feed.lastChild);
-    }
-    for (var i = 0; i < 14; i++) emit();
-    if (!reduced) {
-      var loop = function () { emit(); setTimeout(loop, 1400 + rnd() * 2600); };
-      setTimeout(loop, 1200);
-    }
-  })();
-  </script>
+  var gwrap = document.getElementById('rh-gates');
+  GATES.forEach(function (g) {
+    var d = document.createElement('div');
+    d.className = 'rh-gate';
+    var b = document.createElement('b'); b.textContent = g[0];
+    var s = document.createElement('span'); s.textContent = g[1];
+    d.appendChild(b); d.appendChild(s);
+    gwrap.appendChild(d);
+  });
+
+  render(0);
+})();
+</script>
 </body>
 </html>
