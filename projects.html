@@ -55,9 +55,25 @@
     <div class="page-head proj-head">
       <div class="proj-band">
         <div class="section-label">Selected work</div>
-        <div class="proj-meta">2019 &mdash; 2026 &middot; Software / Hardware / Retail</div>
+        <div class="proj-meta">2019 &mdash; 2026 &middot; Software / Hardware / Prototypes</div>
       </div>
       <h1 class="section-title proj-title">Projects</h1>
+
+      <!-- The showcase below is a visual corridor: only the centred slide is
+           painted, and the rest are visibility:hidden — correct for rendering,
+           but it takes them out of the accessibility tree, so a screen reader
+           only ever reaches one project. This summary carries the full set in
+           reading order. Visually hidden; never hidden from assistive tech. -->
+      <nav class="sr-only" aria-label="All projects">
+        <ul>
+          <li><a href="https://hollisbloom.com" target="_blank" rel="noopener">Hollis Bloom Platform</a> — facilities work-order software running Integrity Marketing Group's Dallas offices, from intake through to a paid invoice.</li>
+          <li><a href="demos/rh-agentic.html">RH Agentic</a> — an agentic research system built around a deterministic risk engine, where hard limits decide what executes.</li>
+          <li><a href="https://samsclub-demo.pages.dev" target="_blank" rel="noopener">Members Moments</a> — a shoppable creator-video prototype built for McMillon Innovation Studio's Sam's Club challenge, presented at Demo Day, Spring 2026.</li>
+          <li><a href="demos/neatfreak.html">NeatFreak</a> — turns a photo of a tool into a 3D-printable drawer organizer; the extraction engine runs in the browser and outputs an STL.</li>
+          <li><a href="https://github.com/Y3t1M/Arduino-R4-Controller-Web-Interface" target="_blank" rel="noopener">Arduino R4 Controller</a> — a web interface for controlling an Arduino R4 over the network.</li>
+          <li><a href="desktop.html">Windows 95 desktop</a> — a full working Windows 95 environment hidden inside this site, games included.</li>
+        </ul>
+      </nav>
       <ol class="proj-index" id="proj-index"></ol>
     </div>
 
@@ -83,7 +99,7 @@
         <div class="spec"><b>5</b><span>intake channels</span></div>
       </div>
       <div class="case-links">
-        <a href="https://hollisbloom.com" target="_blank">hollisbloom.com &rarr;</a>
+        <a href="https://hollisbloom.com" target="_blank" rel="noopener">hollisbloom.com &rarr;</a>
       </div>
     </article>
     </div>
@@ -120,7 +136,7 @@
         <strong>Demo Day, Spring 2026</strong>.
       </p>
       <div class="case-links">
-        <a href="https://samsclub-demo.pages.dev" target="_blank">Visit the live demo &rarr;</a>
+        <a href="https://samsclub-demo.pages.dev" target="_blank" rel="noopener">Visit the live demo &rarr;</a>
       </div>
     </article>
     </div>
@@ -160,7 +176,7 @@
           <div class="case-meta"><span>Robotics &middot; C++</span></div>
           <h3>Arduino R4 Controller</h3>
           <p>Built for a robotics project: a web control panel served straight from an Arduino R4 WiFi, driving servos and electromagnets from any browser &mdash; no app to install.</p>
-          <a href="https://github.com/Y3t1M/Arduino-R4-Controller-Web-Interface" target="_blank">View repo &rarr;</a>
+          <a href="https://github.com/Y3t1M/Arduino-R4-Controller-Web-Interface" target="_blank" rel="noopener">View repo &rarr;</a>
         </div>
       </article>
       <article class="case-sm" id="iron-man">
@@ -218,8 +234,8 @@
       </div>
       <div class="contact-actions">
         <a href="mailto:hudson.tinch@gmail.com" class="btn-primary">Email me</a>
-        <a href="https://github.com/Y3t1M" target="_blank" class="btn-ghost">GitHub</a>
-        <a href="https://linkedin.com/in/hudsontinch" target="_blank" class="btn-ghost">LinkedIn</a>
+        <a href="https://github.com/Y3t1M" target="_blank" class="btn-ghost" rel="noopener">GitHub</a>
+        <a href="https://linkedin.com/in/hudsontinch" target="_blank" class="btn-ghost" rel="noopener">LinkedIn</a>
       </div>
     </div>
   </section>
@@ -228,8 +244,8 @@
     <div class="footer-inner">
       <span class="footer-copy">&copy; 2026 &middot; Dallas, TX</span>
       <div class="footer-links">
-        <a href="https://github.com/Y3t1M" target="_blank" class="footer-link">GitHub</a>
-        <a href="https://linkedin.com/in/hudsontinch" target="_blank" class="footer-link">LinkedIn</a>
+        <a href="https://github.com/Y3t1M" target="_blank" class="footer-link" rel="noopener">GitHub</a>
+        <a href="https://linkedin.com/in/hudsontinch" target="_blank" class="footer-link" rel="noopener">LinkedIn</a>
         <a href="mailto:hudson.tinch@gmail.com" class="footer-link">Email</a>
       </div>
     </div>
