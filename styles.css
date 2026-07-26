@@ -364,18 +364,6 @@ html.booting .nav-mark { opacity: 0; }
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.5);
 }
-.hero-designator {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--accent2);
-  margin: 0 0 14px;
-  padding-left: 14px;
-}
-/* On a phone the line wraps; keep the availability phrase whole so the
-   break lands after the location rather than inside "seeking internship". */
-.hero-designator .hd-seek { white-space: nowrap; }
 .hero-title {
   font-size: clamp(26px, 3.4vw, 38px);
   line-height: 1.14;
@@ -404,6 +392,9 @@ html.booting .nav-mark { opacity: 0; }
   color: var(--text-faint);
 }
 .hero-now b { color: var(--accent2); font-weight: 400; }
+/* Keeps the availability phrase whole so a phone breaks after the
+   location rather than inside "seeking internship". */
+.hero-now .hd-seek { white-space: nowrap; }
 
 .pcb-comp {
   position: absolute;
@@ -884,7 +875,6 @@ html.settled .pcb-comp {
   max-width: 680px;
 }
 .hero-panel.hero-open::before { display: none; }
-.hero-panel.hero-open .hero-designator { padding-left: 0; margin-bottom: 16px; }
 .hero-panel.hero-open .hero-title {
   font-size: clamp(34px, 4.6vw, 58px);
   text-shadow: 0 2px 26px rgba(0, 0, 0, 0.9);
