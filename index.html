@@ -28,7 +28,11 @@
   <!-- Entity data. A search for a person's name is an entity query, so this
        states plainly that the site IS Hudson Tinch rather than leaving Google
        to infer it from prose. sameAs is the load-bearing part: it ties this
-       domain to the GitHub and LinkedIn profiles that already rank. -->
+       domain to the profiles that already rank.
+       NOTE: github.com/Y3t1M was removed from sameAs on 2026-07-26 — the
+       account is flagged and the profile 404s to the public, so the entry
+       was handing Google a dead identity claim. Put it back the moment the
+       GitHub support ticket resolves. -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -47,7 +51,6 @@
       "addressCountry": "US"
     },
     "sameAs": [
-      "https://github.com/Y3t1M",
       "https://linkedin.com/in/hudsontinch"
     ]
   }
