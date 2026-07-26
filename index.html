@@ -63,14 +63,19 @@
   sessionStorage.removeItem('pt-cover');}catch(e){}})();</script>
 
   <script src="icons.js" defer></script>
-  <!-- First-visit boot gate. Runs before the body is parsed so the page never
-       flashes ahead of the overlay. The timeout is a hard safety net: if
-       boot.js 404s or throws at parse time, nothing can leave the site
-       permanently covered. -->
+  <!-- Boot gate. Runs before the body is parsed so the page never flashes
+       ahead of the overlay. The timeout is a hard safety net: if boot.js 404s
+       or throws at parse time, nothing can leave the site permanently covered.
+
+       The animation plays on EVERY load, not just the first visit — Hudson's
+       call. To go back to first-visit-only, restore the ht-boot-seen-v2 check
+       below; boot.js still writes that key, so nothing else has to change.
+
+       Reduced motion is still honoured: replaying a full-screen animation on
+       every load is exactly what that preference exists to prevent. -->
   <script>
     (function () {
       try {
-        if (localStorage.getItem('ht-boot-seen-v2')) return;
         if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
         // fw-boot holds the hero's staggered entrance back so it plays as the
         // mark clears, rather than being spent behind the overlay.

@@ -387,10 +387,14 @@
   /* ================================================================
      SCROLL HINT INDICATOR
      ================================================================ */
-  /* Once you have seen the hint and actually scrolled, you know how the
-     site works — it never comes back, on any page. Dismissal by scroll is
-     what marks it learned; leaving without scrolling keeps it unlearned. */
-  const HINT_KEY = 'ht-hint-done';
+  /* The projects corridor and the home page are different scrolls — one is a
+     normal page, the other is a horizontal slide track — so learning one does
+     not teach the other. The "seen it" flag is therefore per context, not
+     global: a single key meant dismissing it once at home suppressed it
+     forever on projects, where it is the more useful of the two.
+     Dismissal by scroll is still what marks it learned. */
+  const inCorridor = !!document.querySelector('.sc-slide');
+  const HINT_KEY = inCorridor ? 'ht-hint-done-corridor' : 'ht-hint-done-home';
   let hintLearned = false;
   try { hintLearned = !!localStorage.getItem(HINT_KEY); } catch (e) {}
   const scrollHint = document.createElement('div');
@@ -403,7 +407,6 @@
      of scroll — so anyone who moved at all never saw it. There it now shows
      almost immediately and only leaves once you are genuinely inside the
      corridor (a full viewport deep). The home page keeps the patient timing. */
-  const inCorridor = !!document.querySelector('.sc-slide');
   const HINT_SHOW_MS = inCorridor ? 600 : 2200;
   const HINT_GONE_AT = () => (inCorridor ? window.innerHeight : 60);
   let hintGone = false;
