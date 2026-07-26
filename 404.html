@@ -5,6 +5,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>404 — Hudson Tinch</title>
+  <meta name="description" content="That page isn't here. Head back to hudsontinch.com.">
+  <meta name="robots" content="noindex">
   <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
   <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16.png">
@@ -29,9 +31,14 @@
       z-index: 1;
       padding: 24px 24px 16vh;
     }
+    /* This is the page's <h1>. margin and weight are pinned so promoting it
+       from a div changed nothing visually — the browser defaults for h1
+       (2em, bold, 0.67em margins) would otherwise fight the flex gap. */
     .nf-code {
       font-family: var(--font-mono);
       font-size: 12px;
+      font-weight: 400;
+      margin: 0;
       letter-spacing: 0.18em;
       text-transform: uppercase;
       color: var(--text-faint);
@@ -57,7 +64,7 @@
   </header>
 
   <div class="nf-wrap">
-    <div class="nf-code"><b>404</b> · TRACE NOT FOUND</div>
+    <h1 class="nf-code"><b>404</b> · TRACE NOT FOUND</h1>
     <a href="/index.html" class="btn-primary">Back to the site</a>
   </div>
 
