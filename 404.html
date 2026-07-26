@@ -31,14 +31,9 @@
       z-index: 1;
       padding: 24px 24px 16vh;
     }
-    /* This is the page's <h1>. margin and weight are pinned so promoting it
-       from a div changed nothing visually — the browser defaults for h1
-       (2em, bold, 0.67em margins) would otherwise fight the flex gap. */
     .nf-code {
       font-family: var(--font-mono);
       font-size: 12px;
-      font-weight: 400;
-      margin: 0;
       letter-spacing: 0.18em;
       text-transform: uppercase;
       color: var(--text-faint);
@@ -64,7 +59,7 @@
   </header>
 
   <div class="nf-wrap">
-    <h1 class="nf-code"><b>404</b> · TRACE NOT FOUND</h1>
+    <div class="nf-code"><b>404</b> · TRACE NOT FOUND</div>
     <a href="/index.html" class="btn-primary">Back to the site</a>
   </div>
 
