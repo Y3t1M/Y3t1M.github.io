@@ -3,64 +3,130 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RH Agentic — How it works</title>
+  <title>RH Agentic — Dashboard &amp; walkthrough</title>
   <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
   <link rel="icon" type="image/png" sizes="32x32" href="../assets/favicon-32.png">
   <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
-  <meta name="description" content="RH Agentic — how the system is wired: a nine-stage pipeline where a language model does judgment and deterministic code holds veto. Architecture only; no live data, positions, or performance.">
+  <meta name="description" content="RH Agentic — a sample-data clone of the operator dashboard plus a walkthrough of the nine-stage pipeline. A language model does judgment; deterministic code holds the veto. No live data, positions or performance.">
   <link rel="stylesheet" href="../styles.css">
   <style>
-    .rh-wrap { max-width: 1060px; margin: 0 auto; padding: 40px 24px 90px; }
+    .rh-wrap { max-width: 1120px; margin: 0 auto; padding: 38px 24px 90px; }
 
     .rh-top { display: flex; align-items: flex-end; justify-content: space-between;
       flex-wrap: wrap; gap: 14px 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
-    .rh-back { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em;
+    .rh-back { font-family: var(--font-mono); font-size: 11px; letter-spacing: .14em;
       text-transform: uppercase; color: var(--text-muted); text-decoration: none; }
     .rh-back:hover, .rh-back:focus-visible { color: var(--text); }
-    .rh-title { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
-    .rh-title h1 { font-size: clamp(26px, 4vw, 40px); font-weight: 750; letter-spacing: -0.02em;
+    .rh-title { display: flex; align-items: baseline; gap: 13px; flex-wrap: wrap; }
+    .rh-title h1 { font-size: clamp(26px,4vw,40px); font-weight: 750; letter-spacing: -.02em;
       margin: 6px 0 0; color: #f2f2f2; }
-    .rh-sample { font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.16em;
-      text-transform: uppercase; color: #ffb000; border: 1px solid rgba(255,176,0,0.4);
+    .rh-sample { font-family: var(--font-mono); font-size: 9.5px; letter-spacing: .16em;
+      text-transform: uppercase; color: #ffb000; border: 1px solid rgba(255,176,0,.4);
       border-radius: 3px; padding: 4px 9px; white-space: nowrap; }
 
-    .rh-lede { max-width: 70ch; color: var(--text-muted); font-size: 15.5px; margin: 22px 0 0;
+    .rh-lede { max-width: 72ch; color: var(--text-muted); font-size: 15px; margin: 20px 0 0;
       line-height: 1.7; }
     .rh-lede b { color: var(--text); font-weight: 600; }
 
-    /* the governing rule */
-    .rh-rule { margin: 34px 0 0; border: 1px solid var(--border); border-radius: var(--radius);
-      background: var(--bg-card); padding: 24px 26px; }
-    .rh-rule p.k { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.16em;
-      text-transform: uppercase; color: var(--text-faint); margin: 0 0 12px; }
-    .rh-rule blockquote { margin: 0; font-size: clamp(19px, 2.6vw, 26px); font-weight: 650;
-      letter-spacing: -0.015em; color: #f2f2f2; line-height: 1.32; }
-    .rh-rule .sub { margin: 13px 0 0; color: var(--text-muted); font-size: 14.5px; max-width: 66ch;
+    /* tabs */
+    .rh-tabs { display: flex; gap: 7px; margin: 26px 0 0; }
+    .rh-tab { appearance: none; cursor: pointer; font-family: var(--font-mono); font-size: 11px;
+      letter-spacing: .12em; text-transform: uppercase; border: 1px solid var(--border);
+      border-radius: 4px; background: none; color: var(--text-muted); padding: 10px 17px;
+      transition: border-color .13s, color .13s, background .13s; }
+    .rh-tab:hover { color: var(--text); border-color: var(--text-faint); }
+    .rh-tab[aria-selected="true"] { background: #eaeaea; color: #0a0a0a; border-color: #eaeaea;
+      font-weight: 600; }
+    .rh-tab:focus-visible { outline: 2px solid #eaeaea; outline-offset: 2px; }
+    .rh-view[hidden] { display: none; }
+
+    /* ── dashboard ── */
+    .dash { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px,1fr));
+      gap: 12px; margin-top: 18px; }
+    .pnl { border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg-card);
+      padding: 15px 16px; min-width: 0; }
+    .pnl.wide { grid-column: 1 / -1; }
+    .pnl h2 { margin: 0 0 13px; font-family: var(--font-mono); font-size: 10px; letter-spacing: .15em;
+      text-transform: uppercase; color: var(--text-faint); font-weight: 400; }
+
+    .vit { display: grid; grid-template-columns: repeat(auto-fit,minmax(126px,1fr)); gap: 11px; }
+    .vit div span { display: block; font-family: var(--font-mono); font-size: 9.5px;
+      letter-spacing: .11em; text-transform: uppercase; color: var(--text-faint); margin-bottom: 5px; }
+    .vit div b { font-family: var(--font-mono); font-size: 15px; color: var(--text); font-weight: 600;
+      font-variant-numeric: tabular-nums; }
+    .ok { color: #4ec77f !important; } .warn { color: #ffb000 !important; } .bad { color: #ff6b6b !important; }
+
+    table.t { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+    table.t th { text-align: left; font-family: var(--font-mono); font-size: 9px; letter-spacing: .12em;
+      text-transform: uppercase; color: var(--text-faint); font-weight: 400;
+      padding: 0 10px 8px 0; border-bottom: 1px solid var(--border); white-space: nowrap; }
+    table.t td { padding: 9px 10px 9px 0; border-bottom: 1px solid rgba(255,255,255,.05);
+      color: var(--text-muted); vertical-align: top; }
+    table.t tr:last-child td { border-bottom: 0; }
+    table.t .sym { font-family: var(--font-mono); color: var(--text); font-weight: 600; }
+    table.t .num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .scroll { overflow-x: auto; }
+
+    .tag { display: inline-block; font-family: var(--font-mono); font-size: 9px; letter-spacing: .1em;
+      text-transform: uppercase; padding: 2px 7px; border-radius: 2px; border: 1px solid; white-space: nowrap; }
+    .t-deny { color: #ff6b6b; border-color: rgba(255,107,107,.4); }
+    .t-pass { color: #4ec77f; border-color: rgba(78,199,127,.4); }
+    .t-hold { color: var(--text-faint); border-color: var(--border); }
+
+    /* funnel */
+    .fn { display: flex; flex-direction: column; gap: 7px; }
+    .fnrow { display: grid; grid-template-columns: 118px 1fr 46px; gap: 11px; align-items: center; }
+    .fnrow span { font-family: var(--font-mono); font-size: 10px; letter-spacing: .09em;
+      text-transform: uppercase; color: var(--text-faint); }
+    .fnbar { height: 17px; background: rgba(255,255,255,.09); border-radius: 2px; }
+    .fnbar i { display: block; height: 100%; background: #eaeaea; border-radius: 2px; }
+    .fnrow b { font-family: var(--font-mono); font-size: 12px; color: var(--text); text-align: right;
+      font-variant-numeric: tabular-nums; }
+
+    /* score bars */
+    .fac { display: grid; grid-template-columns: 118px 1fr 34px; gap: 10px; align-items: center;
+      margin-bottom: 6px; }
+    .fac span { font-family: var(--font-mono); font-size: 9.5px; letter-spacing: .08em;
+      text-transform: uppercase; color: var(--text-faint); }
+    .facbar { height: 6px; background: rgba(255,255,255,.08); border-radius: 3px; }
+    .facbar i { display: block; height: 100%; background: #8f8f97; border-radius: 3px; }
+    .fac b { font-family: var(--font-mono); font-size: 10.5px; color: var(--text-muted);
+      text-align: right; font-variant-numeric: tabular-nums; }
+
+    .note { margin: 9px 0 0; font-size: 12px; color: var(--text-faint); line-height: 1.55; }
+
+    /* ── walkthrough ── */
+    .rh-rule { margin: 18px 0 0; border: 1px solid var(--border); border-radius: var(--radius);
+      background: var(--bg-card); padding: 22px 24px; }
+    .rh-rule p.k { font-family: var(--font-mono); font-size: 10px; letter-spacing: .16em;
+      text-transform: uppercase; color: var(--text-faint); margin: 0 0 11px; }
+    .rh-rule blockquote { margin: 0; font-size: clamp(19px,2.6vw,26px); font-weight: 650;
+      letter-spacing: -.015em; color: #f2f2f2; line-height: 1.32; }
+    .rh-rule .sub { margin: 12px 0 0; color: var(--text-muted); font-size: 14.5px; max-width: 66ch;
       line-height: 1.65; }
     .rh-rule .sub b { color: var(--text); font-weight: 600; }
 
-    h2.rh-h { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.16em;
+    h2.rh-h { font-family: var(--font-mono); font-size: 11px; letter-spacing: .16em;
       text-transform: uppercase; color: var(--text-faint); font-weight: 400;
-      margin: 48px 0 0; padding-bottom: 11px; border-bottom: 1px solid var(--border); }
+      margin: 40px 0 0; padding-bottom: 11px; border-bottom: 1px solid var(--border); }
 
-    /* pipeline */
-    .rh-pipe { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 20px; }
+    .rh-pipe { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 18px; }
     .rh-stage { appearance: none; cursor: pointer; font-family: var(--font-mono); font-size: 10.5px;
-      letter-spacing: 0.1em; text-transform: uppercase; border: 1px solid var(--border);
+      letter-spacing: .1em; text-transform: uppercase; border: 1px solid var(--border);
       border-radius: 3px; background: none; color: var(--text-muted); padding: 9px 13px;
       transition: border-color .13s, color .13s, background .13s; }
     .rh-stage:hover { color: var(--text); border-color: var(--text-faint); }
     .rh-stage[aria-selected="true"] { background: #eaeaea; color: #0a0a0a; border-color: #eaeaea;
       font-weight: 600; }
     .rh-stage:focus-visible { outline: 2px solid #eaeaea; outline-offset: 2px; }
-    .rh-stage.gate { color: #ffb000; border-color: rgba(255,176,0,0.35); }
+    .rh-stage.gate { color: #ffb000; border-color: rgba(255,176,0,.35); }
     .rh-stage.gate[aria-selected="true"] { background: #ffb000; border-color: #ffb000; color: #140d00; }
 
-    .rh-detail { margin-top: 16px; border: 1px solid var(--border); border-radius: var(--radius);
-      background: var(--bg-card); padding: 22px 24px; min-height: 200px; }
-    .rh-detail h3 { margin: 0 0 4px; font-size: 19px; font-weight: 700; letter-spacing: -0.015em; }
-    .rh-detail .role { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.14em;
-      text-transform: uppercase; color: var(--text-faint); margin: 0 0 14px; }
+    .rh-detail { margin-top: 15px; border: 1px solid var(--border); border-radius: var(--radius);
+      background: var(--bg-card); padding: 21px 23px; min-height: 196px; }
+    .rh-detail h3 { margin: 0 0 4px; font-size: 19px; font-weight: 700; letter-spacing: -.015em; }
+    .rh-detail .role { font-family: var(--font-mono); font-size: 10px; letter-spacing: .14em;
+      text-transform: uppercase; color: var(--text-faint); margin: 0 0 13px; }
     .rh-detail p.body { margin: 0 0 12px; color: var(--text-muted); font-size: 14.5px;
       line-height: 1.65; max-width: 68ch; }
     .rh-detail b { color: var(--text); font-weight: 600; }
@@ -68,24 +134,25 @@
       line-height: 1.7; max-width: 66ch; }
     .rh-detail li::marker { color: var(--text-faint); }
 
-    /* gate list */
-    .rh-gates { display: grid; grid-template-columns: repeat(auto-fit, minmax(198px, 1fr));
-      gap: 8px; margin-top: 18px; }
+    .rh-gates { display: grid; grid-template-columns: repeat(auto-fit,minmax(198px,1fr));
+      gap: 8px; margin-top: 17px; }
     .rh-gate { border: 1px solid var(--border); border-radius: 4px; background: var(--bg-card);
       padding: 11px 13px; }
     .rh-gate b { display: block; font-family: var(--font-mono); font-size: 10.5px;
-      letter-spacing: 0.08em; text-transform: uppercase; color: var(--text); font-weight: 500; }
+      letter-spacing: .08em; text-transform: uppercase; color: var(--text); font-weight: 500; }
     .rh-gate span { display: block; margin-top: 5px; font-size: 12.5px; color: var(--text-muted);
       line-height: 1.5; }
 
-    .rh-note { margin-top: 34px; padding-top: 18px; border-top: 1px solid var(--border);
+    .rh-note { margin-top: 32px; padding-top: 18px; border-top: 1px solid var(--border);
       color: var(--text-muted); font-size: 13.5px; max-width: 72ch; line-height: 1.72; }
     .rh-note b { color: var(--text); font-weight: 600; }
 
     @media (max-width: 620px) {
-      .rh-wrap { padding: 30px 18px 70px; }
+      .rh-wrap { padding: 28px 16px 70px; }
       .rh-stage { font-size: 9.5px; padding: 8px 10px; }
-      .rh-detail { padding: 18px 17px; }
+      .rh-detail, .pnl { padding: 16px 15px; }
+      .fnrow { grid-template-columns: 96px 1fr 40px; }
+      .fac { grid-template-columns: 96px 1fr 30px; }
     }
   </style>
 </head>
@@ -97,85 +164,223 @@
         <a href="../projects.html" class="rh-back">&larr; Projects</a>
         <div class="rh-title">
           <h1>RH Agentic</h1>
-          <span class="rh-sample">Architecture &middot; no live data</span>
+          <span class="rh-sample">Sample data &middot; no live positions</span>
         </div>
       </div>
     </header>
 
-    <p class="rh-lede">An agentic research and execution system. Nine stages, each an independently
-      runnable script that writes a file the next one reads &mdash; so a crash never loses the chain
-      and every step stays auditable afterward. <b>What follows is the design, not the
-      deployment:</b> the production system runs privately, and nothing here shows holdings,
-      performance, or account data.</p>
+    <p class="rh-lede">An agentic research system built around a deterministic risk engine. Below is
+      a working copy of the operator dashboard, filled with <b>illustrative data</b> — the production
+      system runs privately and nothing here reflects real holdings, real performance or a real
+      account. The second tab walks the pipeline behind it.</p>
 
-    <div class="rh-rule">
-      <p class="k">The governing rule</p>
-      <blockquote>The model proposes. Code disposes.</blockquote>
-      <p class="sub">The language model does judgment &mdash; research, scoring, thesis.
-        Deterministic scripts do gatekeeping and measurement. A code-level <b>DENY</b> is
-        unconditional: there is no override and no retry with better phrasing. That split is the
-        entire point, because it is what stops a model allowed to touch real money from talking
-        itself into a position.</p>
+    <div class="rh-tabs" role="tablist" aria-label="Views">
+      <button class="rh-tab" role="tab" id="tab-dash" aria-controls="view-dash" aria-selected="true">Dashboard</button>
+      <button class="rh-tab" role="tab" id="tab-walk" aria-controls="view-walk" aria-selected="false">How it works</button>
     </div>
 
-    <h2 class="rh-h">The pipeline &mdash; click a stage</h2>
-    <div class="rh-pipe" role="tablist" aria-label="Pipeline stages"></div>
-    <div class="rh-detail" role="tabpanel" id="rh-detail" tabindex="0"></div>
+    <!-- ══ DASHBOARD ══ -->
+    <div class="rh-view" id="view-dash" role="tabpanel" aria-labelledby="tab-dash">
+      <div class="dash">
 
-    <h2 class="rh-h">What the risk engine checks before anything executes</h2>
-    <div class="rh-gates" id="rh-gates"></div>
+        <div class="pnl wide">
+          <h2>Vitals</h2>
+          <div class="vit">
+            <div><span>Trading state</span><b class="ok">ACTIVE</b></div>
+            <div><span>Drawdown</span><b>&minus;2.1%</b></div>
+            <div><span>Ladder</span><b class="ok">&lt; 8% reduce</b></div>
+            <div><span>Open positions</span><b>1 / 1</b></div>
+            <div><span>Entries today</span><b>1 / 2</b></div>
+            <div><span>Last full run</span><b class="ok">07:40 ✓</b></div>
+          </div>
+          <p class="note">The ladder is enforced by the validator, not by the model: at 8% drawdown the
+            system moves to REDUCING and at 15% it HALTS, regardless of what any proposal argues.</p>
+        </div>
 
-    <p class="rh-note"><b>Why it is built this way.</b> Trades are deliberately rare, which means
-      real outcomes arrive far too slowly to learn from. So the system manufactures its own sample:
-      every scored candidate is also carried as a virtual trade across several exit policies, and
-      results are measured in <b>R-units</b> rather than win rate &mdash; expectancy, profit factor
-      and bootstrapped confidence intervals, so that a lucky streak cannot read as skill. A drawdown
-      ladder steps the whole system from active, to reducing, to halted, and the validator enforces
-      it whether or not the model agrees.</p>
+        <div class="pnl">
+          <h2>Holdings</h2>
+          <div class="scroll"><table class="t">
+            <thead><tr><th>Symbol</th><th>Entry</th><th>Stop</th><th>Open R</th><th>Rung</th></tr></thead>
+            <tbody>
+              <tr><td class="sym">MSFT</td><td class="num">412.40</td><td class="num">398.10</td>
+                  <td class="num ok">+1.2R</td><td><span class="tag t-hold">break-even set</span></td></tr>
+            </tbody>
+          </table></div>
+          <p class="note">Entry is always paired with a broker-side GTC stop placed at the exchange, so
+            the position stays protected if this machine dies.</p>
+        </div>
+
+        <div class="pnl">
+          <h2>Calibration</h2>
+          <div class="vit">
+            <div><span>Expectancy</span><b class="ok">+0.31R</b></div>
+            <div><span>Profit factor</span><b>1.48</b></div>
+            <div><span>Sample (n)</span><b>214</b></div>
+            <div><span>90% CI</span><b>0.06 – 0.55</b></div>
+          </div>
+          <p class="note">Everything is measured in R-units, never raw win rate, and the confidence
+            interval decides whether a change is signal or a streak.</p>
+        </div>
+
+        <div class="pnl wide">
+          <h2>Funnel — why no trade</h2>
+          <div class="fn" id="funnel"></div>
+          <p class="note">The most useful panel on the real dashboard. Most days end in no trade, and
+            this is the record of exactly where each candidate stopped.</p>
+        </div>
+
+        <div class="pnl wide">
+          <h2>Decisions</h2>
+          <div class="scroll"><table class="t" id="decisions">
+            <thead><tr><th>Symbol</th><th>Verdict</th><th>Gate / thesis</th><th>Score</th></tr></thead>
+            <tbody></tbody>
+          </table></div>
+        </div>
+
+        <div class="pnl wide">
+          <h2>Candidate score — factor breakdown</h2>
+          <div id="factors"></div>
+          <p class="note">Eight weighted factors resolve to one number. Below the entry threshold
+            nothing proceeds, no matter how good the write-up reads.</p>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ══ WALKTHROUGH ══ -->
+    <div class="rh-view" id="view-walk" role="tabpanel" aria-labelledby="tab-walk" hidden>
+      <div class="rh-rule">
+        <p class="k">The governing rule</p>
+        <blockquote>The model proposes. Code disposes.</blockquote>
+        <p class="sub">The language model does judgment — research, scoring, thesis. Deterministic
+          scripts do gatekeeping and measurement. A code-level <b>DENY</b> is unconditional: there is
+          no override and no retry with better phrasing. That split is the entire point, because it
+          is what stops a model allowed to touch real money from talking itself into a position.</p>
+      </div>
+
+      <h2 class="rh-h">The pipeline &mdash; click a stage</h2>
+      <div class="rh-pipe" role="tablist" aria-label="Pipeline stages"></div>
+      <div class="rh-detail" role="tabpanel" id="rh-detail" tabindex="0"></div>
+
+      <h2 class="rh-h">What the risk engine checks before anything executes</h2>
+      <div class="rh-gates" id="rh-gates"></div>
+
+      <p class="rh-note"><b>Why it is built this way.</b> Trades are deliberately rare, which means
+        real outcomes arrive far too slowly to learn from. So the system manufactures its own sample:
+        every scored candidate is also carried as a virtual trade across several exit policies, and
+        results are measured in <b>R-units</b> rather than win rate — expectancy, profit factor and
+        bootstrapped confidence intervals, so that a lucky streak cannot read as skill. A drawdown
+        ladder steps the whole system from active, to reducing, to halted, and the validator enforces
+        it whether or not the model agrees.</p>
+    </div>
   </div>
 
 <script>
 (function () {
   'use strict';
 
+  /* ── sample data. Deliberately mega-caps: implausible as this system's
+     small-cap insider-cluster candidates, so nothing here can be mistaken
+     for a real book. No dollar equity is shown anywhere. ── */
+  var FUNNEL = [
+    ['Scanned',        612, 'universe touched by the zero-token sweep'],
+    ['Contenders',      38, 'survived the quality gate into the pool'],
+    ['Deep passed',      9, 'earned an expensive research pass'],
+    ['Dossiers',         4, 'full write-up incl. bear case + pre-mortem'],
+    ['Scored ≥ entry',   2, 'cleared the scoring threshold'],
+    ['Validated',        1, 'cleared every risk gate'],
+    ['Executed',         1, 'order placed with stop attached']
+  ];
+
+  var DECISIONS = [
+    ['MSFT', 'pass', 'Entered — catalyst intact, R:R 2.4, stop below the base', '78'],
+    ['KO',   'deny', 'Trend guard — price below a falling 20-EMA', '74'],
+    ['AAPL', 'deny', 'Chase cap — 7.1% above pivot, limit is 5%', '81'],
+    ['PG',   'deny', 'Score 63 — below entry threshold', '63'],
+    ['JNJ',  'hold', 'Dossier open, awaiting catalyst date', '—']
+  ];
+
+  var FACTORS = [
+    ['Catalyst', 17, 20], ['Policy tailwind', 9, 15], ['Institutional flow', 13, 15],
+    ['Technicals', 12, 15], ['Sentiment gap', 7, 10], ['Source signal', 8, 10],
+    ['Macro fit', 7, 10], ['Liquidity', 5, 5]
+  ];
+
+  var f = document.getElementById('funnel'), max = FUNNEL[0][1];
+  FUNNEL.forEach(function (r) {
+    var d = document.createElement('div'); d.className = 'fnrow';
+    var pct = Math.max(1.2, (r[1] / max) * 100);
+    d.innerHTML = '<span></span><div class="fnbar"><i style="width:' + pct.toFixed(1) + '%"></i></div><b></b>';
+    d.querySelector('span').textContent = r[0];
+    d.querySelector('b').textContent = r[1];
+    d.title = r[2];
+    f.appendChild(d);
+  });
+
+  var tb = document.querySelector('#decisions tbody');
+  DECISIONS.forEach(function (r) {
+    var tr = document.createElement('tr');
+    var cls = r[1] === 'deny' ? 't-deny' : r[1] === 'pass' ? 't-pass' : 't-hold';
+    var label = r[1] === 'deny' ? 'DENY' : r[1] === 'pass' ? 'EXECUTED' : 'WATCH';
+    tr.innerHTML = '<td class="sym"></td><td></td><td></td><td class="num"></td>';
+    var td = tr.children;
+    td[0].textContent = r[0];
+    var t = document.createElement('span'); t.className = 'tag ' + cls; t.textContent = label;
+    td[1].appendChild(t);
+    td[2].textContent = r[2];
+    td[3].textContent = r[3];
+    tb.appendChild(tr);
+  });
+
+  var fw = document.getElementById('factors');
+  FACTORS.forEach(function (r) {
+    var d = document.createElement('div'); d.className = 'fac';
+    d.innerHTML = '<span></span><div class="facbar"><i style="width:' +
+                  ((r[1] / r[2]) * 100).toFixed(0) + '%"></i></div><b></b>';
+    d.querySelector('span').textContent = r[0];
+    d.querySelector('b').textContent = r[1] + '/' + r[2];
+    fw.appendChild(d);
+  });
+
+  /* ── walkthrough ── */
   var STAGES = [
-    { id: 'scan', name: 'Scan', role: 'Layer 1 · sourcing',
+    { name: 'Scan', role: 'Layer 1 · sourcing',
       body: 'Every session opens with a deterministic sweep that costs no model tokens and needs no API keys — so it runs whether or not the model is working. A regime read on the broad indices sets how picky the session is allowed to be, and the rest of the funnel fills from there.',
       list: ['Regime — index trend and distribution days set the session’s risk posture',
              'Insider cluster buys parsed from public filings — the primary edge',
              'A second, independent scrape of the same filing universe, as failover',
              'Relative-volume names in play, off-index runners, social attention',
              'Earnings-drift and all-time-high pullback watchlists'] },
-    { id: 'contend', name: 'Contend', role: 'Layer 2 · memory',
+    { name: 'Contend', role: 'Layer 2 · memory',
       body: 'Before this stage existed, every scan overwrote its own output and each check began with amnesia. The contender pool is the memory between runs: one list keyed by symbol, unified from every source, with the most active names re-quoted live so movement is real rather than stale.',
       list: ['Tracks whether a name is new, moving up, fading, or stalled',
              'Priority tiers separate genuine candidates from shadow-only ones',
              'Only high-priority movers earn an expensive deep pass'] },
-    { id: 'research', name: 'Research', role: 'Layer 3 · judgment',
+    { name: 'Research', role: 'Layer 3 · judgment',
       body: 'Nothing can be scored without a written dossier first. It covers structure, liquidity, the catalyst map, earnings behaviour, short interest, institutional flow, policy exposure and sentiment — and it is required to end with a bear case and a pre-mortem.',
       list: ['The pre-mortem is mandatory: argue why this fails before sizing it',
              'Breadth fans out to cheaper scout models; synthesis stays on the strong one'] },
-    { id: 'score', name: 'Score', role: 'Layer 4 · judgment',
+    { name: 'Score', role: 'Layer 4 · judgment',
       body: 'The dossier is converted into a single number by a weighted factor model — catalyst, policy tailwind, institutional flow, technicals, sentiment gap, source signal, macro fit and liquidity. A threshold gates entry entirely; below it nothing proceeds, regardless of how good the narrative sounds.',
       list: ['The model file is versioned and carries every prior configuration',
              'Each revision records the evidence and rationale that motivated it'] },
-    { id: 'validate', name: 'Validate', role: 'Layer 5 · the chokepoint', gate: true,
+    { name: 'Validate', role: 'Layer 5 · the chokepoint', gate: true,
       body: 'Every order passes through one deterministic gate, and this is the stage the whole design exists to protect. DENY is unconditional. Every verdict is appended to an audit log, and rejections are treated as training data rather than noise.',
       list: ['Eligibility differs by strategy sleeve; each has its own hard preconditions',
              'Universal gates apply on top of eligibility — listed below',
              'A denied proposal is re-validated next cycle, never grandfathered through'] },
-    { id: 'execute', name: 'Execute', role: 'Layer 6 · action', gate: true,
+    { name: 'Execute', role: 'Layer 6 · action', gate: true,
       body: 'Entry and protection are a single indivisible step: an order is always paired with a broker-side stop placed immediately at the exchange, never held in local state. There is no such thing as an unprotected position — including through a crash, a restart, or the machine going offline.',
       list: ['The stop lives at the broker, so it survives the system dying'] },
-    { id: 'manage', name: 'Manage', role: 'Layer 7 · action',
+    { name: 'Manage', role: 'Layer 7 · action',
       body: 'While a position is open, a zero-token watchdog checks live price against every level on the exit ladder on a fifteen-minute cycle, and escalates to a full management pass when one is approached.',
       list: ['The ladder covers stop proximity, thesis break, reversal and profit targets',
              'Break-even moves, trailing, time decay and partial trims are all rule-driven'] },
-    { id: 'log', name: 'Log', role: 'Layer 8 · the record',
+    { name: 'Log', role: 'Layer 8 · the record',
       body: 'Everything is append-only. Decisions link to the score that produced them, scores link to their dossier, and lessons link to the evidence behind them — so any position can be reconstructed months later, including the reasoning and the alternatives that were rejected.',
       list: ['Append-only means history is never rewritten, only added to',
              'Rejections are recorded as fully as executions'] },
-    { id: 'learn', name: 'Learn', role: 'Layer 9 · the loop back',
+    { name: 'Learn', role: 'Layer 9 · the loop back',
       body: 'The output of measurement is a change to the scoring model, which changes what gets proposed, which produces new evidence. This is the only stage permitted to alter the model, and it must cite the evidence that justified the change.',
       list: ['Virtual trades supply the sample size that real trades cannot',
              'Performance is measured in R-units, never raw win rate',
@@ -194,57 +399,67 @@
     ['Source channel', 'Signal channels measured as negative-expectancy are blocked from real capital.']
   ];
 
-  var pipe = document.querySelector('.rh-pipe');
-  var detail = document.getElementById('rh-detail');
-
-  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
+  var pipe = document.querySelector('.rh-pipe'), detail = document.getElementById('rh-detail');
 
   function render(i) {
     var s = STAGES[i];
-    var html = '<h3>' + esc(s.name) + '</h3><p class="role">' + esc(s.role) + '</p>' +
-               '<p class="body">' + esc(s.body) + '</p>';
+    detail.innerHTML = '';
+    var h = document.createElement('h3'); h.textContent = s.name;
+    var r = document.createElement('p'); r.className = 'role'; r.textContent = s.role;
+    var b = document.createElement('p'); b.className = 'body'; b.textContent = s.body;
+    detail.appendChild(h); detail.appendChild(r); detail.appendChild(b);
     if (s.list) {
-      html += '<ul>' + s.list.map(function (l) { return '<li>' + esc(l) + '</li>'; }).join('') + '</ul>';
+      var ul = document.createElement('ul');
+      s.list.forEach(function (l) { var li = document.createElement('li'); li.textContent = l; ul.appendChild(li); });
+      detail.appendChild(ul);
     }
-    detail.innerHTML = html;
-    Array.prototype.forEach.call(pipe.children, function (b, n) {
-      b.setAttribute('aria-selected', n === i ? 'true' : 'false');
-      b.tabIndex = n === i ? 0 : -1;
+    Array.prototype.forEach.call(pipe.children, function (el, n) {
+      el.setAttribute('aria-selected', n === i ? 'true' : 'false');
+      el.tabIndex = n === i ? 0 : -1;
     });
   }
 
   STAGES.forEach(function (s, i) {
-    var b = document.createElement('button');
-    b.type = 'button';
-    b.className = 'rh-stage' + (s.gate ? ' gate' : '');
-    b.setAttribute('role', 'tab');
-    b.setAttribute('aria-selected', 'false');
-    b.setAttribute('aria-controls', 'rh-detail');
-    b.tabIndex = -1;
-    b.textContent = (i + 1) + ' · ' + s.name;
-    b.addEventListener('click', function () { render(i); });
-    b.addEventListener('keydown', function (e) {
+    var el = document.createElement('button');
+    el.type = 'button';
+    el.className = 'rh-stage' + (s.gate ? ' gate' : '');
+    el.setAttribute('role', 'tab');
+    el.setAttribute('aria-selected', 'false');
+    el.setAttribute('aria-controls', 'rh-detail');
+    el.tabIndex = -1;
+    el.textContent = (i + 1) + ' · ' + s.name;
+    el.addEventListener('click', function () { render(i); });
+    el.addEventListener('keydown', function (e) {
       var d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
       if (!d) return;
       e.preventDefault();
       var n = (i + d + STAGES.length) % STAGES.length;
-      render(n);
-      pipe.children[n].focus();
+      render(n); pipe.children[n].focus();
     });
-    pipe.appendChild(b);
+    pipe.appendChild(el);
   });
 
-  var gwrap = document.getElementById('rh-gates');
+  var gw = document.getElementById('rh-gates');
   GATES.forEach(function (g) {
-    var d = document.createElement('div');
-    d.className = 'rh-gate';
+    var d = document.createElement('div'); d.className = 'rh-gate';
     var b = document.createElement('b'); b.textContent = g[0];
     var s = document.createElement('span'); s.textContent = g[1];
-    d.appendChild(b); d.appendChild(s);
-    gwrap.appendChild(d);
+    d.appendChild(b); d.appendChild(s); gw.appendChild(d);
   });
 
   render(0);
+
+  /* tabs */
+  var tabs = [document.getElementById('tab-dash'), document.getElementById('tab-walk')];
+  var views = [document.getElementById('view-dash'), document.getElementById('view-walk')];
+  tabs.forEach(function (t, i) {
+    t.addEventListener('click', function () {
+      tabs.forEach(function (x, n) {
+        x.setAttribute('aria-selected', n === i ? 'true' : 'false');
+        views[n].hidden = n !== i;
+      });
+    });
+  });
 })();
 </script>
 </body>
