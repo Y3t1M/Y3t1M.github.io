@@ -27,7 +27,7 @@
 (function () {
   'use strict';
 
-  var KEY = 'ht-boot-seen-v2';
+  var KEY = 'ht-boot-session';   /* sessionStorage — one boot per visit */
   var root = document.documentElement;
   if (!root.classList.contains('booting')) return;
 
@@ -161,5 +161,5 @@
   timers.push(setTimeout(function () { if (!done) { done = true; finish(); } },
     BUILD + HOLD + 640 + 520 + 1500));
 
-  try { localStorage.setItem(KEY, '1'); } catch (e) {}
+  try { sessionStorage.setItem(KEY, '1'); } catch (e) {}
 })();
