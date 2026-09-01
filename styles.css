@@ -2039,3 +2039,49 @@ body.blueprint #bp-scratch-btn { display: block; }
     background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.8));
   }
 }
+
+/* ── Mobile corridor: hard snap (Hudson's pick, 2026-09-01) ──────────
+   The desktop corridor's traverse on phones, detent via native CSS
+   scroll-snap. scroll-fx.js adds html.mcorr, wraps the slides in
+   .sc-mtrack, drops .sc-step snap points through #showcase, and builds
+   the ghost-numeral HUD. Everything here is scoped to html.mcorr so
+   desktop and the no-JS fallback are untouched. */
+@media (max-width: 700px) {
+  html.mcorr { scroll-snap-type: y mandatory; }
+  html.mcorr .proj-head { scroll-snap-align: start; }
+  html.mcorr .sc-snap-exit { scroll-snap-align: start; }
+  html.mcorr #showcase { position: relative; }
+  html.mcorr .sc-step { position: absolute; left: 0; width: 2px; height: 2px; scroll-snap-align: start; pointer-events: none; }
+  html.mcorr #showcase .sc-stage { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; }
+  html.mcorr .sc-mtrack {
+    position: absolute; left: 0; top: 24vh; top: 24svh;
+    display: flex; gap: 12px; padding: 0 8vw;
+    will-change: transform; z-index: 1;
+  }
+  html.mcorr .sc-mtrack .sc-slide { flex: 0 0 84vw; width: 84vw; }
+  html.mcorr .sc-mtrack .sc-slide.wide { width: 84vw; }
+  html.mcorr .sc-mtrack .case,
+  html.mcorr .sc-mtrack .case-grid {
+    margin: 0; max-height: 62vh; max-height: 62svh; overflow-y: auto;
+    overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
+  }
+  html.mcorr .sc-mghost {
+    position: absolute; right: -4px; top: 4vh; top: 4svh;
+    font-family: var(--font-mono); font-weight: 700;
+    font-size: 30vh; font-size: 30svh; line-height: 1;
+    color: rgba(234, 234, 234, 0.30); z-index: 0; pointer-events: none;
+    -webkit-mask-image: radial-gradient(circle, #000 34%, transparent 36%);
+            mask-image: radial-gradient(circle, #000 34%, transparent 36%);
+    -webkit-mask-size: 8px 8px; mask-size: 8px 8px;   /* pitch fixed 8px — see dot-matrix rules */
+    transition: opacity 0.3s ease;
+  }
+  html.mcorr .sc-mind {
+    position: absolute; left: 16px; right: 16px;
+    bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+    display: flex; align-items: center; gap: 10px; z-index: 2;
+  }
+  html.mcorr .sc-mcount { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em; color: var(--text); }
+  html.mcorr .sc-mticks { display: flex; gap: 6px; }
+  html.mcorr .sc-mticks i { width: 12px; height: 3px; background: rgba(255,255,255,0.22); transition: background 0.25s ease, height 0.25s ease; }
+  html.mcorr .sc-mticks i.on { background: var(--text); height: 5px; }
+}

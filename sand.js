@@ -157,6 +157,7 @@
     '  float s2 = n * (1.0 + near * 0.75);',             /* seep strength 0.75 */
     '  float a = clamp(0.55 * s2 * mask, 0.0, 1.0);',    /* grain weight 0.55 */
     '  a *= (1.0 - inside * 0.60);',                     /* face clearance 0.60 — Hudson asked for cards ~15% less translucent (was 0.45, before that 0.20) */
+    '  a *= 1.0 + (1.0 - inside) * 0.25;',              /* +25% grain in the gaps BETWEEN cards (Hudson, 2026-09-01) — faces stay governed by the line above */
     '  gl_FragColor = vec4(vec3(a), a);',
     '}'
   ].join('\n');

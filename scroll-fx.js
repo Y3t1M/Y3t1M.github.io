@@ -121,9 +121,91 @@
   requestAnimationFrame(tick);
 
 
+  /* ---- mobile corridor: HARD SNAP (Hudson's pick, lab round 3, A6) ----
+     The desktop corridor's traverse, rebuilt for phones on native physics:
+     vertical scroll drives the horizontal track, and the detent comes from
+     CSS scroll-snap steps — this JS only READS scrollY, never writes it,
+     which is the difference from the old corridor that stranded cards. */
+  function mobileCorridor(sec) {
+    var stage = sec.querySelector('.sc-stage');
+    var slides = Array.prototype.slice.call(sec.querySelectorAll('.sc-slide'));
+    var N = slides.length;
+    if (!stage || !N) return;
+    document.documentElement.classList.add('mcorr');
+
+    var track = document.createElement('div');
+    track.className = 'sc-mtrack';
+    slides.forEach(function (sl) { track.appendChild(sl); });
+    stage.appendChild(track);
+
+    var hud = document.createElement('div');
+    hud.className = 'sc-mhud';
+    var ticksHTML = '';
+    for (var t0 = 0; t0 < N; t0++) ticksHTML += '<i></i>';
+    hud.innerHTML = '<div class="sc-mghost" aria-hidden="true">01</div>' +
+      '<div class="sc-mind"><span class="sc-mcount">01 / 0' + N + '</span>' +
+      '<span class="sc-mticks">' + ticksHTML + '</span></div>';
+    stage.insertBefore(hud, track);
+    var ghost = hud.querySelector('.sc-mghost');
+    var count = hud.querySelector('.sc-mcount');
+    var ticks = hud.querySelector('.sc-mticks').children;
+
+    /* invisible snap steps — the browser's own detent */
+    var steps = [];
+    for (var i0 = 0; i0 < N; i0++) {
+      var st = document.createElement('div');
+      st.className = 'sc-step';
+      sec.appendChild(st);
+      steps.push(st);
+    }
+    /* release point: the section after the corridor gets a snap stop too,
+       so the page hands scrolling back cleanly at the end */
+    if (sec.nextElementSibling) sec.nextElementSibling.classList.add('sc-snap-exit');
+
+    var stepH = 0, secTop = 0, stepW = 0;
+    function measure() {
+      stepH = window.innerHeight;
+      sec.style.height = (N * stepH + Math.round(stepH * 0.2)) + 'px';
+      var r = sec.getBoundingClientRect();
+      secTop = r.top + window.pageYOffset;
+      for (var i = 0; i < N; i++) steps[i].style.top = (i * stepH) + 'px';
+      var first = track.firstElementChild;
+      stepW = first ? first.getBoundingClientRect().width + 12 : 0;
+    }
+    measure();
+    window.addEventListener('resize', measure);
+    window.addEventListener('orientationchange', function () { setTimeout(measure, 150); });
+    window.addEventListener('load', measure);
+
+    var lastIdx = -1;
+    function label(i) { return (i + 1 < 10 ? '0' : '') + (i + 1); }
+    function onScroll() {
+      if (!stepW) measure();
+      var pos = Math.max(0, Math.min(N - 1, (window.pageYOffset - secTop) / stepH));
+      track.style.transform = 'translate3d(' + (-pos * stepW).toFixed(1) + 'px,0,0)';
+      var idx = Math.round(pos);
+      if (idx !== lastIdx) {
+        lastIdx = idx;
+        count.textContent = label(idx) + ' / ' + label(N - 1);
+        for (var t = 0; t < ticks.length; t++) ticks[t].classList.toggle('on', t === idx);
+        var l = label(idx);
+        if (ghost.textContent !== l) {
+          ghost.style.opacity = 0;
+          setTimeout(function () { ghost.textContent = l; ghost.style.opacity = ''; }, 140);
+        }
+      }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  }
+
   /* ---- pinned LIFT showcase v2 (desktop only — see SMALL above) ---- */
   (function () {
-    if (SMALL) return;
+    if (SMALL) {
+      var msec = document.getElementById('showcase');
+      if (msec) mobileCorridor(msec);
+      return;
+    }
     var sec = document.getElementById('showcase');
     if (!sec) return;
     var stage = sec.querySelector('.sc-stage');
