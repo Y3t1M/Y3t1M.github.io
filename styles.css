@@ -469,9 +469,11 @@ html.booting .nav-mark { opacity: 0; }
   }
   #pcb-canvas {
     opacity: 0.85;
-    /* Let the swells dissolve into the page instead of ending on an edge. */
-    -webkit-mask-image: linear-gradient(to bottom, #000 0 58%, transparent 100%);
-            mask-image: linear-gradient(to bottom, #000 0 58%, transparent 100%);
+    /* Feather only the bottom edge. The old 58% fade suited the wireframe
+       terrain; sandglow's boldest rows live low, and the deep fade washed
+       them out on phones. */
+    -webkit-mask-image: linear-gradient(to bottom, #000 0 88%, transparent 100%);
+            mask-image: linear-gradient(to bottom, #000 0 88%, transparent 100%);
   }
   .hero-panel {
     position: relative;

@@ -1,9 +1,30 @@
 /* ============================================================
-   TERRAIN HERO — terrain-hero.js
-   Refined wireframe topography: long smooth swells. The nav
-   chips are moored to the field — each rides the swell at its
-   anchor point, tied down by a leader line to a glowing node.
-   Cursor raises the ground; clicks drop slow seismic ripples.
+   SANDGLOW HERO — terrain-hero.js
+   (filename kept so index.html and the deploy pipeline are
+   untouched; the wireframe terrain this file used to draw is
+   retired — git has it.)
+
+   The field Hudson picked in the wave lab, 2026-09-01, shipped
+   exactly as dialed: intensity 22 · touch 70 · drift 100.
+
+   The rules of the field:
+   - a raster of LED dots in perspective; the WAVE lives in
+     their brightness and size — dots never jump, so the motion
+     cannot jag
+   - the whole field drifts slowly, sand creeping in wind
+   - the touch is a hand through sand: grains push aside in a
+     hand-sized radius, glow at the rim while displaced, and
+     heal home slowly with no bounce
+   - hovering blooms light under the hand (wider than the push)
+   - a CLICK pops bright and sends one expanding ring of pure
+     light — applied after intensity scaling so it punches the
+     same however quiet the wave is dialed
+   - a DRAG leaves a trace: a furrow the field heals over ~6s
+     (his "+ trace" pick)
+
+   Reduced motion runs full speed — Hudson's standing call for
+   ambient texture (see the old file's note; the boot overlay
+   still honours the setting, this layer is not held).
    ============================================================ */
 (function () {
   'use strict';
@@ -13,229 +34,230 @@
   if (!hero || !canvas) return;
   var ctx = canvas.getContext('2d');
   /* mirrors __sandDiag — see the ?diag=1 panel in index.html */
-  var TD = window.__terrainDiag = { mode: ctx ? 'init' : 'no-2d', frames:0, w:0, h:0, reduced:false };
+  var TD = window.__terrainDiag = { mode: ctx ? 'sandglow-init' : 'no-2d', frames: 0, w: 0, h: 0 };
+  if (!ctx) return;
 
-  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var COARSE = window.matchMedia('(pointer: coarse)').matches;
-  var desktopLayout = window.matchMedia('(min-width: 861px)');
+  /* Hudson's dialed string. The tuner hook lets a lab page or the console
+     retune live values without a deploy: __sandglow.P.int = ... */
+  var P = { int: 0.22, touch: 0.70, drift: 1.00 };
+  window.__sandglow = { P: P };
 
-  var W = 0, H = 0;
-
-  var comps = ['comp-projects', 'comp-desktop', 'comp-resume']
-    .map(function (id) { return document.getElementById(id); })
-    .filter(Boolean)
-    .map(function (el) { return { el: el, xc: 0, z: 0.5, zz: 0, y0: 0, amp: 0, bottom: 0 }; });
-
-  function measureComps() {
-    if (!desktopLayout.matches) return;
-    var hr = hero.getBoundingClientRect();
-    comps.forEach(function (c) {
-      c.el.style.transform = '';
-      var r = c.el.getBoundingClientRect();
-      c.xc = r.left - hr.left + r.width / 2;
-      c.bottom = r.bottom - hr.top;
-      // anchor the chip to the terrain row ~56px below it
-      var horizon = H * 0.47;
-      var yTarget = Math.min(H - 30, c.bottom + 56);
-      var zz = Math.max(0.05, Math.min(1, (yTarget - horizon) / ((H - horizon) * 1.05)));
-      c.zz = zz;
-      c.z = Math.pow(zz, 1 / 1.7);
-      c.y0 = horizon + zz * (H - horizon) * 1.05;
-      c.amp = (14 + zz * 74) * 0.40;
-    });
+  /* ---- noise (same voice as the retired terrain) ------------------- */
+  function hh(x, y) { var h = Math.sin(x * 127.1 + y * 311.7) * 43758.5453; return h - Math.floor(h); }
+  function vn(x, y) {
+    var xi = Math.floor(x), yi = Math.floor(y), xf = x - xi, yf = y - yi;
+    var u = xf * xf * (3 - 2 * xf), v = yf * yf * (3 - 2 * yf);
+    var a = hh(xi, yi), b = hh(xi + 1, yi), c = hh(xi, yi + 1), d = hh(xi + 1, yi + 1);
+    return a + (b - a) * u + (c - a) * v + (a - b - c + d) * u * v;
   }
 
+  /* ---- the raster --------------------------------------------------- */
+  var W = 0, H = 0, ROWS = 26, rows = [];
+  function build() {
+    rows = [];
+    var horizon = H * 0.24;
+    for (var ri = 0; ri < ROWS; ri++) {
+      var z = ri / ROWS, zz = Math.pow(z, 1.6);
+      var pitch = 9 + zz * 13;
+      var n = Math.floor(W / pitch) + 2;
+      var row = {
+        z: z, zz: zz,
+        y0: horizon + zz * (H - horizon) * 1.04,
+        pitch: pitch, n: n,
+        size: 0.9 + zz * 2.3,
+        gain: 0.10 + zz * 0.62,
+        u: new Float32Array(n),
+        ox: new Float32Array(n),
+        oy: new Float32Array(n)
+      };
+      for (var i = 0; i < n; i++) row.u[i] = (i + hh(ri, i) * 0.6) / n;
+      rows.push(row);
+    }
+  }
   function resize() {
     var r = hero.getBoundingClientRect();
     var w = Math.round(r.width), h = Math.round(r.height);
-    /* Never let the canvas go degenerate. Mobile fires resize mid-layout and
-       a zero here would blank the field with no later event to undo it. */
+    /* Never let the canvas go degenerate — mobile fires resize mid-layout. */
     if (w < 2 || h < 2) return;
-    /* Assigning width/height CLEARS the canvas, and mobile URL-bar collapse
-       fires resize constantly — bailing when nothing changed is what stops
-       the terrain flickering out while you scroll. */
+    /* Assigning width/height CLEARS the canvas and mobile URL-bar collapse
+       fires resize constantly — bail when nothing changed. */
     if (w === W && h === H) return;
     TD.w = w; TD.h = h;
     W = canvas.width = w;
     H = canvas.height = h;
-    measureComps();
+    build();
   }
   resize();
   window.addEventListener('resize', resize);
   window.addEventListener('orientationchange', function () { setTimeout(resize, 120); });
-  /* back/forward cache restores can hand back a stale surface */
   window.addEventListener('pageshow', function () { W = H = 0; resize(); });
-  window.addEventListener('load', function () { setTimeout(measureComps, 100); });
 
-  // after the boot stagger settles, drop the CSS transform transition so
-  // the chips can ride the swells without rubber-banding
-  setTimeout(function () {
-    document.documentElement.classList.add('settled');
-    measureComps();
-  }, 1500);
+  /* ---- the hand ----------------------------------------------------- */
+  var mx = -9e3, my = -9e3, sx = -9e3, sy = -9e3, str = 0;
+  var pvx = 0, pvy = 0, spd = 0, lastP = null, lastT = 0;
+  var presses = [];   /* clicks: pop + ring of light                */
+  var dents = [];     /* the trace: drag furrows healing over ~6s   */
 
-  var mouse = { x: -9999, y: -9999, sx: -9999, sy: -9999 };
-  hero.addEventListener('pointermove', function (e) {
+  function heroXY(cx, cy) {
     var r = hero.getBoundingClientRect();
-    mouse.x = e.clientX - r.left;
-    mouse.y = e.clientY - r.top;
-  });
-  hero.addEventListener('pointerleave', function () { mouse.x = -9999; mouse.y = -9999; });
-
-  var waves = [];
-  function ripple(cx, cy) {
-    var r = hero.getBoundingClientRect();
-    waves.push({ x: cx - r.left, y: cy - r.top, t0: performance.now() / 1000 });
-    if (waves.length > 6) waves.shift();
+    return [cx - r.left, cy - r.top];
   }
-  hero.addEventListener('pointerdown', function (e) {
-    /* Only real controls are off-limits. The old guard skipped the whole
-       .hero-panel, which on a phone is most of the screen — so tapping the
-       hero did nothing and the field read as decoration. */
-    if (e.target.closest('a, button')) return;
-    ripple(e.clientX, e.clientY);
+  function track(x, y, dragging) {
+    var now = performance.now() / 1000;
+    if (lastP) {
+      var dt = Math.max(0.008, now - lastT);
+      pvx += ((x - lastP[0]) / dt - pvx) * 0.25;
+      pvy += ((y - lastP[1]) / dt - pvy) * 0.25;
+      spd = Math.hypot(pvx, pvy);
+    }
+    lastP = [x, y]; lastT = now;
+    if (dragging) {
+      var ld = dents[dents.length - 1];
+      if (!ld || Math.hypot(x - ld.x, y - ld.y) > 26) {
+        dents.push({ x: x, y: y, t: now });
+        if (dents.length > 48) dents.shift();
+      }
+    }
+  }
+  hero.addEventListener('pointermove', function (e) {
+    var p = heroXY(e.clientX, e.clientY);
+    mx = p[0]; my = p[1];
+    track(mx, my, e.pointerType === 'mouse' ? e.buttons > 0 : true);
   });
-
-  /* Touch: pointermove is unreliable once a drag turns into a scroll, so read
-     the touch point directly. Passive — the page must still scroll normally. */
+  hero.addEventListener('pointerleave', function () { mx = -9e3; my = -9e3; });
+  /* Touch: pointermove is unreliable once a drag turns into a scroll, so
+     read the touch point directly. Passive — the page must still scroll. */
   hero.addEventListener('touchmove', function (e) {
     var t = e.touches && e.touches[0];
     if (!t) return;
-    var r = hero.getBoundingClientRect();
-    mouse.x = t.clientX - r.left;
-    mouse.y = t.clientY - r.top;
+    var p = heroXY(t.clientX, t.clientY);
+    mx = p[0]; my = p[1];
+    track(mx, my, true);
   }, { passive: true });
   hero.addEventListener('touchend', function () {
-    /* let the swell relax instead of snapping flat the instant you lift */
-    setTimeout(function () { mouse.x = -9999; mouse.y = -9999; }, 420);
+    /* let the bloom relax instead of snapping off the instant you lift */
+    setTimeout(function () { mx = -9e3; my = -9e3; }, 380);
   }, { passive: true });
+  hero.addEventListener('pointerdown', function (e) {
+    /* real controls are off-limits — a click on Resume is a click on Resume */
+    if (e.target.closest('a, button')) return;
+    var p = heroXY(e.clientX, e.clientY);
+    presses.push({ x: p[0], y: p[1], t: performance.now() / 1000 });
+    if (presses.length > 4) presses.shift();
+  });
 
-  function hash(x, y) {
-    var h = Math.sin(x * 127.1 + y * 311.7) * 43758.5453;
-    return h - Math.floor(h);
-  }
-  function vnoise(x, y) {
-    var xi = Math.floor(x), yi = Math.floor(y);
-    var xf = x - xi, yf = y - yi;
-    var u = xf * xf * (3 - 2 * xf), v = yf * yf * (3 - 2 * yf);
-    var a = hash(xi, yi), b = hash(xi + 1, yi), c = hash(xi, yi + 1), d = hash(xi + 1, yi + 1);
-    return a + (b - a) * u + (c - a) * v + (a - b - c + d) * u * v;
-  }
-
-  /* refined field: two long-wavelength octaves — rolling swells, no jitter */
-  /* Hudson's tuned waves: wl 0.80 · speed 1.45 · detail 0.90 */
-  function fieldN(nx, z, t) {
-    return vnoise(nx * 2.125 + 7.3, (1 - z) * 3.2 - t * 0.0725)
-         + 0.9 * vnoise(nx * 4.5 + 2.1, (1 - z) * 6.5 - t * 0.116);
-  }
-
-  /* displacement extras (cursor bump + click ripples) at a base point */
-  function extras(x, y0, zz, t) {
-    var d = 0;
-    if (mouse.sx > -999) {
-      var dxm = x - mouse.sx, dym = y0 - mouse.sy;
-      d += Math.exp(-(dxm * dxm + dym * dym) / 30000) * (COARSE ? 84 : 56) * (0.3 + zz);
-    }
-    for (var w = 0; w < waves.length; w++) {
-      var wv = waves[w];
-      var age = t - wv.t0;
-      if (age > 4.5) continue;
-      var dxw = x - wv.x, dyw = y0 - wv.y;
-      var dist = Math.sqrt(dxw * dxw + dyw * dyw);
-      var band = Math.exp(-Math.pow(dist - age * 170, 2) / 3000);
-      d += band * (COARSE ? 60 : 42) * Math.exp(-age * 0.9) * (0.3 + zz) * Math.sin(age * 5.5);
-    }
-    return d;
-  }
-
-  function draw(t) {
-    /* Self-heal: if anything ever left the surface at zero, rebuild it here
-       rather than waiting for a resize event that may never come. */
+  /* ---- render -------------------------------------------------------- */
+  var last = performance.now();
+  function render(nowMs) {
+    var t = nowMs / 1000, dt = Math.min(0.05, (nowMs - last) / 1000); last = nowMs;
     if (!W || !H) { resize(); if (!W || !H) return; }
     ctx.clearRect(0, 0, W, H);
 
-    if (mouse.x > -999) {
-      if (mouse.sx < -999) { mouse.sx = mouse.x; mouse.sy = mouse.y; }
-      mouse.sx += (mouse.x - mouse.sx) * 0.08;
-      mouse.sy += (mouse.y - mouse.sy) * 0.08;
-    } else { mouse.sx = -9999; mouse.sy = -9999; }
-
-    var horizon = H * 0.47;
-    /* phones: fewer rows and coarser polylines — the field reads identically
-       at this size and the per-frame noise cost drops by almost half. */
-    var rows = (COARSE && W <= 760) ? 13 : 18;
-    for (var r = 0; r < rows; r++) {
-      var z = r / rows;
-      var zz = Math.pow(z, 1.7);
-      var y0 = horizon + zz * (H - horizon) * 1.05;
-      var amp = (14 + zz * 74) * 0.40;
-      var alpha = Math.min(0.5, (0.05 + zz * 0.18) * 1.65);
-      ctx.strokeStyle = 'rgba(234,234,234,' + alpha + ')';
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      var steps = (COARSE && W <= 760) ? 72 : 110;
-      for (var i = 0; i <= steps; i++) {
-        var x = (i / steps) * W;
-        var nx = (i / steps - 0.5) / (0.25 + z * 1.5);
-        var y = y0 - fieldN(nx, z, t) * amp - extras(x, y0, zz, t);
-        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-      }
-      ctx.stroke();
+    var tgt = (mx > -999) ? 1 : 0;
+    str += (tgt - str) * 0.08;
+    if (mx > -999) {
+      if (sx < -999) { sx = mx; sy = my; }
+      sx += (mx - sx) * 0.16; sy += (my - sy) * 0.16;
     }
-    waves = waves.filter(function (wv) { return t - wv.t0 < 4.5; });
+    spd *= 0.94;
+    var nowS = nowMs / 1000;
+    presses = presses.filter(function (p) { return nowS - p.t < 1.7; });
+    dents = dents.filter(function (dn) { return nowS - dn.t < 6.5; });
 
-    /* moor the chips: node on their terrain line, leader up to the card, bob */
-    if (desktopLayout.matches && document.documentElement.classList.contains('settled')) {
-      for (var c = 0; c < comps.length; c++) {
-        var cp = comps[c];
-        if (!cp.xc) continue;
-        var nx2 = (cp.xc / W - 0.5) / (0.25 + cp.z * 1.5);
-        var lineY = cp.y0 - fieldN(nx2, cp.z, t) * cp.amp - extras(cp.xc, cp.y0, cp.zz, t);
-        var rest = cp.y0 - 0.675 * cp.amp;   // field mean ≈ 0.675
-        var dy = Math.max(-16, Math.min(16, (lineY - rest) * 0.45));
-        cp.el.style.transform = 'translateY(' + dy.toFixed(2) + 'px)';
+    var sig = 4200 + P.touch * 7000;
+    var pushMax = 12 + P.touch * 30 + Math.min(10, spd * 0.010);
+    var cyc = (t * 0.07) % 1.8, setZ = cyc < 1 ? cyc : -9;
 
-        // leader line + glowing node
-        ctx.strokeStyle = 'rgba(234,234,234,0.1)';
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.moveTo(cp.xc, cp.bottom + dy + 6);
-        ctx.lineTo(cp.xc, lineY);
-        ctx.stroke();
-        ctx.fillStyle = 'rgba(234,234,234,0.55)';
-        ctx.beginPath();
-        ctx.arc(cp.xc, lineY, 2.4, 0, 7);
-        ctx.fill();
+    for (var ri = 0; ri < ROWS; ri++) {
+      var row = rows[ri], zz = row.zz, y0 = row.y0;
+      var flow = (0.0018 + zz * 0.0062) * (0.25 + P.drift * 1.5);
+      var span = W + row.pitch * 2;
+      for (var i = 0; i < row.n; i++) {
+        row.u[i] = (row.u[i] + flow * dt) % 1;
+        var xb = row.u[i] * span - row.pitch;
+        var x = xb + row.ox[i];
+        var y = y0 + row.oy[i];
+
+        /* hand-through-sand: fast to disturb near the hand, slow to heal */
+        var tox = 0, toy = 0, g = 0;
+        if (str > 0.02 && sx > -999) {
+          var dxm = x - sx, dym = y - sy;
+          var d2 = dxm * dxm + dym * dym;
+          g = Math.exp(-d2 / sig) * str;
+          if (g > 0.01) {
+            var m = Math.sqrt(d2) || 1;
+            tox = (dxm / m) * pushMax * g;
+            toy = (dym / m) * pushMax * g * 0.8;
+          }
+        }
+        /* the trace: drag furrows keep grains displaced until they heal */
+        var dentGlow = 0;
+        for (var di = 0; di < dents.length; di++) {
+          var dn = dents[di], ageD = nowS - dn.t;
+          var dxd = x - dn.x, dyd = y - dn.y;
+          var d2d = dxd * dxd + dyd * dyd;
+          if (d2d > 26000) continue;
+          var infl = Math.exp(-d2d / 4200) * Math.exp(-ageD / 3.2);
+          if (infl > 0.012) {
+            var md = Math.sqrt(d2d) || 1;
+            tox += (dxd / md) * 24 * infl;
+            toy += (dyd / md) * 18 * infl;
+            dentGlow += infl;
+          }
+        }
+        var approach = 1 - Math.exp(-dt * (0.85 + 30 * g));
+        row.ox[i] += (tox - row.ox[i]) * approach;
+        row.oy[i] += (toy - row.oy[i]) * approach;
+
+        if (x < -6 || x > W + 6) continue;
+
+        /* hover bloom — wider than the push, light leads */
+        var bloom = 0;
+        if (str > 0.02 && sx > -999) {
+          var dxb = x - sx, dyb = y - sy;
+          bloom = Math.exp(-(dxb * dxb + dyb * dyb) / (sig * 2.4)) * str;
+        }
+
+        /* the wave, as light */
+        var nx = (xb / W - 0.5) / (0.25 + row.z * 1.5);
+        var fv = vn(nx * 2.125 + 7.3, (1 - row.z) * 3.2 - t * 0.05) + 0.9 * vn(nx * 4.5 + 2.1, (1 - row.z) * 6.5 - t * 0.08);
+        var lvl = Math.max(0, (fv - 0.28) / 1.5);
+        if (setZ > -1) lvl += 0.45 * P.int * Math.exp(-Math.pow((row.z - setZ) / 0.13, 2)) * lvl;
+        var dist2 = Math.abs(row.ox[i]) + Math.abs(row.oy[i]);
+        lvl += Math.min(0.7, dist2 / 26) * 0.45;
+        lvl += bloom * (0.44 + P.touch * 0.35);
+        lvl += dentGlow * 0.30;
+        lvl *= (0.35 + P.int * 0.9);
+        /* the click: pop + one ring of pure light, AFTER intensity scaling */
+        for (var ci = 0; ci < presses.length; ci++) {
+          var cp = presses[ci], ca = nowS - cp.t;
+          var cdx = x - cp.x, cdy = y - cp.y;
+          var cd2 = cdx * cdx + cdy * cdy;
+          lvl += Math.exp(-cd2 / 3200) * Math.exp(-ca * 7) * 1.15;
+          var cd = Math.sqrt(cd2);
+          lvl += Math.exp(-Math.pow(cd - ca * 240, 2) / 2600) * Math.exp(-ca * 1.9) * 0.8;
+        }
+
+        var a = Math.min(0.9, row.gain * (0.22 + lvl * 1.15));
+        if (a < 0.015) continue;
+        var s2 = row.size * (0.5 + Math.min(1.25, lvl) * 0.8);
+        ctx.fillStyle = 'rgba(234,234,234,' + a.toFixed(3) + ')';
+        ctx.fillRect(x - s2 / 2, y - s2 / 2, s2, s2);
       }
     }
   }
 
-  /* Reduced motion drifts rather than freezing — see the same note in sand.js.
-     These are long, slow swells in a background field, not parallax; frozen,
-     the hero simply looked broken (an empty black band where the terrain
-     should be), which is what a phone with Reduce Motion on was showing. */
-  /* Full speed regardless of prefers-reduced-motion — Hudson's call, asked for
-     twice, and defensible: this is ambient background texture, not parallax or
-     large-object movement, which is what the setting exists to prevent. At
-     quarter speed it read as lifeless rather than calm. The blocking boot
-     animation still honours the setting; that one is a real event you can be
-     held behind. */
-  var TIME_SCALE = 1;
-  TD.reduced = reduced;
-  TD.mode = 'live';
-
+  /* ---- run only while the hero can be seen (kept from the terrain) --- */
+  TD.mode = 'sandglow';
+  var heroOnScreen = true;
   var rafId = null;
   var lastFrame = performance.now();
   function frame(ts) {
     lastFrame = performance.now();
     TD.frames++;
-    draw(ts / 1000 * TIME_SCALE);
+    render(ts);
     rafId = requestAnimationFrame(frame);
   }
-  /* Only run while the hero can actually be seen. The loop used to paint
-     every frame of a fully scrolled-away canvas, which on phones was a
-     steady tax on every OTHER animation on the page. */
-  var heroOnScreen = true;
   function start() { if (!rafId && heroOnScreen) { lastFrame = performance.now(); rafId = requestAnimationFrame(frame); } }
   start();
   if ('IntersectionObserver' in window) {
@@ -249,11 +271,8 @@
     if (document.hidden) { if (rafId) cancelAnimationFrame(rafId); rafId = null; }
     else start();
   });
-
-  /* Watchdog. Mobile Safari suspends rAF for offscreen content under memory
-     pressure and does not always resume it, which left the hero blank after
-     scrolling away and back with no event to hang a fix on. If frames have
-     stopped while the page is visible, restart the loop. */
+  /* Watchdog: mobile Safari suspends rAF under memory pressure and does not
+     always resume it. If frames stop while visible, restart the loop. */
   setInterval(function () {
     if (document.hidden || !heroOnScreen) return;
     if (performance.now() - lastFrame > 1200) {
