@@ -156,7 +156,7 @@
     '  }',
     '  float s2 = n * (1.0 + near * 0.75);',             /* seep strength 0.75 */
     '  float a = clamp(0.55 * s2 * mask, 0.0, 1.0);',    /* grain weight 0.55 */
-    '  a *= (1.0 - inside * 0.45);',                     /* face clearance 0.45 — was 0.20; the text was reading through too much sand */
+    '  a *= (1.0 - inside * 0.60);',                     /* face clearance 0.60 — Hudson asked for cards ~15% less translucent (was 0.45, before that 0.20) */
     '  gl_FragColor = vec4(vec3(a), a);',
     '}'
   ].join('\n');
