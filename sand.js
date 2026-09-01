@@ -24,7 +24,9 @@
     var syncOp = function () {
       var hb = heroEl.offsetHeight || 600;
       var f = Math.max(0, Math.min(1, (window.pageYOffset - hb * 0.3) / (hb * 0.55)));
-      canvas.style.opacity = (0.34 * f).toFixed(3);
+      /* phones get a dimmer field — 0.34 read as static over the about
+         section on Hudson's iPhone; "a little sand", not weather */
+      canvas.style.opacity = ((window.matchMedia('(pointer: coarse)').matches ? 0.20 : 0.34) * f).toFixed(3);
     };
     syncOp();
     window.addEventListener('scroll', syncOp, { passive: true });
@@ -203,8 +205,12 @@
   var cardEls = [];
   function collectCards() {
     cardEls = Array.prototype.slice.call(document.querySelectorAll(
-      '.case, .case-sm, .project-card, .about-card, .awards-list, .contact-inner, .nf-panel, .nf-controls'
-    ));
+      '.case, .case-sm, .project-card, .about-card, .spec, .awards-list, .contact-inner, .nf-panel, .nf-controls'
+    )).filter(function (el) {
+      /* a .spec inside a .case is already covered by the case's own rect —
+         letting it claim one of the 12 shader slots would starve real cards */
+      return !(el.className.indexOf('spec') !== -1 && el.closest && el.closest('.case'));
+    });
   }
   collectCards();
   window.addEventListener('load', collectCards);
@@ -236,10 +242,10 @@
   }
 
   function resize() {
-    /* touch devices sit at DPR 3 — at the 1.5 cap that was still 2.25x the
-       fragment work of DPR 1, for grain nobody can resolve on a phone. */
-    var dpr = Math.min(window.devicePixelRatio || 1,
-      window.matchMedia('(pointer: coarse)').matches ? 1.0 : 1.5);
+    /* 1.5 everywhere: the earlier 1.0-on-touch experiment made each grain
+       ~3 physical pixels on a 3x phone — chunky TV static, not sand. The
+       dimmer mobile opacity above is the perf/readability lever instead. */
+    var dpr = Math.min(window.devicePixelRatio || 1, 1.5);
     /* size from the canvas's own CSS box, not innerWidth/innerHeight —
        on iOS the fixed-position box and innerHeight disagree depending
        on the toolbar state, which stretched the texture and shoved the

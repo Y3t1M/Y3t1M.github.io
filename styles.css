@@ -702,6 +702,10 @@ section { position: relative; z-index: 1; }
   padding: 10px 18px;
   border: 1px solid var(--border);
   border-radius: var(--radius-s);
+  /* Solid backing — these read over the sand field, and outline-only tiles
+     were unreadable on phones (Hudson's screenshot, 2026-09-01). sand.js
+     also carves around .spec now, same as the cards. */
+  background: rgba(8, 8, 8, 0.92);
 }
 .spec b {
   display: block;
@@ -2084,4 +2088,15 @@ body.blueprint #bp-scratch-btn { display: block; }
   html.mcorr .sc-mticks { display: flex; gap: 6px; }
   html.mcorr .sc-mticks i { width: 12px; height: 3px; background: rgba(255,255,255,0.22); transition: background 0.25s ease, height 0.25s ease; }
   html.mcorr .sc-mticks i.on { background: var(--text); height: 5px; }
+}
+
+
+/* ── Mobile readability pass (Hudson's screenshot, 2026-09-01) ─────── */
+@media (max-width: 700px) {
+  /* the stat tiles wrapped 3+1 with ragged gaps — a clean 2x2 instead */
+  .spec-strip { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .spec { padding: 10px 12px; }
+  /* the about paragraph read airy and loose on phones */
+  .section-description { font-size: 15px; line-height: 1.62; }
+  .avatar-row { margin: 14px 0 4px; }
 }
