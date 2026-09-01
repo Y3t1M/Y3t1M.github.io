@@ -219,7 +219,15 @@
      cap silently lost its banking — a card visibly "losing its back" as you
      scrolled. */
   var rectData = new Float32Array(48);
+  /* Touch devices: no card-relative sand at all. The carve/banking rects are
+     read per animation frame, and iOS throttles those frames mid-scroll — so
+     on a fast flick the carved plates lagged the real cards by dozens of px
+     (Hudson's screenshot, 2026-09-01: bright bands through the card bottoms,
+     healed on tap). A uniform field cannot de-sync; the cards' own solid CSS
+     backgrounds carry legibility, and phones already run the canvas dimmer. */
+  var NO_RECTS = window.matchMedia('(pointer: coarse)').matches;
   function pushRects() {
+    if (NO_RECTS) { gl.uniform1f(uNR, 0); D.rects = 0; return; }
     var vh = window.innerHeight;
     /* Rect coords must be in CANVAS space, not viewport space. On iOS the
        fixed canvas's box shifts against the layout viewport while the toolbar

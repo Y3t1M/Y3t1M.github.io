@@ -202,8 +202,9 @@
   /* ---- pinned LIFT showcase v2 (desktop only — see SMALL above) ---- */
   (function () {
     if (SMALL) {
-      var msec = document.getElementById('showcase');
-      if (msec) mobileCorridor(msec);
+      /* Corridor retired on touch (Hudson, 2026-09-01: "back to a simpler
+         clicking normal scroll"). Phones and tablets get the plain vertical
+         case flow; mobileCorridor stays above if it's ever wanted back. */
       return;
     }
     var sec = document.getElementById('showcase');
