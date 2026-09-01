@@ -16,11 +16,14 @@
      hand-sized radius, glow at the rim while displaced, and
      heal home slowly with no bounce
    - hovering blooms light under the hand (wider than the push)
-   - a CLICK pops bright and sends one expanding ring of pure
-     light — applied after intensity scaling so it punches the
-     same however quiet the wave is dialed
+   - a CLICK CASCADES: the pop, then echo rings rolling through
+     in succession — applied after intensity scaling so it
+     punches the same however quiet the wave is dialed
    - a DRAG leaves a trace: a furrow the field heals over ~6s
      (his "+ trace" pick)
+   - every 7-16s a SEAM sweeps through: a thin soft line of
+     light at a random angle, brighter across the wave's crests
+     (both shipped on his "ship both", 2026-09-01)
 
    Reduced motion runs full speed — Hudson's standing call for
    ambient texture (see the old file's note; the boot overlay
@@ -95,8 +98,10 @@
   /* ---- the hand ----------------------------------------------------- */
   var mx = -9e3, my = -9e3, sx = -9e3, sy = -9e3, str = 0;
   var pvx = 0, pvy = 0, spd = 0, lastP = null, lastT = 0;
-  var presses = [];   /* clicks: pop + ring of light                */
+  var presses = [];   /* clicks: pop + cascading rings of light     */
   var dents = [];     /* the trace: drag furrows healing over ~6s   */
+  var CASCADE = [[0, 0.8], [0.22, 0.45], [0.44, 0.26]];   /* echo delay s, amp */
+  var streak = null, nextStreak = performance.now() / 1000 + 8;
 
   function heroXY(cx, cy) {
     var r = hero.getBoundingClientRect();
@@ -161,8 +166,24 @@
     }
     spd *= 0.94;
     var nowS = nowMs / 1000;
-    presses = presses.filter(function (p) { return nowS - p.t < 1.7; });
+    presses = presses.filter(function (p) { return nowS - p.t < 2.1; });
     dents = dents.filter(function (dn) { return nowS - dn.t < 6.5; });
+
+    /* the seam: every 7-16s a thin line of light sweeps through at a
+       random angle over ~3s — subtle, brighter where it crosses crests */
+    if (!streak && nowS > nextStreak) {
+      var th = Math.random() * Math.PI;
+      var snx = -Math.sin(th), sny = Math.cos(th);
+      var cs = [snx * 0 + sny * 0, snx * W + sny * 0, snx * 0 + sny * H, snx * W + sny * H];
+      var cmin = Math.min.apply(null, cs) - 60, cmax = Math.max.apply(null, cs) + 60;
+      var fwd = Math.random() < 0.5;
+      streak = { nx: snx, ny: sny, c0: fwd ? cmin : cmax, c1: fwd ? cmax : cmin, t0: nowS, dur: 2.6 + Math.random() * 1.6, c: 0, env: 0 };
+    }
+    if (streak) {
+      var sprog = (nowS - streak.t0) / streak.dur;
+      if (sprog >= 1) { streak = null; nextStreak = nowS + 7 + Math.random() * 9; }
+      else { streak.c = streak.c0 + (streak.c1 - streak.c0) * sprog; streak.env = Math.sin(Math.PI * sprog); }
+    }
 
     var sig = 4200 + P.touch * 7000;
     var pushMax = 12 + P.touch * 30 + Math.min(10, spd * 0.010);
@@ -222,20 +243,33 @@
         var nx = (xb / W - 0.5) / (0.25 + row.z * 1.5);
         var fv = vn(nx * 2.125 + 7.3, (1 - row.z) * 3.2 - t * 0.05) + 0.9 * vn(nx * 4.5 + 2.1, (1 - row.z) * 6.5 - t * 0.08);
         var lvl = Math.max(0, (fv - 0.28) / 1.5);
+        var lvlBase = lvl;
         if (setZ > -1) lvl += 0.45 * P.int * Math.exp(-Math.pow((row.z - setZ) / 0.13, 2)) * lvl;
         var dist2 = Math.abs(row.ox[i]) + Math.abs(row.oy[i]);
         lvl += Math.min(0.7, dist2 / 26) * 0.45;
         lvl += bloom * (0.44 + P.touch * 0.35);
         lvl += dentGlow * 0.30;
         lvl *= (0.35 + P.int * 0.9);
-        /* the click: pop + one ring of pure light, AFTER intensity scaling */
+        /* the click CASCADE: the pop, then echo rings rolling through in
+           succession — each later, each softer. AFTER intensity scaling. */
         for (var ci = 0; ci < presses.length; ci++) {
           var cp = presses[ci], ca = nowS - cp.t;
           var cdx = x - cp.x, cdy = y - cp.y;
           var cd2 = cdx * cdx + cdy * cdy;
           lvl += Math.exp(-cd2 / 3200) * Math.exp(-ca * 7) * 1.15;
           var cd = Math.sqrt(cd2);
-          lvl += Math.exp(-Math.pow(cd - ca * 240, 2) / 2600) * Math.exp(-ca * 1.9) * 0.8;
+          for (var ei = 0; ei < CASCADE.length; ei++) {
+            var cae = ca - CASCADE[ei][0];
+            if (cae <= 0) continue;
+            lvl += Math.exp(-Math.pow(cd - cae * 240, 2) / 2600) * Math.exp(-cae * 1.9) * CASCADE[ei][1];
+          }
+        }
+        /* the seam, catching the wave as it crosses */
+        if (streak) {
+          var sdd = (streak.nx * x + streak.ny * y) - streak.c;
+          if (sdd * sdd < 9000) {
+            lvl += Math.exp(-sdd * sdd / 1400) * 0.22 * streak.env * (0.5 + Math.min(1, lvlBase));
+          }
         }
 
         var a = Math.min(0.9, row.gain * (0.22 + lvl * 1.15));
