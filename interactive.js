@@ -393,10 +393,19 @@
      global: a single key meant dismissing it once at home suppressed it
      forever on projects, where it is the more useful of the two.
      Dismissal by scroll is still what marks it learned. */
-  const inCorridor = !!document.querySelector('.sc-slide');
+  /* corridor mode is real only when scroll-fx actually pinned it (html.fx);
+     on phones the slides exist but flow vertically, and the corridor's
+     "dismiss after a full viewport" rule kept the hint hovering over card
+     text. */
+  const inCorridor = !!document.querySelector('.sc-slide') &&
+    document.documentElement.classList.contains('fx');
   const HINT_KEY = inCorridor ? 'ht-hint-done-corridor' : 'ht-hint-done-home';
   let hintLearned = false;
-  try { hintLearned = !!localStorage.getItem(HINT_KEY); } catch (e) {}
+  /* sessionStorage, not localStorage: "learned" used to be once per browser
+     FOREVER, so anyone who had ever scrolled never saw the cue again on any
+     later visit — which on a phone read as "nothing says you can scroll".
+     Now it re-arms each visit and still dismisses on the first real scroll. */
+  try { hintLearned = !!sessionStorage.getItem(HINT_KEY); } catch (e) {}
   const scrollHint = document.createElement('div');
   if (!hintLearned) {
   scrollHint.id = 'scroll-hint';
@@ -407,13 +416,14 @@
      of scroll — so anyone who moved at all never saw it. There it now shows
      almost immediately and only leaves once you are genuinely inside the
      corridor (a full viewport deep). The home page keeps the patient timing. */
-  const HINT_SHOW_MS = inCorridor ? 600 : 2200;
+  const coarse = matchMedia('(pointer: coarse)').matches;
+  const HINT_SHOW_MS = inCorridor ? 600 : (coarse ? 1100 : 2200);
   const HINT_GONE_AT = () => (inCorridor ? window.innerHeight : 60);
   let hintGone = false;
   window.addEventListener('scroll', () => {
     if (!hintGone && window.scrollY > HINT_GONE_AT()) {
       hintGone = true;
-      try { localStorage.setItem(HINT_KEY, '1'); } catch (e) {}
+      try { sessionStorage.setItem(HINT_KEY, '1'); } catch (e) {}
       scrollHint.classList.add('hint-hide');
       setTimeout(() => scrollHint.remove(), 700);
     }

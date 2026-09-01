@@ -3,11 +3,14 @@
 
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Resume of Hudson Tinch — finance & entrepreneurship at the University of Arkansas Honors College, developer at Hollis Bloom, Dallas, TX.">
   <title>Hudson H. Tinch — Resume</title>
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16.png">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
   <style>
     @page { size: letter; margin: 0.5in 0.55in; }
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -23,6 +26,7 @@
       border-top: 3px solid #17191c;
     }
     @media print { body { padding: 8px 0 0; } }
+
 
     .mono {
       font-family: "SF Mono", Menlo, Consolas, monospace;
@@ -123,6 +127,19 @@
       border-bottom: 1px solid #f0f0f2;
     }
     .award-list div:last-child { border-bottom: 0; }
+
+    /* Screen-only: stack the print grid on narrow screens. Print/PDF is
+       untouched — @page + the print block above own that path. */
+    @media screen and (max-width: 720px) {
+      body { max-width: none; padding: 16px 14px; font-size: 10.5pt; }
+      html, body { overflow-x: hidden; }
+      header { flex-direction: column; align-items: flex-start; gap: 8px; }
+      .contact { text-align: left; }
+      .contact div { white-space: normal; word-break: break-word; }
+      .cols { grid-template-columns: 1fr; }
+      .sidebar { border-left: 0; padding-left: 0; border-top: 1px solid #e5e6e9; padding-top: 12px; margin-top: 6px; }
+      .entry-head { flex-wrap: wrap; gap: 2px 8px; }
+    }
   </style>
   <link rel="canonical" href="https://hudsontinch.com/resume.html">
   <meta property="og:site_name" content="Hudson Tinch">

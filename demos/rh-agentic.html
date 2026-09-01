@@ -142,7 +142,13 @@
 
     @media (max-width:640px){
       .wrap{padding:18px 13px 70px}
-      header{padding:10px 13px;gap:9px}
+      /* phone header: two clean rows instead of a four-line squeeze.
+         Row 1: brand + tab buttons. Row 2: agent status, full width.
+         "preview build" is redundant with the PREVIEW banner right above. */
+      header{padding:10px 13px;gap:8px 10px;flex-wrap:wrap}
+      .agentact{order:5;flex-basis:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+      .hmeta{display:none}
+      .spacer{flex:1 1 0}
       .hero-value{font-size:30px}
       .fnrow{grid-template-columns:104px 1fr 38px;gap:9px}
       .stat{min-width:50%}

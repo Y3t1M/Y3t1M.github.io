@@ -16,6 +16,7 @@
   var TD = window.__terrainDiag = { mode: ctx ? 'init' : 'no-2d', frames:0, w:0, h:0, reduced:false };
 
   var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var COARSE = window.matchMedia('(pointer: coarse)').matches;
   var desktopLayout = window.matchMedia('(min-width: 861px)');
 
   var W = 0, H = 0;
@@ -133,7 +134,7 @@
     var d = 0;
     if (mouse.sx > -999) {
       var dxm = x - mouse.sx, dym = y0 - mouse.sy;
-      d += Math.exp(-(dxm * dxm + dym * dym) / 30000) * 56 * (0.3 + zz);
+      d += Math.exp(-(dxm * dxm + dym * dym) / 30000) * (COARSE ? 84 : 56) * (0.3 + zz);
     }
     for (var w = 0; w < waves.length; w++) {
       var wv = waves[w];
@@ -142,7 +143,7 @@
       var dxw = x - wv.x, dyw = y0 - wv.y;
       var dist = Math.sqrt(dxw * dxw + dyw * dyw);
       var band = Math.exp(-Math.pow(dist - age * 170, 2) / 3000);
-      d += band * 42 * Math.exp(-age * 0.9) * (0.3 + zz) * Math.sin(age * 5.5);
+      d += band * (COARSE ? 60 : 42) * Math.exp(-age * 0.9) * (0.3 + zz) * Math.sin(age * 5.5);
     }
     return d;
   }
@@ -160,7 +161,9 @@
     } else { mouse.sx = -9999; mouse.sy = -9999; }
 
     var horizon = H * 0.47;
-    var rows = 18;
+    /* phones: fewer rows and coarser polylines — the field reads identically
+       at this size and the per-frame noise cost drops by almost half. */
+    var rows = (COARSE && W <= 760) ? 13 : 18;
     for (var r = 0; r < rows; r++) {
       var z = r / rows;
       var zz = Math.pow(z, 1.7);
@@ -170,7 +173,7 @@
       ctx.strokeStyle = 'rgba(234,234,234,' + alpha + ')';
       ctx.lineWidth = 1;
       ctx.beginPath();
-      var steps = 110;
+      var steps = (COARSE && W <= 760) ? 72 : 110;
       for (var i = 0; i <= steps; i++) {
         var x = (i / steps) * W;
         var nx = (i / steps - 0.5) / (0.25 + z * 1.5);
@@ -229,8 +232,19 @@
     draw(ts / 1000 * TIME_SCALE);
     rafId = requestAnimationFrame(frame);
   }
-  function start() { if (!rafId) { lastFrame = performance.now(); rafId = requestAnimationFrame(frame); } }
+  /* Only run while the hero can actually be seen. The loop used to paint
+     every frame of a fully scrolled-away canvas, which on phones was a
+     steady tax on every OTHER animation on the page. */
+  var heroOnScreen = true;
+  function start() { if (!rafId && heroOnScreen) { lastFrame = performance.now(); rafId = requestAnimationFrame(frame); } }
   start();
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(function (entries) {
+      heroOnScreen = entries[0].isIntersecting;
+      if (!heroOnScreen) { if (rafId) cancelAnimationFrame(rafId); rafId = null; }
+      else start();
+    }, { rootMargin: '80px' }).observe(hero);
+  }
   document.addEventListener('visibilitychange', function () {
     if (document.hidden) { if (rafId) cancelAnimationFrame(rafId); rafId = null; }
     else start();
@@ -241,7 +255,7 @@
      scrolling away and back with no event to hang a fix on. If frames have
      stopped while the page is visible, restart the loop. */
   setInterval(function () {
-    if (document.hidden) return;
+    if (document.hidden || !heroOnScreen) return;
     if (performance.now() - lastFrame > 1200) {
       if (rafId) cancelAnimationFrame(rafId);
       rafId = null;

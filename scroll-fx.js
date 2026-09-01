@@ -14,8 +14,17 @@
      every card clipped, which is what "the project scroll stinks" was.
 
      It runs either way now. The traverse is driven by scroll position, so
-     nothing moves that the visitor did not move themselves. */
-  document.documentElement.classList.add('fx');
+     nothing moves that the visitor did not move themselves.
+
+     MOBILE (2026-08-31): the pinned horizontal traverse is desktop-only.
+     On small/touch screens the detent snap fought native scrolling — bays
+     regularly came to rest half off-screen (the "text cut off to the left"
+     report) — so phones get the plain vertical .case flow instead: no fx
+     class, no pinning, no snap. Rotation/resize re-evaluates on reload. */
+  var SMALL = window.matchMedia &&
+    (matchMedia('(max-width: 700px)').matches ||
+     (matchMedia('(pointer: coarse)').matches && matchMedia('(max-width: 1024px)').matches));
+  if (!SMALL) document.documentElement.classList.add('fx');
 
   /* ---- per-card scroll progress -> --p ---- */
   var cards = Array.prototype.slice.call(document.querySelectorAll('.case, .case-sm, .project-card, .about-card'))
@@ -112,8 +121,9 @@
   requestAnimationFrame(tick);
 
 
-  /* ---- pinned LIFT showcase v2 ---- */
+  /* ---- pinned LIFT showcase v2 (desktop only — see SMALL above) ---- */
   (function () {
+    if (SMALL) return;
     var sec = document.getElementById('showcase');
     if (!sec) return;
     var stage = sec.querySelector('.sc-stage');

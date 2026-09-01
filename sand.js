@@ -74,7 +74,7 @@
     'uniform float uT;',
     'uniform float uSeed;',
     'uniform float uPx;',   /* CSS px per device px — resolution independence */
-    'uniform vec4 uR[8];',   /* card rects (css px) — sand calms inside, piles at edges */
+    'uniform vec4 uR[12];',  /* card rects (css px) — sand calms inside, piles at edges */
     'uniform float uNR;',
     '#define PI 3.141592653589793',
     /* Ashima / stegu 2D simplex noise */
@@ -144,7 +144,7 @@
     '  vec2 pcss = vec2(st.x, uRes.y * uPx - st.y);',
     '  float inside = 0.0;',
     '  float near = 0.0;',
-    '  for (int i = 0; i < 8; i++) {',
+    '  for (int i = 0; i < 12; i++) {',
     '    if (float(i) >= uNR) break;',
     '    vec4 rct = uR[i];',
     /* rounded-rect SDF, so the banking follows the card's 14px corners */
@@ -156,7 +156,7 @@
     '  }',
     '  float s2 = n * (1.0 + near * 0.75);',             /* seep strength 0.75 */
     '  float a = clamp(0.55 * s2 * mask, 0.0, 1.0);',    /* grain weight 0.55 */
-    '  a *= (1.0 - inside * 0.20);',                     /* face clearance 0.20 */
+    '  a *= (1.0 - inside * 0.45);',                     /* face clearance 0.45 — was 0.20; the text was reading through too much sand */
     '  gl_FragColor = vec4(vec3(a), a);',
     '}'
   ].join('\n');
@@ -207,7 +207,11 @@
   }
   collectCards();
   window.addEventListener('load', collectCards);
-  var rectData = new Float32Array(32);
+  /* 12 slots, up from 8. With about-cards + cases + the hardware trio there
+     are routinely more than 8 card-likes in view; whichever fell past the
+     cap silently lost its banking — a card visibly "losing its back" as you
+     scrolled. */
+  var rectData = new Float32Array(48);
   function pushRects() {
     var vh = window.innerHeight;
     /* Rect coords must be in CANVAS space, not viewport space. On iOS the
@@ -216,7 +220,7 @@
        phantom card-shaped "skeletons" floating above the real cards. */
     var cb = canvas.getBoundingClientRect();
     var n = 0;
-    for (var i = 0; i < cardEls.length && n < 8; i++) {
+    for (var i = 0; i < cardEls.length && n < 12; i++) {
       var r = cardEls[i].getBoundingClientRect();
       if (r.bottom < -40 || r.top > vh + 40 || r.width === 0) continue;
       rectData[n * 4] = r.left - cb.left;
@@ -231,7 +235,10 @@
   }
 
   function resize() {
-    var dpr = Math.min(window.devicePixelRatio || 1, 1.5); // chunky 1px grain
+    /* touch devices sit at DPR 3 — at the 1.5 cap that was still 2.25x the
+       fragment work of DPR 1, for grain nobody can resolve on a phone. */
+    var dpr = Math.min(window.devicePixelRatio || 1,
+      window.matchMedia('(pointer: coarse)').matches ? 1.0 : 1.5);
     /* size from the canvas's own CSS box, not innerWidth/innerHeight —
        on iOS the fixed-position box and innerHeight disagree depending
        on the toolbar state, which stretched the texture and shoved the

@@ -919,8 +919,8 @@ html.fx .sc-slide .case { margin: 0; max-height: 76vh; overflow-y: auto; }
 /* In the corridor the ghost index numeral sits BEHIND the card — a touch of
    translucency lets its LED dots glow through the plate. Scoped here so the
    home-page cards stay the solid objects-in-sand Hudson approved. */
-html.fx .sc-slide .case { background: rgba(8, 8, 8, 0.82); }
-html.fx .sc-slide .case:hover { background: rgba(12, 12, 12, 0.86); }
+html.fx .sc-slide .case { background: rgba(10, 10, 10, 0.90); } /* was 0.82 — still breathes, holds the text better */
+html.fx .sc-slide .case:hover { background: rgba(13, 13, 13, 0.93); }
 html.fx .sc-slide .case-grid { margin: 0; }
 html.fx .sc-slide.wide { width: min(1100px, 94vw); }
 html.fx .sc-slide.wide .case-grid {
@@ -2018,4 +2018,24 @@ body.blueprint #bp-scratch-btn { display: block; }
   border: 1px solid var(--border-h);
   border-radius: var(--radius-s);
   z-index: 100000;
+}
+
+/* ── Mobile polish (2026-08-31) ──────────────────────────────
+   The pinned corridor is desktop-only now (scroll-fx.js SMALL gate), so
+   phones read the cases as a plain vertical stack. These rules give that
+   stack proper gutters and make the scroll cue legible on a phone. */
+@media (max-width: 700px) {
+  /* symmetric hero gutters — the subhead was riding the right edge */
+  /* the base .hero-open keeps left:8% even once the 860px block turns the
+     panel position:relative — that offset is what shoved the subhead into
+     the right edge. Zero it and let the margins own the gutters. */
+  .hero-panel.hero-open { margin: 0 20px; max-width: none; left: 0; top: auto; }
+  .case { padding: 24px 20px; }
+  .case h3 { font-size: 19px; }
+  /* scroll cue: 9px at 25% opacity was invisible on a phone in daylight */
+  #scroll-hint { bottom: 28px; }
+  .scroll-hint-text { font-size: 11px; color: rgba(236, 233, 241, 0.6); }
+  .scroll-hint-line {
+    background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.8));
+  }
 }

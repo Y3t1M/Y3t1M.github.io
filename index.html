@@ -9,6 +9,7 @@
   <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16.png">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
   <meta name="description" content="Hudson Tinch — business student at Arkansas, developer at Hollis Bloom. Work-order platforms, an autonomous trading system, competition drones.">
 
   <!-- Share card. og:image must be absolute — every scraper fetches it
@@ -29,10 +30,9 @@
        states plainly that the site IS Hudson Tinch rather than leaving Google
        to infer it from prose. sameAs is the load-bearing part: it ties this
        domain to the profiles that already rank.
-       NOTE: github.com/Y3t1M was removed from sameAs on 2026-07-26 — the
-       account is flagged and the profile 404s to the public, so the entry
-       was handing Google a dead identity claim. Put it back the moment the
-       GitHub support ticket resolves. -->
+       github.com/Y3t1M was removed 2026-07-26 while the account was flagged
+       (profile 404'd publicly); restored 2026-08-31 after verifying the
+       profile and API both return 200 again. -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -51,7 +51,8 @@
       "addressCountry": "US"
     },
     "sameAs": [
-      "https://linkedin.com/in/hudsontinch"
+      "https://linkedin.com/in/hudsontinch",
+      "https://github.com/Y3t1M"
     ]
   }
   </script>
@@ -67,23 +68,26 @@
        ahead of the overlay. The timeout is a hard safety net: if boot.js 404s
        or throws at parse time, nothing can leave the site permanently covered.
 
-       Once per VISIT, not once per navigation. sessionStorage is the whole
-       reason this works: it survives moving around the site in the same tab,
-       so Home -> Projects -> Home does not replay it, and it clears when the
-       tab closes, so the next visit gets the animation again. localStorage
-       would have made it once-per-browser-forever; no gate at all made it
-       fire on every navigation. This is the middle.
-
-       The flag is set here rather than in boot.js so exactly one boot happens
-       per visit even if you navigate away mid-animation.
+       Policy (Hudson, 2026-08-31): the boot plays on every RELOAD and every
+       fresh arrival — he wants the mark every time, and any input skips it
+       instantly (see boot.js). The two cases that must NOT replay it:
+       - internal navigation (Home -> Projects -> Home), detected by a
+         same-origin referrer on a non-reload navigation;
+       - back/forward traversals, which are history, not arrivals.
 
        Reduced motion is still honoured. -->
   <script>
     (function () {
       try {
         if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-        if (sessionStorage.getItem('ht-boot-session')) return;
-        sessionStorage.setItem('ht-boot-session', '1');
+        var nav = (performance.getEntriesByType && performance.getEntriesByType('navigation')[0]) || {};
+        var t = nav.type || 'navigate';
+        if (t === 'back_forward') return;
+        if (t !== 'reload') {
+          var internal = false;
+          try { internal = !!document.referrer && new URL(document.referrer).origin === location.origin; } catch (e2) {}
+          if (internal) return;
+        }
         // fw-boot holds the hero's staggered entrance back so it plays as the
         // mark clears, rather than being spent behind the overlay.
         document.documentElement.className += ' booting fw-boot';
