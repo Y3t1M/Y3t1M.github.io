@@ -102,10 +102,10 @@
       printRaw('<span class="cli-nf-key">OS:</span>     <span class="cli-nf-val">HudsonInch GNU/Linux x86_64</span>');
       printRaw('<span class="cli-nf-key">Host:</span>   <span class="cli-nf-val">hudsontinch.com</span>');
       printRaw('<span class="cli-nf-key">Role:</span>   <span class="cli-nf-val">Robotics Captain  •  Maker</span>');
-      printRaw('<span class="cli-nf-key">Univ:</span>   <span class="cli-nf-val">U of Arkansas  —  Honors College</span>');
+      printRaw('<span class="cli-nf-key">Univ:</span>   <span class="cli-nf-val">U of Arkansas  ·  Honors College</span>');
       printRaw('<span class="cli-nf-key">Lang:</span>   <span class="cli-nf-val">C++  Python  JS  TS</span>');
       printRaw('<span class="cli-nf-key">HW:</span>     <span class="cli-nf-val">Arduino  PCB  3D Printing</span>');
-      printRaw('<span class="cli-nf-key">GPA:</span>    <span class="cli-nf-val">4.0  —  Chancellor\'s List</span>');
+      printRaw('<span class="cli-nf-key">GPA:</span>    <span class="cli-nf-val">4.0  ·  Chancellor\'s List</span>');
       printLine('', '');
       printLine('Type "help" for available commands.  Esc or "exit" to close.', 'dim');
       printLine('', '');
@@ -158,7 +158,7 @@
         if (args[0] === 'projects') {
           printLine('', '');
           printLine('  projects/', 'info');
-          printLine('  ├── avr-drone       Autonomous AVR competition drone — 8th nationally', 'out');
+          printLine('  ├── avr-drone       Autonomous AVR competition drone: 4th nationally', 'out');
           printLine('  ├── arduino-r4      Web-based servo/electromagnet controller', 'out');
           printLine('  ├── iron-man-helmet 3D-printed helmet, moving faceplate + electronics', 'out');
           printLine('  └── pixos           Browser pixel art + GIF animation editor', 'out');
@@ -172,7 +172,7 @@
           printLine('  ├── github', 'out');
           printLine('  ├── experience', 'out');
           printLine('  ├── games/', 'out');
-          printLine('  └── desktop/        hidden — try the Konami code ↑↑↓↓←→←→BA', 'dim');
+          printLine('  └── desktop/        hidden: try the Konami code ↑↑↓↓←→←→BA', 'dim');
           printLine('', '');
         }
       },
@@ -182,22 +182,22 @@
           printLine('', '');
           printLine('  NAME        Hudson Tinch', 'success');
           printLine('  ROLE        Robotics Captain, Engineer, Maker', 'out');
-          printLine('  SCHOOL      University of Arkansas — Honors College', 'out');
+          printLine('  SCHOOL      University of Arkansas · Honors College', 'out');
           printLine('  PROGRAM     McMillon Innovation Studio', 'out');
-          printLine('  GPA         4.0 — Chancellor\'s List', 'out');
+          printLine('  GPA         4.0 · Chancellor\'s List', 'out');
           printLine('', '');
-          printLine('  I build things — robotics, apps, hardware. From leading', 'out');
+          printLine('  I build things: robotics, apps, hardware. From leading', 'out');
           printLine('  competition drone teams to founding a 3D printing business', 'out');
           printLine('  at age 9, I turn ideas into real objects.', 'out');
           printLine('', '');
         } else {
-          printLine('  cat: ' + (args[0] || '(no file)') + ': No such file — try "cat about"', 'err');
+          printLine('  cat: ' + (args[0] || '(no file)') + ': No such file. Try "cat about"', 'err');
         }
       },
 
       whoami: function () {
         printLine('', '');
-        printLine('  Hudson Tinch — robotics captain, maker, developer', 'success');
+        printLine('  Hudson Tinch · robotics captain, maker, developer', 'success');
         printLine('  Incoming student @ U of A Honors College', 'out');
         printLine('  Languages : C++  Python  JavaScript  TypeScript', 'out');
         printLine('  Hardware  : Arduino  PCB  KiCad  3D Printing', 'out');
@@ -211,7 +211,7 @@
           printLine('  HUDSON(1)              Portfolio Manual              HUDSON(1)', 'info');
           printLine('', '');
           printLine('  NAME', 'info');
-          printLine('    hudson — robotics captain, engineer, maker', 'out');
+          printLine('    hudson · robotics captain, engineer, maker', 'out');
           printLine('', '');
           printLine('  SYNOPSIS', 'info');
           printLine('    hudson [project] [--build] [--compete] [--learn]', 'out');
@@ -225,14 +225,14 @@
           printLine('  EXPERIENCE', 'info');
           printLine('    Sam\'s Club  ·  Hollis Bloom (back-end dev)', 'out');
           printLine('    Farah Law Firm (C++ programmer)', 'out');
-          printLine('    Dimensional Design 3D — founded age 9 (2014–2020)', 'out');
+          printLine('    Dimensional Design 3D · founded age 8 (2014–2020)', 'out');
           printLine('', '');
           printLine('  AWARDS', 'info');
-          printLine('    Bell AVR Nationals — 8th Place', 'out');
+          printLine('    Bell AVR Nationals · 4th Place', 'out');
           printLine('    Robotics Best Design + Judge\'s Choice', 'out');
           printLine('    Presidential Service Award', 'out');
           printLine('    HP MAPS Scots Tank Winner', 'out');
-          printLine('    Chancellor\'s List — 4.0 GPA', 'out');
+          printLine('    Chancellor\'s List · 4.0 GPA', 'out');
           printLine('', '');
           printLine('  SEE ALSO', 'info');
           printLine('    github.com/Y3t1M  ·  linkedin.com/in/hudsontinch', 'out');
@@ -306,7 +306,7 @@
       if (CMDS[cmd]) {
         CMDS[cmd](args);
       } else {
-        printLine('  command not found: ' + cmd + ' — type "help" for commands', 'err');
+        printLine('  command not found: ' + cmd + '. Type "help" for commands', 'err');
       }
     }
 

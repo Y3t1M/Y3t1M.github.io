@@ -3,11 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RH Agentic — Dashboard preview</title>
+  <title>RH Agentic · Dashboard preview</title>
   <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+  <!-- Google wants a favicon that is a multiple of 48px, plus /favicon.ico at the root -->
+  <link rel="icon" type="image/png" sizes="48x48" href="../assets/icon-48.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="../assets/icon-96.png">
+  <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="icon" type="image/png" sizes="32x32" href="../assets/favicon-32.png">
   <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
-  <meta name="description" content="RH Agentic — autonomous agents that analyze markets and execute equity and options trades end to end, with a deterministic risk engine gating every order. A stripped-down preview of the operator console.">
+  <meta name="description" content="RH Agentic: autonomous agents that analyze markets and execute equity and options trades end to end, with a deterministic risk engine gating every order. A stripped-down preview of the operator console.">
   <style>
     :root{
       --bg:#0b0b0b; --panel:#000000; --line:rgba(255,255,255,.10); --line2:rgba(255,255,255,.17);
@@ -159,12 +163,12 @@
   <meta property="og:site_name" content="Hudson Tinch">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://hudsontinch.com/demos/rh-agentic.html">
-  <meta property="og:title" content="RH Agentic — an autonomous trading system with a deterministic risk engine">
+  <meta property="og:title" content="RH Agentic: an autonomous trading system with a deterministic risk engine">
   <meta property="og:description" content="Autonomous agents analyze markets and execute trades end to end; a deterministic risk engine gates every order. Preview of the operator console, production figures withheld.">
   <meta property="og:image" content="https://hudsontinch.com/assets/og-rh-agentic.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="RH Agentic — an autonomous trading system with a deterministic risk engine.">
+  <meta property="og:image:alt" content="RH Agentic: an autonomous trading system with a deterministic risk engine.">
   <meta name="twitter:card" content="summary_large_image">
 </head>
 <body>
@@ -173,7 +177,7 @@
     <b>Preview</b>
     <span>A stripped-down slice of the console with figures withheld.
       <em>The production system is substantially more capable than what is shown here.</em></span>
-    <a href="mailto:hudson.tinch@gmail.com?subject=RH%20Agentic%20—%20full%20demo%20request">Request the full demo &rarr;</a>
+    <a href="mailto:hudson.tinch@gmail.com?subject=RH%20Agentic%20full%20demo%20request">Request the full demo &rarr;</a>
   </div>
 
   <header>
@@ -193,7 +197,7 @@
       <div class="agentbar">
         <div class="abrow1">
           <span class="abstar">&#9733;</span>
-          <span class="abtitle">Session complete &mdash; premarket</span>
+          <span class="abtitle">Session complete &middot; premarket</span>
           <span class="abmeta">9 stages &middot; 0 errors</span>
         </div>
         <div class="abrow2"><span class="abbar"><i></i></span><span class="abpct">100%</span></div>
@@ -223,7 +227,7 @@
           <div class="stat"><div class="statlabel">Last full run</div><div class="statval g">07:40 ✓</div></div>
         </div>
         <p class="note">A drawdown ladder can step the whole system down to reduced sizing, and then to
-          a full halt. The validator enforces it — the model does not get a vote.</p>
+          a full halt. The validator enforces it; the model does not get a vote.</p>
       </section>
 
       <section class="sec">
@@ -231,16 +235,16 @@
         <div class="card scroll">
           <table>
             <thead><tr><th>Symbol</th><th>Entry</th><th>Stop</th><th>Status</th></tr></thead>
-            <tbody><tr><td class="sym">&mdash;</td><td class="num">withheld</td><td class="num">attached</td>
+            <tbody><tr><td class="sym">&ndash;</td><td class="num">withheld</td><td class="num">attached</td>
               <td><span class="chip c-watch">protected</span></td></tr></tbody>
           </table>
         </div>
-        <p class="note">Entry and stop are placed together, and the stop lives at the broker — so a
+        <p class="note">Entry and stop are placed together, and the stop lives at the broker, so a
           position stays protected even if the machine running this goes offline.</p>
       </section>
 
       <section class="sec">
-        <div class="sechead"><h2>Funnel &mdash; why no trade</h2><em>shape only, one session</em></div>
+        <div class="sechead"><h2>Funnel &middot; why no trade</h2><em>shape only, one session</em></div>
         <div class="card"><div class="fn" id="funnel"></div></div>
         <p class="note">Most sessions end in no trade at all. This panel is the record of where every
           candidate stopped, and it is the one people ask about first.</p>
@@ -257,11 +261,11 @@
 
       <div class="cta">
         <h3>Want the version that actually runs?</h3>
-        <p>This preview is deliberately thin. The production system carries considerably more — the
+        <p>This preview is deliberately thin. The production system carries considerably more, the
           full scoring model, the complete gate set, the learning loop that revises it, and
           <b>real performance data measured in R</b> rather than the blanks above.</p>
         <p>Happy to walk anyone through the live console and share the actual numbers.</p>
-        <a href="mailto:hudson.tinch@gmail.com?subject=RH%20Agentic%20—%20full%20demo%20request">Request the full demo &rarr;</a>
+        <a href="mailto:hudson.tinch@gmail.com?subject=RH%20Agentic%20full%20demo%20request">Request the full demo &rarr;</a>
       </div>
     </div>
 
@@ -279,24 +283,24 @@
           <p>Every morning it sweeps the market for names worth a second look, and keeps a running memory of the ones that are moving.</p></div></div>
         <div class="step"><div class="n">2</div><div>
           <h3>It reads</h3>
-          <p>Anything promising gets a full written work-up — including an argument for why the idea is wrong. No write-up, no trade.</p></div></div>
+          <p>Anything promising gets a full written work-up, including an argument for why the idea is wrong. No write-up, no trade.</p></div></div>
         <div class="step"><div class="n">3</div><div>
           <h3>It scores</h3>
           <p>The work-up becomes a single number. Under the bar, nothing happens, however good the story sounds.</p></div></div>
         <div class="step gate"><div class="n">4</div><div>
           <h3>Code decides</h3>
-          <p>Every order hits one deterministic gate that the model cannot argue with. If the gate says no, it is no — and the refusal is recorded.</p></div></div>
+          <p>Every order hits one deterministic gate that the model cannot argue with. If the gate says no, it is no, and the refusal is recorded.</p></div></div>
         <div class="step"><div class="n">5</div><div>
           <h3>It learns</h3>
-          <p>Anything that gets through is protected the moment it opens, then graded afterwards. What is learned changes the scoring — and only evidence can change it.</p></div></div>
+          <p>Anything that gets through is protected the moment it opens, then graded afterwards. What is learned changes the scoring, and only evidence can change it.</p></div></div>
       </div>
 
       <div class="cta">
         <h3>That is the outline, not the machine</h3>
-        <p>The real thing has considerably more going on underneath — how candidates are actually
+        <p>The real thing has considerably more going on underneath: how candidates are actually
           sourced, what the gate really checks, and how the model rewrites itself. Those stay private.</p>
         <p>If you want the detailed walkthrough and the performance figures, just ask.</p>
-        <a href="mailto:hudson.tinch@gmail.com?subject=RH%20Agentic%20—%20full%20demo%20request">Request the full demo &rarr;</a>
+        <a href="mailto:hudson.tinch@gmail.com?subject=RH%20Agentic%20full%20demo%20request">Request the full demo &rarr;</a>
       </div>
     </div>
 

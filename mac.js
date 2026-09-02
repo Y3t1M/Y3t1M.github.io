@@ -53,7 +53,7 @@ function closeWindow(id) {
 
 function updateActiveApp(name) {
   var el = document.getElementById('active-app-name');
-  if (el) el.textContent = name.split('—')[0].trim();
+  if (el) el.textContent = name.split('·')[0].trim();
 }
 
 /* ── Close boxes ── */

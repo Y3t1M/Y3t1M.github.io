@@ -4,12 +4,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NeatFreak — Live Demo</title>
+  <title>NeatFreak · Live Demo</title>
   <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+  <!-- Google wants a favicon that is a multiple of 48px, plus /favicon.ico at the root -->
+  <link rel="icon" type="image/png" sizes="48x48" href="../assets/icon-48.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="../assets/icon-96.png">
+  <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="icon" type="image/png" sizes="32x32" href="../assets/favicon-32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="../assets/favicon-16.png">
   <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
-  <meta name="description" content="NeatFreak live demo — photo to 3D-printable drawer organizer. Extract a silhouette, tune it, and download an STL or OBJ tray — plain or Gridfinity — right from your browser.">
+  <meta name="description" content="NeatFreak live demo: photo to 3D-printable drawer organizer. Extract a silhouette, tune it, and download an STL or OBJ tray, plain or Gridfinity, right from your browser.">
   <link rel="stylesheet" href="../styles.css">
   <style>
     .demo-wrap { max-width: 1080px; margin: 0 auto; padding: 56px 24px 0; }
@@ -129,12 +133,12 @@
   <meta property="og:site_name" content="Hudson Tinch">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://hudsontinch.com/demos/neatfreak.html">
-  <meta property="og:title" content="NeatFreak — photo to 3D-printable organizer">
+  <meta property="og:title" content="NeatFreak: photo to 3D-printable organizer">
   <meta property="og:description" content="Upload a photo, tune three sliders, download a printable STL. The extraction engine runs entirely in your browser.">
   <meta property="og:image" content="https://hudsontinch.com/assets/og-neatfreak.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="NeatFreak — photo in, 3D-printable drawer organizer out.">
+  <meta property="og:image:alt" content="NeatFreak: photo in, 3D-printable drawer organizer out.">
   <meta name="twitter:card" content="summary_large_image">
 </head>
 
@@ -158,7 +162,7 @@
     <h1 class="section-title">NeatFreak</h1>
     <p class="section-description">
       Photo in, 3D-printable drawer organizer out. Pick a photo, <strong>drag the sliders</strong>
-      until the outline hugs the object, set the real-world size, and download a printable tray —
+      until the outline hugs the object, set the real-world size, and download a printable tray,
       plain or with a Gridfinity-compatible base.
     </p>
 
@@ -200,7 +204,7 @@
       <button class="btn-ghost" id="nfObj">Download OBJ</button>
       <span class="nf-dims" id="nfDims"></span>
     </div>
-    <p class="nf-note">Runs entirely in your browser &mdash; photos never leave your device. Gridfinity footprint snaps to 42&nbsp;mm units (simplified feet).</p>
+    <p class="nf-note">Runs entirely in your browser; photos never leave your device. Gridfinity footprint snaps to 42&nbsp;mm units (simplified feet).</p>
 
     <div class="nf-how">
       <div class="section-label">How the real app works</div>
@@ -212,7 +216,7 @@
       </p>
       <p>
         This page reimplements the pipeline in vanilla JavaScript: canvas pixel ops for extraction,
-        then a watertight heightfield mesh &mdash; tray, pocket, and optional Gridfinity feet &mdash;
+        then a watertight heightfield mesh (tray, pocket, and optional Gridfinity feet)
         written as binary STL or OBJ on the fly.
       </p>
     </div>
@@ -401,7 +405,7 @@
     function updateDims() {
       var el = document.getElementById('nfDims');
       var t = trayParams();
-      if (!t) { el.textContent = 'no object detected — lower the threshold'; return; }
+      if (!t) { el.textContent = 'no object detected: lower the threshold'; return; }
       el.textContent = t.trayW.toFixed(0) + ' × ' + t.trayD.toFixed(0) + ' × ' + t.height +
         ' mm · pocket ' + t.pocketDepth + ' mm' + (t.grid ? ' · ' + (t.trayW / 42) + '×' + (t.trayD / 42) + 'U gridfinity' : '');
     }
@@ -473,7 +477,7 @@
 
       tctx.font = '10px ui-monospace, Menlo, monospace';
       tctx.fillStyle = 'rgba(255,255,255,0.28)';
-      tctx.fillText(t && t.grid ? 'GRIDFINITY TRAY — POCKET FROM SILHOUETTE' : 'TRAY POCKET — EXTRUDED FROM SILHOUETTE', m + 10, H - m - 10);
+      tctx.fillText(t && t.grid ? 'GRIDFINITY TRAY · POCKET FROM SILHOUETTE' : 'TRAY POCKET · EXTRUDED FROM SILHOUETTE', m + 10, H - m - 10);
     }
 
     function roundRect(ctx, x, y, w2, h2, r) {
@@ -584,7 +588,7 @@
       var t = mesh.tris, count = t.length / 9;
       var buf = new ArrayBuffer(84 + count * 50);
       var dv = new DataView(buf);
-      var head = 'NeatFreak browser export — hudsontinch.com';
+      var head = 'NeatFreak browser export · hudsontinch.com';
       for (var i = 0; i < Math.min(80, head.length); i++) dv.setUint8(i, head.charCodeAt(i));
       dv.setUint32(80, count, true);
       var o = 84;
@@ -605,7 +609,7 @@
       var mesh = buildMesh();
       if (!mesh) return;
       var t = mesh.tris;
-      var out = ['# NeatFreak browser export — hudsontinch.com'];
+      var out = ['# NeatFreak browser export · hudsontinch.com'];
       for (var i = 0; i < t.length; i += 3) {
         out.push('v ' + t[i].toFixed(3) + ' ' + t[i + 1].toFixed(3) + ' ' + t[i + 2].toFixed(3));
       }
