@@ -67,22 +67,36 @@
        ahead of the overlay. The timeout is a hard safety net: if boot.js 404s
        or throws at parse time, nothing can leave the site permanently covered.
 
-       Once per VISIT, not once per navigation. sessionStorage is the whole
-       reason this works: it survives moving around the site in the same tab,
-       so Home -> Projects -> Home does not replay it, and it clears when the
-       tab closes, so the next visit gets the animation again. localStorage
-       would have made it once-per-browser-forever; no gate at all made it
-       fire on every navigation. This is the middle.
+       Plays on first arrival and on every REFRESH — but still not on
+       internal navigation. Two different things were wanted at once: a
+       reload should always replay the boot (you reload to see it), while
+       Home -> Projects -> Home should not (that was the whole point of
+       gating it in the first place). So the sessionStorage flag stays and
+       a reload simply overrides it.
+
+       Navigation Timing says which kind of load this is. The modern entry
+       is read first; performance.navigation.type === 1 is the same answer
+       for older WebKit, which matters because this is mostly checked on a
+       phone. If neither is readable we fall through to the flag alone, so
+       the worst case is the old behaviour, never a broken page.
 
        The flag is set here rather than in boot.js so exactly one boot happens
        per visit even if you navigate away mid-animation.
 
-       Reduced motion is still honoured. -->
+       Reduced motion is still honoured — see the note by the CSS. -->
   <script>
     (function () {
       try {
         if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-        if (sessionStorage.getItem('ht-boot-session')) return;
+
+        var reload = false;
+        try {
+          var nav = performance.getEntriesByType('navigation')[0];
+          reload = nav ? nav.type === 'reload'
+                       : !!(performance.navigation && performance.navigation.type === 1);
+        } catch (e) {}
+
+        if (!reload && sessionStorage.getItem('ht-boot-session')) return;
         sessionStorage.setItem('ht-boot-session', '1');
         // fw-boot holds the hero's staggered entrance back so it plays as the
         // mark clears, rather than being spent behind the overlay.
@@ -561,7 +575,7 @@
       var rows = [
         ['UA', navigator.userAgent.slice(0, 78)],
         ['viewport', innerWidth + 'x' + innerHeight + ' dpr ' + (devicePixelRatio || 1)],
-        ['reduced motion', matchMedia('(prefers-reduced-motion: reduce)').matches ? 'ON  <-- freezes the sand' : 'off'],
+        ['reduced motion', matchMedia('(prefers-reduced-motion: reduce)').matches ? 'ON  <-- freezes the sand AND skips the splash' : 'off'],
         ['webgl available', webgl ? 'yes' : 'NO  <-- sand cannot render'],
         ['sand mode', S.mode],
         ['sand frames', S.frames],

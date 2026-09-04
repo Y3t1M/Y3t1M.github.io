@@ -3,9 +3,9 @@
    The PLINTH mark assembles, holds — then DOCKS: it flies to the
    top-left of the nav and becomes the site's wordmark while the
    overlay dissolves into the page underneath. The boot is the
-   logo's origin story, not a thing that vanishes. First visit
-   only; the flag is set the moment it starts, so a reload
-   mid-boot does not replay it.
+   logo's origin story, not a thing that vanishes. Plays on first
+   arrival and on every refresh; the head gate in index.html
+   decides, and this file only ever reacts to html.booting.
 
    The overlay itself lives in the markup and is shown by
    html.booting, which an inline <head> script sets before the
@@ -27,7 +27,7 @@
 (function () {
   'use strict';
 
-  var KEY = 'ht-boot-session';   /* sessionStorage — one boot per visit */
+  var KEY = 'ht-boot-session';   /* set by the head gate too; belt and braces */
   var root = document.documentElement;
   if (!root.classList.contains('booting')) return;
 
