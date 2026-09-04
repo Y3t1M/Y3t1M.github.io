@@ -83,12 +83,17 @@
        The flag is set here rather than in boot.js so exactly one boot happens
        per visit even if you navigate away mid-animation.
 
-       Reduced motion is still honoured — see the note by the CSS. -->
+       Reduced motion does NOT skip the boot — Hudson's call, asked for
+       twice: the splash is the site's front door and he wants everyone to
+       see it. Same decision already made for the sand and the terrain. The
+       accommodation that remains is the escape hatch in boot.js: the first
+       tap, key, scroll or click ends it immediately, so nobody is held in
+       front of it. The matching CSS media query is gone too — leaving it
+       would hide the overlay while html.booting still locked the page,
+       which is a blank seven-second hold rather than an animation. -->
   <script>
     (function () {
       try {
-        if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-
         var reload = false;
         try {
           var nav = performance.getEntriesByType('navigation')[0];
@@ -575,7 +580,7 @@
       var rows = [
         ['UA', navigator.userAgent.slice(0, 78)],
         ['viewport', innerWidth + 'x' + innerHeight + ' dpr ' + (devicePixelRatio || 1)],
-        ['reduced motion', matchMedia('(prefers-reduced-motion: reduce)').matches ? 'ON  <-- freezes the sand AND skips the splash' : 'off'],
+        ['reduced motion', matchMedia('(prefers-reduced-motion: reduce)').matches ? 'ON  <-- freezes the sand; splash plays anyway' : 'off'],
         ['webgl available', webgl ? 'yes' : 'NO  <-- sand cannot render'],
         ['sand mode', S.mode],
         ['sand frames', S.frames],
