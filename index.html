@@ -79,11 +79,18 @@
          same-origin referrer on a non-reload navigation;
        - back/forward traversals, which are history, not arrivals.
 
-       Reduced motion is still honoured. -->
+       Reduced motion does NOT skip the boot — Hudson's call, asked for
+       directly: the splash is the front door and he wants everyone to see
+       it. Same decision already made for the sand and the terrain. The
+       accommodation that remains is the escape hatch in boot.js — the first
+       tap, key, scroll or click ends it at once — plus the fact that it
+       releases itself in a few seconds with no input at all. The matching
+       CSS media query is gone too; leaving it would hide the overlay while
+       html.booting still locked the page, which is a blank hold rather than
+       an animation, and worse for exactly the people it meant to protect. -->
   <script>
     (function () {
       try {
-        if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
         var nav = (performance.getEntriesByType && performance.getEntriesByType('navigation')[0]) || {};
         var t = nav.type || 'navigate';
         if (t === 'back_forward') return;
@@ -583,7 +590,7 @@
       var rows = [
         ['UA', navigator.userAgent.slice(0, 78)],
         ['viewport', innerWidth + 'x' + innerHeight + ' dpr ' + (devicePixelRatio || 1)],
-        ['reduced motion', matchMedia('(prefers-reduced-motion: reduce)').matches ? 'ON  <-- freezes the sand' : 'off'],
+        ['reduced motion', matchMedia('(prefers-reduced-motion: reduce)').matches ? 'ON  <-- freezes the sand; splash plays anyway' : 'off'],
         ['webgl available', webgl ? 'yes' : 'NO  <-- sand cannot render'],
         ['sand mode', S.mode],
         ['sand frames', S.frames],

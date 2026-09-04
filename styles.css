@@ -1955,11 +1955,10 @@ html.booting #boot { display: flex; }
 html.booting, html.booting body { overflow: hidden; }
 #boot svg { width: min(30vmin, 280px); height: auto; display: block; }
 #boot rect { fill: #eaeaea; transform-box: fill-box; }
-/* never hold a reduced-motion visitor behind a held animation */
-@media (prefers-reduced-motion: reduce) {
-  #boot { display: none !important; }
-  html.booting, html.booting body { overflow: auto; }
-}
+/* No reduced-motion opt-out here on purpose: the boot plays for everyone.
+   Hiding #boot while html.booting still locked scrolling would trade the
+   animation for a blank hold, which is worse for exactly the people the
+   query was meant to protect. boot.js ends on the first input instead. */
 
 /* ============================================================
    PAGE TRANSITION FALLBACK

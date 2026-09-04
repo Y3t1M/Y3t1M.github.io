@@ -44,8 +44,8 @@
   var stage = document.getElementById('boot');
   if (!stage) { finish(); return; }
 
-  /* Reduced motion: no held animation, no forced wait. */
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { finish(); return; }
+  /* Reduced motion plays the boot like everyone else — Hudson's call. The
+     skip handlers below are the accommodation: any input ends it at once. */
 
   /* ---- the mark ---------------------------------------------------- */
   var TOP = 24, COLH = 72, W = 11;
