@@ -379,7 +379,24 @@ html.booting .nav-mark { opacity: 0; }
   line-height: 1.55;
   margin: 0 0 22px;
 }
-.hero-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.hero-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+/* GitHub / LinkedIn / Email beside the resume — ghost pills, icon-only,
+   sized to the text buttons so the row reads as one set */
+.hero-social { display: inline-flex; gap: 8px; align-items: center; }
+.icon-btn {
+  width: 36px; height: 36px; border-radius: 999px;
+  border: 1px solid var(--border-h); color: var(--text);
+  display: inline-flex; align-items: center; justify-content: center;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.icon-btn svg { width: 16px; height: 16px; }
+.icon-btn:hover { border-color: rgba(255, 255, 255, 0.4); background: rgba(255, 255, 255, 0.05); }
+@media (max-width: 700px) {
+  /* phones: thumb-sized, and the social trio takes its own row under the buttons */
+  .hero-social { flex-basis: 100%; margin-top: 2px; }
+  .icon-btn { width: 42px; height: 42px; }
+  .icon-btn svg { width: 18px; height: 18px; }
+}
 
 .hero-now {
   margin: 20px 0 0;
