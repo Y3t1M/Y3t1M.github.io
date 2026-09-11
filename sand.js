@@ -18,19 +18,25 @@
      surfaces this. */
   var D = window.__sandDiag = { mode:'init', frames:0, log:'', rects:0, err:'' };
 
-  // the splash stays clean: sand only fades in once you scroll past the hero
+  /* THE SEAM, Hudson's pick from the seam lab (2026-09-11): T4 Merge, heavy.
+     The sand used to fade in across the whole screen as you scrolled past the
+     hero, which met the hero's dots at a hard line with an empty band under it.
+     Now it is shaped in space by the shader (uTop, see draw): it rises from
+     SEAM_PRE px above the hero's bottom edge to full SEAM_W px below it, up
+     through the dots that terrain-hero.js crumbles into grains in that band.
+     So the opacity is constant. Phones get a dimmer field (0.34 read as static
+     on Hudson's iPhone; "a little sand", not weather). */
   var heroEl = document.querySelector('.hero');
-  if (heroEl) {
-    var syncOp = function () {
-      var hb = heroEl.offsetHeight || 600;
-      var f = Math.max(0, Math.min(1, (window.pageYOffset - hb * 0.3) / (hb * 0.55)));
-      /* phones get a dimmer field — 0.34 read as static over the about
-         section on Hudson's iPhone; "a little sand", not weather */
-      canvas.style.opacity = ((window.matchMedia('(pointer: coarse)').matches ? 0.20 : 0.34) * f).toFixed(3);
-    };
-    syncOp();
-    window.addEventListener('scroll', syncOp, { passive: true });
-    window.addEventListener('resize', syncOp);
+  var SEAM_PRE = 210, SEAM_W = 190;
+  var OPACITY = window.matchMedia('(pointer: coarse)').matches ? 0.20 : 0.34;
+  canvas.style.opacity = OPACITY.toFixed(3);
+  /* the 2D fallback has no shader to shape it, so it keeps the old scroll fade
+     and never paints over the hero */
+  function scrollFade() {
+    if (!heroEl) return;
+    var hb = heroEl.offsetHeight || 600;
+    var f = Math.max(0, Math.min(1, (window.pageYOffset - hb * 0.3) / (hb * 0.55)));
+    canvas.style.opacity = (OPACITY * f).toFixed(3);
   }
 
   var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -48,6 +54,9 @@
     var ctx = canvas.getContext('2d');
     if (!ctx) { D.mode = 'no-2d'; return; }
     D.mode = D.mode === 'init' ? '2d-fallback' : D.mode + '+2d';
+    scrollFade();
+    window.addEventListener('scroll', scrollFade, { passive: true });
+    window.addEventListener('resize', scrollFade);
     document.documentElement.classList.add('sand-glass');   /* cards turn to glass only over live sand */
     function paint() {
       var W = canvas.width = window.innerWidth;
@@ -79,6 +88,7 @@
     'uniform float uPx;',   /* CSS px per device px — resolution independence */
     'uniform vec4 uR[12];',  /* card rects (css px) — sand calms inside, piles at edges */
     'uniform float uNR;',
+    'uniform float uTop; uniform float uPre; uniform float uTopW;',   /* the seam under the hero */
     '#define PI 3.141592653589793',
     /* Ashima / stegu 2D simplex noise */
     'vec3 mod289(vec3 x){return x - floor(x * (1.0/289.0)) * 289.0;}',
@@ -166,6 +176,7 @@
     '  a *= (1.0 - inside * 0.05);',                     /* glass: the face shows the field, softened by the CSS blur */
     '  a *= 1.0 + (1.0 - inside) * 0.25;',              /* +25% grain in the gaps BETWEEN cards (Hudson, 2026-09-01) */
     '  a = max(a, edge * 0.30);',                        /* the glass edge catches the light */
+    '  a *= smoothstep(uTop - uPre, uTop + uTopW, pcss.y);',   /* the seam: sand rises from under the hero */
     '  gl_FragColor = vec4(vec3(a), a);',
     '}'
   ].join('\n');
@@ -205,6 +216,18 @@
   var uPx = gl.getUniformLocation(prog, 'uPx');
   var uRLoc = gl.getUniformLocation(prog, 'uR[0]');
   var uNR = gl.getUniformLocation(prog, 'uNR');
+  var uTop = gl.getUniformLocation(prog, 'uTop');
+  gl.uniform1f(gl.getUniformLocation(prog, 'uPre'), SEAM_PRE);
+  gl.uniform1f(gl.getUniformLocation(prog, 'uTopW'), SEAM_W);
+  /* the hero's bottom edge in canvas space, every frame, like the card rects.
+     Even on touch (where the rects are off) this is safe: the seam is a
+     400 px soft ramp, so a few px of scroll lag cannot show. */
+  function pushSeam() {
+    if (!heroEl) { gl.uniform1f(uTop, -1e5); return; }
+    var top = heroEl.getBoundingClientRect().bottom - canvas.getBoundingClientRect().top;
+    gl.uniform1f(uTop, top);
+    D.seam = Math.round(top);                 /* ?diag=1 and the tests read where the seam is */
+  }
   gl.uniform1f(uSeed, Math.random() * 100.0);
 
   /* containers the sand should respect */
@@ -280,6 +303,7 @@
   function draw(t) {
     D.frames++;
     pushRects();
+    pushSeam();
     gl.uniform1f(uT, t);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
   }

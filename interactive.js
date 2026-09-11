@@ -387,49 +387,37 @@
   /* ================================================================
      SCROLL HINT INDICATOR
      ================================================================ */
-  /* The projects corridor and the home page are different scrolls — one is a
-     normal page, the other is a horizontal slide track — so learning one does
-     not teach the other. The "seen it" flag is therefore per context, not
-     global: a single key meant dismissing it once at home suppressed it
-     forever on projects, where it is the more useful of the two.
-     Dismissal by scroll is still what marks it learned. */
-  /* corridor mode is real only when scroll-fx actually pinned it (html.fx);
+  /* The cue shows on EVERY load, on the home page and the projects corridor
+     alike, and comes back whenever you return to the top (Hudson, 2026-09-11:
+     "it's a first time viewers thing but still"). It used to be learned per
+     visit in sessionStorage, so after one scroll a reload or a return trip
+     showed nothing and the page read as un-scrollable. It still steps aside
+     the moment you start scrolling.
+
+     corridor mode is real only when scroll-fx actually pinned it (html.fx);
      on phones the slides exist but flow vertically, and the corridor's
-     "dismiss after a full viewport" rule kept the hint hovering over card
-     text. */
+     "leave after a full viewport" rule kept the cue hovering over card text. */
   const inCorridor = !!document.querySelector('.sc-slide') &&
     document.documentElement.classList.contains('fx');
-  const HINT_KEY = inCorridor ? 'ht-hint-done-corridor' : 'ht-hint-done-home';
-  let hintLearned = false;
-  /* sessionStorage, not localStorage: "learned" used to be once per browser
-     FOREVER, so anyone who had ever scrolled never saw the cue again on any
-     later visit — which on a phone read as "nothing says you can scroll".
-     Now it re-arms each visit and still dismisses on the first real scroll. */
-  try { hintLearned = !!sessionStorage.getItem(HINT_KEY); } catch (e) {}
   const scrollHint = document.createElement('div');
-  if (!hintLearned) {
   scrollHint.id = 'scroll-hint';
   scrollHint.innerHTML = '<span class="scroll-hint-line"></span><span class="scroll-hint-text">scroll</span>';
   document.body.append(scrollHint);
-  /* On the projects corridor the old numbers made the hint invisible in
-     practice: it appeared at 2200ms and was killed forever by the first 60px
-     of scroll — so anyone who moved at all never saw it. There it now shows
-     almost immediately and only leaves once you are genuinely inside the
-     corridor (a full viewport deep). The home page keeps the patient timing. */
+  /* On the corridor it shows almost immediately and only leaves once you are
+     genuinely inside it (a full viewport deep); the home page keeps the
+     patient timing, so it never competes with the boot. */
   const coarse = matchMedia('(pointer: coarse)').matches;
   const HINT_SHOW_MS = inCorridor ? 600 : (coarse ? 1100 : 2200);
   const HINT_GONE_AT = () => (inCorridor ? window.innerHeight : 60);
-  let hintGone = false;
-  window.addEventListener('scroll', () => {
-    if (!hintGone && window.scrollY > HINT_GONE_AT()) {
-      hintGone = true;
-      try { sessionStorage.setItem(HINT_KEY, '1'); } catch (e) {}
-      scrollHint.classList.add('hint-hide');
-      setTimeout(() => scrollHint.remove(), 700);
-    }
-  }, { passive: true });
-  setTimeout(() => scrollHint.classList.add('hint-show'), HINT_SHOW_MS);
+  let hintLive = false;                 /* false until the first reveal */
+  function syncHint() {
+    if (!hintLive) return;
+    const away = window.scrollY > HINT_GONE_AT();
+    scrollHint.classList.toggle('hint-hide', away);
+    scrollHint.classList.toggle('hint-show', !away);
   }
+  window.addEventListener('scroll', syncHint, { passive: true });
+  setTimeout(() => { hintLive = true; syncHint(); }, HINT_SHOW_MS);
 
 
   /* ================================================================

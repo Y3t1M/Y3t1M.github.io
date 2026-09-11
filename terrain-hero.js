@@ -43,6 +43,10 @@
   /* Hudson's dialed string. The tuner hook lets a lab page or the console
      retune live values without a deploy: __sandglow.P.int = ... */
   var P = { int: 0.22, touch: 0.70, drift: 1.00 };
+  /* THE SEAM, Hudson's pick from the seam lab (2026-09-11): T4 Merge, heavy.
+     In the last SEAM_BAND px of the hero every dot comes apart into sand; see
+     the render loop. sand.js raises the real sand through the same band. */
+  var SEAM_BAND = 300, SEAM_GRAINS = 5.6, SEAM_SCATTER = 1.35;
   window.__sandglow = { P: P };
 
   /* ---- noise (same voice as the retired terrain) ------------------- */
@@ -275,6 +279,31 @@
         var a = Math.min(0.9, row.gain * (0.22 + lvl * 1.15));
         if (a < 0.015) continue;
         var s2 = row.size * (0.5 + Math.min(1.25, lvl) * 0.8);
+        /* the seam: near the bottom of the hero the dot loosens off the grid,
+           settles, shrinks, and sheds grains of sand, while the real sand rises
+           up through the same band. The grid crumbles into the field and there
+           is no line. Everything is hashed per dot, so nothing flickers. */
+        var mt = (y - (H - SEAM_BAND)) / SEAM_BAND;
+        if (mt > 0) {
+          if (mt > 1) mt = 1;
+          var ang = hh(ri * 13.7 + 1.3, i * 7.9) * 6.2832, loose = mt * mt;
+          x += Math.cos(ang) * loose * 9 * SEAM_SCATTER;
+          y += (Math.sin(ang) * loose * 6 + loose * 7) * SEAM_SCATTER;
+          s2 *= 1 - 0.6 * mt;
+          var ng = mt > 0.12 ? 1 + Math.floor(mt * SEAM_GRAINS) : 0;
+          for (var gk = 0; gk < ng; gk++) {
+            var hk = hh(ri * 31.3 + gk * 17.1, i * 5.7 + gk * 3.3), hk2 = hh(ri * 9.9 + gk * 7.7, i * 13.1 + gk);
+            var gan = hk * 6.2832, grr = (2 + 15 * mt * SEAM_SCATTER) * (0.35 + 0.65 * hk2);
+            var shim = 0.55 + 0.45 * Math.sin(t * 1.7 + hk * 40);   /* shimmer like the sand, never blink */
+            var gA = Math.min(0.9, a * 0.9 * mt * shim + 0.05 * mt);
+            if (gA > 0.02) {
+              ctx.fillStyle = 'rgba(234,234,234,' + gA.toFixed(3) + ')';
+              ctx.fillRect(x + Math.cos(gan) * grr, y + Math.sin(gan) * grr * 0.8 + mt * 4, 1, 1);
+            }
+          }
+          a *= 1 - 0.72 * mt;                                    /* what is left of the dot fades */
+          if (a < 0.015) continue;
+        }
         ctx.fillStyle = 'rgba(234,234,234,' + a.toFixed(3) + ')';
         ctx.fillRect(x - s2 / 2, y - s2 / 2, s2, s2);
       }

@@ -338,7 +338,14 @@ html.booting .nav-mark { opacity: 0; }
   width: 100%;
   height: 100%;
   display: block;
+  /* the seam (T4 Merge): the dots crumble into sand in terrain-hero.js; this is
+     only the last 70 px of softness so no dot is ever cut by the edge */
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 70px), transparent);
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 70px), transparent);
 }
+/* no line under the hero any more: the dots and the sand merge across the seam.
+   Blueprint mode keeps its dashed rule. */
+body:not(.blueprint) .hero { border-bottom-color: transparent; }
 
 .hero-panel {
   position: absolute;
@@ -1405,7 +1412,8 @@ html.fx .sc-counter.show { opacity: 1; }
 html.sand-glass body:not(.blueprint) .about-card,
 html.sand-glass body:not(.blueprint) .project-card,
 html.sand-glass body:not(.blueprint) .awards-list,
-html.sand-glass body:not(.blueprint) .contact-inner {
+html.sand-glass body:not(.blueprint) .contact-inner,
+html.sand-glass body:not(.blueprint) .spec {
   background: rgba(18, 18, 18, 0.40);
   border-color: rgba(255, 255, 255, 0.14);
   -webkit-backdrop-filter: blur(9px) saturate(120%);
