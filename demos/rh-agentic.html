@@ -29,7 +29,7 @@
   html { background: var(--bg); }
   body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.6 var(--mono); -webkit-font-smoothing: antialiased;
     background-image: radial-gradient(circle, #232930 1px, transparent 1px); background-size: 26px 26px; }
-  .banner { display: flex; align-items: center; gap: 14px; padding: 11px 28px; background: rgba(230,195,106,.12); border-bottom: 1px solid rgba(230,195,106,.45); }
+  .banner { display: flex; align-items: center; justify-content: center; text-align: center; gap: 14px; padding: 11px 28px; background: rgba(230,195,106,.12); border-bottom: 1px solid rgba(230,195,106,.45); }
   .bstamp { font: 700 10px var(--mono); letter-spacing: .2em; color: var(--bg); background: var(--warn); padding: 4px 9px; flex: none; }
   .btext { font: 400 13px/1.5 var(--read); color: var(--dim); }
   .btext b { color: var(--text); font-weight: 600; }
@@ -99,7 +99,7 @@
   .btn:hover { filter: brightness(1.06); }
   .btn:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
   .foot { font: 500 10px var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--faint); text-align: center; }
-  .back { display: block; margin-top: -16px; text-align: center; font: 500 10px var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--dim); text-decoration: none; }
+  .back { display: block; margin-top: -8px; text-align: center; font: 500 10px var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--dim); text-decoration: none; }
   .back:hover { color: var(--text); }
   .back:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
   .dock { display: flex; justify-content: center; gap: 4px; padding: 8px 8px calc(8px + env(safe-area-inset-bottom)); background: var(--bg); border-top: 1px solid var(--line); }
@@ -108,7 +108,7 @@
   .dock svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: square; stroke-linejoin: miter; }
   @media (max-width: 760px) {
     header { padding: 10px 14px; gap: 10px; flex-wrap: wrap; } .hmeta { display: none; } .demo { font-size: 8px; letter-spacing: .12em; }
-    .banner { padding: 10px 14px; gap: 10px; align-items: flex-start; } .bstamp { margin-top: 2px; } .btext { font-size: 12.5px; }
+    .banner { padding: 10px 14px; gap: 10px; align-items: flex-start; justify-content: flex-start; text-align: left; } .bstamp { margin-top: 2px; } .btext { font-size: 12.5px; }
     .legend .ctx { flex-basis: 100%; }
     .row .v { font-size: 12.5px; } .tag { padding: 2px 5px; letter-spacing: .1em; }
     .sechead { flex-wrap: wrap; } .sechead .right { flex-basis: 100%; margin-left: 0; text-align: left; }
@@ -131,24 +131,22 @@
 </div>
 <header>
   <div class="brand"><i></i>RH//AGENTIC</div>
-  <span class="demo">DEMO ACCOUNT · EVERY NUMBER INVENTED</span>
   <div class="spacer"></div>
-  <span class="hmeta">public one-screen demo</span>
 </header>
 
 <main>
   <div>
     <span class="lbl accent">WHAT THIS IS</span>
     <h1>An autonomous trading agent that has to earn every order</h1>
-    <p class="lede">RH Agentic runs a small swing-trading account on Robinhood's agentic API. A language model does the reading and the reasoning; <b>rules written in plain code decide whether an order is allowed</b>. This is what its home screen looks like, on an account that doesn't exist.</p>
+    <p class="lede">RH Agentic runs a small swing-trading account on Robinhood's agentic API. A language model does the reading and the reasoning; <b>rules written in plain code decide whether an order is allowed</b>.</p>
   </div>
 
   <section>
     <div class="sechead"><h2>The account</h2><span class="right">DEMO · CASH ONLY · NO MARGIN</span></div>
     <div class="acctcard">
-      <div class="cardtop"><span class="lbl">AGENTIC · CASH ACCOUNT · <span class="warn">DEMO</span></span><span class="lbl"><span class="accent">●</span> ACTIVE · 4 OF 4 SLOTS</span></div>
+      <div class="cardtop"><span class="lbl">AGENTIC · CASH ACCOUNT</span><span class="lbl"><span class="accent">●</span> ACTIVE · 4 OF 4 SLOTS</span></div>
       <div class="hero-value">$104,218.37</div>
-      <div class="hero-delta up">+$437.72 (+0.42%) <span class="ctx">today · invented</span></div>
+      <div class="hero-delta up">+$437.72 (+0.42%) <span class="ctx">today</span></div>
       <div class="vsrow">
         <div class="vsside"><span class="vslab">BOT</span><span class="vsval up">+4.2%</span></div>
         <div class="vsmid"><span class="vslab">LEAD</span><span class="vsval accent">+1.1pp</span></div>
@@ -169,7 +167,7 @@
         <circle cx="632" cy="76" r="3.5" fill="#9fd18c"/><circle cx="632" cy="98" r="3" fill="#8b95a1"/>
         <g class="tick" font-family="ui-monospace, Menlo, monospace" font-size="9" fill="#8b95a1"><text x="44" y="186">30 DAYS AGO</text><text x="632" y="186" text-anchor="end">TODAY</text></g>
       </svg>
-      <div class="legend"><span><i class="bot"></i>BOT +4.2%</span><span><i class="spx"></i>S&amp;P 500 +3.1%</span><span class="ctx">both lines invented · a real chart plots the account's own broker reads</span></div>
+      <div class="legend"><span><i class="bot"></i>BOT +4.2%</span><span><i class="spx"></i>S&amp;P 500 +3.1%</span></div>
     </div>
   </section>
 
@@ -185,7 +183,7 @@
 
   <section>
     <div class="sechead"><h2>Why no trade</h2><span class="right">THE RULES DECIDE, NOT THE MODEL</span></div>
-    <p class="subnote">Every candidate the model likes still has to pass a rules engine. A <b>DENY</b> is final and gets logged like a trade, so the rules are measured, not just obeyed.</p>
+    <p class="subnote">A <b>DENY</b> is final and gets logged like a trade, so the rules are measured, not just obeyed.</p>
     <div class="list">
       <div class="row"><span class="sym">DDDD</span><div class="t"><span>Setup looked good, but the reward didn't cover the risk</span><small>REWARD-TO-RISK BELOW THE FLOOR</small></div><span class="tag no">DENY</span></div>
       <div class="row"><span class="sym">EEEE</span><div class="t"><span>Reports earnings inside the hold window</span><small>NO HOLDING THROUGH EARNINGS</small></div><span class="tag no">DENY</span></div>
@@ -199,7 +197,6 @@
     <a class="btn" href="mailto:hudson@hollisbloom.com?subject=RH%20Agentic%20demo%20request&amp;body=Hi%20Hudson%2C%0A%0AI%20saw%20the%20RH%20Agentic%20demo%20and%20would%20like%20to%20see%20more.%0A%0A">Request a demo</a>
   </div>
 
-  <div class="foot">DEMO PAGE · ALL FIGURES INVENTED · NOT INVESTMENT ADVICE</div>
   <a class="back" href="../projects.html">← Back to projects</a>
 </main>
 
