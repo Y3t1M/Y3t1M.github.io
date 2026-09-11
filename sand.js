@@ -28,7 +28,7 @@
      on Hudson's iPhone; "a little sand", not weather). */
   var heroEl = document.querySelector('.hero');
   var SEAM_PRE = 210, SEAM_W = 190;
-  var OPACITY = window.matchMedia('(pointer: coarse)').matches ? 0.20 : 0.34;
+  var OPACITY = window.matchMedia('(pointer: coarse)').matches ? 0.17 : 0.29;   /* 15% down from 0.20 / 0.34 (Hudson, 2026-09-11: "too strong") */
   canvas.style.opacity = OPACITY.toFixed(3);
   /* the 2D fallback has no shader to shape it, so it keeps the old scroll fade
      and never paints over the hero */
@@ -153,11 +153,17 @@
 
        inside -> this pixel is on a card face; the glass shows it, so the grain is NOT held back.
        near   -> 1 against an edge, falling away across 26 px (reach: tight, as before).
-       edge   -> the last 2.5 px inside a face: the glass edge catching the light. */
+
+       Nothing crisp is keyed to a card edge any more. This canvas is fixed to the
+       screen and reads the card rects on the main thread, so during a fast scroll
+       it draws from positions a frame stale (40 px behind on a normal scroll, 200+
+       on a flick, measured 2026-09-11). A hairline "glass edge" drawn here and a
+       hard brightness step at the border both showed up as a ghost outline sliding
+       off the card. The edge light now lives in CSS (it scrolls with the card), and
+       inside ramps over 24 px so a frame of lag cannot be seen. */
     '  vec2 pcss = vec2(st.x, uRes.y * uPx - st.y);',
     '  float inside = 0.0;',
     '  float near = 0.0;',
-    '  float edge = 0.0;',
     '  for (int i = 0; i < 12; i++) {',
     '    if (float(i) >= uNR) break;',
     '    vec4 rct = uR[i];',
@@ -165,7 +171,7 @@
     '    vec2 hf = rct.zw * 0.5;',
     '    vec2 q = abs(pcss - rct.xy - hf) - hf + vec2(14.0);',
     '    float sd = length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - 14.0;',
-    '    if (sd < 0.0) { inside = 1.0; edge = max(edge, smoothstep(-2.5, -0.4, sd)); }',
+    '    if (sd < 0.0) { inside = max(inside, 1.0 - smoothstep(-24.0, 0.0, sd)); }',
     '    else { near = max(near, exp(-sd / 26.0)); }',
     '  }',
     '  const float BANK = 2.0;',
@@ -175,7 +181,6 @@
     '  float a = clamp(0.55 * s2 * mask, 0.0, 1.0);',
     '  a *= (1.0 - inside * 0.05);',                     /* glass: the face shows the field, softened by the CSS blur */
     '  a *= 1.0 + (1.0 - inside) * 0.25;',              /* +25% grain in the gaps BETWEEN cards (Hudson, 2026-09-01) */
-    '  a = max(a, edge * 0.30);',                        /* the glass edge catches the light */
     '  a *= smoothstep(uTop - uPre, uTop + uTopW, pcss.y);',   /* the seam: sand rises from under the hero */
     '  gl_FragColor = vec4(vec3(a), a);',
     '}'

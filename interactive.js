@@ -306,8 +306,10 @@
   window.addEventListener('scroll', () => {
     const y   = window.scrollY;
     const pct = y / (document.documentElement.scrollHeight - window.innerHeight);
-    if (blob1) { blob1.style.transform = `translateY(${y*0.14}px)`; blob1.style.filter = `blur(80px) hue-rotate(${pct*30}deg)`; }
-    if (blob2) { blob2.style.transform = `translateY(${y*-0.09}px)`; blob2.style.filter = `blur(80px) hue-rotate(${-pct*20}deg)`; }
+    /* transform only: rewriting the blur filter here re-rasterised two 480 px
+       blobs on every scroll tick (and hue-rotate does nothing to white) */
+    if (blob1) blob1.style.transform = `translateY(${y*0.14}px)`;
+    if (blob2) blob2.style.transform = `translateY(${y*-0.09}px)`;
   }, { passive: true });
 
   /* ================================================================
@@ -600,20 +602,24 @@
     items.forEach(function (item) { item.classList.add('tl-init-hidden'); });
 
     var TRIG = 0.72;
+    var pending = items.slice();
     function update() {
+      /* all reads, then all writes: a write between rect reads forces a
+         synchronous layout on every scroll event */
       var tlRect = timeline.getBoundingClientRect();
       var vh     = window.innerHeight;
+      var show = [];
+      for (var i = 0; i < pending.length; i++) {
+        var dotEl = pending[i].querySelector('.tl-dot');
+        if (dotEl && dotEl.getBoundingClientRect().top < vh * TRIG + 20) show.push(pending[i]);
+      }
       var entered = Math.max(0, vh * TRIG - tlRect.top);
       var pct     = Math.min(100, (entered / tlRect.height) * 120);
       fill.style.height = Math.min(100, pct) + '%';
-
-      items.forEach(function (item) {
-        var dotEl = item.querySelector('.tl-dot');
-        if (!dotEl) return;
-        if (dotEl.getBoundingClientRect().top < vh * TRIG + 20) {
-          item.classList.add('tl-item-visible');
-        }
-      });
+      for (var j = 0; j < show.length; j++) {
+        show[j].classList.add('tl-item-visible');
+        pending.splice(pending.indexOf(show[j]), 1);
+      }
     }
     window.addEventListener('scroll', update, { passive: true });
     update();
@@ -633,14 +639,15 @@
       sec.insertBefore(wrap, sec.firstChild);
     });
 
+    var bars = Array.prototype.map.call(secs, function (sec) { return sec.querySelector('.sec-prog-bar'); });
     function update() {
-      secs.forEach(function (sec) {
-        var bar  = sec.querySelector('.sec-prog-bar');
-        if (!bar) return;
-        var rect = sec.getBoundingClientRect();
-        var pct  = Math.max(0, Math.min(1, -rect.top / Math.max(1, rect.height - window.innerHeight)));
-        bar.style.width = (pct * 100) + '%';
-      });
+      /* reads first, then writes, so no scroll event forces a layout mid-loop */
+      var vh = window.innerHeight, widths = [];
+      for (var i = 0; i < secs.length; i++) {
+        var rect = secs[i].getBoundingClientRect();
+        widths[i] = Math.max(0, Math.min(1, -rect.top / Math.max(1, rect.height - vh))) * 100 + '%';
+      }
+      for (var k = 0; k < bars.length; k++) if (bars[k]) bars[k].style.width = widths[k];
     }
     window.addEventListener('scroll', update, { passive: true });
     update();
