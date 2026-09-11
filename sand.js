@@ -48,6 +48,7 @@
     var ctx = canvas.getContext('2d');
     if (!ctx) { D.mode = 'no-2d'; return; }
     D.mode = D.mode === 'init' ? '2d-fallback' : D.mode + '+2d';
+    document.documentElement.classList.add('sand-glass');   /* cards turn to glass only over live sand */
     function paint() {
       var W = canvas.width = window.innerWidth;
       var H = canvas.height = window.innerHeight;
@@ -130,22 +131,23 @@
     '  float ga = hash(px + 917.0) * 2.0 * PI;',
     '  vec2 jitter = 0.05 * gr * vec2(cos(ga), sin(ga));',
     '  vec2 freq = vec2(0.000323, 0.001333) * (1.0 + 0.5 * (1.0 - mask));',
-    '  float n = pattern(st * freq + jitter);',
-    '  n = smoothstep(0.0, 1.0, pow(n * 1.05, 6.0));',
-    /* card awareness: calm under any container, grain piles along its border */
-    /* THE CARDS ARE OBJECTS SET INTO THE SAND.
-       Not a mound gathered on top of them — that was the earlier model, and it
-       read as haze over the text. A card is a solid black thing pressed into
-       the field: its face stays clear, and the grain banks up in the gaps
-       between and around the cards, the way sand collects against anything you
-       press into it.
+    /* SMOKE GLASS + BANK. Hudson's pick from the sand lab, 2026-09-11: A2 + B1 at 2x, tight.
+       The sand is drawn BEHIND the page now (styles.css, #sand-canvas z-index 0) and each card is
+       tinted glass with a backdrop blur, so a card's face shows the field softly instead of being
+       a black slab cut out of it.
 
-       inside — this pixel is on a card face, so the grain is held back.
-       near   — how close it sits to the nearest card edge, 1 right against it
-                and falling away across SEEP_REACH px. That is the banking. */
+       The bank is the same model as before, twice as strong. Near an edge the grain gets denser
+       as well as brighter: the boost is applied to the field BEFORE the threshold, so more grains
+       cross it, not just the same few lit harder (today's 1x only did the latter, which is why the
+       bank was invisible). BANK = 1.0 reproduces the old shader exactly; the lab proved it.
+
+       inside -> this pixel is on a card face; the glass shows it, so the grain is NOT held back.
+       near   -> 1 against an edge, falling away across 26 px (reach: tight, as before).
+       edge   -> the last 2.5 px inside a face: the glass edge catching the light. */
     '  vec2 pcss = vec2(st.x, uRes.y * uPx - st.y);',
     '  float inside = 0.0;',
     '  float near = 0.0;',
+    '  float edge = 0.0;',
     '  for (int i = 0; i < 12; i++) {',
     '    if (float(i) >= uNR) break;',
     '    vec4 rct = uR[i];',
@@ -153,13 +155,17 @@
     '    vec2 hf = rct.zw * 0.5;',
     '    vec2 q = abs(pcss - rct.xy - hf) - hf + vec2(14.0);',
     '    float sd = length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - 14.0;',
-    '    if (sd < 0.0) { inside = 1.0; }',
-    '    else { near = max(near, exp(-sd / 26.0)); }',   /* seep reach 26px */
+    '    if (sd < 0.0) { inside = 1.0; edge = max(edge, smoothstep(-2.5, -0.4, sd)); }',
+    '    else { near = max(near, exp(-sd / 26.0)); }',
     '  }',
-    '  float s2 = n * (1.0 + near * 0.75);',             /* seep strength 0.75 */
-    '  float a = clamp(0.55 * s2 * mask, 0.0, 1.0);',    /* grain weight 0.55 */
-    '  a *= (1.0 - inside * 0.60);',                     /* face clearance 0.60 — Hudson asked for cards ~15% less translucent (was 0.45, before that 0.20) */
-    '  a *= 1.0 + (1.0 - inside) * 0.25;',              /* +25% grain in the gaps BETWEEN cards (Hudson, 2026-09-01) — faces stay governed by the line above */
+    '  const float BANK = 2.0;',
+    '  float n = pattern(st * freq + jitter) * (1.0 + near * 0.09 * (BANK - 1.0));',
+    '  n = smoothstep(0.0, 1.0, pow(n * 1.05, 6.0));',
+    '  float s2 = n * (1.0 + near * 0.75 * BANK);',
+    '  float a = clamp(0.55 * s2 * mask, 0.0, 1.0);',
+    '  a *= (1.0 - inside * 0.05);',                     /* glass: the face shows the field, softened by the CSS blur */
+    '  a *= 1.0 + (1.0 - inside) * 0.25;',              /* +25% grain in the gaps BETWEEN cards (Hudson, 2026-09-01) */
+    '  a = max(a, edge * 0.30);',                        /* the glass edge catches the light */
     '  gl_FragColor = vec4(vec3(a), a);',
     '}'
   ].join('\n');
@@ -295,6 +301,9 @@
      held behind. */
   var TIME_SCALE = 1;
   D.mode = 'webgl';
+  /* cards turn to glass only once there is sand behind them to see; if this file never
+     runs, they stay the old solid black instead of empty glass */
+  document.documentElement.classList.add('sand-glass');
 
   var rafId = null;
   var lastFrame = performance.now();

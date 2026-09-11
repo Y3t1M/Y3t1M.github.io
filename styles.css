@@ -6,9 +6,9 @@
 
 :root {
   --bg:         #0b0b0b;
-  /* Full black, and opaque. The cards are objects SET INTO the sand: their
-     faces stay clear and the grain banks up in the gaps around them, rather
-     than piling on top and hazing the text. See the card block in sand.js. */
+  /* The solid card colour, for pages without sand. Where the sand runs, the
+     homepage cards are smoke glass instead (html.sand-glass, near
+     #sand-canvas) and the grain banks up around them. See sand.js. */
   --bg-card:    #000000;
   --bg-card-h:  #0a0a0a;
   --border:     rgba(255, 255, 255, 0.10);
@@ -1378,22 +1378,44 @@ html.fx .sc-counter.show { opacity: 1; }
 /* Old static grain retired in favor of the drifting sand layer */
 #grain-canvas { display: none; }
 
-/* Drifting sand. z-index 2 draws it OVER the solid cards (screen blend), and
-   the shader mounds the grain over each card — densest at the card centre,
-   fading to nothing at the edges — so it reads as a pile of sand sitting on
-   the card. Kept low-opacity so the copy underneath stays legible. */
+/* Drifting sand, drawn BEHIND the page (z-index 0; every section sits at 1).
+   It used to sit over everything at z-index 2 with the cards as opaque black
+   plates, which read as black slabs cut out of the field. Now the cards are
+   smoke glass (below) and the sand shows through them, blurred. Text never
+   has grain over it any more, because nothing draws over the text. */
 #sand-canvas {
   position: fixed;
   inset: 0;
   width: 100%;
   height: 100%;
-  z-index: 2;
+  z-index: 0;
   pointer-events: none;
   opacity: 0.3;
   /* No mix-blend-mode. The grain carries its own alpha (see sand.js), so it
      composites normally and lands on top of the cards in every engine. The
      blend mode used to decide, per browser, whether the sand sat over the
      cards or behind them. */
+}
+
+/* Smoke glass: Hudson's pick from the sand lab (A2), 2026-09-11. Tinted glass
+   over the sand; the backdrop blur turns the grain behind each card into soft
+   light while the text sits crisp on top. sand.js adds html.sand-glass only
+   once the sand is running, so a page without sand keeps the solid cards.
+   Blueprint mode is excluded: it hides the sand and paints its own cards. */
+html.sand-glass body:not(.blueprint) .about-card,
+html.sand-glass body:not(.blueprint) .project-card,
+html.sand-glass body:not(.blueprint) .awards-list,
+html.sand-glass body:not(.blueprint) .contact-inner {
+  background: rgba(18, 18, 18, 0.40);
+  border-color: rgba(255, 255, 255, 0.14);
+  -webkit-backdrop-filter: blur(9px) saturate(120%);
+  backdrop-filter: blur(9px) saturate(120%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07);
+}
+html.sand-glass body:not(.blueprint) .about-card:hover,
+html.sand-glass body:not(.blueprint) .project-card:hover {
+  background: rgba(26, 26, 26, 0.48);
+  border-color: rgba(255, 255, 255, 0.22);
 }
 
 /* Mouse spotlight */
