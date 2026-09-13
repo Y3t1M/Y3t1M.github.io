@@ -1197,7 +1197,10 @@ html.fx .sc-slide.active .case > :nth-child(5) { transition-delay: 0.28s; }
 .sc-counter b { color: var(--text); font-weight: 600; }
 html.fx .sc-counter {
   display: block;
-  opacity: 0;
+  /* Was 0, revealed on pointermove. The counter now carries the only bare
+     01 / 06 left on the page — the giant figure behind each slide carries that
+     project's own result instead — so it is navigation and it stays up. */
+  opacity: 1;
   transition: opacity 0.35s ease;
 }
 html.fx .sc-counter.show { opacity: 1; }
@@ -1210,6 +1213,83 @@ html.fx .sc-counter.show { opacity: 1; }
   transition: background 0.2s, transform 0.2s;
 }
 .sc-rail i.on { background: #eaeaea; transform: scale(1.5); }
+
+/* ── Projects page: the LED head, the corridor's bed, the ledger ─────
+   projects-marquee.js draws the title as a dot matrix, projects-sand.js
+   lays a bed of sand through the head and the corridor, and
+   projects-ledger.js hangs each project's own headline figure off the
+   index and behind its slide. Everything here is scoped to elements that
+   exist only on projects.html. */
+
+/* the title box carries both the word and its LED matrix */
+#proj-title { position: relative; }
+#pt-led {
+  display: block;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+/* The live type underneath is hidden only once the matrix is genuinely
+   carrying the word (projects-marquee.js adds html.pt-led). Hiding it here
+   unconditionally would leave the title invisible with JavaScript off. */
+html.pt-led .pt-word { visibility: hidden; }
+
+/* The corridor's runway now ends with slide 06 seated, so the contact band
+   has to follow it immediately: the 112px section gap put half a viewport of
+   nothing between the last project and the next thing to do. */
+body.proj-page .contact-band { margin-top: 0; }
+/* and the footer's gap too: everything below the corridor is tail that the
+   released stage scrolls up by, and past about 300px of it slide 06 is pushed
+   off the top before the document runs out. */
+body.proj-page .site-footer { margin-top: 0; }
+
+/* THE CARD'S OWN EDGE, while its sand is being moved. The 1px CSS edge is a
+   23 level step against a bed the whole plough moves by 2 levels, so it was
+   the strongest thing anywhere near a moving plate — which is why the edge
+   read and the sand did not. --plough is written on .sc-stage by
+   projects-sand.js: the plate's speed, 0 at rest, where this is exactly the
+   shipped border. */
+html.fx body:not(.blueprint) .sc-slide .case,
+html.fx body:not(.blueprint) .sc-slide .case-sm {
+  border-color: rgba(255, 255, 255, calc(0.10 * (1 - var(--plough, 0))));
+}
+
+/* the index rows carry the same figure the slide behind them does */
+.proj-index .nfig {
+  margin-left: auto;
+  padding-left: 18px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text);
+  opacity: 0.82;
+  white-space: nowrap;
+}
+.proj-index .nfig + .arr { margin-left: 14px; }
+@media (max-width: 700px) {
+  .proj-index .nfig { display: none; }
+}
+
+/* THE ROWS SHED. The index is part of the head, so it leaves with it: --shed
+   is each row's own progress, written by projects-ledger.js from that row's
+   position in the viewport, and the DOM row hands over to its canvas early in
+   its own shed, by which point the letters have already loosened off the line.
+   Nothing sheds until the row has risen into the top fifth of the screen, so a
+   row is never crumbling while it is still the thing you are reading. */
+.proj-index li { --shed: 0; }
+.proj-index li button {
+  opacity: calc(1 - min(1, var(--shed, 0) * 8));
+  border-bottom-color: rgba(255, 255, 255, calc(0.05 * (1 - min(1, var(--shed, 0) * 3))));
+}
+.proj-index { border-top-color: rgba(255, 255, 255, calc(0.10 * (1 - min(1, var(--shedTop, 0) * 3)))); }
+/* and the last row does not end in a line at all: it comes apart into single
+   grains that fall on into the bed (entShed, in projects-sand.js) */
+.proj-index li:last-child button { border-bottom-color: transparent; }
+
 
 /* ── Contact band ───────────────────────────────────────── */
 .contact-band {
@@ -2117,7 +2197,12 @@ body.blueprint #bp-scratch-btn { display: block; }
   html.mcorr .sc-mtrack .case,
   html.mcorr .sc-mtrack .case-grid {
     margin: 0; max-height: 62vh; max-height: 62svh; overflow-y: auto;
-    overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
+    /* Was overscroll-behavior: contain. A card taller than 62svh (the
+       platform slide's is) then swallowed every swipe that started on it —
+       most of the screen — so the corridor never advanced. Chaining lets the
+       first swipe finish the card and the next one carry on to the next
+       station, which the scroll-snap steps then seat. */
+    overscroll-behavior: auto; -webkit-overflow-scrolling: touch;
   }
   html.mcorr .sc-mghost {
     position: absolute; right: -4px; top: 4vh; top: 4svh;

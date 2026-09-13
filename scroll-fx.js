@@ -121,6 +121,77 @@
   requestAnimationFrame(tick);
 
 
+  /* ---- the six project names, read off the slides themselves ---- */
+  function titleOf(sl) {
+    var eb = sl.querySelector('.slide-eyebrow');
+    var h3 = sl.querySelector('h3');
+    return sl.getAttribute('data-index-title') ||
+           (sl.classList.contains('wide') && eb ? eb.textContent : (h3 ? h3.textContent : ''));
+  }
+  function travelTo(i) {
+    var c = window.__corridor;
+    if (c) { window.scrollTo({ top: Math.round(c.stationY(i)), behavior: 'smooth' }); return; }
+    /* plain flow: scroll the slide itself to just under the fixed header */
+    var sl = document.querySelectorAll('#showcase .sc-slide')[i];
+    if (!sl) return;
+    var hdr = document.querySelector('.site-header, header');
+    var off = (hdr ? hdr.getBoundingClientRect().height : 64) + 12;
+    window.scrollTo({ top: Math.max(0, Math.round(sl.getBoundingClientRect().top + window.pageYOffset - off)), behavior: 'smooth' });
+  }
+
+  /* FIX: built at EVERY width. This used to live inside the desktop-only
+     showcase block, so #proj-index was an empty <ol> on phones. */
+  function buildIndex(slides, N) {
+    var index = document.getElementById('proj-index');
+    if (!index || index.children.length) return;
+    for (var ii = 0; ii < N; ii++) (function (i) {
+      var li = document.createElement('li');
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.innerHTML = '<span class="idx">0' + (i + 1) + '</span><span></span><span class="arr">&rarr;</span>';
+      b.children[1].textContent = titleOf(slides[i]);
+      b.addEventListener('click', function () { travelTo(i); });
+      li.appendChild(b);
+      index.appendChild(li);
+    })(ii);
+  }
+
+  /* One object per frame for the corridor's sand (projects-sand.js): the
+     smoothed progress, the traverse velocity, and every visible slide's rect
+     RELATIVE TO THE STAGE, read in the same frame the transforms were written,
+     so the sand can never lag the plates. Both corridors publish through here. */
+  var FR = window.__corridorFrame = { t: 0, dt: 0, sp: 0, u: 0, active: 0, vel: 0, stage: { w: 0, h: 0, top: 0 }, slides: [] };
+  var frPrev = {};                 /* slide i -> { cx, t } for the velocity */
+  var frParts = null;
+  function publishFrame(stg, slides, sp, u, active) {
+    if (!frParts) {
+      frParts = [];
+      for (var p = 0; p < slides.length; p++) {
+        frParts.push({ plate: slides[p].querySelector('.case, .case-grid') || slides[p] });
+      }
+    }
+    var now = performance.now() / 1000;
+    var sb = stg.getBoundingClientRect();
+    FR.dt = FR.t ? now - FR.t : 0; FR.t = now; FR.sp = sp; FR.u = u; FR.active = active;
+    FR.stage.w = sb.width; FR.stage.h = sb.height; FR.stage.top = sb.top;
+    FR.slides.length = 0;
+    FR.vel = 0;
+    for (var i = 0; i < slides.length; i++) {
+      if (slides[i].style.visibility === 'hidden') { delete frPrev[i]; continue; }
+      var pr = frParts[i].plate.getBoundingClientRect();
+      if (pr.width === 0) { delete frPrev[i]; continue; }
+      var rect = { x: pr.left - sb.left, y: pr.top - sb.top, w: pr.width, h: pr.height };
+      if (rect.x + rect.w < -120 || rect.x > sb.width + 120) { delete frPrev[i]; continue; }
+      var cx = rect.x + rect.w / 2, vel = 0;
+      var pv = frPrev[i];
+      if (pv && now > pv.t) vel = (cx - pv.cx) / (now - pv.t);
+      frPrev[i] = { cx: cx, t: now };
+      FR.slides.push({ i: i, q: u - i, rect: rect, vel: vel });
+      if (i === active) FR.vel = vel;
+    }
+    if (window.__corridorFrameCb) window.__corridorFrameCb(FR);
+  }
+
   /* ---- mobile corridor: HARD SNAP (Hudson's pick, lab round 3, A6) ----
      The desktop corridor's traverse, rebuilt for phones on native physics:
      vertical scroll drives the horizontal track, and the detent comes from
@@ -158,14 +229,22 @@
       sec.appendChild(st);
       steps.push(st);
     }
-    /* release point: the section after the corridor gets a snap stop too,
-       so the page hands scrolling back cleanly at the end */
-    if (sec.nextElementSibling) sec.nextElementSibling.classList.add('sc-snap-exit');
+    /* release point: the section after the corridor gets a snap stop too, so
+       the page hands scrolling back cleanly at the end.
+       FIX: #showcase is the LAST child of #projects, so nextElementSibling was
+       null on this page and no exit stop was ever created. Fall back to what
+       actually follows the corridor. */
+    var exit = sec.nextElementSibling || document.querySelector('.contact-band');
+    if (exit) exit.classList.add('sc-snap-exit');
 
     var stepH = 0, secTop = 0, stepW = 0;
     function measure() {
       stepH = window.innerHeight;
-      sec.style.height = (N * stepH + Math.round(stepH * 0.2)) + 'px';
+      /* FIX: was N * stepH + 0.2 * stepH — a fifth of a viewport of runway
+         AFTER slide 06 had already seated, which is scroll where nothing
+         happens and the corridor has visibly given up. The last station now
+         coincides with the stage's release. */
+      sec.style.height = (N * stepH) + 'px';
       var r = sec.getBoundingClientRect();
       secTop = r.top + window.pageYOffset;
       for (var i = 0; i < N; i++) steps[i].style.top = (i * stepH) + 'px';
@@ -188,7 +267,7 @@
         lastIdx = idx;
         count.textContent = label(idx) + ' / ' + label(N - 1);
         for (var t = 0; t < ticks.length; t++) ticks[t].classList.toggle('on', t === idx);
-        var l = label(idx);
+        var l = window.__projGhostText ? window.__projGhostText(idx) : label(idx);
         if (ghost.textContent !== l) {
           ghost.style.opacity = 0;
           setTimeout(function () { ghost.textContent = l; ghost.style.opacity = ''; }, 140);
@@ -197,23 +276,68 @@
     }
     window.addEventListener('scroll', onScroll, { passive: true });
     onScroll();
+
+    /* The phone corridor only moves on scroll events, but the corridor's sand
+       needs the rects and a clock every frame, so it publishes on its own rAF. */
+    (function mTick() {
+      var pos = Math.max(0, Math.min(N - 1, (window.pageYOffset - secTop) / stepH));
+      publishFrame(stage, slides, pos / Math.max(1, N - 1), pos, Math.round(pos));
+      requestAnimationFrame(mTick);
+    })();
+
+    window.__corridor = {
+      N: N,
+      mode: 'mobile',
+      stationY: function (i) { return secTop + i * stepH; },
+      active: function () { return Math.max(0, Math.min(N - 1, Math.round((window.pageYOffset - secTop) / stepH))); },
+      remeasure: function () { measure(); onScroll(); }
+    };
   }
 
-  /* ---- pinned LIFT showcase v2 (desktop only — see SMALL above) ---- */
+  /* ---- pinned LIFT showcase v2 ---- */
   (function () {
-    if (SMALL) {
-      /* Corridor retired on touch (Hudson, 2026-09-01: "back to a simpler
-         clicking normal scroll"). Phones and tablets get the plain vertical
-         case flow; mobileCorridor stays above if it's ever wanted back. */
-      return;
-    }
     var sec = document.getElementById('showcase');
     if (!sec) return;
     var stage = sec.querySelector('.sc-stage');
     var slides = sec.querySelectorAll('.sc-slide');
     var N = slides.length;
     if (!N) return;
-    sec.style.height = (N * 100 + 100) + 'vh';
+
+    buildIndex(slides, N);                 /* FIX: at every width */
+
+    /* Corridor retired on touch (Hudson, 2026-09-01: "back to a simpler
+       clicking normal scroll"). Phones and tablets get the plain vertical case
+       flow, exactly as live; only the index above is new for them.
+       Switching mobileCorridor() back on was tried in the 2026-09-12 port and
+       the pre-deploy review reverted it: its html.mcorr CSS only exists at
+       700px and under, but SMALL also covers coarse pointers up to 1024px, so
+       tablets and landscape phones got the traverse with none of its layout
+       and the projects slid off-screen. Bring it back only with the gates
+       agreeing and Hudson's say-so. */
+    if (SMALL) return;
+
+    /* THE RUNWAY, in pixels.
+       Was: height = (N * 100 + 100)vh, timeline = detent(sp * (N-1+LEAD) - LEAD).
+       Two things were wrong with that. The stations were only implicitly even
+       (a fraction of a runway that itself depends on vh), and the LEAD entrance
+       was measured in the same units as five whole stations, so changing one
+       moved the others. Now one station = STATION px, the entrance is a fixed
+       fraction of ONE station, and the last station lands exactly where the
+       stage releases: slide 06 is seated at the moment the corridor lets go,
+       and the contact band follows straight after it. */
+    var LEAD = 0.35;
+    var STATION = 0, LEAD_PX = 0, RUNWAY = 0;
+    function layout() {
+      var vhNow = window.innerHeight;
+      STATION = Math.round(vhNow * 1.12);      /* the dwell every slide gets */
+      LEAD_PX = Math.round(STATION * LEAD);    /* slide 01's rise-in */
+      RUNWAY = LEAD_PX + (N - 1) * STATION;
+      sec.style.height = (RUNWAY + vhNow) + 'px';
+    }
+    layout();
+    window.addEventListener('resize', layout);
+    function secTopNow() { return sec.getBoundingClientRect().top + window.pageYOffset; }
+    function stationY(i) { return secTopNow() + LEAD_PX + i * STATION; }
     var sp = 0;
     var lastActive = -1;
     var counter = document.createElement('div');
@@ -244,6 +368,10 @@
     function paintGhost(txt, force) {
       if (!txt || (txt === gLast && !force)) return;
       gLast = txt;
+      /* projects-ledger.js decides what the giant figure IS and what it is
+         made of; with it installed it draws instead of the block below, in the
+         same one-pixel-per-cell way. */
+      if (window.__projGhostPaint) { window.__projGhostPaint(txt, gCanvas, gctx, oCanvas, octx, MONO, ghost); return; }
 
       var dpr = window.devicePixelRatio || 1;
       var size = Math.min(window.innerHeight * 0.56, window.innerWidth * 0.44);
@@ -281,28 +409,10 @@
       }
     }
     window.addEventListener('resize', function () { paintGhost(gLast, true); });
+    /* The first paint happens before projects-ledger.js has loaded, so slide
+       01 got the old bare numeral; the ledger calls this once it is ready. */
+    window.__corridorRepaintGhost = function () { if (gLast) paintGhost(gLast, true); };
 
-    /* splash index: 01–06 jump straight to a slide */
-    var index = document.getElementById('proj-index');
-    if (index) {
-      for (var ii = 0; ii < N; ii++) (function (i) {
-        var s = slides[i];
-        var eb = s.querySelector('.slide-eyebrow');
-        var h3 = s.querySelector('h3');
-        var t = s.getAttribute('data-index-title') ||
-                (s.classList.contains('wide') && eb ? eb.textContent : (h3 ? h3.textContent : ''));
-        var li = document.createElement('li');
-        var b = document.createElement('button');
-        b.type = 'button';
-        b.innerHTML = '<span class="idx">0' + (i + 1) + '</span><span>' + t + '</span><span class="arr">&rarr;</span>';
-        b.addEventListener('click', function () {
-          var target = sec.offsetTop + ((i + LEAD) / (N - 1 + LEAD)) * (sec.offsetHeight - window.innerHeight);
-          window.scrollTo({ top: target, behavior: 'smooth' });
-        });
-        li.appendChild(b);
-        index.appendChild(li);
-      })(ii);
-    }
     var hideTimer = null;
     /* Chrome fires synthetic pointermove (same coords) when the page
        scrolls under a stationary cursor — only real travel counts */
@@ -316,7 +426,6 @@
       hideTimer = setTimeout(function () { counter.classList.remove('show'); }, 1800);
     });
 
-    var LEAD = 0.35;
 
     /* A dot-matrix mask is a repeating tile: translate it by a fraction of
        a device pixel and every dot edge is resampled, which reads as
@@ -361,8 +470,7 @@
 
     function scTick() {
       var r = sec.getBoundingClientRect();
-      var runway = sec.offsetHeight - window.innerHeight;
-      var p = Math.max(0, Math.min(1, -r.top / runway));
+      var p = Math.max(0, Math.min(1, -r.top / RUNWAY));
       sp += (p - sp) * 0.085;
 
       /* DETENT — this is what makes a project "snap into place".
@@ -372,12 +480,15 @@
          the timeline makes it crawl while a project is seated and sprint
          through the gap between two. Whole numbers are untouched, so a
          station still lands exactly on its slide. */
-      var u = detent(sp * (N - 1 + LEAD) - LEAD);
+      /* FIX: scroll -> station is now a straight division by one station's
+         worth of pixels, so every slide dwells for the same distance and
+         station i always sits at LEAD_PX + i * STATION. */
+      var u = detent((sp * RUNWAY - LEAD_PX) / STATION);
       var active = Math.max(0, Math.min(N - 1, Math.round(u)));
       if (counter && active !== lastActive) {
         lastActive = active;
         var h3 = slides[active].querySelector('h3');
-        counter.innerHTML = '<b>' + ('0' + (active + 1)).slice(-2) + ' / ' + ('0' + N).slice(-2) + '</b> — ' +
+        counter.innerHTML = '<b>' + ('0' + (active + 1)).slice(-2) + ' / ' + ('0' + N).slice(-2) + '</b> \u00b7 ' +
           (h3 ? h3.textContent : '');
         paintGhost('0' + (active + 1));
       }
@@ -453,9 +564,20 @@
         el.style.filter = bl > 0.1 ? 'blur(' + bl.toFixed(2) + 'px)' : '';
         el.style.setProperty('--q', q.toFixed(3));
       }
+      publishFrame(stage, slides, sp, u, active);
       requestAnimationFrame(scTick);
     }
     requestAnimationFrame(scTick);
+
+    window.__corridor = {
+      N: N,
+      mode: 'desktop',
+      stationY: stationY,
+      station: function () { return STATION; },
+      active: function () { return lastActive; },
+      runway: function () { return RUNWAY; },
+      remeasure: function () { layout(); measureTravel(); }
+    };
   })();
 
 })();

@@ -36,7 +36,7 @@
 
 </head>
 
-<body>
+<body class="proj-page">
 
   <!-- Ambient background -->
   <div class="bg-blob bg-blob-1"></div>
@@ -57,12 +57,13 @@
   </header>
 
   <section id="projects">
+    <h1 class="sr-only">Projects</h1>
     <div class="page-head proj-head">
       <div class="proj-band">
         <div class="section-label">Selected work</div>
         <div class="proj-meta">2019 &ndash; 2026 &middot; Software / Hardware / Prototypes</div>
       </div>
-      <h1 class="section-title proj-title">Projects</h1>
+      <div class="section-title proj-title" id="proj-title" aria-hidden="true"><span class="pt-word">Projects</span><canvas id="pt-led"></canvas></div>
 
       <!-- The showcase below is a visual corridor: only the centred slide is
            painted, and the rest are visibility:hidden — correct for rendering,
@@ -254,14 +255,22 @@
       </div>
     </div>
   </footer>
-  <script src="dotgrid.js"></script>
   <script src="scroll-fx.js"></script>
+  <script>/* no corridor (touch): keep the live dot grid, the sand bed is desktop-only */
+    if (!document.documentElement.classList.contains('fx')) {
+      var dg = document.createElement('script'); dg.src = 'dotgrid.js'; document.body.appendChild(dg);
+    }
+  </script>
   <script src="transitions.js"></script>
   <script src="nav-fx.js"></script>
   <script src="main.js"></script>
   <script src="desktop.js"></script>
   <script src="interactive.js"></script>
   <script src="features.js"></script>
+  <!-- the projects page only: the LED head, the corridor's bed, the ledger -->
+  <script src="projects-marquee.js"></script>
+  <script src="projects-sand.js"></script>
+  <script src="projects-ledger.js"></script>
 </body>
 
 </html>
