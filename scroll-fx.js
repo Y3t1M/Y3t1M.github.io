@@ -487,9 +487,10 @@
       var active = Math.max(0, Math.min(N - 1, Math.round(u)));
       if (counter && active !== lastActive) {
         lastActive = active;
-        var h3 = slides[active].querySelector('h3');
-        counter.innerHTML = '<b>' + ('0' + (active + 1)).slice(-2) + ' / ' + ('0' + N).slice(-2) + '</b> \u00b7 ' +
-          (h3 ? h3.textContent : '');
+        /* same name the index row uses (titleOf): the first h3 gave "AVR Drone"
+           for the Hardware slide and "This site runs a second site" for Win95.sys */
+        counter.innerHTML = '<b>' + ('0' + (active + 1)).slice(-2) + ' / ' + ('0' + N).slice(-2) + '</b> \u00b7 ';
+        counter.appendChild(document.createTextNode(titleOf(slides[active]).trim()));
         paintGhost('0' + (active + 1));
       }
 
