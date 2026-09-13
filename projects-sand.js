@@ -944,4 +944,8 @@
   };
 
   canvas.addEventListener('webglcontextlost', function (e) { e.preventDefault(); D.mode = 'context-lost'; });
+  /* Without this the bed stayed blank for the rest of the visit (pre-deploy
+     review CF-4). Same answer as sand.js: the simplest correct rebuild of
+     every GL object is a reload, and a restore is rare (GPU reset, sleep). */
+  canvas.addEventListener('webglcontextrestored', function () { D.mode = 'context-restored'; location.reload(); });
 })();

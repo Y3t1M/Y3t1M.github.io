@@ -451,15 +451,20 @@
        is ~54% of the viewport and 90vw was fine; a mobile slide is ~90% of
        it, and the same 90vw put them 213px apart while they were 351px
        wide. Deriving it per slide fixes every width at once. */
-    var travels = [];
+    var travels = [], heights = [], stageH = 0, hdrH = 0;
     function measureTravel() {
       for (var i = 0; i < N; i++) {
         var w = slides[i].offsetWidth || window.innerWidth * 0.8;
         travels[i] = (w + 26) / 0.606;
+        heights[i] = slides[i].offsetHeight;
       }
+      stageH = stage.offsetHeight || window.innerHeight;
+      var hd = document.querySelector('.site-header');
+      hdrH = hd ? hd.offsetHeight : 0;
     }
     measureTravel();
     window.addEventListener('resize', measureTravel);
+    window.addEventListener('load', measureTravel);   /* images settle heights */
     window.addEventListener('load', measureTravel);
     function detent(u) {
       var i = Math.floor(u);
@@ -468,8 +473,24 @@
       return i + t + (s - t) * DETENT_HOLD;
     }
 
+    var KBD = false;
+    document.addEventListener('keydown', function (e) { if (e.key === 'Tab') KBD = true; });
+    sec.addEventListener('focusin', function (e) {
+      var sl = e.target.closest && e.target.closest('.sc-slide');
+      if (!sl) return;
+      var i = Array.prototype.indexOf.call(slides, sl);
+      /* the browser scrolls overflow:hidden boxes to reveal focus; the stage
+         must never move sideways, the corridor does the travelling */
+      stage.scrollLeft = 0; stage.scrollTop = 0;
+      requestAnimationFrame(function () { stage.scrollLeft = 0; stage.scrollTop = 0; });
+      if (i >= 0 && i !== lastActive) window.scrollTo({ top: Math.round(stationY(i)), behavior: 'instant' });
+    });
+
     function scTick() {
       var r = sec.getBoundingClientRect();
+      /* how far the pinned stage has been carried up past its release, as the
+         contact band follows the corridor */
+      var over = Math.max(0, (stageH || window.innerHeight) - r.bottom);
       var p = Math.max(0, Math.min(1, -r.top / RUNWAY));
       sp += (p - sp) * 0.085;
 
@@ -521,7 +542,11 @@
            the copy you are reading is never dimmed. */
         var op = abs < 0.46 ? 1 : Math.max(0, 1 - (abs - 0.46) / 0.52);
         if (op <= 0.001) {
-          el.style.visibility = 'hidden';
+          /* Hidden slides were visibility:hidden, which also took their links
+             out of the tab order: Tab went from slide 01 straight to "Email
+             me". Once someone is using the keyboard, they stay focusable
+             (still fully transparent, still click-through). */
+          el.style.visibility = KBD ? 'visible' : 'hidden';
           el.style.pointerEvents = 'none';
           continue;
         }
@@ -554,8 +579,19 @@
            Yaw is signed off P so a panel turns to FACE the centre as it
            passes, which reads as a corridor rather than a fan. */
         var sc = 1 - Math.min(0.06, abs * 0.06);
+        /* RELEASE HOLD. When the corridor lets go, the whole stage rises with
+           the page to make room for the contact band. On a short window that
+           climb is bigger than the air above the seated card, so slide 06 went
+           under the header (pre-deploy review F4). Hold the card just under
+           the header while the stage rises, until the contact band arrives
+           beneath it; from there it leaves with the band. Zero while pinned. */
+        var cy = 0;
+        if (over > 0) {
+          var cTop = ((stageH || window.innerHeight) - (heights[i] || 0)) / 2;
+          cy = Math.max(0, Math.min(over - (cTop - hdrH - 12), cTop - 12));
+        }
         el.style.transform =
-          'translate(-50%, -50%) translate3d(' + (P * (travels[i] || 600)).toFixed(2) + 'px, 0, ' +
+          'translate(-50%, -50%) translate3d(' + (P * (travels[i] || 600)).toFixed(2) + 'px, ' + cy.toFixed(1) + 'px, ' +
           (-(P * P) * 14).toFixed(2) + 'rem) rotateY(' + (P * YAW).toFixed(2) + 'deg) ' +
           'scale(' + sc.toFixed(3) + ')';
         el.style.opacity = op.toFixed(3);
