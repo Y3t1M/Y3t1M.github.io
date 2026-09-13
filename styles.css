@@ -2118,6 +2118,35 @@ body.blueprint #sand-canvas {
   display: none !important;
 }
 
+/* ...and the projects page is the same drafting table. No grain anywhere:
+   not the corridor's bed, not the seam that carries it up through the head,
+   not the index rows shedding into it. */
+body.blueprint #proj-sand,
+body.blueprint #proj-seam,
+body.blueprint #ledger-shed { display: none !important; }
+/* The LED title gives way to the live word, which blueprint already sets in
+   its own hand (Courier), as it does every other heading on the site. */
+body.blueprint #pt-led { display: none !important; }
+html.pt-led body.blueprint .pt-word { visibility: visible; }
+@media (max-width: 700px) {
+  /* Courier runs wider than the site face; keep the word inside the column */
+  body.blueprint .proj-title { font-size: calc((100vw - 48px) / 5); }
+}
+/* The index holds still and is ruled like the rest of the sheet: dashed
+   drafting lines, not the faint hard-coded white the shed fades out. */
+body.blueprint .proj-index li { --shed: 0 !important; }
+body.blueprint .proj-index li button,
+body.blueprint .proj-index li:last-child button {
+  opacity: 1;
+  border-bottom: 1px dashed rgba(180, 220, 255, 0.3);
+}
+body.blueprint .proj-index { border-top: 1px dashed rgba(180, 220, 255, 0.3); }
+/* The corridor's cards are drawn on the sheet, not laid on it as black slabs:
+   html.fx .sc-slide .case (a near-black fill) outranked blueprint's own card
+   rule, which only sets the dashed edge. */
+html.fx body.blueprint .sc-slide .case,
+html.fx body.blueprint .sc-slide .case:hover { background: rgba(0, 42, 86, 0.9); }
+
 /* The way out is on the sheet: a drafting-table control, blueprint voice */
 #bp-scratch-btn {
   position: fixed;
