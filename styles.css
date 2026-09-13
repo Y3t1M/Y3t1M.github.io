@@ -1043,6 +1043,27 @@ html.fx .sc-slide.wide .case-sm img { height: 215px; }
   letter-spacing: -0.045em;
   margin: clamp(18px, 2.4vw, 34px) 0 0;
 }
+@media (max-width: 700px) {
+  /* Phones: the 52px floor left "Projects" at ~60% of the column. Size it to
+     span the column (the word is ~4.1 of its font size wide; 4.3 leaves a
+     little air), which also gives the LED matrix enough rows to read. */
+  .proj-title { font-size: calc((100vw - 48px) / 4.3); }
+  /* The section gap put 122px of empty screen between the header and the
+     eyebrow on arrival; the title and index are the first thing to see. */
+  body.proj-page #projects { padding-top: 40px; }
+  /* The scroll cue floats over the first card's copy on a phone. A soft halo
+     faded out exactly where the label sits, so it still collided with the
+     text; it rides in a small dark capsule instead, a pill like the site's
+     buttons, and the text underneath stays out of it. */
+  body.proj-page #scroll-hint {
+    padding: 10px 14px 9px;
+    border-radius: 999px;
+    background: rgba(12, 12, 12, 0.82);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+  }
+}
 .proj-meta {
   font-family: var(--font-mono);
   font-size: 11px;

@@ -88,24 +88,54 @@
     if (key === lastKey) return;
     lastKey = key;
 
+    /* Phones: at the desktop's 8 px pitch a phone-sized title is only 6 to 10
+       rows, which cannot form "Projects" (Hudson, 2026-09-12: "the projects
+       dot text is off"; it read as blobs). Keep the LOOK rather than the dot
+       size: every glyph gets ~17 cells of font size, so the phone head is the
+       desktop head scaled down, never a coarser one. Desktop (fs >= 128px)
+       keeps the fixed 8 px pitch the ledger figures share. */
+    var FINE = fs / PITCH < 16;
+    /* At phone resolution the desktop's tight -0.045em tracking fused e-c-t
+       into one mass, so the fine grid tracks open enough for a clear column
+       between letters; the pitch is then chosen so the word, at ~17 cells of
+       font, still fits the column with a cell to spare. */
+    var TRACK = FINE ? '0.05em' : '-0.045em';
     var cell = PITCH;
+    if (FINE) {
+      octx.font = '750 100px ' + SANS;
+      try { octx.letterSpacing = TRACK; } catch (e) { /* Chrome 99+ */ }
+      var perPx = octx.measureText(WORD).width / 100;
+      cell = Math.max(3.5, Math.min(fs / 17, W / (perPx * 17 + 1)));
+    }
+    var fsC = FINE ? 17 : fs / cell;      /* font size in cells */
     var cols = Math.ceil(W / cell);
-    var rows = Math.ceil(H / cell);
+
+    /* measure the ink first: the grid is sized to it, not to the line box */
+    function setType() {
+      octx.fillStyle = '#fff';
+      octx.textAlign = 'left';
+      octx.textBaseline = 'alphabetic';
+      octx.font = '750 ' + fsC + 'px ' + SANS;
+      try { octx.letterSpacing = TRACK; } catch (e) { /* Chrome 99+; harmless elsewhere */ }
+    }
+    setType();
+    var m = octx.measureText(WORD);
+    var asc = m.actualBoundingBoxAscent || fsC * 0.72;
+    var desc = m.actualBoundingBoxDescent || fsC * 0.21;
+    /* The grid used to be the title's LINE box (line-height 0.86) with the
+       ink centred in it, and the ink is taller than that box, so the top of
+       the word and the j's descender were sheared off (Hudson, 2026-09-12:
+       "the J is off"). It is now the INK plus one clear row above and below;
+       the canvas is absolutely positioned, so the extra rows hang into the
+       space under the title and move nothing. The cap line still rides at
+       the top of the box, one row down, where the real type sits. */
+    var baseline = 1 + Math.ceil(asc);    /* whole cells, so row 0 stays clear */
+    var rows = Math.max(Math.ceil(H / cell), baseline + Math.ceil(desc) + 1);
 
     /* pass 1 — one pixel per cell, so a pixel IS a cell */
-    oCanvas.width = cols; oCanvas.height = rows;
+    oCanvas.width = cols; oCanvas.height = rows;   /* resets the context */
     octx.clearRect(0, 0, cols, rows);
-    octx.fillStyle = '#fff';
-    octx.textAlign = 'left';
-    octx.textBaseline = 'alphabetic';
-    try { octx.letterSpacing = '-0.045em'; } catch (e) { /* Chrome 99+; harmless elsewhere */ }
-    octx.font = '750 ' + (fs / cell) + 'px ' + SANS;
-    var m = octx.measureText(WORD);
-    var asc = m.actualBoundingBoxAscent || (fs / cell) * 0.72;
-    var desc = m.actualBoundingBoxDescent || (fs / cell) * 0.21;
-    /* seat the ink block in the title box exactly where the real type sits:
-       .proj-title is line-height 0.86, so the cap line rides near the top */
-    var baseline = (rows - (asc + desc)) / 2 + asc;
+    setType();
     octx.fillText(WORD, 0, baseline);
     var data = octx.getImageData(0, 0, cols, rows).data;
 
@@ -141,6 +171,7 @@
     /* the head going away: the first 120 px of scroll */
     var mtAll = Math.max(0, Math.min(1, window.pageYOffset / 120));
     var r = cell * 0.34;
+    var K = cell / PITCH;              /* crumble distances follow the pitch */
 
     for (var k = 0; k < g.lit.length; k++) {
       var idx = g.lit[k];
@@ -156,13 +187,13 @@
       var mt = Math.max(0, Math.min(1, mtAll * 1.75 - (1 - rowFrac) * 0.95));
       if (mt > 0) {
         var hA = hh(cx * 13.7 + 1.3, cy * 7.9), hB = hh(cx * 3.1 + 5.0, cy * 11.3);
-        var cl = CR.cell(mt, hA, 1);
+        var cl = CR.cell(mt, hA, K);
         x += cl.dx; y += cl.dy; rr *= cl.r;
         var ng = CR.n(mt);
         for (var gk = 0; gk < ng; gk++) {
           var hk = hh(cx * 31.3 + gk * 17.1, cy * 5.7 + gk * 3.3);
           var hk2 = hh(cx * 9.9 + gk * 7.7, cy * 13.1 + gk);
-          var gr = CR.grain(mt, hk, hk2, hB, t, 1);
+          var gr = CR.grain(mt, hk, hk2, hB, t, K);
           var gA = Math.min(0.9, a * 0.9 * mt * gr.a + 0.05 * mt);
           if (gA > 0.02) {
             ctx.fillStyle = 'rgba(234,234,234,' + gA.toFixed(3) + ')';

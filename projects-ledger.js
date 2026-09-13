@@ -110,6 +110,11 @@
   var CELL = 2;                        /* the ledger's pitch: type is finer than the head's 8 px */
   var KL = 0.55;                       /* and its crumble is scaled to it */
   var REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  /* The rows shed INTO the desktop corridor's sand bed. Touch devices keep the
+     plain flow and have no bed, and there the shed read as the index text
+     tearing and doubling (Hudson, 2026-09-12: "make sure mobile looks cool"),
+     so without the corridor the rows simply scroll. */
+  var FX = document.documentElement.classList.contains('fx');
 
   function lumOf(css) {
     var m = /rgba?\(([^)]+)\)/.exec(css || '');
@@ -121,7 +126,7 @@
   function buildShed() {
     var index = document.getElementById('proj-index');
     var host = document.getElementById('projects');
-    if (!index || !host || !window.__crumble) { shedRows = null; return; }
+    if (!FX || !index || !host || !window.__crumble) { shedRows = null; return; }
     var lis = index.querySelectorAll('li');
     if (!lis.length || !index.offsetParent) { shedRows = null; return; }
     var hb = host.getBoundingClientRect(), ib = index.getBoundingClientRect();
@@ -197,7 +202,7 @@
   /* a row's own progress: 0 until its top has risen into the top fifth of the
      screen, 1 a hundred and fifty pixels of scroll later. */
   function rowK(row) {
-    if (REDUCED) return 0;
+    if (REDUCED || !FX) return 0;
     var r = row.li.getBoundingClientRect();
     return Math.max(0, Math.min(1, (window.innerHeight * 0.18 - r.top) / 150));
   }
