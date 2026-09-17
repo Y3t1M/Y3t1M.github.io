@@ -995,6 +995,23 @@ html.fx .sc-ghost {
 }
 html.fx .sc-ghost canvas { display: block; }
 
+/* The Hardware photos as live LED dots (projects-dots.js, Hudson's Dot Lab
+   pick D3 + F1 + M1). The <img> keeps its box, border and alt text and turns
+   into a blank placeholder; the dots draw over it, a pixel short of its
+   bottom border. They drift with the corridor's parallax but are never
+   scaled, so every dot stays on whole device pixels. */
+.case-dots-wrap { position: relative; overflow: hidden; }
+.case-dots {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: calc(100% - 1px);
+  display: block;
+  pointer-events: none;
+}
+html.fx .sc-slide .case-dots { transform: translateY(calc(var(--q, 0) * -14px)); }
+
 /* photos: LED-dot renders; hover gives a slow zoom */
 html.fx .sc-slide.wide .case-sm img { height: 215px; }
 @media (hover: hover) {
