@@ -954,7 +954,10 @@ html.fx .sc-slide .case { margin: 0; max-height: 76vh; overflow-y: auto; }
 /* In the corridor the ghost index numeral sits BEHIND the card — a touch of
    translucency lets its LED dots glow through the plate. Scoped here so the
    home-page cards stay the solid objects-in-sand Hudson approved. */
-html.fx .sc-slide .case { background: rgba(10, 10, 10, 0.90); } /* was 0.82 — still breathes, holds the text better */
+/* The near-solid plate is only the fallback now: over live sand every project
+   card is the same smoke glass as the Hardware cards (Hudson, 2026-09-16:
+   "the translucent cards need to all match"), via html.sand-glass below. */
+html.fx .sc-slide .case { background: rgba(10, 10, 10, 0.90); }
 html.fx .sc-slide .case:hover { background: rgba(13, 13, 13, 0.93); }
 html.fx .sc-slide .case-grid { margin: 0; }
 html.fx .sc-slide.wide { width: min(1100px, 94vw); }
@@ -1543,7 +1546,8 @@ html.sand-glass body:not(.blueprint) .project-card,
 html.sand-glass body:not(.blueprint) .awards-list,
 html.sand-glass body:not(.blueprint) .contact-inner,
 html.sand-glass body:not(.blueprint) .spec,
-html.sand-glass body:not(.blueprint) .case-sm {
+html.sand-glass body:not(.blueprint) .case-sm,
+html.sand-glass body:not(.blueprint) .case {
   background: rgba(18, 18, 18, 0.40);
   border-color: rgba(255, 255, 255, 0.14);
   -webkit-backdrop-filter: blur(9px) saturate(120%);
@@ -1553,7 +1557,8 @@ html.sand-glass body:not(.blueprint) .case-sm {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), inset 0 0 0 1px rgba(255, 255, 255, 0.035);
 }
 html.sand-glass body:not(.blueprint) .about-card:hover,
-html.sand-glass body:not(.blueprint) .project-card:hover {
+html.sand-glass body:not(.blueprint) .project-card:hover,
+html.sand-glass body:not(.blueprint) .case:hover {
   background: rgba(26, 26, 26, 0.48);
   border-color: rgba(255, 255, 255, 0.22);
 }

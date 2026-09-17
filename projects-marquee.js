@@ -99,10 +99,14 @@
        into one mass, so the fine grid tracks open enough for a clear column
        between letters; the pitch is then chosen so the word, at ~17 cells of
        font, still fits the column with a cell to spare. */
-    var TRACK = FINE ? '0.03em' : '-0.045em';
-    /* phones read the fine grid as thin (Hudson, 2026-09-16: "the text looks
-       skinny"): the heaviest cut, fuller dots and a little more light */
-    var WEIGHT = FINE ? '900' : '750';
+    /* Phones read the fine grid as thin (Hudson, 2026-09-16: "the text looks
+       skinny"): the heaviest cut, open tracking, fuller dots and a little more
+       light. That is for the phone layout ONLY: a laptop window narrow enough
+       to reach the fine grid (700 to ~985px) keeps the desktop look ("too
+       fat" when it got the phone styling). */
+    var HEAVY = window.matchMedia('(max-width: 700px)').matches;
+    var TRACK = HEAVY ? '0.03em' : '-0.045em';
+    var WEIGHT = HEAVY ? '900' : '750';
     var cell = PITCH;
     if (FINE) {
       octx.font = WEIGHT + ' 100px ' + SANS;
@@ -157,7 +161,7 @@
     canvas.height = Math.round(ch * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-    grid = { fine: FINE, cell: cell, cols: cols, rows: rows, lit: lit, w: cw, h: ch, dpr: dpr,
+    grid = { fine: FINE, heavy: HEAVY, cell: cell, cols: cols, rows: rows, lit: lit, w: cw, h: ch, dpr: dpr,
              gridH: rows * cell, shed: SHED_ROOM };
     /* The live type underneath is hidden only once the matrix is genuinely
        carrying the word. Hiding it in the stylesheet instead would leave the
@@ -173,7 +177,7 @@
 
     /* the head going away: the first 120 px of scroll */
     var mtAll = Math.max(0, Math.min(1, window.pageYOffset / 120));
-    var r = cell * (g.fine ? 0.42 : 0.34);
+    var r = cell * (g.heavy ? 0.42 : 0.34);
     var K = cell / PITCH;              /* crumble distances follow the pitch */
 
     for (var k = 0; k < g.lit.length; k++) {
@@ -182,7 +186,7 @@
       var x = cx * cell + cell / 2, y = cy * cell + cell / 2;
       var h1 = hh(cx * 1.7 + 0.3, cy * 5.3);
       /* very slow shimmer, like the sand: never a blink */
-      var a = (g.fine ? 0.46 : ALPHA) * (0.80 + 0.20 * Math.sin(t * 0.55 + h1 * 6.2832));
+      var a = (g.heavy ? 0.46 : ALPHA) * (0.80 + 0.20 * Math.sin(t * 0.55 + h1 * 6.2832));
       var rr = r;
 
       /* MERGE — bottom rows first, exactly the hero's T4 language */
