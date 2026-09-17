@@ -412,11 +412,15 @@
   const HINT_SHOW_MS = inCorridor ? 600 : (coarse ? 1100 : 2200);
   const HINT_GONE_AT = () => (inCorridor ? window.innerHeight : 60);
   let hintLive = false;                 /* false until the first reveal */
+  /* On a phone it shows once and, once you have scrolled, stays gone
+     (Hudson, 2026-09-16: "i dont like that it comes back"). */
+  let hintDone = false;
   function syncHint() {
-    if (!hintLive) return;
+    if (!hintLive || hintDone) return;
     const away = window.scrollY > HINT_GONE_AT();
     scrollHint.classList.toggle('hint-hide', away);
     scrollHint.classList.toggle('hint-show', !away);
+    if (away && coarse) hintDone = true;
   }
   window.addEventListener('scroll', syncHint, { passive: true });
   setTimeout(() => { hintLive = true; syncHint(); }, HINT_SHOW_MS);

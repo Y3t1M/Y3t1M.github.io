@@ -30,12 +30,16 @@
   var FLOOR = 0;            /* silhouette lift */
   var FIT = 0.9;            /* photos: whole object, a little air around it */
   var REVEAL_MS = 1400;
-  var REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  /* The reveal and the breath play even with Reduce Motion on: Hudson's call,
+     the same one he made for the boot animation and the ambient sand (on his
+     own phone the setting is on, and the pictures simply never lit). */
+  var REDUCED = false;
+  var BREATH_FPS = 30;      /* a slow shimmer needs no more, and it spares the battery */
 
   var VS = 'attribute vec2 p; void main(){ gl_Position = vec4(p, 0.0, 1.0); }';
   var FS = [
     'precision highp float;',
-    'uniform sampler2D uTex; uniform vec2 uRes; uniform float uPitch, uRev, uAA; uniform vec3 uInk;',
+    'uniform sampler2D uTex; uniform vec2 uRes; uniform float uPitch, uRev, uAA, uTime, uBreath; uniform vec3 uInk;',
     'float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }',
     'void main(){',
     '  vec2 px = vec2(gl_FragCoord.x, uRes.y - gl_FragCoord.y);',
@@ -58,9 +62,14 @@
     '      float delay = ((cell.x + 0.5) * 0.62 + (cell.y + 0.5) * 0.38) / span * 0.7 + hash(cell + 3.1) * 0.12;',
     '      float k = smoothstep(delay, delay + 0.18, uRev);',
     '      float d = length(px - cp);',
-    '      float r = uPitch * 0.36 * k;',
-    '      glow = max(glow, t * 0.20 * exp(-d / (uPitch * 0.85)) * k * a);',
-    '      float c = (1.0 - smoothstep(r - uAA, r + uAA, d)) * (0.18 + 0.82 * t) * a;',
+    /* the breath: a slow wave of light drifting across the picture (~7 s),
+       each dot a little off the wave so it never reads as a sweep, brightness
+       rising and falling with a touch of size */
+    '      float ph = uTime * 0.9 - (cell.x + cell.y * 0.6) * 0.07 + hash(cell + 7.7) * 2.0;',
+    '      float br = 1.0 - uBreath * (0.38 * (0.5 + 0.5 * sin(ph)));',
+    '      float r = uPitch * 0.36 * k * (1.0 - uBreath * 0.07 * (0.5 + 0.5 * sin(ph + 1.3)));',
+    '      glow = max(glow, t * 0.20 * exp(-d / (uPitch * 0.85)) * k * a * br);',
+    '      float c = (1.0 - smoothstep(r - uAA, r + uAA, d)) * (0.18 + 0.82 * t) * a * br;',
     '      if (r < uAA) c *= r / uAA;',
     '      cov = max(cov, c);',
     '    }',
@@ -179,7 +188,7 @@
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
       var U = {};
-      ['uTex', 'uRes', 'uPitch', 'uRev', 'uAA', 'uInk'].forEach(function (u) { U[u] = gl.getUniformLocation(pr, u); });
+      ['uTex', 'uRes', 'uPitch', 'uRev', 'uAA', 'uInk', 'uTime', 'uBreath'].forEach(function (u) { U[u] = gl.getUniformLocation(pr, u); });
       gl.uniform1i(U.uTex, 0);
       gl.uniform3f(U.uInk, 0.918, 0.918, 0.918);
       gl.uniform1f(U.uAA, 0.75);
@@ -192,7 +201,7 @@
     });
     /* r.draw(src, rev, srcId): srcId names the source, so a figure met again
        at the same size is a texture upload, not a recompute */
-    r.draw = function (src, rev, srcId) {
+    r.draw = function (src, rev, srcId, breath) {
       if (r.lost || !r.gl || !src) return;
       var W = Math.max(1, Math.round(canvas.clientWidth * dpr()));
       var H = Math.max(1, Math.round(canvas.clientHeight * dpr()));
@@ -216,6 +225,8 @@
       gl.uniform2f(U.uRes, W, H);
       gl.uniform1f(U.uPitch, PITCH * dpr());
       gl.uniform1f(U.uRev, rev);
+      gl.uniform1f(U.uBreath, breath ? 1 : 0);
+      gl.uniform1f(U.uTime, performance.now() / 1000);
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     };
     return r;
@@ -262,7 +273,8 @@
     canvas.setAttribute('aria-hidden', 'true');
     wrap.appendChild(canvas);
     var v = { img: img, fallbackSrc: img.getAttribute('data-fallback'), wrap: wrap, canvas: canvas,
-              src: new Image(), rev: REDUCED ? 1 : 0, armed: !REDUCED, playing: false, ready: false, dead: false, stop: null };
+              src: new Image(), rev: REDUCED ? 1 : 0, armed: !REDUCED, playing: false, ready: false, dead: false, stop: null,
+              seen: false };
     if (!window.__led) { fallback(v); return; }
     try { v.r = make(canvas); } catch (e) { fallback(v); return; }
     v.r.onrestore = function () { draw(v); };
@@ -276,7 +288,7 @@
     if (v.dead || !v.ready) return;
     /* reading the photo's pixels throws if the browser treats it as
        cross-origin (file://, a misbehaving cache): fall back, never break */
-    try { v.r.draw(v.src, v.rev, 1); } catch (e) { fallback(v); }
+    try { v.r.draw(v.src, v.rev, 1, true); } catch (e) { fallback(v); }
   }
 
   function play(v) {
@@ -284,8 +296,26 @@
     v.playing = true;
     v.stop = reveal(function (rev) { v.rev = rev; if (rev >= 1) v.playing = false; draw(v); });
   }
-  function onStage(v) { if (v.armed && !v.dead) { v.armed = false; play(v); } }
-  function offStage(v) { if (!v.playing && !v.dead) { v.armed = true; v.rev = 0; draw(v); } }
+  function onStage(v) { v.seen = true; breathe(); if (v.armed && !v.dead) { v.armed = false; play(v); } }
+  function offStage(v) { v.seen = false; if (!v.playing && !v.dead) { v.armed = true; v.rev = 0; draw(v); } }
+
+  /* the breath: one loop for every photo on screen, and none when none is */
+  var breathing = false, lastBreath = 0;
+  function breathe() {
+    if (breathing) return;
+    breathing = true;
+    requestAnimationFrame(function loop(now) {
+      var any = false;
+      views.forEach(function (v) { if (v.seen && !v.dead) any = true; });
+      if (!any || document.hidden) { breathing = false; return; }
+      if (now - lastBreath >= 1000 / BREATH_FPS - 2) {
+        lastBreath = now;
+        views.forEach(function (v) { if (v.seen && !v.playing) draw(v); });
+      }
+      requestAnimationFrame(loop);
+    });
+  }
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) breathe(); });
 
   if (views.length) {
     if (REDUCED) {
@@ -334,7 +364,7 @@
   window.__projDots = {
     views: function () {
       return views.map(function (v) {
-        return { rev: v.rev, ready: v.ready, dead: v.dead, playing: v.playing, w: v.canvas.width, h: v.canvas.height,
+        return { rev: v.rev, ready: v.ready, dead: v.dead, playing: v.playing, seen: v.seen, w: v.canvas.width, h: v.canvas.height,
                  cssW: v.canvas.clientWidth, cssH: v.canvas.clientHeight };
       });
     }

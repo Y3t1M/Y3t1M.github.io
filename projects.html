@@ -31,6 +31,8 @@
   <link rel="stylesheet" href="styles.css">
   <script>/* scan-arrival gate: cover before first paint, never a flash */
   document.documentElement.classList.add('js');
+  /* the head's matrix hides the plain word; if it has not drawn in time, show the word */
+  setTimeout(function(){var h=document.documentElement;if(!h.classList.contains('pt-led'))h.classList.add('pt-fail');},2500);
   (function(){try{var t=+sessionStorage.getItem('pt-cover')||0;
   if(t&&Date.now()-t<4000)document.documentElement.classList.add('pt-covered');
   sessionStorage.removeItem('pt-cover');}catch(e){}})();</script>
@@ -257,9 +259,10 @@
     </div>
   </footer>
   <script src="scroll-fx.js"></script>
-  <script>/* no corridor (touch): keep the live dot grid, the sand bed is desktop-only */
+  <script>/* no corridor (touch): the home page's sand behind the plain flow
+    (Hudson, 2026-09-16: "on mobile the projects page doesn't have a sand background") */
     if (!document.documentElement.classList.contains('fx')) {
-      var dg = document.createElement('script'); dg.src = 'dotgrid.js'; document.body.appendChild(dg);
+      var sd = document.createElement('script'); sd.src = 'sand.js'; document.body.appendChild(sd);
     }
   </script>
   <script src="transitions.js"></script>

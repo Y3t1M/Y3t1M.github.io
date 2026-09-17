@@ -76,6 +76,8 @@
   /* Desktop corridor only. scroll-fx.js (loaded first) sets html.fx when it
      pins the corridor; touch devices keep the plain flow and the dot grid. */
   if (!document.documentElement.classList.contains('fx')) return;
+  /* cards over this bed are the same smoke glass as the home page's */
+  document.documentElement.classList.add('sand-glass');
 
   var COARSE = window.matchMedia('(pointer: coarse)').matches;
   var OPACITY = COARSE ? 0.17 : 0.25;   /* 0.29 -> 0.25 (Hudson, 2026-09-16: "dimmed a little") */

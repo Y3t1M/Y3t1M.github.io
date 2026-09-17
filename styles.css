@@ -943,7 +943,12 @@ html.fx .sc-slide {
   top: 50%;
   width: min(780px, 90vw);
   transform: translate(-50%, -50%);
-  will-change: transform, opacity;
+  /* transform only: an opacity hint makes every slide a backdrop root, and
+     the picture cards' smoke glass then saw nothing behind the slide, so the
+     figure behind them showed through crisp instead of blurred (2026-09-16).
+     The slide keeps its own layer through the transform hint, so its fades
+     stay a compositor update. */
+  will-change: transform;
 }
 html.fx .sc-slide .case { margin: 0; max-height: 76vh; overflow-y: auto; }
 /* In the corridor the ghost index numeral sits BEHIND the card — a touch of
@@ -1072,18 +1077,6 @@ html.fx .sc-slide.wide .case-sm img { height: 215px; }
   /* The section gap put 122px of empty screen between the header and the
      eyebrow on arrival; the title and index are the first thing to see. */
   body.proj-page #projects { padding-top: 40px; }
-  /* The scroll cue floats over the first card's copy on a phone. A soft halo
-     faded out exactly where the label sits, so it still collided with the
-     text; it rides in a small dark capsule instead, a pill like the site's
-     buttons, and the text underneath stays out of it. */
-  body.proj-page #scroll-hint {
-    padding: 10px 14px 9px;
-    border-radius: 999px;
-    background: rgba(12, 12, 12, 0.82);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    -webkit-backdrop-filter: blur(8px);
-    backdrop-filter: blur(8px);
-  }
 }
 .proj-meta {
   font-family: var(--font-mono);
@@ -1277,12 +1270,18 @@ html.fx .sc-counter.show { opacity: 1; }
 /* The live type underneath is hidden only once the matrix is genuinely
    carrying the word (projects-marquee.js adds html.pt-led). Hiding it here
    unconditionally would leave the title invisible with JavaScript off. */
-html.pt-led .pt-word { visibility: hidden; }
+/* With JavaScript the live word is hidden from the start, so a phone never
+   flashes the plain word before the matrix arrives (Hudson, 2026-09-16); if
+   the matrix fails to draw, the head script's pt-fail brings the word back. */
+html.js:not(.pt-fail) .pt-word { visibility: hidden; }
 
 /* The corridor's runway now ends with slide 06 seated, so the contact band
    has to follow it immediately: the 112px section gap put half a viewport of
    nothing between the last project and the next thing to do. */
-body.proj-page .contact-band { margin-top: 0; }
+html.fx body.proj-page .contact-band { margin-top: 0; }
+/* the plain flow (phones) has no corridor to hand over from: the last card
+   and the contact band need air between them */
+html:not(.fx) body.proj-page .contact-band { margin-top: 56px; }
 /* and the footer's gap too: everything below the corridor is tail that the
    released stage scrolls up by, and past about 300px of it slide 06 is pushed
    off the top before the document runs out. */
@@ -1535,7 +1534,8 @@ html.sand-glass body:not(.blueprint) .about-card,
 html.sand-glass body:not(.blueprint) .project-card,
 html.sand-glass body:not(.blueprint) .awards-list,
 html.sand-glass body:not(.blueprint) .contact-inner,
-html.sand-glass body:not(.blueprint) .spec {
+html.sand-glass body:not(.blueprint) .spec,
+html.sand-glass body:not(.blueprint) .case-sm {
   background: rgba(18, 18, 18, 0.40);
   border-color: rgba(255, 255, 255, 0.14);
   -webkit-backdrop-filter: blur(9px) saturate(120%);
@@ -2148,7 +2148,7 @@ body.blueprint #ledger-shed { display: none !important; }
 /* The LED title gives way to the live word, which blueprint already sets in
    its own hand (Courier), as it does every other heading on the site. */
 body.blueprint #pt-led { display: none !important; }
-html.pt-led body.blueprint .pt-word { visibility: visible; }
+html.js body.blueprint .pt-word { visibility: visible; }
 @media (max-width: 700px) {
   /* Courier runs wider than the site face; keep the word inside the column */
   body.blueprint .proj-title { font-size: calc((100vw - 48px) / 5); }
