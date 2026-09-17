@@ -30,6 +30,7 @@
 
   <link rel="stylesheet" href="styles.css">
   <script>/* scan-arrival gate: cover before first paint, never a flash */
+  document.documentElement.classList.add('js');
   (function(){try{var t=+sessionStorage.getItem('pt-cover')||0;
   if(t&&Date.now()-t<4000)document.documentElement.classList.add('pt-covered');
   sessionStorage.removeItem('pt-cover');}catch(e){}})();</script>
@@ -168,7 +169,7 @@
     <div class="slide-eyebrow">Hardware</div>
     <div class="case-grid">
       <article class="case-sm" id="avr-drone">
-        <img src="assets/img/avr_drone_ascii.png" alt="AVR competition drone" loading="lazy">
+        <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-dots="assets/img/dots/avr_drone.png" data-fallback="assets/img/avr_drone_ascii.png" alt="AVR competition drone"><noscript><img src="assets/img/avr_drone_ascii.png" alt="AVR competition drone" loading="lazy"></noscript>
         <div class="case-sm-body">
           <div class="case-meta"><span>Robotics</span></div>
           <h3>AVR Drone</h3>
@@ -176,7 +177,7 @@
         </div>
       </article>
       <article class="case-sm" id="arduino-r4">
-        <img src="assets/img/arduino_r4_ascii.png" alt="Arduino R4 controller board" loading="lazy">
+        <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-dots="assets/img/dots/arduino_r4.png" data-fallback="assets/img/arduino_r4_ascii.png" alt="Arduino R4 controller board"><noscript><img src="assets/img/arduino_r4_ascii.png" alt="Arduino R4 controller board" loading="lazy"></noscript>
         <div class="case-sm-body">
           <div class="case-meta"><span>Robotics &middot; C++</span></div>
           <h3>Arduino R4 Controller</h3>
@@ -185,7 +186,7 @@
         </div>
       </article>
       <article class="case-sm" id="iron-man">
-        <img src="assets/img/ironman_helmet_ascii.png" alt="3D-printed Iron Man helmet" loading="lazy">
+        <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-dots="assets/img/dots/ironman_helmet.png" data-fallback="assets/img/ironman_helmet_ascii.png" alt="3D-printed Iron Man helmet"><noscript><img src="assets/img/ironman_helmet_ascii.png" alt="3D-printed Iron Man helmet" loading="lazy"></noscript>
         <div class="case-sm-body">
           <div class="case-meta"><span>3D print &middot; Electronics</span></div>
           <h3>Iron Man Helmet</h3>
@@ -270,8 +271,8 @@
   <!-- the projects page only: the LED head, the corridor's bed, the ledger -->
   <script src="projects-marquee.js"></script>
   <script src="projects-sand.js"></script>
-  <script src="projects-ledger.js"></script>
   <script src="projects-dots.js"></script>
+  <script src="projects-ledger.js"></script>
 </body>
 
 </html>

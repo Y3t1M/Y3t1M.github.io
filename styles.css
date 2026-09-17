@@ -994,6 +994,9 @@ html.fx .sc-ghost {
   font-size: 0;
 }
 html.fx .sc-ghost canvas { display: block; }
+/* the figure's LED dots (projects-ledger.js) sit over its caption canvas */
+.ghost-fig { position: relative; line-height: 0; }
+html.fx .sc-ghost .ghost-led { position: absolute; left: 0; top: 0; pointer-events: none; }
 
 /* The Hardware photos as live LED dots (projects-dots.js, Hudson's Dot Lab
    pick D3 + F1 + M1). The <img> keeps its box, border and alt text and turns
@@ -1001,6 +1004,7 @@ html.fx .sc-ghost canvas { display: block; }
    bottom border. They drift with the corridor's parallax but are never
    scaled, so every dot stays on whole device pixels. */
 .case-dots-wrap { position: relative; overflow: hidden; }
+html:not(.js) .case-sm img[data-dots] { display: none; }
 .case-dots {
   position: absolute;
   left: 0;

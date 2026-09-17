@@ -30,79 +30,193 @@
   var ALPHA = 0.34;              /* and its dot alpha */
   var CAP_ALPHA = 0.42;          /* the unit is quieter than the figure, never faint */
 
+  /* The Sam's Club symbol (2026): the two shapes of its public-domain SVG on
+     Wikimedia Commons, "Sam's Club 2026 (symbol).svg", in its own 356.2 x 486.2 box. */
+  var SAMS = {
+    w: 356.2, h: 486.2,
+    paths: [
+      'M 95.5,187.7 189.1,94.5 94.9,0 0,94.5 Z',
+      'm 223.4,486.2 c 86.3,0 132.8,-49.8 132.8,-115 0,-69 -43.4,-88.3 -82.6,-100.1 -23.3,-6.9 -42.2,-11.8 -42.2,-23 0,-11.2 9.2,-18 28.7,-18 37.3,0 66.1,13 90,34.2 v -98.9 c -19.6,-13.7 -53.9,-26.1 -103.4,-26.1 -80.8,0 -138.9,42.2 -138.9,116.8 0,62.8 43.4,81.5 78.3,92.1 25,7.5 44,11.8 44,24.9 0,11.8 -9.7,19.3 -30.6,19.3 -30,0 -64.9,-14.9 -88.7,-37.3 v 102 c 20.1,14.2 54.4,29 112.6,29.1'
+    ]
+  };
+
   var LEDGER = [
     { fig: '700+', unit: 'locations run · 2025 – 2026', row: '700+ locations', src: '700+ locations' },
     { fig: '13%',  unit: 'ahead of the S&P · agentic strategy', row: '13% over the S&P', src: null },
-    { fig: 'DEMO', unit: 'Sam’s Club challenge · spring 2026', row: 'Demo Day', src: 'Demo Day, Spring 2026' },
-    { fig: '2026', unit: 'desktop app · Python · OpenCV', row: '2026',           src: '2026' },
+    /* Hudson, 2026-09-16: the Sam's Club mark instead of DEMO; the row keeps Demo Day */
+    { fig: 'SAMS', logo: SAMS, label: 'Sam’s Club', unit: 'Sam’s Club challenge · spring 2026', row: 'Demo Day', src: 'Demo Day, Spring 2026' },
+    /* Hudson, 2026-09-16: 0 instead of 2026. The whole photo-to-tray pipeline runs in the
+       browser and photos never leave the device (the demo's own note), so like the 13% it
+       is not in this slide's copy: src null. */
+    { fig: '0',    unit: 'uploads · runs in your browser', row: '0 uploads',    src: null },
     { fig: '2nd',  unit: 'in the country · technical presentation', row: '2nd in the country', src: '2nd in the country for technical presentation' },
     { fig: '95',   unit: 'Windows 95, inside this site · ongoing', row: 'Windows 95',     src: 'Windows 95' }
   ];
 
-  /* ---- the giant figure behind the slide ---- */
-  window.__projGhostPaint = function (txt, gC, gx, oC, ox, MONO) {
-    var idx = Math.max(0, Math.min(LEDGER.length - 1, (parseInt(txt, 10) || 1) - 1));
-    var body = LEDGER[idx].fig;
-    var cap = LEDGER[idx].unit;
-    var dpr = window.devicePixelRatio || 1;
+  /* ---- the giant figure behind the slide ----
+     Drawn by the same LED renderer as the Hardware photos (projects-dots.js,
+     window.__led): 3.7 px dots, brightness with a faint glow, and the same
+     diagonal reveal each time a new figure arrives (Hudson, 2026-09-16: "the
+     numbers behind need to be in the same style as the image"). The figure
+     keeps the size and place it had as an 8 px matrix: the layout is still
+     measured in those cells, only the dots are finer. A logo entry is drawn
+     from its vector shapes the same way. Without WebGL it falls back to the
+     8 px matrix it replaced. */
+  var LED_ALPHA = 0.34;          /* about the ink the 8 px matrix put down, glow included */
+  var led = null, ledC = null, figPaint = null, ghostEl = null;
+  var figId = 0, figRev = 1, figStop = null, figTxt = '', pending = false;
+
+  /* scroll-fx picks the new figure halfway between two slides, where it has
+     faded the ghost to nothing: the wave waits until the figure is actually
+     fading in, so it is seen whole, and no frame is drawn while it cannot be */
+  function ghostOpacity() {
+    var o = ghostEl ? parseFloat(ghostEl.style.opacity) : 1;
+    return isNaN(o) ? 1 : o;
+  }
+  function waitVisible() {
+    if (!pending) return;
+    if (ghostOpacity() > 0.05) {
+      pending = false;
+      figStop = window.__led.reveal(function (rev) {
+        figRev = rev;
+        if (rev >= 1 || ghostOpacity() > 0.01) drawFig();
+      });
+    } else {
+      requestAnimationFrame(waitVisible);
+    }
+  }
+
+  function drawFig() {
+    if (!led || !figPaint) return;
+    try { led.draw(figPaint, figRev, figId); } catch (e) { /* a figure is never tainted; nothing to do */ }
+  }
+
+  function layout(e, ox, MONO) {
     var size = Math.min(window.innerHeight * 0.56, window.innerWidth * 0.44);
     var CELL = PITCH;
+    if (e.logo) {
+      var lh = Math.round(size * 0.92);
+      return { logo: true, w: Math.round(lh * e.logo.w / e.logo.h), h: lh };
+    }
     var rows = Math.max(10, Math.round(size / CELL));
-    /* A four-glyph figure at the same pitch would run off the stage, so the
-       matrix gets shorter — never coarser. The pitch is the whole point.
-       ROUND 5: a figure may now be two WORDS ("DEMO DAY"), and eight glyphs on
-       one line is a strip so short it disappears behind the card — the fit
-       rule shrinks the glyph until the whole line clears the stage. So a space
-       stacks instead: each word is laid out on its own band of the same
-       matrix, the width is set by the LONGEST word, and the height is shared
-       between them. Two words therefore read at very nearly the size one
-       four-glyph figure does, which is the size the ghost was designed at. */
-    var lines = body.split(' ');
+    /* A long figure at the same size would run off the stage, so the matrix
+       gets shorter; a space stacks words on bands of one shared height. */
+    var lines = e.fig.split(' ');
     var longest = lines.reduce(function (a, b) { return a.length >= b.length ? a : b; });
     var fit = Math.floor(((window.innerWidth * 0.86) / CELL - 4) / (0.62 * longest.length));
     rows = Math.max(10, Math.min(rows, fit));
     if (lines.length > 1) rows = Math.max(10, Math.min(rows, Math.round(size / (CELL * lines.length))));
-    var R = rows * lines.length;            /* the whole matrix, all bands */
-
-    var FONT = '700 ' + (rows * 0.98) + 'px ' + MONO;
-    oC.width = 1024; oC.height = R;
-    ox.font = FONT;
+    var font = '700 ' + (rows * 0.98) + 'px ' + MONO;
+    ox.font = font;
     var cols = 0;
     for (var q = 0; q < lines.length; q++) cols = Math.max(cols, Math.ceil(ox.measureText(lines[q]).width) + 4);
     cols = Math.min(1024, cols);
+    return { logo: false, lines: lines, rows: rows, cols: cols, w: cols * CELL, h: rows * lines.length * CELL };
+  }
+
+  function paintMatrix(e, L, gx, oC, ox, MONO) {
+    /* the fallback: the 8 px matrix, one pixel per cell, lit where covered */
+    var CELL = PITCH, R = L.logo ? Math.round(L.h / CELL) : L.rows * L.lines.length;
+    var cols = Math.round(L.w / CELL);
     oC.width = cols; oC.height = R;
     ox.clearRect(0, 0, cols, R);
     ox.fillStyle = '#fff';
-    ox.textAlign = 'left';
-    ox.textBaseline = 'middle';
-    ox.font = FONT;                         /* resizing the canvas resets it */
-    for (var L = 0; L < lines.length; L++) ox.fillText(lines[L], 2, rows * L + rows / 2);
+    if (L.logo) {
+      ox.setTransform(cols / e.logo.w, 0, 0, R / e.logo.h, 0, 0);
+      e.logo.paths.forEach(function (d) { ox.fill(new Path2D(d)); });
+      ox.setTransform(1, 0, 0, 1, 0, 0);
+    } else {
+      ox.textAlign = 'left'; ox.textBaseline = 'middle';
+      ox.font = '700 ' + (L.rows * 0.98) + 'px ' + MONO;
+      for (var k = 0; k < L.lines.length; k++) ox.fillText(L.lines[k], 2, L.rows * k + L.rows / 2);
+    }
     var data = ox.getImageData(0, 0, cols, R).data;
-
-    var capH = cap ? 36 : 0;
-    var w = cols * CELL, h = R * CELL + capH;
-    gC.width = Math.round(w * dpr); gC.height = Math.round(h * dpr);
-    gC.style.width = w + 'px'; gC.style.height = h + 'px';
-    gx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    gx.clearRect(0, 0, w, h);
     gx.fillStyle = 'rgba(234,234,234,' + ALPHA.toFixed(3) + ')';
     var r = CELL * 0.34;
     for (var y = 0; y < R; y++) {
       for (var x = 0; x < cols; x++) {
-        if (data[(y * cols + x) * 4 + 3] < 110) continue;   /* coverage, as the head */
+        if (data[(y * cols + x) * 4 + 3] < 110) continue;
         gx.beginPath();
         gx.arc(x * CELL + CELL / 2, y * CELL + CELL / 2, r, 0, 6.2832);
         gx.fill();
       }
     }
+  }
+
+  window.__projGhostPaint = function (txt, gC, gx, oC, ox, MONO) {
+    var idx = Math.max(0, Math.min(LEDGER.length - 1, (parseInt(txt, 10) || 1) - 1));
+    var e = LEDGER[idx];
+    var cap = e.unit;
+    var dpr = window.devicePixelRatio || 1;
+    var L = layout(e, ox, MONO);
+
+    /* the 2D canvas carries the figure's box and the caption under it */
+    var capH = cap ? 36 : 0;
+    var w = L.w, h = L.h + capH;
+    gC.width = Math.round(w * dpr); gC.height = Math.round(h * dpr);
+    gC.style.width = w + 'px'; gC.style.height = h + 'px';
+    gx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    gx.clearRect(0, 0, w, h);
+
+    if (!ledC && window.__led && gC.parentNode) {
+      var wrap = document.createElement('div');
+      wrap.className = 'ghost-fig';
+      gC.parentNode.insertBefore(wrap, gC);
+      wrap.appendChild(gC);
+      ledC = document.createElement('canvas');
+      ledC.className = 'ghost-led';
+      wrap.appendChild(ledC);
+      ghostEl = wrap.parentNode;
+      try { led = window.__led.make(ledC); led.onrestore = drawFig; }
+      catch (err) { led = null; ledC.parentNode.removeChild(ledC); ledC = null; }
+    }
+
+    if (led) {
+      ledC.style.width = L.w + 'px';
+      ledC.style.height = L.h + 'px';
+      ledC.style.opacity = String(LED_ALPHA);
+      /* the figure as a painter: the renderer draws it straight at the
+         resolution it samples, whatever size the box is */
+      figPaint = function (fx, pw, ph) {
+        fx.fillStyle = '#fff';
+        if (L.logo) {
+          fx.setTransform(pw / e.logo.w, 0, 0, ph / e.logo.h, 0, 0);
+          e.logo.paths.forEach(function (p) { fx.fill(new Path2D(p)); });
+        } else {
+          var c = pw / L.cols;                  /* one layout cell at this resolution */
+          fx.textAlign = 'left'; fx.textBaseline = 'middle';
+          fx.font = '700 ' + (L.rows * 0.98 * c) + 'px ' + MONO;
+          for (var k = 0; k < L.lines.length; k++) fx.fillText(L.lines[k], 2 * c, (L.rows * k + L.rows / 2) * c);
+        }
+      };
+      figId = idx + 1;
+      if (txt !== figTxt) {
+        figTxt = txt;
+        if (figStop) { figStop(); figStop = null; }
+        if (window.__led.reduced) { figRev = 1; drawFig(); }
+        else { figRev = 0; drawFig(); if (!pending) { pending = true; requestAnimationFrame(waitVisible); } }
+      } else {
+        drawFig();
+      }
+    } else {
+      paintMatrix(e, L, gx, oC, ox, MONO);
+    }
+
     if (cap) {
       gx.fillStyle = 'rgba(234,234,234,' + CAP_ALPHA.toFixed(2) + ')';
       gx.textAlign = 'center';
       gx.textBaseline = 'alphabetic';
-      try { gx.letterSpacing = '0.18em'; } catch (e) { /* Chrome 99+ */ }
+      try { gx.letterSpacing = '0.18em'; } catch (err) { /* Chrome 99+ */ }
       gx.font = '11px ' + MONO;
-      gx.fillText(cap.toUpperCase(), w / 2, R * CELL + 24);
+      gx.fillText(cap.toUpperCase(), w / 2, L.h + 24);
     }
+  };
+
+  /* read-only hook for the tests */
+  window.__projLedgerFig = {
+    canvas: function () { return ledC; },
+    rev: function () { return figRev; },
+    txt: function () { return figTxt; }
   };
 
   var shedCv = null, shedCtx = null, offC = null, offX = null;
@@ -272,7 +386,8 @@
 
   /* the phone corridor's own small ghost carries the same decision */
   window.__projGhostText = function (i) {
-    return LEDGER[Math.max(0, Math.min(LEDGER.length - 1, i))].fig;
+    var e = LEDGER[Math.max(0, Math.min(LEDGER.length - 1, i))];
+    return e.label || e.fig;
   };
 
   /* ---- the index rows carry the same figure the slide does ---- */

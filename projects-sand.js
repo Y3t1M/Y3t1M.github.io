@@ -78,7 +78,7 @@
   if (!document.documentElement.classList.contains('fx')) return;
 
   var COARSE = window.matchMedia('(pointer: coarse)').matches;
-  var OPACITY = COARSE ? 0.17 : 0.29;
+  var OPACITY = COARSE ? 0.17 : 0.25;   /* 0.29 -> 0.25 (Hudson, 2026-09-16: "dimmed a little") */
   var NR = 12;                           /* live rects the sand pass sees */
   var NRF = 6;                           /* the field pass only ever sees the moving plates */
   var VREF = 900;                        /* px/s that counts as full speed */
