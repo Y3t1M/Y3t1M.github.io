@@ -999,6 +999,12 @@ html.fx .sc-ghost {
   font-size: 0;
 }
 html.fx .sc-ghost canvas { display: block; }
+/* once the corridor lets go, the bed fades out above the contact band
+   instead of ending in a straight cut */
+html.fx .sc-stage.released #proj-sand {
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 96px), transparent);
+          mask-image: linear-gradient(to bottom, #000 calc(100% - 96px), transparent);
+}
 /* the figure's LED dots (projects-ledger.js) sit over its caption canvas */
 .ghost-fig { position: relative; line-height: 0; }
 html.fx .sc-ghost .ghost-led { position: absolute; left: 0; top: 0; pointer-events: none; }
@@ -1278,10 +1284,12 @@ html.js:not(.pt-fail) .pt-word { visibility: hidden; }
 /* The corridor's runway now ends with slide 06 seated, so the contact band
    has to follow it immediately: the 112px section gap put half a viewport of
    nothing between the last project and the next thing to do. */
-html.fx body.proj-page .contact-band { margin-top: 0; }
-/* the plain flow (phones) has no corridor to hand over from: the last card
-   and the contact band need air between them */
-html:not(.fx) body.proj-page .contact-band { margin-top: 56px; }
+html.fx body.proj-page .contact-band { margin-top: 0; margin-bottom: 40px; }
+/* the plain flow (phones) has no corridor to hand over from. The project
+   cards sit 24px apart; the contact card takes a little more on both sides,
+   so it reads as the next section and never rests on the footer's rule
+   (Hudson, 2026-09-16: "too wide from the top and still touches the bottom") */
+html:not(.fx) body.proj-page .contact-band { margin-top: 32px; margin-bottom: 32px; }
 /* and the footer's gap too: everything below the corridor is tail that the
    released stage scrolls up by, and past about 300px of it slide 06 is pushed
    off the top before the document runs out. */

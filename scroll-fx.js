@@ -491,6 +491,7 @@
       /* how far the pinned stage has been carried up past its release, as the
          contact band follows the corridor */
       var over = Math.max(0, (stageH || window.innerHeight) - r.bottom);
+      stage.classList.toggle('released', over > 0);
       var p = Math.max(0, Math.min(1, -r.top / RUNWAY));
       sp += (p - sp) * 0.085;
 
