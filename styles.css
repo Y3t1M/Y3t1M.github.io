@@ -1563,6 +1563,34 @@ html.sand-glass body:not(.blueprint) .case:hover {
   border-color: rgba(255, 255, 255, 0.22);
 }
 
+/* Drawn frost (projects-frost.js). Firefox and Safari do not blur behind the
+   corridor's 3D slides, so there each card's glass is a canvas the script
+   paints with the blurred sand and figure plus the tint above. It lies under
+   the card's content (z-index -1 in the slide), and the card itself goes
+   clear. html.frost is only set once the first frost has been painted. */
+.card-frost { display: none; }
+html.frost body:not(.blueprint) #showcase .sc-slide .card-frost {
+  display: block;
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;
+}
+html.frost body:not(.blueprint) #showcase .sc-slide .case-sm { position: relative; }
+html.frost body:not(.blueprint) #showcase .sc-slide .case-sm > .card-frost {
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+}
+html.frost body:not(.blueprint) #showcase .sc-slide .case,
+html.frost body:not(.blueprint) #showcase .sc-slide .case:hover,
+html.frost body:not(.blueprint) #showcase .sc-slide .case-sm {
+  background: transparent;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
 /* Mouse spotlight */
 #mouse-spotlight {
   position: fixed;

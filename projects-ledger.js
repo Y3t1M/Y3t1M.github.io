@@ -223,9 +223,10 @@
     }
   };
 
-  /* read-only hook for the tests */
+  /* read-only hooks for the tests and for the cards' frost */
   window.__projLedgerFig = {
     canvas: function () { return ledC; },
+    led: function () { return led; },          /* projects-frost.js copies the figure through it */
     rev: function () { return figRev; },
     txt: function () { return figTxt; }
   };

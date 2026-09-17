@@ -176,6 +176,7 @@
       var pr = gl.createProgram();
       gl.attachShader(pr, sh(gl, gl.VERTEX_SHADER, VS));
       gl.attachShader(pr, sh(gl, gl.FRAGMENT_SHADER, FS));
+      gl.bindAttribLocation(pr, 0, 'p');      /* projects-frost.js draws on attribute 0 */
       gl.linkProgram(pr);
       if (!gl.getProgramParameter(pr, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(pr));
       gl.useProgram(pr);
@@ -192,7 +193,7 @@
       gl.uniform1i(U.uTex, 0);
       gl.uniform3f(U.uInk, 0.918, 0.918, 0.918);
       gl.uniform1f(U.uAA, 0.75);
-      r.gl = gl; r.U = U; r.key = ''; r.lost = false;
+      r.gl = gl; r.U = U; r.prog = pr; r.key = ''; r.lost = false;
     }
     init();
     canvas.addEventListener('webglcontextlost', function (e) { e.preventDefault(); r.lost = true; });
