@@ -278,7 +278,12 @@
     if (!window.__led) { fallback(v); return; }
     try { v.r = make(canvas); } catch (e) { fallback(v); return; }
     v.r.onrestore = function () { draw(v); };
-    v.src.onload = function () { v.ready = true; draw(v); };
+    v.src.onload = function () {
+      v.ready = true;
+      /* the card arrived before its picture: the wave waits for the picture,
+         or a slow connection would see it simply pop in, the clock long spent */
+      if (v.wantPlay) { v.wantPlay = false; play(v); } else draw(v);
+    };
     v.src.onerror = function () { fallback(v); };
     v.src.src = img.getAttribute('data-dots');
     views.push(v);
@@ -296,8 +301,11 @@
     v.playing = true;
     v.stop = reveal(function (rev) { v.rev = rev; if (rev >= 1) v.playing = false; draw(v); });
   }
-  function onStage(v) { v.seen = true; breathe(); if (v.armed && !v.dead) { v.armed = false; play(v); } }
-  function offStage(v) { v.seen = false; if (!v.playing && !v.dead) { v.armed = true; v.rev = 0; draw(v); } }
+  function onStage(v) {
+    v.seen = true; breathe();
+    if (v.armed && !v.dead) { v.armed = false; if (v.ready) play(v); else v.wantPlay = true; }
+  }
+  function offStage(v) { v.seen = false; v.wantPlay = false; if (!v.playing && !v.dead) { v.armed = true; v.rev = 0; draw(v); } }
 
   /* the breath: one loop for every photo on screen, and none when none is */
   var breathing = false, lastBreath = 0;
