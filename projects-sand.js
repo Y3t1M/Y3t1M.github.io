@@ -17,8 +17,9 @@
    static per-pixel jitter, the same pow threshold, monochrome #eaeaea
    carried on alpha, and the same drift clock
      noise2d(st) = snoise01(st.x + t*0.025, st.y - t*0.035 + seed)
-   running at TIME_SCALE 1. That is why the corridor's bed reads as the
-   same sand as the home page's and not as a second effect.
+   running at a quarter of the home page's speed (Hudson's pick, 2026-09-19).
+   That is why the corridor's bed reads as the same sand as the home page's
+   and not as a second effect.
 
    Three pieces:
      · the BED — the still grain, evaluated per pixel per frame (one
@@ -74,11 +75,17 @@
   if (!document.documentElement.classList.contains('fx')) return;
   /* cards over this bed are the same smoke glass as the home page's */
   document.documentElement.classList.add('sand-glass');
+  /* Firefox and Safari do not blur behind the corridor's 3D slides, so their
+     glass shows the grain sharp; there the glass is denser (styles.css) */
+  if (!/(Chrome|Chromium)\//.test(navigator.userAgent)) document.documentElement.classList.add('glass-flat');
 
   var COARSE = window.matchMedia('(pointer: coarse)').matches;
   /* 0.29 -> 0.25 (Hudson, 2026-09-16: "dimmed a little") -> 0.20 (2026-09-19:
-     "too pronounced on the projects page, a little dimmer") */
-  var OPACITY = COARSE ? 0.14 : 0.20;
+     "too pronounced on the projects page") -> 0.13 (same day, his pick in the
+     sand lab) */
+  var OPACITY = COARSE ? 0.09 : 0.13;
+  /* the bed drifts at a quarter of the home page's rate (his pick, same lab) */
+  var DRIFT = 0.25;
   var NR = 12;                           /* live rects the sand pass sees */
   var NRF = 6;                           /* the field pass only ever sees the moving plates */
   var VREF = 900;                        /* px/s that counts as full speed */
@@ -178,9 +185,9 @@
     '}',
     'float snoise01(vec2 v){ return 0.5 + 0.5 * snoise(v); }',
     /* THE DRIFT. sand.js's own motion lives on this line and nowhere else:
-       0.025 along x, -0.035 along y, per second, at TIME_SCALE 1. uTf is the
-       corridor's own running second hand, so the corridor's grain is in the
-       same weather as the home page's. */
+       0.025 along x, -0.035 along y, per second of uTf. uTf is the corridor's
+       own second hand at a quarter speed (DRIFT), so the corridor's grain
+       moves the home page's way, only slower. */
     'float noise2d(vec2 st){ return snoise01(vec2(st.x + uTf*0.025, st.y - uTf*0.035 + uSeed)); }',
     /* THE WEAVE. A fine diagonal at 30 degrees, weak anisotropy, a deep domain
        warp and a hard threshold: sparse, curdled, punchy grain. The gain is
@@ -786,10 +793,11 @@
     D.steps++;
   }
 
-  /* THE BED'S CLOCK: the corridor's own second hand, in seconds, at TIME_SCALE
-     1 — the home page's rate exactly, and like the home page it is not gated on
-     prefers-reduced-motion (ambient background texture, not parallax). */
-  function grainClock() { return (latest ? latest.t : performance.now() / 1000) + clock0; }
+  /* THE BED'S CLOCK: the corridor's own second hand, in seconds, at DRIFT times
+     the home page's rate (Hudson, 2026-09-19, from the sand lab: "0.25x today").
+     Like the home page it is not gated on prefers-reduced-motion (ambient
+     background texture, not parallax). */
+  function grainClock() { return (latest ? latest.t : performance.now() / 1000) * DRIFT + clock0; }
 
   function drawWake(quiet) {
     gl.useProgram(wakeProg);

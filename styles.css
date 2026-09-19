@@ -1545,6 +1545,17 @@ html.sand-glass body:not(.blueprint) .case:hover {
   background: rgba(26, 26, 26, 0.48);
   border-color: rgba(255, 255, 255, 0.22);
 }
+/* Firefox and Safari: no blur behind the corridor's 3D slides, so the grain
+   shows through the glass sharp and the cards read as busy (Hudson,
+   2026-09-19, on Firefox: "a little less transparent or else it gets visually
+   very over stimulating"). There the corridor's glass is denser. */
+html.glass-flat body:not(.blueprint) #showcase .sc-slide .case,
+html.glass-flat body:not(.blueprint) #showcase .sc-slide .case-sm {
+  background: rgba(14, 14, 14, 0.72);
+}
+html.glass-flat body:not(.blueprint) #showcase .sc-slide .case:hover {
+  background: rgba(20, 20, 20, 0.78);
+}
 
 /* Mouse spotlight */
 #mouse-spotlight {
