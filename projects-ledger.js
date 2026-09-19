@@ -11,8 +11,8 @@
    project's own headline RESULT with its unit under it, drawn as an
    LED dot matrix at the same 8 px pitch as the head's marquee, so the
    background figure is made of the same grain as everything else on
-   the page; every index row carries the same figure; and the bare
-   01 / 06 survives only in the counter, where it is navigation.
+   the page; and the bare 01 / 06 survives in the counter and the
+   index rows, where it is navigation.
 
    THE ROWS SHED. The index rows are part of the head, so they leave
    with it: scroll the head away and each row comes apart into grain
@@ -223,10 +223,9 @@
     }
   };
 
-  /* read-only hooks for the tests and for the cards' frost */
+  /* read-only hooks for the tests */
   window.__projLedgerFig = {
     canvas: function () { return ledC; },
-    led: function () { return led; },          /* projects-frost.js copies the figure through it */
     rev: function () { return figRev; },
     txt: function () { return figTxt; }
   };
@@ -402,18 +401,9 @@
     return e.label || e.fig;
   };
 
-  /* ---- the index rows carry the same figure the slide does ---- */
-  function decorateIndex() {
-    var btns = document.querySelectorAll('#proj-index li button');
-    for (var i = 0; i < btns.length; i++) {
-      if (btns[i].querySelector('.nfig') || !LEDGER[i]) continue;
-      var sp = document.createElement('span');
-      sp.className = 'nfig';
-      sp.textContent = LEDGER[i].row;
-      btns[i].insertBefore(sp, btns[i].querySelector('.arr') || null);
-    }
-  }
-  decorateIndex();
+  /* The index rows used to carry each slide's figure on the right ("700+
+     locations", "0 uploads"...); Hudson, 2026-09-19: just the number and the
+     title. LEDGER[i].row is kept as the row's own name for that figure. */
   /* the phone HUD's ghost is built by scroll-fx before this module exists */
   var mg = document.querySelector('.sc-mghost');
   if (mg) mg.textContent = window.__projGhostText(0);

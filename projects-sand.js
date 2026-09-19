@@ -825,9 +825,6 @@
     if (!gl) return;
     /* nothing to see while the stage is off screen (above the head, below the exit) */
     if (fr.stage.top > window.innerHeight || fr.stage.top + fr.stage.h < 0) return;
-    /* the cards' frost (projects-frost.js) reads this canvas's LAST frame,
-       before this one is drawn over it */
-    if (window.__frost) window.__frost(fr);
     draw(true);
   };
 
@@ -854,10 +851,6 @@
     canvas: canvas,
     seamCanvas: seamCv,
     diag: D,
-    /* for projects-frost.js: the context and the state it has to put back */
-    frostSrc: function () {
-      return gl ? { gl: gl, prog: wakeProg, unit: gl.TEXTURE1, mode: gl.TRIANGLES, count: 3 } : null;
-    },
     frames: function () { return D.frames; },
     clock: function () { return +grainClock().toFixed(4); },
     state: function () {
