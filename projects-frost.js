@@ -16,7 +16,7 @@
    The blur is cheap because it is mostly size. The sand and the figure are
    WebGL, and copying a whole WebGL canvas into a 2D one reads every pixel
    back. So each source shrinks ITS OWN last frame to 1/16 on its own GPU
-   (two 4x4 box passes) and only that tiny image is read back: every 80 ms for
+   (two 4x4 box passes) and only that tiny image is read back: every 120 ms for
    the sand, and for the figure only while it is changing. A small blur on
    the CPU and the browser's smooth upscale do the rest. Without the corridor
    (phones), in Chromium, or if any of this fails, nothing here runs and the
@@ -31,7 +31,7 @@
   if (/(Chrome|Chromium)\//.test(navigator.userAgent) && !window.__frostForce) return;
 
   var CELL = 4;                          /* CSS px per frost texel on the card */
-  var SAND_MS = 80;                      /* how stale the sand's copy may get */
+  var SAND_MS = 120;                     /* how stale the sand's copy may get */
   var FIG_MS = 80;
   var TINT = 'rgba(18, 18, 18, 0.40)';   /* the smoke glass, as styles.css has it */
   var TINT_HOVER = 'rgba(26, 26, 26, 0.48)';

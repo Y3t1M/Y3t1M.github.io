@@ -8,6 +8,12 @@
   const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
   const lerp  = (a, b, t)   => a + (b - a) * t;
   const isTouchOnly = () => !window.matchMedia('(hover: hover)').matches;
+  /* styles.css retires the grain and the constellation with display:none, but
+     their loops kept running underneath: the grain rebuilt a full-screen
+     random image every 80 ms (1.3M pixels in JS, a burst of main-thread work
+     several times a second that the scroll felt as hitches) and the particles
+     redrew every frame. A canvas nobody can see does no work. */
+  const shown = el => getComputedStyle(el).display !== 'none';
 
   /* ================================================================
      GRAIN / NOISE OVERLAY  (subtle animated film grain)
@@ -20,6 +26,7 @@
     grainCanvas.width  = window.innerWidth;
     grainCanvas.height = window.innerHeight;
   }
+  if (shown(grainCanvas)) {
   resizeGrain();
   window.addEventListener('resize', resizeGrain);
   (function drawGrain() {
@@ -33,6 +40,7 @@
     grainCtx.putImageData(img, 0, 0);
     setTimeout(drawGrain, 80);
   })();
+  }
 
   /* ================================================================
      1. INTERACTIVE PARTICLE NETWORK CANVAS
@@ -155,7 +163,7 @@
     drawEdges();
     requestAnimationFrame(tickParticles);
   }
-  tickParticles();
+  if (shown(canvas)) tickParticles();
 
 
   /* ================================================================

@@ -24,28 +24,24 @@
      · the BED — the still grain, evaluated per pixel per frame (one
        pattern() a pixel, exactly the home page's cost) in four
        thresholded copies of ONE field: bed / packed / rarefied /
-       packed hard. Every density change downstream is a blend of
-       those AFTER the threshold, so sand is added and removed as
-       whole grains and nothing can speckle.
-     · the FIELD — a persistent sand-height map (16-bit in two bytes,
-       ping-pong framebuffers, one texel per 2 CSS px) that decays
-       toward the bed level, diffuses, and takes each moving plate's
-       disturbance every frame. Never stamped: a continuous function
-       of time, which is what lets a lane stay open behind a plate and
-       close from its edges inward.
-     · LIVE terms — everything spatial derives from ONE rounded-rect
-       signed distance per plate (14 px, the cards' own radius) and its
-       analytic outward normal, so ahead / behind / abeam all fall out
-       of dot(normal, motion) and nothing can seam at a corner.
+       packed hard, blended AFTER the threshold so the entry adds and
+       removes whole grains and nothing can speckle.
+     · the FIELD — a persistent displacement map (two 16-bit numbers in
+       four bytes, ping-pong framebuffers, one texel per 2 CSS px): how
+       far the sand at each point has been pushed. The bed is drawn from
+       where each grain came from, so the sand you see moving is the sand
+       that was there.
+     · the PUSH — a soft box round each moving plate whose gradient
+       points out of every edge and turns smoothly round the corners.
 
-   THE PLOUGH. A plate parts a MOVING medium rather than shoving it:
-   the induced velocity field about a translating body, in the only two
-   vectors this shader has, is u = 2n(n.m) - m — forward at the bow,
-   aft along the sides, closing in astern — so the streamlines sweep
-   round the 14 px corners without a kink. The flow compresses and
-   brightens just off the leading edge, the field banks what is
-   displaced into ridges along the sides of the path, and the lane
-   astern closes back into the ambient drift over about three seconds.
+   THE PLOUGH. A moving plate shoves the bed out of its way: hardest
+   ahead of the bow, parting it to either side along the flanks, barely at
+   the stern. The field takes that push almost at once and lets it go over
+   about a second, so the sand is carried aside as a plate arrives and
+   flows back in behind it when it stops. Nothing is added or taken away
+   (Hudson, 2026-09-19: the old ridge-and-lane plough was "pushing random
+   sand that doesn't exist"); the push never folds the bed over itself, so
+   the grain stays intact while it moves.
 
    THE ENTRY. The bed is there from the first pixel of the page but
    shallow, and scrolling deepens it: more grain, more of it lit, all
@@ -53,7 +49,7 @@
    spatial, so it can never read as a band fixed in the page. The seam
    canvas above the stage evaluates the very same functions against the
    very same bed coordinates, which is what makes the two canvases meet
-   with no step.
+   with no step. It has its own GL context and draws itself.
 
    REDUCED MOTION. The ambient drift deliberately does not honour it —
    this is background texture, not parallax, and it is the same
@@ -80,7 +76,9 @@
   document.documentElement.classList.add('sand-glass');
 
   var COARSE = window.matchMedia('(pointer: coarse)').matches;
-  var OPACITY = COARSE ? 0.17 : 0.25;   /* 0.29 -> 0.25 (Hudson, 2026-09-16: "dimmed a little") */
+  /* 0.29 -> 0.25 (Hudson, 2026-09-16: "dimmed a little") -> 0.20 (2026-09-19:
+     "too pronounced on the projects page, a little dimmer") */
+  var OPACITY = COARSE ? 0.14 : 0.20;
   var NR = 12;                           /* live rects the sand pass sees */
   var NRF = 6;                           /* the field pass only ever sees the moving plates */
   var VREF = 900;                        /* px/s that counts as full speed */
@@ -95,7 +93,7 @@
   /* The corridor is at rest: stop stepping the FIELD. A settled displacement
      buffer recomputes the same numbers forever. The BED itself never stops —
      it drifts in the background the way the home page's does. */
-  var FIELD_REST = 3.2;
+  var FIELD_REST = 5.0;               /* the push relaxes over ~1.1 s: 1% is left by then */
   var REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   var canvas = document.createElement('canvas');
@@ -286,152 +284,102 @@
     '}'
   ].join('\n');
 
-  /* rounded-rect SDF (14 px corners, the cards' radius) and its outward normal */
-  var GEOM = [
-    'float sdRR(vec2 p, vec4 r){ vec2 hf = r.zw*0.5; vec2 q = abs(p - r.xy - hf) - hf + vec2(14.0); return length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - 14.0; }',
-    'vec2 nrmRR(vec2 p, vec4 r){',
-    '  vec2 c = r.xy + r.zw*0.5; vec2 d = p - c; vec2 q = abs(d) - (r.zw*0.5 - 14.0);',
-    '  if (max(q.x, q.y) > 0.0) return normalize(max(q, 0.0)) * sign(d + vec2(1e-4));',
-    '  return (q.x > q.y) ? vec2(sign(d.x + 1e-4), 0.0) : vec2(0.0, sign(d.y + 1e-4));',
+  /* THE PUSH: how far a moving plate shoves the sand at p, as a fraction of
+     its full push. A soft box (the plate's rect with logistic edges PW px wide)
+     has a gradient that points straight out of every edge and turns smoothly
+     round the corners; it is largest on the edge itself and fades both ways,
+     out into the bed and in under the glass. Its slope stays under 1 at full
+     push, so the bed is never folded over itself: grains are carried, not
+     smeared. The bow (the edge facing the motion) pushes hardest, the long
+     flanks part the sand to either side at 0.6 of that, and the stern barely
+     pushes (0.2), which is what lets the sand close in behind. */
+  var PUSH = [
+    'const float PW = 32.0;',
+    'vec2 pushAt(vec2 p, vec4 r, float dir){',
+    '  vec2 hs = r.zw * 0.5; vec2 d = p - (r.xy + hs);',
+    '  vec2 a = clamp((hs - abs(d)) / PW, -30.0, 30.0);',
+    '  vec2 s = 1.0 / (1.0 + exp(-a));',
+    '  vec2 g = 4.0 * vec2(s.y * s.x * (1.0 - s.x) * sign(d.x), s.x * s.y * (1.0 - s.y) * sign(d.y));',
+    '  float gm = length(g);',
+    '  if (gm < 1e-4) return vec2(0.0);',
+    '  float bow = dot(g / gm, vec2(dir, 0.0));',
+    '  return g * (0.6 + 0.4 * bow);',
     '}'
   ].join('\n');
 
-  /* the field's 16-bit fixed point in two bytes: h (sand height, 1 = the bed level) in [-1, 3] */
+  /* the push field: a displacement in CSS px (y down), x in RG and y in BA as
+     16-bit fixed point, each in [-UMAX, UMAX] */
   var PACK = [
+    'const float UMAX = 128.0;',
     'float dec16(vec2 v){ return (v.x * 65280.0 + v.y * 255.0) / 65535.0; }',
     'vec2 enc16(float x){ x = floor(clamp(x, 0.0, 1.0) * 65535.0 + 0.5); float hi = floor(x / 256.0); return vec2(hi, x - hi * 256.0) / 255.0; }',
-    'float decH(vec2 v){ return (dec16(v) - 0.5) * 4.0 + 1.0; }',
-    'vec2 encH(float h){ return enc16((h - 1.0) * 0.25 + 0.5); }'
+    'vec2 decU(vec4 c){ return (vec2(dec16(c.rg), dec16(c.ba)) * 2.0 - 1.0) * UMAX; }',
+    'vec4 encU(vec2 u){ u = u / (2.0 * UMAX) + 0.5; return vec4(enc16(u.x), enc16(u.y)); }'
   ].join('\n');
 
-  /* ---------------- the FIELD: sand height, decays, diffuses, takes the plates
-     One texel = 2 CSS px, in bed space. Every frame: diffuse (the ridges feed
-     the lane), relax toward the bed level (faster once shallow, so a lane
-     visibly closes from its edges inward), then let each moving plate write its
-     disturbance. uPF is (ridge gain, lane depth, band centre, band half-width);
-     these are absolute amounts, not ratios, because the card's own 1 px CSS
-     edge is a 23 level step and a displacement that only moves the bed by 2
-     levels loses the eye to it. -------------------------------------------- */
+  /* ---------------- the FIELD: where the sand has been pushed
+     One texel = FSCALE CSS px, in bed space, holding how far the sand there has
+     been moved. Every frame each moving plate sets a TARGET push around itself
+     (PUSHA px at full speed); the field takes it almost at once where the push
+     is growing (0.03 s: a plate crossing at speed is past any one spot within
+     a few frames) and goes back toward rest slowly everywhere else (1.1 s), so
+     sand is shoved aside as a plate arrives and flows back in behind it.
+     Nothing is ever added or taken away: the bed is only moved (Hudson,
+     2026-09-19: the plough was "pushing random sand that doesn't exist"). */
   var FS_FIELD = [
     'precision highp float;',
     'uniform sampler2D uPrev; uniform vec2 uFRes; uniform float uM; uniform float uDt; uniform float uFS;',
     'uniform vec4 uR[' + NRF + ']; uniform vec4 uRV[' + NRF + ']; uniform float uNR;',
-    'const vec4 uPF = vec4(1.15, 1.00, 18.0, 20.0);',
-    GEOM, PACK,
-    'float hAt(vec2 t){ return decH(texture2D(uPrev, (t + 0.5) / uFRes).rg); }',
+    'const float PUSHA = 56.0; const float UCAP = 80.0; const float TIN = 0.03; const float TOUT = 1.1;',
+    PUSH, PACK,
     'void main(){',
     '  vec2 t = floor(gl_FragCoord.xy);',
     '  vec2 pc = vec2((t.x + 0.5) * uFS - uM, (uFRes.y - t.y - 0.5) * uFS);',   /* bed-space CSS px, y down */
-    '  float h = hAt(t);',
-    '  float lap = hAt(t + vec2(1.0, 0.0)) + hAt(t - vec2(1.0, 0.0)) + hAt(t + vec2(0.0, 1.0)) + hAt(t - vec2(0.0, 1.0)) - 4.0 * h;',
-    /* the laplacian is per TEXEL, so a coarser field diffuses faster in CSS px;
-       scaling by (2/uFS)^2 keeps the physical spread where it was measured */
-    '  float kD = 9.0 * 4.0 / (uFS * uFS);',
-    '  h += min(0.24, kD * uDt) * lap;',
-    '  float e = h - 1.0;',
-    '  float rate = (1.0 + 1.5 * (1.0 - min(abs(e), 1.0))) / 1.3;',
-    '  h = 1.0 + e * exp(-rate * uDt);',
+    '  vec2 u = decU(texture2D(uPrev, (t + 0.5) / uFRes));',
+    '  vec2 tgt = vec2(0.0);',
     '  for (int i = 0; i < ' + NRF + '; i++) {',
     '    if (float(i) >= uNR) break;',
-    '    vec4 r = uR[i]; vec4 v = uRV[i];',
-    '    float s = v.y; float dir = v.z;',
-    '    if (s < 0.002) continue;',
-    '    float sd = sdRR(pc, r);',
-    '    vec2 n = nrmRR(pc, r);',
-    '    float dn = n.x * dir * smoothstep(-16.0, 0.0, sd);',
-    /* Every write is WEIGHTED by its own field, never a bare min() or max(): a
-       bare min(h, target) still says "at most the bed level" where the weight
-       is zero, which erases the lane this buffer exists to remember one frame
-       after it was dug. mix(h, min(h, target), w) does nothing where w is zero
-       and is linear in between.
-       The lane reaches further ASTERN than it does abeam (dn is -1 behind, 0 at
-       the sides), so what the hull opens is a channel that trails it rather
-       than a collar that surrounds it; and the ridge is banked along the SIDES
-       of the path, where dot(normal, motion) is near zero — a window, not a
-       half-space, or the band piles sand across the stretch the plate is about
-       to clear and the lane then refills from what it just banked. */
-    '    float w = 1.0 - smoothstep(-18.0, 10.0 + 22.0 * max(-dn, 0.0), sd);',
-    '    float x = (sd - uPF.z) / uPF.w;',
-    '    float band = exp(-x * x);',
-    '    float ws = smoothstep(-0.85, -0.25, dn) * (1.0 - smoothstep(0.25, 0.85, dn));',
-    '    float bow = max(dn, 0.0) * exp(-max(sd - 6.0, 0.0) / 36.0);',
-    '    float ridge = uPF.x * s * (band * ws + 0.45 * bow);',
-    '    h = mix(h, max(h, 1.0 + ridge), clamp(ridge, 0.0, 1.0));',
-    '    h = mix(h, min(h, 1.0 - uPF.y * s), w);',
+    '    vec4 v = uRV[i];',
+    '    if (v.y < 0.002) continue;',
+    '    tgt += pushAt(pc, uR[i], v.z) * (PUSHA * v.y);',
     '  }',
-    '  gl_FragColor = vec4(encH(h), enc16(0.5));',
+    '  float L = length(tgt);',
+    '  if (L > UCAP) tgt *= UCAP / L;',
+    '  float k = dot(tgt, tgt) > dot(u, u) ? TIN : TOUT;',
+    '  u += (tgt - u) * (1.0 - exp(-uDt / k));',
+    '  gl_FragColor = encU(u);',
     '}'
   ].join('\n');
 
-  /* ---------------- the SAND: bed x field x live terms ---------------- */
+  /* ---------------- the SAND on the stage: the bed, where it was pushed to ---- */
   var FS_WAKE = [
     'precision highp float;',
     'uniform sampler2D uField;',
     'uniform vec2 uRes; uniform float uPx; uniform vec2 uFRes; uniform float uM;',
     'uniform vec2 uStage; uniform float uQuiet; uniform float uFS;',
     'uniform float uTf; uniform float uSeed;',
-    'uniform vec4 uR[' + NR + ']; uniform vec4 uRV[' + NR + ']; uniform float uNR;',
-    /* (loose material gain, its length, what the field's height is worth as
-       density, the alpha gain) */
-    'const vec4 uPW = vec4(0.22, 150.0, 1.00, 0.80);',
-    NOISE, BEDGRAIN, ENT, GEOM, PACK,
-    'float hAt(vec2 t){ return decH(texture2D(uField, (t + 0.5) / uFRes).rg); }',
-    /* the field, bilinear by hand: its two bytes cannot be filtered by the sampler */
-    'float fieldH(vec2 b){',
+    NOISE, BEDGRAIN, ENT, PACK,
+    'vec2 uAt(vec2 t){ return decU(texture2D(uField, (t + 0.5) / uFRes)); }',
+    /* the field, bilinear by hand: its bytes cannot be filtered by the sampler */
+    'vec2 fieldU(vec2 b){',
     '  vec2 f = vec2((b.x + uM) / uFS, (uStage.y - b.y) / uFS) - 0.5;',
     '  vec2 i = floor(f); vec2 fr = f - i;',
-    '  float h00 = hAt(i), h10 = hAt(i + vec2(1.0, 0.0)), h01 = hAt(i + vec2(0.0, 1.0)), h11 = hAt(i + vec2(1.0, 1.0));',
-    '  return mix(mix(h00, h10, fr.x), mix(h01, h11, fr.x), fr.y);',
+    '  return mix(mix(uAt(i), uAt(i + vec2(1.0, 0.0)), fr.x), mix(uAt(i + vec2(0.0, 1.0)), uAt(i + vec2(1.0, 1.0)), fr.x), fr.y);',
     '}',
     'void main(){',
     '  vec2 st = gl_FragCoord.xy * uPx;',              /* stage CSS px, y up */
     '  vec2 uv = st / uStage;',
-    '  vec2 pc = vec2(st.x, uStage.y - st.y);',         /* y down: the rects live here */
+    '  vec2 pc = vec2(st.x, uStage.y - st.y);',         /* y down: the field lives here */
     '  vec2 asp = vec2(uStage.x / uStage.y, 1.0);',
     '  float mask = 1.0 - smoothstep(0.3, 1.1, distance(uv * asp, vec2(0.5, 0.5) * asp));',
-    '  mask = 0.55 + 0.45 * mask;',
-    '  float mk = 0.78 + 0.22 * mask;',                 /* the bed is laid evenly, whatever the flow does */
-    '  float live = 0.0, bank = 0.0, matl = 0.0; vec2 disp = vec2(0.0);',
-    '  if (uQuiet < 0.5) {',
-    '    for (int i = 0; i < ' + NR + '; i++) {',
-    '      if (float(i) >= uNR) break;',
-    '      vec4 r = uR[i]; vec4 v = uRV[i];',
-    '      float s = v.y; float dir = v.z;',
-    '      float sd = sdRR(pc, r);',
-    '      float sdo = max(sd, 0.0);',
-    '      float inside = smoothstep(-16.0, 0.0, sd);',   /* the normal only matters near and outside the edge */
-    '      bank = max(bank, exp(-sdo / 22.0) * (1.0 - s));',   /* a plate set down in sand */
-    '      if (s < 0.002) continue;',
-    '      vec2 n = nrmRR(pc, r);',
-    '      float dn = n.x * dir;',
-    '      float fa = max(dn, 0.0);',
-    /* THE STREAMLINES. The velocity a translating body induces in the medium
-       about it is a dipole, and in the only two vectors this shader has (n, the
-       analytic outward normal, and m, the plate's motion) that field is
-         u = 2 n (n.m) - m
-       Dead ahead (n = m) that is +m: the medium is shoved forward by the bow.
-       At the SIDES (n.m = 0) it is -m: the medium slips aft ALONG the hull,
-       which is the bend. Astern it is +m again, closing in behind. Its
-       magnitude is exactly 1 everywhere on the ring, so only its DIRECTION
-       turns, and it turns with n — the streamlines sweep round the 14 px
-       corners without a kink.
-       THE BOW WAVE. Where the streamlines converge the medium piles up, and
-       that is dead ahead. The ridges along the sides and the lane astern are
-       the FIELD's, because they have to persist to be a wake; matl is the loose
-       material a moving plate brings up around itself, so the pass has
-       something to clear. It is zero the moment the plate stops. */
-    '      float A = exp(-sdo / (24.0 + 32.0 * s));',
-    '      live += 0.80 * s * fa * A * inside;',
-    '      matl = max(matl, uPW.x * s * exp(-sdo / uPW.y) * smoothstep(-0.9, -0.1, dn));',
-    '      disp = (2.0 * n * dn - vec2(dir, 0.0)) * (s * 8.5 * exp(-sdo / 40.0)) * inside;',
-    '    }',
-    '  }',
-    '  float h = uQuiet > 0.5 ? 1.0 : fieldH(pc);',
-    '  vec2 bs = vec2(st.x + uM, st.y) - vec2(disp.x, -disp.y);',
+    '  float mk = 0.78 + 0.22 * (0.55 + 0.45 * mask);', /* the bed is laid evenly, whatever the flow does */
+    /* the sand seen here is the sand that was pushed here: read the bed where
+       it came from (the push is y down, the bed y up) */
+    '  vec2 u = uQuiet > 0.5 ? vec2(0.0) : fieldU(pc);',
+    '  vec2 bs = vec2(st.x + uM - u.x, st.y + u.y);',
     '  vec4 g4 = bedGrain(bs, uPx);',
     '  float sy = pc.y - uEntY;',
-    '  float densD = (h - 1.0) * uPW.z + live + matl;',
-    '  float a = bedA(g4, entDens(), densD, mk, bank) * entA();',
+    '  float a = bedA(g4, entDens(), 0.0, mk, 0.0) * entA();',
     '  a = max(a, entShed(sy, bs));',
     '  gl_FragColor = vec4(vec3(a), a);',
     '}'
@@ -443,18 +391,17 @@
      box, its BOTTOM edge exactly on the head's bottom edge, and evaluates the
      SAME bed at the continuing coordinates and the SAME entry against the same
      descent, so the two carry one field of grain with no step and no line where
-     they meet. The pixels come from the stage canvas's own GL buffer, copied
-     with drawImage (a GPU-side blit, not a readback). */
+     they meet. It has its own GL context and draws itself: it used to be drawn
+     through the stage's buffer and copied across with drawImage, which is a
+     GPU blit in Chromium but reads the whole stage canvas back every frame in
+     Firefox and Safari (Hudson, 2026-09-19: "unusable" on Firefox). */
   var FS_SEAM = [
     'precision highp float;',
     'uniform float uPx; uniform float uM; uniform vec2 uStage; uniform float uSeamH;',
-    'uniform float uSeamOff; uniform float uTf; uniform float uSeed;',
+    'uniform float uTf; uniform float uSeed;',
     NOISE, BEDGRAIN, ENT,
     'void main(){',
-    /* uSeamOff is this slice's offset from the seam canvas's BOTTOM edge in CSS
-       px: a head taller than the stage does not fit in one pass, so the seam is
-       drawn a slice at a time through the stage canvas's buffer. */
-    '  vec2 st = vec2(gl_FragCoord.x * uPx, gl_FragCoord.y * uPx + uSeamOff);',
+    '  vec2 st = gl_FragCoord.xy * uPx;',                 /* CSS px up from the seam canvas's bottom */
     '  vec2 pc = vec2(st.x, uSeamH - st.y);',             /* y down from the seam canvas top */
     '  float sy = -st.y;',                                /* px below the head bottom: negative here */
     '  vec2 bs = vec2(st.x + uM, uStage.y + st.y);',      /* the bed, continuing upward */
@@ -475,56 +422,60 @@
 
   var fieldProg = null, UF = {};
   var wakeProg = null, UW = {};
-  var seamProg = null, US = {};
   var seed = Math.random() * 100.0;
+  var clockSeed = null;
+  /* tests pin the weather so two builds can be compared frame for frame */
+  if (window.__sandFix) { seed = window.__sandFix.seed; clockSeed = window.__sandFix.clock0; }
 
-  function shader(type, src, tag) {
-    var sh = gl.createShader(type);
-    gl.shaderSource(sh, src);
-    gl.compileShader(sh);
-    if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) {
-      D.log += tag + ': ' + gl.getShaderInfoLog(sh) + ' ';
+  function shader(g, type, src, tag) {
+    var sh = g.createShader(type);
+    g.shaderSource(sh, src);
+    g.compileShader(sh);
+    if (!g.getShaderParameter(sh, g.COMPILE_STATUS)) {
+      D.log += tag + ': ' + g.getShaderInfoLog(sh) + ' ';
       return null;
     }
     return sh;
   }
-  function program(fsSrc, tag, names, arrays) {
-    var vs = shader(gl.VERTEX_SHADER, VS, tag + ' VS');
-    var fs = shader(gl.FRAGMENT_SHADER, fsSrc, tag + ' FS');
+  function program(g, fsSrc, tag, names, arrays) {
+    var vs = shader(g, g.VERTEX_SHADER, VS, tag + ' VS');
+    var fs = shader(g, g.FRAGMENT_SHADER, fsSrc, tag + ' FS');
     if (!vs || !fs) return null;
-    var p = gl.createProgram();
-    gl.attachShader(p, vs);
-    gl.attachShader(p, fs);
-    gl.bindAttribLocation(p, 0, 'p');
-    gl.linkProgram(p);
-    if (!gl.getProgramParameter(p, gl.LINK_STATUS)) { D.log += tag + ' LINK: ' + gl.getProgramInfoLog(p); return null; }
+    var p = g.createProgram();
+    g.attachShader(p, vs);
+    g.attachShader(p, fs);
+    g.bindAttribLocation(p, 0, 'p');
+    g.linkProgram(p);
+    if (!g.getProgramParameter(p, g.LINK_STATUS)) { D.log += tag + ' LINK: ' + g.getProgramInfoLog(p); return null; }
     var u = {};
-    names.forEach(function (n) { u[n] = gl.getUniformLocation(p, n); });
-    (arrays || []).forEach(function (n) { u[n] = gl.getUniformLocation(p, n + '[0]'); });
+    names.forEach(function (n) { u[n] = g.getUniformLocation(p, n); });
+    (arrays || []).forEach(function (n) { u[n] = g.getUniformLocation(p, n + '[0]'); });
     return { p: p, u: u };
   }
+  /* the one full-viewport triangle every pass draws, on attribute 0 */
+  function geometry(g) {
+    var b = g.createBuffer();
+    g.bindBuffer(g.ARRAY_BUFFER, b);
+    g.bufferData(g.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), g.STATIC_DRAW);
+    g.enableVertexAttribArray(0);
+    g.vertexAttribPointer(0, 2, g.FLOAT, false, 0, 0);
+  }
   if (gl) {
-    var P2 = program(FS_FIELD, 'field', ['uPrev', 'uFRes', 'uM', 'uDt', 'uNR', 'uFS'], ['uR', 'uRV']);
-    var P3 = program(FS_WAKE, 'wake', ['uField', 'uRes', 'uPx', 'uFRes', 'uM', 'uStage', 'uQuiet',
-                                       'uNR', 'uFS', 'uShed', 'uTf', 'uSeed', 'uEntP', 'uEntY'], ['uR', 'uRV']);
-    var P4 = program(FS_SEAM, 'seam', ['uPx', 'uM', 'uStage', 'uSeamH', 'uSeamOff', 'uShed',
-                                       'uTf', 'uSeed', 'uEntP', 'uEntY']);
-    if (!P2 || !P3 || !P4) { gl = null; fallback('shader-failed'); }
+    var P2 = program(gl, FS_FIELD, 'field', ['uPrev', 'uFRes', 'uM', 'uDt', 'uNR', 'uFS'], ['uR', 'uRV']);
+    var P3 = program(gl, FS_WAKE, 'wake', ['uField', 'uRes', 'uPx', 'uFRes', 'uM', 'uStage', 'uQuiet',
+                                           'uFS', 'uShed', 'uTf', 'uSeed', 'uEntP', 'uEntY']);
+    if (!P2 || !P3) { gl = null; fallback('shader-failed'); }
     else {
-      fieldProg = P2.p; UF = P2.u; wakeProg = P3.p; UW = P3.u; seamProg = P4.p; US = P4.u;
-      var buf = gl.createBuffer();
-      gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
-      gl.enableVertexAttribArray(0);
-      gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
-      gl.useProgram(wakeProg); gl.uniform1i(UW.uField, 1); gl.uniform1f(UW.uFS, FSCALE); gl.uniform1f(UW.uSeed, seed);
-      gl.useProgram(seamProg); gl.uniform1f(US.uSeed, seed);
+      fieldProg = P2.p; UF = P2.u; wakeProg = P3.p; UW = P3.u;
+      geometry(gl);
+      gl.useProgram(wakeProg); gl.uniform1i(UW.uField, 1);
+      gl.uniform1f(UW.uFS, FSCALE); gl.uniform1f(UW.uSeed, seed);
       gl.useProgram(fieldProg); gl.uniform1i(UF.uPrev, 1); gl.uniform1f(UF.uFS, FSCALE);
       D.mode = 'webgl';
     }
   }
 
-  /* ---------------- the two field buffers ---------------- */
+  /* ---------------- the two field buffers, and the stage's pattern ---------------- */
   var fieldTex = [null, null], fieldFbo = [null, null], fieldCur = 0, fw = 0, fh = 0;
   var MARGIN = 0;                         /* CSS px of bed either side of the stage */
   var bedW = 0, bedH = 0;                 /* the bed's nominal extent */
@@ -589,10 +540,12 @@
     gl.useProgram(fieldProg);
     gl.uniform2f(UF.uFRes, fw, fh);
     gl.uniform1f(UF.uM, MARGIN);
-    gl.useProgram(seamProg);
-    gl.uniform1f(US.uPx, 1 / dpr);
-    gl.uniform1f(US.uM, MARGIN);
-    gl.uniform2f(US.uStage, stageW, stageH);
+    if (sgl) {
+      sgl.useProgram(seamProg);
+      sgl.uniform1f(US.uPx, 1 / dpr);
+      sgl.uniform1f(US.uM, MARGIN);
+      sgl.uniform2f(US.uStage, stageW, stageH);
+    }
   }
 
   /* ---------------- sizing: the stage's own box ---------------- */
@@ -620,9 +573,23 @@
   seamCv.setAttribute('aria-hidden', 'true');
   seamCv.style.cssText = 'position:absolute;left:0;top:0;z-index:0;pointer-events:none;display:none;opacity:' + OPACITY.toFixed(3);
   if (projSec) projSec.insertBefore(seamCv, projSec.firstChild);
-  var seamCtx = seamCv.getContext('2d');
-  var seamImg = null, seamBuf = null, seamKey = '', seamWpx = 0, seamHpx = 0, seamH = 0;
-  var seamBlit = 0, ruleY = 0;        /* blit: 0 untried · 1 drawImage · 2 readPixels */
+  var seamKey = '', seamWpx = 0, seamHpx = 0, seamH = 0, ruleY = 0;
+  /* the seam's own context: it draws its bed itself, nothing is copied across */
+  var sgl = null, seamProg = null, US = {};
+  if (gl) {
+    sgl = seamCv.getContext('webgl', { alpha: true, premultipliedAlpha: true, antialias: false,
+                                       depth: false, stencil: false, preserveDrawingBuffer: false });
+    var S2 = sgl && program(sgl, FS_SEAM, 'seam', ['uPx', 'uM', 'uStage', 'uSeamH', 'uShed', 'uTf', 'uSeed',
+                                                   'uEntP', 'uEntY']);
+    if (!S2) { sgl = null; D.log += 'seam: no context '; }
+    else {
+      seamProg = S2.p; US = S2.u;
+      geometry(sgl);
+      sgl.useProgram(seamProg); sgl.uniform1f(US.uSeed, seed);
+      seamCv.addEventListener('webglcontextlost', function (e) { e.preventDefault(); });
+      seamCv.addEventListener('webglcontextrestored', function () { location.reload(); });
+    }
+  }
 
   /* the head's LAST rule, wherever it lands: that is where the crumble starts */
   function collectHead(sr) {
@@ -647,7 +614,7 @@
   function seamVisible(secTop) { return secTop > -2 && secTop - seamH < window.innerHeight; }
 
   function layoutSeam(force) {
-    if (!gl || !fieldTex[0]) return false;
+    if (!gl || !sgl || !fieldTex[0]) return false;
     var sr = sec.getBoundingClientRect();
     var pr = projSec.getBoundingClientRect();
     var str = stage.getBoundingClientRect();
@@ -676,66 +643,27 @@
     seamCv.style.width = Math.round(str.width) + 'px';
     seamCv.style.height = seamH + 'px';
     var nw = Math.max(2, Math.round(str.width * dpr)), nh = Math.max(2, Math.round(seamH * dpr));
-    if (nw !== seamWpx || nh !== seamHpx || !seamImg) {
+    if (nw !== seamWpx || nh !== seamHpx) {
       seamWpx = nw; seamHpx = nh;
       seamCv.width = nw; seamCv.height = nh;
-      seamImg = seamCtx.createImageData(nw, nh);
-      seamBuf = new Uint8Array(nw * nh * 4);
     }
     collectHead(sr);
     renderSeam();
     return true;
   }
 
-  /* one slice of the seam, drawn through the stage canvas's own buffer. GL
-     counts up from the bottom of its buffer and the canvas image counts down
-     from the top, which is exactly what flips each slice right side up. */
-  function seamSlice(offCss, hpx) {
-    gl.viewport(0, 0, seamWpx, hpx);
-    gl.uniform1f(US.uSeamOff, offCss);
-    gl.drawArrays(gl.TRIANGLES, 0, 3);
-    if (seamBlit === 2) {
-      gl.readPixels(0, 0, seamWpx, hpx, gl.RGBA, gl.UNSIGNED_BYTE, seamBuf);
-      var out = seamImg.data, dst0 = seamHpx - Math.round(offCss * dpr) - hpx;
-      for (var y = 0; y < hpx; y++) {
-        var src = (hpx - 1 - y) * seamWpx * 4, dst = (dst0 + y) * seamWpx * 4;
-        if (dst < 0) continue;
-        for (var x = 0; x < seamWpx; x++) {
-          out[dst + x * 4] = 255; out[dst + x * 4 + 1] = 255; out[dst + x * 4 + 2] = 255;
-          out[dst + x * 4 + 3] = seamBuf[src + x * 4 + 3];
-        }
-      }
-    } else {
-      seamCtx.drawImage(canvas, 0, canvas.height - hpx, seamWpx, hpx,
-                        0, seamHpx - Math.round(offCss * dpr) - hpx, seamWpx, hpx);
-    }
-  }
-
+  /* the seam's bed, straight into its own buffer */
   function renderSeam() {
-    if (!gl || !seamImg) return;
-    gl.useProgram(seamProg);
-    gl.uniform1f(US.uTf, grainClock());
-    gl.uniform1f(US.uSeamH, seamH);
-    gl.uniform1f(US.uShed, ruleY - seamH);      /* the rule, in the shared sy */
-    gl.uniform1f(US.uEntP, entP);
-    gl.uniform1f(US.uEntY, 0);
-    if (seamBlit !== 2) seamCtx.clearRect(0, 0, seamWpx, seamHpx);
-    var slice = Math.max(2, canvas.height);
-    for (var off = 0; off < seamHpx; off += slice) {
-      seamSlice(off / dpr, Math.min(slice, seamHpx - off));
-    }
-    if (seamBlit === 2) seamCtx.putImageData(seamImg, 0, 0);
-    gl.viewport(0, 0, canvas.width, canvas.height);
+    if (!sgl || !seamWpx) return;
+    sgl.viewport(0, 0, seamWpx, seamHpx);
+    sgl.useProgram(seamProg);
+    sgl.uniform1f(US.uTf, grainClock());
+    sgl.uniform1f(US.uSeamH, seamH);
+    sgl.uniform1f(US.uShed, ruleY - seamH);      /* the rule, in the shared sy */
+    sgl.uniform1f(US.uEntP, entP);
+    sgl.uniform1f(US.uEntY, 0);
+    sgl.drawArrays(sgl.TRIANGLES, 0, 3);
     D.seamRenders++;
-    /* once, on the first paint: did the blit actually land? A browser that will
-       not drawImage a WebGL canvas gets the readback path for the session. */
-    if (seamBlit === 0) {
-      seamBlit = 1;
-      var probe = seamCtx.getImageData(0, Math.max(0, seamHpx - 40), seamWpx, Math.min(40, seamHpx)).data;
-      var any = 0;
-      for (var i = 3; i < probe.length; i += 4) if (probe[i] > 0) { any = 1; break; }
-      if (!any) { seamBlit = 2; D.log += 'seam blit -> readback '; renderSeam(); }
-    }
   }
 
   /* ---------------- per-slide state (CPU side) ---------------- */
@@ -759,7 +687,7 @@
   var nRects = 0;
   /* the bed clock's ORIGIN: the corridor's own second hand is added to it every
      frame, so the page picks one weather to start from and then runs. */
-  var clock0 = Math.random() * 1000;
+  var clock0 = clockSeed !== null ? clockSeed : Math.random() * 1000;
   var edgeCut = -1;                        /* how far the cards' CSS edge is currently pulled back */
   /* the card's own edge, while its sand is being moved. The 1 px CSS edge is a
      23 level step against a bed the whole plough moves by 2 levels: it was the
@@ -872,8 +800,6 @@
     gl.uniform1f(UW.uEntP, entP);
     gl.uniform1f(UW.uEntY, divY);
     gl.uniform1f(UW.uShed, ruleY - seamH);
-    if (nRects) { gl.uniform4fv(UW.uR, view(rectData, nRects)); gl.uniform4fv(UW.uRV, view(rvData, nRects)); }
-    gl.uniform1f(UW.uNR, quiet ? 0 : nRects);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
   }
 
@@ -909,13 +835,14 @@
   else fallbackPaint();
 
   /* ---------------- diagnostics (read-only; the tests read pixels through these) ---- */
-  function readRegion(x, y, w, h) {
-    /* region in stage CSS px, y down -> device px, GL y up */
+  function readRegion(x, y, w, h, g, cv) {
+    /* region in the canvas's CSS px, y down -> device px, GL y up */
+    g = g || gl; cv = cv || canvas;
     var X = Math.max(0, Math.round(x * dpr)), Yt = Math.max(0, Math.round(y * dpr));
-    var Wd = Math.min(canvas.width - X, Math.round(w * dpr)), Hd = Math.min(canvas.height - Yt, Math.round(h * dpr));
+    var Wd = Math.min(cv.width - X, Math.round(w * dpr)), Hd = Math.min(cv.height - Yt, Math.round(h * dpr));
     if (Wd <= 0 || Hd <= 0) return null;
     var buf = new Uint8Array(Wd * Hd * 4);
-    gl.readPixels(X, canvas.height - (Yt + Hd), Wd, Hd, gl.RGBA, gl.UNSIGNED_BYTE, buf);
+    g.readPixels(X, cv.height - (Yt + Hd), Wd, Hd, g.RGBA, g.UNSIGNED_BYTE, buf);
     var out = new Uint8Array(Wd * Hd);
     for (var row = 0; row < Hd; row++) {
       var src = (Hd - 1 - row) * Wd;
@@ -934,12 +861,67 @@
     frames: function () { return D.frames; },
     clock: function () { return +grainClock().toFixed(4); },
     state: function () {
-      return { entP: +entP.toFixed(4), headRoom: headRoom, seamH: seamH, blit: seamBlit,
+      return { entP: +entP.toFixed(4), headRoom: headRoom, seamH: seamH, seam: sgl ? 'own-gl' : 'none',
                rest: +restT.toFixed(2), steps: D.steps, rects: nRects, reduced: REDUCED,
                field: [fw, fh], bed: [bedW, bedH], opacity: OPACITY };
     },
+    /* GPU cost of one stage frame (and of the seam), timed over n back-to-back
+       draws closed by a 1 px read: for measuring, never called by the page */
+    bench: function (n) {
+      if (!gl || !latest) return null;
+      var px = new Uint8Array(4), out = {};
+      gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, px);
+      var t0 = performance.now();
+      for (var i = 0; i < n; i++) drawWake(false);
+      gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, px);
+      out.stage = +((performance.now() - t0) / n).toFixed(3);
+      if (sgl && seamWpx) {
+        sgl.readPixels(0, 0, 1, 1, sgl.RGBA, sgl.UNSIGNED_BYTE, px);
+        t0 = performance.now();
+        for (i = 0; i < n; i++) renderSeam();
+        sgl.readPixels(0, 0, 1, 1, sgl.RGBA, sgl.UNSIGNED_BYTE, px);
+        out.seam = +((performance.now() - t0) / n).toFixed(3);
+      }
+      return out;
+    },
+    /* how far the sand at one stage point (CSS px, y down) has been pushed */
+    push: function (x, y) {
+      if (!gl || !fieldFbo[fieldCur]) return null;
+      var tx = Math.max(0, Math.min(fw - 1, Math.floor((x + MARGIN) / FSCALE)));
+      var ty = Math.max(0, Math.min(fh - 1, Math.floor(fh - y / FSCALE)));
+      var px = new Uint8Array(4);
+      gl.bindFramebuffer(gl.FRAMEBUFFER, fieldFbo[fieldCur]);
+      gl.readPixels(tx, ty, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, px);
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+      function dec(hi, lo) { return ((hi * 256 + lo) / 65535 * 2 - 1) * 128; }
+      return [+dec(px[0], px[1]).toFixed(2), +dec(px[2], px[3]).toFixed(2)];
+    },
+    /* the push field, decoded: every step-th texel as [x, y, ux, uy] in stage
+       CSS px (y down), for measuring how far and where the sand was moved */
+    field: function (step) {
+      if (!gl || !fieldFbo[fieldCur]) return null;
+      step = step || 4;
+      var buf = new Uint8Array(fw * fh * 4), out = [];
+      gl.bindFramebuffer(gl.FRAMEBUFFER, fieldFbo[fieldCur]);
+      gl.readPixels(0, 0, fw, fh, gl.RGBA, gl.UNSIGNED_BYTE, buf);
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+      function dec(hi, lo) { return ((hi * 256 + lo) / 65535 * 2 - 1) * 128; }
+      for (var ty = 0; ty < fh; ty += step) for (var tx = 0; tx < fw; tx += step) {
+        var o = (ty * fw + tx) * 4;
+        out.push([(tx + 0.5) * FSCALE - MARGIN, (fh - ty - 0.5) * FSCALE,
+                  +dec(buf[o], buf[o + 1]).toFixed(2), +dec(buf[o + 2], buf[o + 3]).toFixed(2)]);
+      }
+      return out;
+    },
     /* the alpha plane of a region of the stage canvas, row 0 = top */
     pixels: function (x, y, w, h) { return gl ? readRegion(x, y, w, h) : null; },
+    /* the same for the seam canvas (CSS px from its top), drawn fresh: its
+       buffer is not kept between frames */
+    seamPixels: function (x, y, w, h) {
+      if (!sgl || !seamWpx) return null;
+      renderSeam();
+      return readRegion(x, y, w, h, sgl, seamCv);
+    },
     /* and the same pixels with no plates and no field in them: the untouched
        bed at exactly this moment, which is what a disturbance is measured
        against now that the bed itself moves */
