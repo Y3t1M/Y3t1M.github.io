@@ -4,6 +4,32 @@
    (desktop.html / mac.html have their own stylesheets).
    ============================================================ */
 
+/* THE TYPE SHIPS WITH THE SITE. It used to be the system stack, which meant
+   San Francisco on a Mac, Segoe UI on Windows and something else again on
+   Linux: different letterforms, and weights like 750 and 650 rounding to
+   whatever that OS happened to have (Hudson, 2026-09-20: "different weights
+   and different bolds across different browsers and across different
+   operating systems. That's not what I want"). These two faces were picked by
+   measuring candidates against what Firefox on his Mac draws today — the
+   version he likes: Pretendard sits within 1% of San Francisco's widths and
+   x-height, and Noto Sans Mono within 1% of SF Mono's. Both are variable, so
+   every weight the site asks for is drawn, not rounded. Latin subsets, self
+   hosted, ~72 KB the pair. Licences sit beside them in assets/fonts. */
+@font-face {
+  font-family: 'Site Sans';
+  src: url(assets/fonts/site-sans-1.woff2) format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Site Mono';
+  src: url(assets/fonts/site-mono-1.woff2) format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   --bg:         #0b0b0b;
   /* The solid card colour, for pages without sand. Where the sand runs, the
@@ -21,8 +47,10 @@
   --accent2:    #bdbdbd;   /* soft white — labels, meta accents */
   --amber:      #ffb02e;
   --gold:       #c9a96e;   /* champagne — micro-accent only */
-  --font:       ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --font-mono:  ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --font:       'Site Sans', ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  /* the arrows the index rows and the Konami hint use are not in the mono
+     subset: they come from Site Sans, so they are the same everywhere too */
+  --font-mono:  'Site Mono', 'Site Sans', ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   --font-pixel: var(--font-mono); /* legacy var used by game styles */
   --page-width: 1080px;
   --section-gap: 112px;    /* between major sections */

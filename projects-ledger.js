@@ -223,6 +223,16 @@
     }
   };
 
+  /* The figures and the index rows are drawn as TEXT into canvases, so they
+     must be rasterised in the site's own face, not in whatever the browser
+     had ready first: redraw once the webfonts have loaded. */
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(function () {
+      figTxt = ''; shedKey = '';
+      if (window.__corridorRepaintGhost) window.__corridorRepaintGhost();
+    });
+  }
+
   /* read-only hooks for the tests */
   window.__projLedgerFig = {
     canvas: function () { return ledC; },
