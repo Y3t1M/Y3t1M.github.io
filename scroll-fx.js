@@ -84,19 +84,29 @@
   if (seps.length) {
     var sepObs = new IntersectionObserver(function (entries) {
       entries.forEach(function (e) { e.target._live = e.isIntersecting; });
+      wakeTick();
     }, { rootMargin: '60px' });
     seps.forEach(function (s) { sepObs.observe(s); });
   }
 
+  /* The loop sleeps once every card has eased onto its scroll position (and
+     no separator is on screen), and a scroll, a resize or the load re-measure
+     wakes it. It used to tick every frame forever, deriving the same --p. */
+  var ticking = false;
+  function wakeTick() { if (!ticking) { ticking = true; requestAnimationFrame(tick); } }
+
   function tick() {
     var scrollY = window.pageYOffset;
     var bottom = scrollY + vh;
+    var busy = false;
 
     for (var i = 0; i < items.length; i++) {
       var it = items[i];
       var p = (bottom - it.top) / (vh * 0.9 + it.h);
       p = Math.max(0, Math.min(1, p));
-      it.sp += (p - it.sp) * 0.14;
+      /* within a ten-thousandth the easing has arrived: land it exactly */
+      if (Math.abs(p - it.sp) > 1e-4) { it.sp += (p - it.sp) * 0.14; busy = true; }
+      else it.sp = p;
       var rounded = Math.round(it.sp * 500) / 500;
       if (rounded !== it.last) {
         it.last = rounded;
@@ -107,6 +117,7 @@
     for (var s = 0; s < seps.length; s++) {
       var sep = seps[s];
       if (!sep._live) continue;
+      busy = true;
       var chars = sep._chars;
       for (var c = 0; c < chars.length; c++) {
         if (Math.random() < 0.06) {
@@ -116,9 +127,13 @@
       }
     }
 
-    requestAnimationFrame(tick);
+    if (busy) requestAnimationFrame(tick);
+    else ticking = false;
   }
-  requestAnimationFrame(tick);
+  wakeTick();
+  window.addEventListener('scroll', wakeTick, { passive: true });
+  window.addEventListener('resize', wakeTick);
+  window.addEventListener('load', wakeTick);
 
 
   /* ---- the six project names, read off the slides themselves ---- */
@@ -486,7 +501,12 @@
       if (i >= 0 && i !== lastActive) window.scrollTo({ top: Math.round(stationY(i)), behavior: 'instant' });
     });
 
+    /* Chrome and Safari stop frames in a hidden tab; Firefox still runs them
+       about once a second, which redrew the corridor's sand for nobody. */
+    var scRaf = null;
     function scTick() {
+      scRaf = null;
+      if (document.hidden) return;
       var r = sec.getBoundingClientRect();
       /* how far the pinned stage has been carried up past its release, as the
          contact band follows the corridor */
@@ -603,9 +623,12 @@
         el.style.setProperty('--q', q.toFixed(3));
       }
       publishFrame(stage, slides, sp, u, active);
-      requestAnimationFrame(scTick);
+      scRaf = requestAnimationFrame(scTick);
     }
-    requestAnimationFrame(scTick);
+    scRaf = requestAnimationFrame(scTick);
+    document.addEventListener('visibilitychange', function () {
+      if (!document.hidden && !scRaf) scRaf = requestAnimationFrame(scTick);
+    });
 
     window.__corridor = {
       N: N,
