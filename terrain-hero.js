@@ -232,11 +232,19 @@
   }
 
   /* ---- render -------------------------------------------------------- */
+  /* One ink for every dot and grain; each one's strength rides on globalAlpha.
+     It used to build a new 'rgba(234,234,234,0.xyz)' string per dot, about
+     5000 a frame, which the canvas then had to parse, and the garbage kept
+     the collector busy. alpha8 lands on exactly the alpha that string gave:
+     three decimals, then the 8 bits a colour's alpha is stored in. */
+  var INK = 'rgb(234,234,234)';
+  function alpha8(a) { return Math.round(Math.round(a * 1000) * 255 / 1000) / 255; }
   var last = performance.now();
   function render(nowMs) {
     var t = nowMs / 1000, dt = Math.min(0.05, (nowMs - last) / 1000); last = nowMs;
     if (!W || !H) { resize(); if (!W || !H) return; }
     ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = INK;
 
     var tgt = (mx > -999) ? 1 : 0;
     str += (tgt - str) * 0.08;
@@ -394,7 +402,7 @@
             var shim = 0.55 + 0.45 * Math.sin(t * 1.7 + hk * 40);   /* shimmer like the sand, never blink */
             var gA = Math.min(0.9, a * 0.9 * mt * shim + 0.05 * mt);
             if (gA > 0.02) {
-              ctx.fillStyle = 'rgba(234,234,234,' + gA.toFixed(3) + ')';
+              ctx.globalAlpha = alpha8(gA);
               ctx.fillRect(x + Math.cos(gan) * grr, y + Math.sin(gan) * grr * 0.8 + mt * 4, 1, 1);
             }
           }
@@ -411,7 +419,7 @@
           nQ += 4;
           continue;
         }
-        ctx.fillStyle = 'rgba(234,234,234,' + a.toFixed(3) + ')';
+        ctx.globalAlpha = alpha8(a);
         ctx.fillRect(x - s2 / 2, y - s2 / 2, s2, s2);
       }
     }
