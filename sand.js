@@ -328,9 +328,11 @@
      quarter speed it read as lifeless rather than calm. The blocking boot
      animation still honours the setting; that one is a real event you can be
      held behind. */
-  /* 0.7 since 2026-09-30: Hudson, "the sand needs to be a little slower on the main home page". Only the
-     drift reads this clock (uT); the seam and the card banking are spatial, so nothing else changes. */
-  var TIME_SCALE = 0.7;
+  /* 0.5 since 2026-09-30 (half the original drift): Hudson, "the sand needs to be a little slower on the
+     main home page", then, after 0.7 earlier that day, "make sure the home pages sand gets slowed down a
+     bit". Only the drift reads this clock (uT); the seam and the card banking are spatial, so nothing
+     else changes. The projects page's bed is separate (projects-sand.js). */
+  var TIME_SCALE = 0.5;
   D.mode = 'webgl';
   /* cards turn to glass only once there is sand behind them to see; if this file never
      runs, they stay the old solid black instead of empty glass */
