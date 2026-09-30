@@ -64,8 +64,11 @@
     W = canvas.width  = window.innerWidth;
     H = canvas.height = window.innerHeight;
   }
-  resizeCanvas();
-  window.addEventListener('resize', resizeCanvas);
+  /* retired (display:none): no full-viewport backing store for it either */
+  if (shown(canvas)) {
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+  }
 
   document.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
   document.addEventListener('mouseleave', () => { mouse.x = -9999; mouse.y = -9999; });
@@ -423,15 +426,29 @@
   /* On a phone it shows once and, once you have scrolled, stays gone
      (Hudson, 2026-09-16: "i dont like that it comes back"). */
   let hintDone = false;
+  /* Once the cue has faded right out, its line stops breathing (styles.css,
+     .hint-idle): an infinite animation nobody could see kept the page
+     restyling every frame for as long as it was open. It breathes on the
+     moment the cue comes back. */
+  let hintFading = false;
   function syncHint() {
     if (!hintLive || hintDone) return;
     const away = window.scrollY > HINT_GONE_AT();
+    const was = scrollHint.classList.contains('hint-show');
     scrollHint.classList.toggle('hint-hide', away);
     scrollHint.classList.toggle('hint-show', !away);
+    if (!away) { scrollHint.classList.remove('hint-idle'); hintFading = false; }
+    else if (was) hintFading = true;                                  /* idles when the fade ends */
+    else if (!hintFading) scrollHint.classList.add('hint-idle');      /* never on screen: nothing to fade */
     if (away && coarse) hintDone = true;
   }
   window.addEventListener('scroll', syncHint, { passive: true });
   setTimeout(() => { hintLive = true; syncHint(); }, HINT_SHOW_MS);
+  scrollHint.addEventListener('transitionend', (e) => {
+    if (e.propertyName !== 'opacity' || !scrollHint.classList.contains('hint-hide')) return;
+    hintFading = false;
+    scrollHint.classList.add('hint-idle');
+  });
 
 
   /* ================================================================
