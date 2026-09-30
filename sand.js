@@ -227,11 +227,20 @@
   /* the hero's bottom edge in canvas space, every frame, like the card rects.
      Even on touch (where the rects are off) this is safe: the seam is a
      400 px soft ramp, so a few px of scroll lag cannot show. */
+  /* Above uTop - uPre the seam term is exactly zero, so every pixel up there
+     comes out transparent: at the top of the home page that is two thirds of
+     the screen, shaded for nothing every frame. The scissor keeps the draw to
+     the rows that can hold sand (one spare); the rest is the browser's own
+     clear between frames, the same transparent pixel the shader would write. */
+  var dprNow = 1;
   function pushSeam() {
     if (!heroEl) { gl.uniform1f(uTop, -1e5); return; }
     var top = heroEl.getBoundingClientRect().bottom - canvas.getBoundingClientRect().top;
     gl.uniform1f(uTop, top);
     D.seam = Math.round(top);                 /* ?diag=1 and the tests read where the seam is */
+    var rows = Math.ceil(canvas.height - (top - SEAM_PRE) * dprNow) + 1;
+    if (rows < canvas.height) { gl.enable(gl.SCISSOR_TEST); gl.scissor(0, 0, canvas.width, Math.max(1, rows)); }
+    else gl.disable(gl.SCISSOR_TEST);
   }
   gl.uniform1f(uSeed, Math.random() * 100.0);
 
@@ -287,7 +296,7 @@
     /* 1.5 everywhere: the earlier 1.0-on-touch experiment made each grain
        ~3 physical pixels on a 3x phone — chunky TV static, not sand. The
        dimmer mobile opacity above is the perf/readability lever instead. */
-    var dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+    var dpr = dprNow = Math.min(window.devicePixelRatio || 1, 1.5);
     /* size from the canvas's own CSS box, not innerWidth/innerHeight —
        on iOS the fixed-position box and innerHeight disagree depending
        on the toolbar state, which stretched the texture and shoved the
