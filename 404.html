@@ -108,6 +108,7 @@
       rows = Math.ceil(canvas.height / cell) + 1;
       faceCol = Math.round((cols - GW) / 2);
       faceRow = Math.round((canvas.height * 0.40) / cell - GH / 2);
+      drawnKey = '';                        /* the canvas was just cleared */
     }
     resize();
     window.addEventListener('resize', resize);
@@ -140,9 +141,8 @@
       return (x1 - x0) * (y1 - y0);
     }
 
+    var drawnKey = '';
     function draw(t) {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
       /* eyes: face-space float rects, tracked toward the cursor */
       var faceCx = (faceCol + GW / 2) * cell;
       var faceCy = (faceRow + GH / 2) * cell;
@@ -152,6 +152,13 @@
       eye.y += (ty - eye.y) * 0.14;
 
       var b = blinkAmount(t);
+      /* nothing has moved since the frame already on the canvas, so it is
+         still right (the eyes ease after the cursor forever: at a
+         ten-thousandth of a cell they have arrived) */
+      var key = eye.x.toFixed(4) + ' ' + eye.y.toFixed(4) + ' ' + b.toFixed(4);
+      if (key === drawnKey) return false;
+      drawnKey = key;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
       var eyeH = Math.max(0.5, 3.4 * (1 - b));
       var eyeW = 3.2;
       var eyeYbase = GH / 2 - 3.4 + (3.4 - eyeH) / 2 + eye.y * 0.9;
@@ -178,15 +185,28 @@
           ctx.fill();
         }
       }
+      return true;
     }
 
     if (reduced) { draw(1); return; }
-    var rafId = null;
-    function frame(ts) { draw(ts / 1000); rafId = requestAnimationFrame(frame); }
+    /* Frames only while something moves: the eyes easing after the cursor,
+       or a blink. At rest the loop sleeps until the cursor moves, the window
+       resizes or the next blink is due; it used to repaint every dot of the
+       matrix sixty times a second to show the same face. */
+    var rafId = null, blinkTimer = null;
+    function frame(ts) {
+      rafId = null;
+      if (draw(ts / 1000) || blinkStart >= 0) { rafId = requestAnimationFrame(frame); return; }
+      clearTimeout(blinkTimer);
+      blinkTimer = setTimeout(wake, Math.max(0, (nextBlink - ts / 1000) * 1000));
+    }
+    function wake() { if (!rafId && !document.hidden) rafId = requestAnimationFrame(frame); }
     rafId = requestAnimationFrame(frame);
+    document.addEventListener('pointermove', wake);
+    window.addEventListener('resize', wake);
     document.addEventListener('visibilitychange', function () {
-      if (document.hidden) { if (rafId) cancelAnimationFrame(rafId); rafId = null; }
-      else if (!rafId) rafId = requestAnimationFrame(frame);
+      if (document.hidden) { if (rafId) cancelAnimationFrame(rafId); rafId = null; clearTimeout(blinkTimer); }
+      else wake();
     });
   })();
   </script>
