@@ -1462,6 +1462,8 @@ html.fx body:not(.blueprint) .sc-slide .case-sm {
   /* a slow breath — at 1.6s this read as blinking */
   animation: scrollLineAnim 3.2s cubic-bezier(.45,0,.35,1) infinite;
 }
+/* faded right out (interactive.js adds .hint-idle): the breath waits, unseen */
+#scroll-hint.hint-idle .scroll-hint-line { animation-play-state: paused; }
 @keyframes scrollLineAnim {
   0%   { transform: scaleY(0); transform-origin: top; }
   42%  { transform: scaleY(1); transform-origin: top; }
