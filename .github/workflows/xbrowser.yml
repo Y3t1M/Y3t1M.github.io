@@ -1,0 +1,34 @@
+name: xbrowser
+on:
+  push:
+    branches: [ci/cross-browser]
+permissions:
+  contents: read
+jobs:
+  windows-firefox:
+    runs-on: windows-latest
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install Playwright and Firefox
+        run: |
+          npm install --no-audit --no-fund
+          npx playwright install firefox ffmpeg
+      - name: Flicker and scan-line checks on the live site, then live files vs the fix through one proxy
+        continue-on-error: true
+        env:
+          BASE_URL: https://hudsontinch.com
+          BROWSERS: firefox
+          ONLY: flicker,flicker-ab
+          OS_LABEL: windows
+          OUT: results
+        run: node xb.js
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: windows-firefox-results
+          path: results
+          retention-days: 14

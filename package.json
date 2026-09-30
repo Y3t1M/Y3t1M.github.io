@@ -1,0 +1,10 @@
+{
+  "name": "hudsontinch-xbrowser",
+  "private": true,
+  "description": "Cross-browser checks for hudsontinch.com (runs against the live site; no site files here)",
+  "scripts": { "test": "node xb.js" },
+  "dependencies": {
+    "playwright": "1.63.0",
+    "pngjs": "7.0.0"
+  }
+}
