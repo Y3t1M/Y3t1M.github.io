@@ -356,15 +356,16 @@
   }
 
   function drawShed(t) {
-    if (!shedRows || !shedCtx) return;
+    if (!shedRows || !shedCtx) return false;
     var CRb = window.__crumble;
     shedCtx.clearRect(0, 0, shedCv.width, shedCv.height);
-    var first = 0;
+    var first = 0, live = false;
     for (var i = 0; i < shedRows.length; i++) {
       var row = shedRows[i], k = rowK(row);
       if (i === 0) first = k;
       row.li.style.setProperty('--shed', k.toFixed(3));
       if (k <= 0.001 || k >= 0.999) continue;
+      live = true;
       var fade = 1 - Math.max(0, Math.min(1, (k - 0.82) / 0.18));
       /* the handover is quick: the DOM row fades out and the canvas fades in
          over the first eighth of the shed, which is twelve pixels of scroll,
@@ -407,16 +408,24 @@
     }
     var idx = document.getElementById('proj-index');
     if (idx) idx.style.setProperty('--shedTop', first.toFixed(3));
+    return live;
   }
 
+  /* A row's progress is a function of the scroll, so with no row part way
+     through its shed the canvas is already empty and stays that way: the loop
+     sleeps then, and a scroll or a resize wakes it. While a row is mid-shed it
+     draws every frame (its grains shimmer on the clock). It used to run every
+     frame for as long as the page was open, and on phones, where nothing sheds. */
   function shedTick(ts) {
-    shedRaf = requestAnimationFrame(shedTick);
+    shedRaf = null;
     buildShed();
     if (!shedRows) return;
-    drawShed(ts / 1000);
+    if (drawShed(ts / 1000)) shedRaf = requestAnimationFrame(shedTick);
   }
-  shedRaf = requestAnimationFrame(shedTick);
-  window.addEventListener('resize', function () { shedKey = ''; });
+  function shedWake() { if (FX && !shedRaf) shedRaf = requestAnimationFrame(shedTick); }
+  shedWake();
+  window.addEventListener('scroll', shedWake, { passive: true });
+  window.addEventListener('resize', function () { shedKey = ''; shedWake(); });
 
   /* the phone corridor's own small ghost carries the same decision */
   window.__projGhostText = function (i) {
