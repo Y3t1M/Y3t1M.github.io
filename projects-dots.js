@@ -3,19 +3,18 @@
    Hudson's Dot Lab pick, 2026-09-16: D3 LED + F1 Whole + M1 Reveal,
    pitch 3.7 px, contrast 1.5, silhouette 0.
 
-   One renderer, two users:
-   · window.__led — draws any source (a photo, a figure, a logo) as a grid
-     of same-size round dots, one per 3.7 CSS px cell, at the device's real
-     pixels; brightness carries the tone, with a faint glow, and a reveal
-     lights the dots in a diagonal wave. projects-ledger.js draws the big
-     figures behind the slides with it (Hudson: "the numbers behind need to
-     be in the same style as the image").
-   · the Hardware photos below. They used to be ASCII art baked into 1430 px
-     PNGs and shown at about a quarter of their size, so the characters
-     aliased into streaks (worst on phones), and the wide, short box cropped
-     the helmet's face. Now each is drawn whole, from a small greyscale+alpha
-     copy in assets/img/dots/ (the originals are the NeatFreak demo's pixel
-     inputs and stay untouched), and lights up when its card arrives.
+   The renderer draws a photo as a grid of same-size round dots, one per
+   3.7 CSS px cell, at the device's real pixels; brightness carries the
+   tone, with a faint glow, and a reveal lights the dots in a diagonal
+   wave. Its one user is the Hardware photos below. They used to be ASCII
+   art baked into 1430 px PNGs and shown at about a quarter of their size,
+   so the characters aliased into streaks (worst on phones), and the wide,
+   short box cropped the helmet's face. Now each is drawn whole, from a
+   small greyscale+alpha copy in assets/img/dots/ (the originals are the
+   NeatFreak demo's pixel inputs and stay untouched), and lights up when
+   its card arrives. (The big figures behind the slides were drawn here
+   too, 2026-09-16 to 2026-09-30; they are on the head's 8 px matrix now,
+   projects-ledger.js.)
 
    The <img> is a blank placeholder carrying data-dots (the source) and
    data-fallback (the baked render), so with JavaScript on the baked PNG is
@@ -87,30 +86,20 @@
   var mid = document.createElement('canvas');
   var midX = mid.getContext('2d');
 
-  /* src is either an image, framed whole in the box with a little air (the
-     photos), or a painter function(ctx, w, h) that draws a vector figure
-     straight into the box (the ledger's numbers and logo): no full-size
-     canvas is ever built for a figure, which kept the main thread busy on
-     every slide change. */
+  /* src is an image, framed whole in the box with a little air */
   function tone(src, W, H) {
     var pd = PITCH * dpr();
     var tw = Math.max(8, Math.ceil(W / pd * 2)), th = Math.max(8, Math.ceil(H / pd * 2));
-    var paint = typeof src === 'function';
-    var ss = paint ? 2 : 4;                       /* two steps: an area average, not a point sample */
+    var ss = 4;                                   /* two steps: an area average, not a point sample */
     var mw = tw * ss, mh = th * ss;
     mid.width = mw; mid.height = mh;
     midX.setTransform(1, 0, 0, 1, 0, 0);
     midX.clearRect(0, 0, mw, mh);
-    if (paint) {
-      src(midX, mw, mh);
-      midX.setTransform(1, 0, 0, 1, 0, 0);
-    } else {
-      var iw = src.naturalWidth || src.width, ih = src.naturalHeight || src.height;
-      var sc = Math.min(W / iw, H / ih) * FIT;
-      var dw = iw * sc, dh = ih * sc, dx = (W - dw) / 2, dy = (H - dh) / 2;
-      midX.imageSmoothingEnabled = true; midX.imageSmoothingQuality = 'high';
-      midX.drawImage(src, dx * mw / W, dy * mh / H, dw * mw / W, dh * mh / H);
-    }
+    var iw = src.naturalWidth || src.width, ih = src.naturalHeight || src.height;
+    var sc = Math.min(W / iw, H / ih) * FIT;
+    var dw = iw * sc, dh = ih * sc, dx = (W - dw) / 2, dy = (H - dh) / 2;
+    midX.imageSmoothingEnabled = true; midX.imageSmoothingQuality = 'high';
+    midX.drawImage(src, dx * mw / W, dy * mh / H, dw * mw / W, dh * mh / H);
     prep.width = tw; prep.height = th;
     prepX.clearRect(0, 0, tw, th);
     prepX.imageSmoothingEnabled = true; prepX.imageSmoothingQuality = 'high';
@@ -248,10 +237,6 @@
     return function () { stopped = true; };
   }
 
-  if (window.WebGLRenderingContext) {
-    window.__led = { make: make, reveal: reveal, pitch: PITCH, dpr: dpr, reduced: REDUCED };
-  }
-
   /* ================= the Hardware photos ================= */
   var imgs = Array.prototype.slice.call(document.querySelectorAll('#showcase .case-sm img[data-dots]'));
   var views = [];
@@ -275,7 +260,7 @@
     var v = { img: img, fallbackSrc: img.getAttribute('data-fallback'), wrap: wrap, canvas: canvas,
               src: new Image(), rev: REDUCED ? 1 : 0, armed: !REDUCED, playing: false, ready: false, dead: false, stop: null,
               seen: false };
-    if (!window.__led) { fallback(v); return; }
+    if (!window.WebGLRenderingContext) { fallback(v); return; }
     try { v.r = make(canvas); } catch (e) { fallback(v); return; }
     v.r.onrestore = function () { draw(v); };
     v.src.onload = function () {

@@ -1,17 +1,21 @@
 /* ============================================================
    THE HEAD — projects-marquee.js  (projects page only)
    LED MARQUEE
-   "Projects" in the same dot vocabulary as the corridor's ghost
-   numerals (scroll-fx.js paintGhost): draw the word once at ONE
-   PIXEL PER CELL, read that back, then light a dot for every cell
-   the glyph actually covers. Quantising to the grid is the point —
-   a CSS dot mask over live type punches holes through the strokes.
+   "Projects" as a dot matrix: draw the word once at ONE PIXEL PER
+   CELL, read that back, then light a dot for every cell the glyph
+   actually covers. Quantising to the grid is the point — a CSS dot
+   mask over live type punches holes through the strokes.
 
-   Two things the numerals do not do:
-   · a very slow per-dot shimmer, the sand's own breathing, never a blink;
+   The matrix itself (pitch, dot, ink, shimmer) is defined here ONCE, as
+   window.__matrix, and the corridor's giant figures (projects-ledger.js)
+   are drawn from it, so the head and the figures are one grain.
+
+   Two things stay the head's own:
    · the T4 Merge language from the hero seam — over the first 120 px of
      scroll the bottom rows loosen off the grid, shrink and shed 1 px
-     grains downward, so the head comes apart into sand as it leaves.
+     grains downward, so the head comes apart into sand as it leaves;
+   · the phone's finer, heavier grid (the figures exist only in the
+     desktop corridor).
    ============================================================ */
 (function () {
   'use strict';
@@ -26,11 +30,10 @@
   var cs = getComputedStyle(document.documentElement);
   var SANS = cs.getPropertyValue('--font').trim() || 'sans-serif';
 
-  /* the ghost numerals' vocabulary: dot radius 0.34 of the pitch, #eaeaea at
-     0.34 alpha. Their pitch is sized so a glyph is ~34 cells tall; a 143 px
-     title box at that ratio would be a 4 px pitch, which stops reading as an
-     LED sign, so the marquee uses the fixed 8 px pitch the mobile ghost uses
-     (styles.css, .sc-mghost mask-size). */
+  /* the vocabulary: a fixed 8 px pitch (a pitch scaled to the glyph, as the
+     old ghost numerals had, gave a 143 px title a 4 px grid, which stops
+     reading as an LED sign), dot radius 0.34 of the pitch, #eaeaea at 0.34
+     alpha. The corridor's figures are laid out on this same grid. */
   var PITCH = 8;
   var SHED_ROOM = 46;          /* canvas room below the grid for falling grains */
   var ALPHA = 0.34;
@@ -43,6 +46,23 @@
     var s = Math.sin(a * 127.1 + b * 311.7) * 43758.5453;
     return s - Math.floor(s);
   }
+
+  /* ── THE MATRIX ────────────────────────────────────────────────
+     The head's dot vocabulary, in one place. The corridor's figures
+     (projects-ledger.js) read it from here rather than copying the numbers,
+     so the two can never drift apart again (Hudson, 2026-09-30: the figures
+     must sit on "the dot matrix of the projects page"). The desktop grid;
+     the phone head's finer, heavier variant stays the head's own. */
+  var MX = window.__matrix = {
+    pitch: PITCH,              /* CSS px per cell */
+    radius: 0.34,              /* dot radius, as a fraction of the pitch */
+    alpha: ALPHA,              /* the ink at rest */
+    ink: '234,234,234',        /* #eaeaea */
+    threshold: 110,            /* a cell lights once the glyph covers it this much, of 255 */
+    frame: 0.042,              /* seconds between draws: ~24 fps, a shimmer, not a strobe */
+    /* very slow per-dot shimmer, like the sand: never a blink */
+    shimmer: function (cx, cy, t) { return 0.80 + 0.20 * Math.sin(t * 0.55 + hh(cx * 1.7 + 0.3, cy * 5.3) * 6.2832); }
+  };
 
   /* ── THE CRUMBLE ────────────────────────────────────────────────
      The head's own way of coming apart, lifted out of the draw loop so that
@@ -149,7 +169,7 @@
     var lit = [];
     for (var y = 0; y < rows; y++) {
       for (var x = 0; x < cols; x++) {
-        if (data[(y * cols + x) * 4 + 3] < 110) continue;   /* coverage, as the numerals */
+        if (data[(y * cols + x) * 4 + 3] < MX.threshold) continue;   /* coverage, as the figures */
         lit.push(y * cols + x);
       }
     }
@@ -177,16 +197,14 @@
 
     /* the head going away: the first 120 px of scroll */
     var mtAll = Math.max(0, Math.min(1, window.pageYOffset / 120));
-    var r = cell * (g.heavy ? 0.42 : 0.34);
+    var r = cell * (g.heavy ? 0.42 : MX.radius);
     var K = cell / PITCH;              /* crumble distances follow the pitch */
 
     for (var k = 0; k < g.lit.length; k++) {
       var idx = g.lit[k];
       var cy = (idx / g.cols) | 0, cx = idx % g.cols;
       var x = cx * cell + cell / 2, y = cy * cell + cell / 2;
-      var h1 = hh(cx * 1.7 + 0.3, cy * 5.3);
-      /* very slow shimmer, like the sand: never a blink */
-      var a = (g.heavy ? 0.46 : ALPHA) * (0.80 + 0.20 * Math.sin(t * 0.55 + h1 * 6.2832));
+      var a = (g.heavy ? 0.46 : MX.alpha) * MX.shimmer(cx, cy, t);
       var rr = r;
 
       /* MERGE — bottom rows first, exactly the hero's T4 language */
@@ -212,7 +230,7 @@
         if (a < 0.015) continue;
       }
 
-      ctx.fillStyle = 'rgba(234,234,234,' + a.toFixed(3) + ')';
+      ctx.fillStyle = 'rgba(' + MX.ink + ',' + a.toFixed(3) + ')';
       ctx.beginPath();
       ctx.arc(x, y, rr, 0, 6.2832);
       ctx.fill();
@@ -232,7 +250,7 @@
     rafId = requestAnimationFrame(frame);
     if (dirty) { dirty = false; build(); }
     var t = ts / 1000;
-    if (t - last < 0.042) return;        /* ~24 fps: a shimmer, not a strobe */
+    if (t - last < MX.frame) return;     /* ~24 fps: a shimmer, not a strobe */
     last = t;
     draw(t);
   }

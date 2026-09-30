@@ -1036,10 +1036,6 @@ html.fx .sc-stage.released #proj-sand {
   -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 96px), transparent);
           mask-image: linear-gradient(to bottom, #000 calc(100% - 96px), transparent);
 }
-/* the figure's LED dots (projects-ledger.js) sit over its caption canvas */
-.ghost-fig { position: relative; line-height: 0; }
-html.fx .sc-ghost .ghost-led { position: absolute; left: 0; top: 0; pointer-events: none; }
-
 /* The Hardware photos as live LED dots (projects-dots.js, Hudson's Dot Lab
    pick D3 + F1 + M1). The <img> keeps its box, border and alt text and turns
    into a blank placeholder; the dots draw over it, a pixel short of its

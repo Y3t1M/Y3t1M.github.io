@@ -8,11 +8,12 @@
 
    This makes them one system, and says what the number MEANS rather
    than only restyling it. The figure behind each slide is that
-   project's own headline RESULT with its unit under it, drawn as an
-   LED dot matrix at the same 8 px pitch as the head's marquee, so the
-   background figure is made of the same grain as everything else on
-   the page; and the bare 01 / 06 survives in the counter and the
-   index rows, where it is navigation.
+   project's own headline RESULT with its unit under it, drawn on the
+   head marquee's own dot matrix (window.__matrix: the same 8 px pitch,
+   dot, ink and shimmer, from one definition), so the background figure
+   is made of the same grain as everything else on the page; and the
+   bare 01 / 06 survives in the counter and the index rows, where it is
+   navigation.
 
    THE ROWS SHED. The index rows are part of the head, so they leave
    with it: scroll the head away and each row comes apart into grain
@@ -26,9 +27,10 @@
 (function () {
   'use strict';
 
-  var PITCH = 8;                 /* the head marquee's pitch, shared exactly */
-  var ALPHA = 0.34;              /* and its dot alpha */
+  /* the head's matrix (projects-marquee.js): pitch, dot, ink, alpha, shimmer */
+  var MX = window.__matrix;
   var CAP_ALPHA = 0.42;          /* the unit is quieter than the figure, never faint */
+  var MONO = getComputedStyle(document.documentElement).getPropertyValue('--font-mono').trim() || 'monospace';
 
   /* The Sam's Club mark: just the <> of the 2020 wordmark (Hudson, 2026-09-16:
      "i just need the sams club <> not the words"), the two chevron shapes cut
@@ -55,46 +57,36 @@
   ];
 
   /* ---- the giant figure behind the slide ----
-     Drawn by the same LED renderer as the Hardware photos (projects-dots.js,
-     window.__led): 3.7 px dots, brightness with a faint glow, and the same
-     diagonal reveal each time a new figure arrives (Hudson, 2026-09-16: "the
-     numbers behind need to be in the same style as the image"). The figure
-     keeps the size and place it had as an 8 px matrix: the layout is still
-     measured in those cells, only the dots are finer. A logo entry is drawn
-     from its vector shapes the same way. Without WebGL it falls back to the
-     8 px matrix it replaced. */
-  var LED_ALPHA = 0.34;          /* about the ink the 8 px matrix put down, glow included */
-  var led = null, ledC = null, figPaint = null, ghostEl = null;
-  var figId = 0, figRev = 1, figStop = null, figTxt = '', pending = false;
+     Drawn on the head's own matrix, window.__matrix (projects-marquee.js):
+     the same 8 px pitch, the same round dot, the same ink, alpha and slow
+     shimmer, read from the one place the head defines them (Hudson,
+     2026-09-30: the figures must match "the dot matrix of the projects
+     page"). The glyphs are quantised the way the head's are, drawn once at
+     ONE PIXEL PER CELL and read back once, with a dot lit for every cell
+     they cover, so a stroke is always a continuous run of dots; a logo
+     entry is rasterised from its vector paths the same way, by each cell's
+     coverage. A figure arrives on the corridor's own fade between stations,
+     the way the head simply is: no wave, no glow, nothing on a clock but
+     the shimmer. */
+  var fig = null;                /* the built figure: { lit, cols, rows, w, h, cap, capY } */
+  var figC = null, figX = null, ghostEl = null, figTxt = '';
 
-  /* scroll-fx picks the new figure halfway between two slides, where it has
-     faded the ghost to nothing: the wave waits until the figure is actually
-     fading in, so it is seen whole, and no frame is drawn while it cannot be */
-  function ghostOpacity() {
-    var o = ghostEl ? parseFloat(ghostEl.style.opacity) : 1;
-    return isNaN(o) ? 1 : o;
-  }
-  function waitVisible() {
-    if (!pending) return;
-    if (ghostOpacity() > 0.05) {
-      pending = false;
-      figStop = window.__led.reveal(function (rev) {
-        figRev = rev;
-        if (rev >= 1 || ghostOpacity() > 0.01) drawFig();
-      });
-    } else {
-      requestAnimationFrame(waitVisible);
-    }
+  /* The figure and its caption are TEXT drawn into a canvas, so they wait for
+     the site's own face: nothing is drawn in a fallback face and then drawn
+     again once the webfont lands. load() resolves as soon as the preloaded
+     file is in, and rejects if it never will be, when the fallback is the
+     face there is. */
+  var PROBE = '700 64px ' + MONO;
+  var faceReady = !(document.fonts && document.fonts.check && document.fonts.load) || document.fonts.check(PROBE);
+  function repaint() { figTxt = ''; if (window.__corridorRepaintGhost) window.__corridorRepaintGhost(); }
+  if (!faceReady) {
+    document.fonts.load(PROBE).then(function () { faceReady = true; repaint(); },
+                                    function () { faceReady = true; repaint(); });
   }
 
-  function drawFig() {
-    if (!led || !figPaint) return;
-    try { led.draw(figPaint, figRev, figId); } catch (e) { /* a figure is never tainted; nothing to do */ }
-  }
-
-  function layout(e, ox, MONO) {
+  function layout(e, ox) {
     var size = Math.min(window.innerHeight * 0.56, window.innerWidth * 0.44);
-    var CELL = PITCH;
+    var CELL = MX.pitch;
     if (e.logo) {
       /* A mark gets the same box height a figure does, and sits centred in
          it, so its caption lands exactly where every other caption does,
@@ -112,8 +104,7 @@
     var fit = Math.floor(((window.innerWidth * 0.86) / CELL - 4) / (0.62 * longest.length));
     rows = Math.max(10, Math.min(rows, fit));
     if (lines.length > 1) rows = Math.max(10, Math.min(rows, Math.round(size / (CELL * lines.length))));
-    var font = '700 ' + (rows * 0.98) + 'px ' + MONO;
-    ox.font = font;
+    ox.font = '700 ' + (rows * 0.98) + 'px ' + MONO;
     var cols = 0;
     for (var q = 0; q < lines.length; q++) cols = Math.max(cols, Math.ceil(ox.measureText(lines[q]).width) + 4);
     cols = Math.min(1024, cols);
@@ -127,11 +118,11 @@
     lg.paths.forEach(function (d) { ctx.fill(new Path2D(d), lg.rule || 'nonzero'); });
   }
 
-  function paintMatrix(e, L, gx, oC, ox, MONO) {
-    /* the fallback: the 8 px matrix, one pixel per cell, lit where covered */
-    var CELL = PITCH, R = L.logo ? Math.round(L.h / CELL) : L.rows * L.lines.length;
+  /* one pixel per cell, read back once: the cells the figure covers */
+  function rasterise(e, L, oC, ox) {
+    var CELL = MX.pitch, R = L.logo ? Math.round(L.h / CELL) : L.rows * L.lines.length;
     var cols = Math.round(L.w / CELL);
-    oC.width = cols; oC.height = R;
+    oC.width = cols; oC.height = R;                 /* resets the context */
     ox.clearRect(0, 0, cols, R);
     ox.fillStyle = '#fff';
     if (L.logo) {
@@ -143,101 +134,123 @@
       for (var k = 0; k < L.lines.length; k++) ox.fillText(L.lines[k], 2, L.rows * k + L.rows / 2);
     }
     var data = ox.getImageData(0, 0, cols, R).data;
-    gx.fillStyle = 'rgba(234,234,234,' + ALPHA.toFixed(3) + ')';
-    var r = CELL * 0.34;
+    var lit = [];
     for (var y = 0; y < R; y++) {
       for (var x = 0; x < cols; x++) {
-        if (data[(y * cols + x) * 4 + 3] < 110) continue;
-        gx.beginPath();
-        gx.arc(x * CELL + CELL / 2, y * CELL + CELL / 2, r, 0, 6.2832);
-        gx.fill();
+        if (data[(y * cols + x) * 4 + 3] < MX.threshold) continue;   /* coverage, as the head */
+        lit.push(y * cols + x);
       }
     }
+    return { cols: cols, rows: R, lit: lit };
   }
 
-  window.__projGhostPaint = function (txt, gC, gx, oC, ox, MONO) {
-    var idx = Math.max(0, Math.min(LEDGER.length - 1, (parseInt(txt, 10) || 1) - 1));
-    var e = LEDGER[idx];
-    var cap = e.unit;
-    var dpr = window.devicePixelRatio || 1;
-    var L = layout(e, ox, MONO);
-
-    /* the 2D canvas carries the figure's box and the caption under it */
-    var capH = cap ? 36 : 0;
-    var w = L.w, h = L.h + capH;
-    gC.width = Math.round(w * dpr); gC.height = Math.round(h * dpr);
-    gC.style.width = w + 'px'; gC.style.height = h + 'px';
-    gx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    gx.clearRect(0, 0, w, h);
-
-    if (!ledC && window.__led && gC.parentNode) {
-      var wrap = document.createElement('div');
-      wrap.className = 'ghost-fig';
-      gC.parentNode.insertBefore(wrap, gC);
-      wrap.appendChild(gC);
-      ledC = document.createElement('canvas');
-      ledC.className = 'ghost-led';
-      wrap.appendChild(ledC);
-      ghostEl = wrap.parentNode;
-      try { led = window.__led.make(ledC); led.onrestore = drawFig; }
-      catch (err) { led = null; ledC.parentNode.removeChild(ledC); ledC = null; }
+  /* Every lit dot at the head's ink and its own shimmer. A figure is a few
+     thousand dots, so the dots on one shade go down as one path and one fill,
+     ninety-six shades from dark to full, rather than a fill per dot: the same
+     pixels (the dots never touch) for a fraction of the calls. */
+  var SHADES = 96;
+  function drawFig(t) {
+    var f = fig, gx = figX;
+    if (!f || !gx) return;
+    var cell = MX.pitch, r = cell * MX.radius;
+    var byShade = [], s, k;
+    for (k = 0; k < f.lit.length; k++) {
+      var idx = f.lit[k];
+      s = Math.round(MX.shimmer(idx % f.cols, (idx / f.cols) | 0, t) * (SHADES - 1));
+      (byShade[s] || (byShade[s] = [])).push(idx);
     }
-
-    if (led) {
-      ledC.style.width = L.w + 'px';
-      ledC.style.height = L.h + 'px';
-      ledC.style.opacity = String(LED_ALPHA);
-      /* the figure as a painter: the renderer draws it straight at the
-         resolution it samples, whatever size the box is */
-      figPaint = function (fx, pw, ph) {
-        fx.fillStyle = '#fff';
-        if (L.logo) {
-          fitLogo(fx, e.logo, pw, ph);
-        } else {
-          var c = pw / L.cols;                  /* one layout cell at this resolution */
-          fx.textAlign = 'left'; fx.textBaseline = 'middle';
-          fx.font = '700 ' + (L.rows * 0.98 * c) + 'px ' + MONO;
-          for (var k = 0; k < L.lines.length; k++) fx.fillText(L.lines[k], 2 * c, (L.rows * k + L.rows / 2) * c);
-        }
-      };
-      figId = idx + 1;
-      if (txt !== figTxt) {
-        figTxt = txt;
-        if (figStop) { figStop(); figStop = null; }
-        if (window.__led.reduced) { figRev = 1; drawFig(); }
-        else { figRev = 0; drawFig(); if (!pending) { pending = true; requestAnimationFrame(waitVisible); } }
-      } else {
-        drawFig();
+    gx.clearRect(0, 0, f.w, f.h);
+    for (s = 0; s < SHADES; s++) {
+      var dots = byShade[s];
+      if (!dots) continue;
+      gx.fillStyle = 'rgba(' + MX.ink + ',' + (MX.alpha * s / (SHADES - 1)).toFixed(3) + ')';
+      gx.beginPath();
+      for (k = 0; k < dots.length; k++) {
+        var x = (dots[k] % f.cols) * cell + cell / 2, y = ((dots[k] / f.cols) | 0) * cell + cell / 2;
+        gx.moveTo(x + r, y);
+        gx.arc(x, y, r, 0, 6.2832);
       }
-    } else {
-      paintMatrix(e, L, gx, oC, ox, MONO);
+      gx.fill();
     }
-
-    if (cap) {
-      gx.fillStyle = 'rgba(234,234,234,' + CAP_ALPHA.toFixed(2) + ')';
+    if (f.cap) {
+      gx.fillStyle = 'rgba(' + MX.ink + ',' + CAP_ALPHA.toFixed(2) + ')';
       gx.textAlign = 'center';
       gx.textBaseline = 'alphabetic';
       try { gx.letterSpacing = '0.18em'; } catch (err) { /* Chrome 99+ */ }
       gx.font = '11px ' + MONO;
-      gx.fillText(cap.toUpperCase(), w / 2, L.h + 24);
+      gx.fillText(f.cap, f.w / 2, f.capY);
     }
+  }
+
+  /* The shimmer's clock: a frame at the head's cadence while the figure can
+     be seen, and none while the tab is hidden, the corridor is off screen, or
+     scroll-fx has faded the ghost out between stations. Nothing here reads
+     layout: the ghost's opacity is the inline value scroll-fx writes. */
+  var figRaf = null, figLast = -1, onScreen = false;
+  function ghostOpacity() {
+    var o = ghostEl ? parseFloat(ghostEl.style.opacity) : 1;
+    return isNaN(o) ? 1 : o;
+  }
+  function frame(ts) {
+    figRaf = null;
+    if (!fig || !onScreen || document.hidden) return;
+    figRaf = requestAnimationFrame(frame);
+    var t = ts / 1000;
+    if (t - figLast < MX.frame || ghostOpacity() <= 0.001) return;
+    figLast = t;
+    drawFig(t);
+  }
+  function wake() { if (!figRaf && fig && onScreen && !document.hidden) figRaf = requestAnimationFrame(frame); }
+  function watch(c) {
+    if (!('IntersectionObserver' in window)) { onScreen = true; return; }
+    new IntersectionObserver(function (es) {
+      onScreen = es[es.length - 1].isIntersecting;
+      wake();
+    }, { rootMargin: '120px 0px' }).observe(c);
+  }
+  document.addEventListener('visibilitychange', wake);
+
+  /* scroll-fx hands over its ghost canvas, its one-pixel-per-cell scratch
+     canvas, the mono face (the same --font-mono read above) and the ghost
+     element; without the head's matrix it keeps its own bare numeral */
+  if (MX) window.__projGhostPaint = function (txt, gC, gx, oC, ox, mono, ghost) {
+    var idx = Math.max(0, Math.min(LEDGER.length - 1, (parseInt(txt, 10) || 1) - 1));
+    var e = LEDGER[idx];
+    if (gC !== figC) { figC = gC; figX = gx; ghostEl = ghost || gC.parentNode; watch(gC); }
+    figTxt = txt;
+    if (!faceReady) {              /* drawn once the face is in, never twice */
+      fig = null;
+      gx.setTransform(1, 0, 0, 1, 0, 0);
+      gx.clearRect(0, 0, gC.width, gC.height);
+      return;
+    }
+    var L = layout(e, ox);
+    var dpr = window.devicePixelRatio || 1;
+    var capH = e.unit ? 36 : 0;
+    var w = L.w, h = L.h + capH;
+    gC.width = Math.round(w * dpr); gC.height = Math.round(h * dpr);
+    gC.style.width = w + 'px'; gC.style.height = h + 'px';
+    gx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    var m = rasterise(e, L, oC, ox);
+    fig = { lit: m.lit, cols: m.cols, rows: m.rows, w: w, h: h,
+            cap: e.unit ? e.unit.toUpperCase() : '', capY: L.h + 24 };
+    drawFig(performance.now() / 1000);
+    wake();
   };
 
-  /* The figures and the index rows are drawn as TEXT into canvases, so they
-     must be rasterised in the site's own face, not in whatever the browser
-     had ready first: redraw once the webfonts have loaded. */
+  /* The index rows are drawn as TEXT into a canvas too, from the DOM rows'
+     own metrics: rebuild them once the webfonts have loaded. */
   if (document.fonts && document.fonts.ready) {
-    document.fonts.ready.then(function () {
-      figTxt = ''; shedKey = '';
-      if (window.__corridorRepaintGhost) window.__corridorRepaintGhost();
-    });
+    document.fonts.ready.then(function () { shedKey = ''; });
   }
 
   /* read-only hooks for the tests */
   window.__projLedgerFig = {
-    canvas: function () { return ledC; },
-    rev: function () { return figRev; },
-    txt: function () { return figTxt; }
+    canvas: function () { return figC; },
+    rev: function () { return 1; },          /* the figure arrives on the fade: always whole */
+    txt: function () { return figTxt; },
+    fig: function () { return fig ? { cols: fig.cols, rows: fig.rows, dots: fig.lit.length, pitch: MX.pitch } : null; },
+    running: function () { return !!figRaf; }
   };
 
   var shedCv = null, shedCtx = null, offC = null, offX = null;
