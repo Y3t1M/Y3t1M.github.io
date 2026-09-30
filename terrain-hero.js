@@ -19,6 +19,10 @@
    - a CLICK CASCADES: the pop, then echo rings rolling through
      in succession — applied after intensity scaling so it
      punches the same however quiet the wave is dialed
+   - the click SPLITS the light (his click colour lab pick,
+     2026-09-30: "A1 split · amount 81 · linger 44"): each ring
+     pulls the dots it crosses into red, green and blue along its
+     direction, and they come back to white behind it
    - a DRAG leaves a trace: a furrow the field heals over ~6s
      (his "+ trace" pick)
    - every 7-16s a SEAM sweeps through: a thin soft line of
@@ -60,9 +64,10 @@
 
   /* ---- the raster --------------------------------------------------- */
   var W = 0, H = 0, ROWS = 26, rows = [];
+  var qR = null, qG = null, qB = null;   /* the split dots' channel copies (see the render) */
   function build() {
     rows = [];
-    var horizon = H * 0.24;
+    var horizon = H * 0.24, total = 0;
     for (var ri = 0; ri < ROWS; ri++) {
       var z = ri / ROWS, zz = Math.pow(z, 1.6);
       var pitch = 9 + zz * 13;
@@ -79,7 +84,10 @@
       };
       for (var i = 0; i < n; i++) row.u[i] = (i + hh(ri, i) * 0.6) / n;
       rows.push(row);
+      total += n;
     }
+    /* one copy per channel per dot at most: x, y, size, alpha */
+    qR = new Float32Array(total * 4); qG = new Float32Array(total * 4); qB = new Float32Array(total * 4);
   }
   function resize() {
     var r = hero.getBoundingClientRect();
@@ -150,10 +158,78 @@
   hero.addEventListener('pointerdown', function (e) {
     /* real controls are off-limits — a click on Resume is a click on Resume */
     if (e.target.closest('a, button')) return;
-    var p = heroXY(e.clientX, e.clientY);
-    presses.push({ x: p[0], y: p[1], t: performance.now() / 1000 });
-    if (presses.length > 4) presses.shift();
+    var p = heroXY(e.clientX, e.clientY), now = performance.now() / 1000;
+    presses.push({ x: p[0], y: p[1], t: now, cut: 0, lit: true, split: false, popT: 0,
+                   R: [0, 0, 0], dec: [0, 0, 0], cw: [0, 0, 0], cpop: 0, cin: 0 });
+    /* four clicks carry light, as before. A fifth pushes the oldest out: its
+       white light stops at once, as it always has, and its split eases out
+       over SPLIT.cut instead of vanishing mid-colour. */
+    var lit = 0;
+    for (var k = presses.length - 1; k >= 0; k--) {
+      if (presses[k].cut) continue;
+      if (++lit > 4) presses[k].cut = now;
+    }
+    if (presses.length > 8) presses.splice(0, presses.length - 8);
   });
+
+  /* ---- the click's colour: A1 SPLIT ----------------------------------
+     Hudson's pick from the click colour lab, round 2 (2026-09-30):
+     "A1 split · amount 81 · linger 44". The ink stays white. Each echo
+     ring pulls the dots it crosses apart into red, green and blue along
+     the ring's direction (red outward, blue inward) and they snap back
+     behind it; the pop splits a little too, and the field just inside the
+     first ring stays slightly split for the linger. A dot's three channel
+     copies are drawn additively, so where they overlap they add back to
+     the ink: at zero split a dot is drawn exactly as before. Ported from
+     the lab with its tuning. */
+  var SPLIT = {
+    amount: 0.81, linger: 0.44,   /* his string                                      */
+    s: 1.25,      /* split at amount 100 on a ring's crest, in dot widths          */
+    pop: 0.6,     /* the pop's share                                               */
+    dec: 1.3,     /* how fast a ring's split relaxes, per second                   */
+    inner: 0.3,   /* the linger's share, just inside the first ring                */
+    att: 0.07,    /* s: every split eases in over this                             */
+    tail: 0.3,    /* the last fraction of a click's life: the split eases out      */
+    cut: 0.3,     /* s: a click pushed out by a fifth click eases out over this    */
+    eps: 0.05     /* px: a split smaller than this is drawn as the plain dot       */
+  };
+  var LIGHT_LIFE = 2.1;                                   /* a click's white light, as before */
+  var SETTLE = 0.12 + 1.3 * SPLIT.linger;                 /* s: how long the linger holds      */
+  var SPLIT_LIFE = Math.max(LIGHT_LIFE, 0.6 + 3 * SETTLE);   /* 2.68 s at linger 44           */
+  var ECHO_W = [1, 0.5625, 0.325];                        /* each echo's share of the split    */
+  /* additive copies stack alpha as well as light: each is lifted so the
+     three read as the plain dot over the hero's near-black */
+  var LIFT = 225 / 228;
+  window.__sandglow.split = SPLIT;
+  function ease(v) { return v <= 0 ? 0 : v >= 1 ? 1 : v * v * (3 - 2 * v); }
+  /* once per click per frame: the light's timing, as before, then the split's */
+  function prep(pp, nowS) {
+    var ca = nowS - pp.t, ei, cae;
+    pp.lit = !pp.cut && ca < LIGHT_LIFE;
+    pp.popT = Math.exp(-ca * 7);
+    for (ei = 0; ei < 3; ei++) {
+      cae = ca - CASCADE[ei][0];
+      pp.R[ei] = cae * 240;
+      pp.dec[ei] = Math.exp(-cae * 1.9);
+      pp.cw[ei] = 0;
+    }
+    var master = ease((SPLIT_LIFE - ca) / (SPLIT.tail * SPLIT_LIFE));
+    if (pp.cut) master *= 1 - ease((nowS - pp.cut) / SPLIT.cut);
+    pp.split = master > 0;
+    pp.cpop = 0; pp.cin = 0;
+    if (!pp.split) return;
+    var am = SPLIT.amount * master, a0 = ease(ca / SPLIT.att);
+    for (ei = 0; ei < 3; ei++) {
+      cae = ca - CASCADE[ei][0];
+      if (cae > 0) pp.cw[ei] = ECHO_W[ei] * Math.exp(-cae * SPLIT.dec) * ease(cae / SPLIT.att) * am;
+    }
+    pp.cpop = SPLIT.pop * am * a0;
+    pp.cin = SPLIT.inner * Math.exp(-ca / SETTLE) * am * a0;
+  }
+  function drawQ(q, n, style) {
+    ctx.fillStyle = style;
+    for (var j = 0; j < n; j += 4) { ctx.globalAlpha = q[j + 3]; ctx.fillRect(q[j], q[j + 1], q[j + 2], q[j + 2]); }
+  }
 
   /* ---- render -------------------------------------------------------- */
   var last = performance.now();
@@ -170,7 +246,12 @@
     }
     spd *= 0.94;
     var nowS = nowMs / 1000;
-    presses = presses.filter(function (p) { return nowS - p.t < 2.1; });
+    presses = presses.filter(function (p) {
+      if (nowS - p.t >= SPLIT_LIFE) return false;
+      return !(p.cut && nowS - p.cut >= SPLIT.cut);
+    });
+    var np = presses.length, nQ = 0;
+    for (var pi = 0; pi < np; pi++) prep(presses[pi], nowS);
     dents = dents.filter(function (dn) { return nowS - dn.t < 6.5; });
 
     /* the seam: every 7-16s a thin line of light sweeps through at a
@@ -197,6 +278,7 @@
       var row = rows[ri], zz = row.zz, y0 = row.y0;
       var flow = (0.0018 + zz * 0.0062) * (0.25 + P.drift * 1.5);
       var span = W + row.pitch * 2;
+      var kS = SPLIT.s * row.size;          /* this row's split per unit of ring, px */
       for (var i = 0; i < row.n; i++) {
         row.u[i] = (row.u[i] + flow * dt) % 1;
         var xb = row.u[i] * span - row.pitch;
@@ -255,18 +337,33 @@
         lvl += dentGlow * 0.30;
         lvl *= (0.35 + P.int * 0.9);
         /* the click CASCADE: the pop, then echo rings rolling through in
-           succession — each later, each softer. AFTER intensity scaling. */
-        for (var ci = 0; ci < presses.length; ci++) {
-          var cp = presses[ci], ca = nowS - cp.t;
+           succession, each later, each softer. AFTER intensity scaling.
+           The split rides the same rings: (ex, ey) is red's offset from
+           green, and blue takes the opposite. */
+        var ex = 0, ey = 0;
+        for (var ci = 0; ci < np; ci++) {
+          var cp = presses[ci];
+          if (!cp.lit && !cp.split) continue;
           var cdx = x - cp.x, cdy = y - cp.y;
           var cd2 = cdx * cdx + cdy * cdy;
-          lvl += Math.exp(-cd2 / 3200) * Math.exp(-ca * 7) * 1.15;
-          var cd = Math.sqrt(cd2);
-          for (var ei = 0; ei < CASCADE.length; ei++) {
-            var cae = ca - CASCADE[ei][0];
-            if (cae <= 0) continue;
-            lvl += Math.exp(-Math.pow(cd - cae * 240, 2) / 2600) * Math.exp(-cae * 1.9) * CASCADE[ei][1];
+          var wp = 0;
+          if (cp.lit) { wp = Math.exp(-cd2 / 3200) * cp.popT; lvl += wp * 1.15; }
+          var cd = Math.sqrt(cd2), eR = 0;
+          for (var ei = 0; ei < 3; ei++) {
+            if (!(cp.R[ei] > 0)) continue;
+            var dr = cd - cp.R[ei];
+            var shape = Math.exp(-dr * dr / 2600);
+            if (cp.lit) lvl += shape * cp.dec[ei] * CASCADE[ei][1];
+            eR += shape * shape * cp.cw[ei];
           }
+          if (!cp.split || cd <= 0.5) continue;
+          var ins = 0;
+          if (cp.cin > 0.0005) {
+            var sIn = (cp.R[0] + 30 - cd) / 60;
+            if (sIn > 0) ins = ease(sIn) * cp.cin;
+          }
+          var es = (eR + wp * cp.cpop + ins) * kS / cd;
+          ex += cdx * es; ey += cdy * es;
         }
         /* the seam, catching the wave as it crosses */
         if (streak) {
@@ -304,10 +401,30 @@
           a *= 1 - 0.72 * mt;                                    /* what is left of the dot fades */
           if (a < 0.015) continue;
         }
+        if (Math.abs(ex) + Math.abs(ey) >= SPLIT.eps) {
+          /* split: a copy per channel, queued for the one additive pass */
+          var al = a, sat = (225 * al + 9) / 255, hs = s2 / 2;
+          al *= LIFT; if (al > sat) al = sat;
+          qR[nQ] = x + ex - hs; qR[nQ + 1] = y + ey - hs; qR[nQ + 2] = s2; qR[nQ + 3] = al;
+          qG[nQ] = x - hs;      qG[nQ + 1] = y - hs;      qG[nQ + 2] = s2; qG[nQ + 3] = al;
+          qB[nQ] = x - ex - hs; qB[nQ + 1] = y - ey - hs; qB[nQ + 2] = s2; qB[nQ + 3] = al;
+          nQ += 4;
+          continue;
+        }
         ctx.fillStyle = 'rgba(234,234,234,' + a.toFixed(3) + ')';
         ctx.fillRect(x - s2 / 2, y - s2 / 2, s2, s2);
       }
     }
+    /* the split dots, in one additive pass: the composite mode switches once a frame */
+    if (nQ) {
+      ctx.globalCompositeOperation = 'lighter';
+      drawQ(qR, nQ, '#ff0000');
+      drawQ(qG, nQ, '#00ff00');
+      drawQ(qB, nQ, '#0000ff');
+      ctx.globalAlpha = 1;
+      ctx.globalCompositeOperation = 'source-over';
+    }
+    TD.split = nQ / 4;                     /* ?diag=1 and the tests read how many dots are split */
   }
 
   /* ---- run only while the hero can be seen (kept from the terrain) --- */
