@@ -42,6 +42,26 @@
   var grid = null;             /* { cell, cols, rows, lit:[i0,i1,...], w, h, dpr } */
   var lastKey = '';
 
+  /* THE FACE. The word is rasterised from the site's own face, so it waits
+     for it. Built before Site Sans had loaded, it came out in the fallback
+     (Segoe UI on Windows) and was built again a moment later in the real
+     face: the word changed shape as you arrived. The plain word is hidden
+     from first paint (html.js), so waiting simply leaves the title empty a
+     moment longer, then it arrives once, whole. A face that is slow to come
+     is waited for WAIT_MS at most: the fallback is drawn then, and replaced
+     when the face lands (it is part of the build key). */
+  var WAIT_MS = 1500;
+  function faceIn(weight) {
+    try { return !document.fonts || document.fonts.check(weight + ' 100px ' + SANS, WORD); } catch (e) { return true; }
+  }
+  var cut0 = window.matchMedia('(max-width: 700px)').matches ? '900' : '750';
+  var waiting = !faceIn(cut0) && !!document.fonts.load;
+  function faceReady() { waiting = false; remeasure(); }
+  if (waiting) {
+    document.fonts.load(cut0 + ' 100px ' + SANS, WORD).then(faceReady, faceReady);
+    setTimeout(faceReady, WAIT_MS);
+  }
+
   function hh(a, b) {          /* stable per dot hash: nothing may flicker */
     var s = Math.sin(a * 127.1 + b * 311.7) * 43758.5453;
     return s - Math.floor(s);
@@ -103,10 +123,6 @@
        taller than ~1.6 of its own font size. */
     var W = Math.max(80, Math.min(Math.round(box.width), window.innerWidth));
     var H = Math.max(40, Math.min(Math.round(box.height), Math.round(fs * 1.6)));
-    var dpr = window.devicePixelRatio || 1;
-    var key = W + 'x' + H + ':' + fs.toFixed(1) + ':' + dpr;
-    if (key === lastKey) return;
-    lastKey = key;
 
     /* Phones: at the desktop's 8 px pitch a phone-sized title is only 6 to 10
        rows, which cannot form "Projects" (Hudson, 2026-09-12: "the projects
@@ -127,6 +143,15 @@
     var HEAVY = window.matchMedia('(max-width: 700px)').matches;
     var TRACK = HEAVY ? '0.03em' : '-0.045em';
     var WEIGHT = HEAVY ? '900' : '750';
+    /* Rebuilt only when what the word is drawn from has changed: the box, the
+       size, the screen's pixels, the cut, or the site face arriving. A rebuild
+       resets the canvas, and rebuilding for nothing (on the window's load, and
+       on fonts.ready long after the face was in) was an empty title for a
+       frame or two on every arrival (Hudson, 2026-09-30: "the projects text
+       does this weird flicker jitter"). */
+    var dpr = window.devicePixelRatio || 1;
+    var key = W + 'x' + H + ':' + fs.toFixed(1) + ':' + dpr + ':' + WEIGHT + ':' + faceIn(WEIGHT);
+    if (key === lastKey) return false;
     var cell = PITCH;
     if (FINE) {
       octx.font = WEIGHT + ' 100px ' + SANS;
@@ -188,6 +213,8 @@
        title invisible on a browser that cannot give us a 2D context, or with
        JavaScript off entirely. */
     if (lit.length) document.documentElement.classList.add('pt-led');
+    lastKey = key;                        /* only once built: a build that threw is tried again */
+    return true;
   }
 
   function draw(t) {
@@ -244,18 +271,26 @@
      only when something can have changed its size, and the loop sleeps
      while the head is off screen or the tab is hidden. */
   var rafId = null, last = -1, onScreen = true, dirty = true;
+  /* The shimmer's own clock. It runs only while frames are drawn, so a tab
+     that was hidden, or a head scrolled away and back, carries on from the
+     frame it left instead of every dot jumping to a new brightness at once. */
+  var clock = 0, prevTs = -1;
   function frame(ts) {
     rafId = null;
-    if (!onScreen || document.hidden) return;
+    if (!onScreen || document.hidden) { prevTs = -1; return; }
     rafId = requestAnimationFrame(frame);
-    if (dirty) { dirty = false; build(); }
+    /* a rebuild clears the canvas, so it is always drawn in the same frame:
+       the ~24 fps throttle below used to skip that frame and show it empty */
+    if (dirty && !waiting) { dirty = false; if (build()) last = -1; }
+    if (prevTs >= 0) clock += Math.min(0.1, (ts - prevTs) / 1000);
+    prevTs = ts;
     var t = ts / 1000;
     if (t - last < MX.frame) return;     /* ~24 fps: a shimmer, not a strobe */
     last = t;
-    draw(t);
+    draw(clock);
   }
   function wake() { if (!rafId && onScreen && !document.hidden) rafId = requestAnimationFrame(frame); }
-  function remeasure() { lastKey = ''; dirty = true; wake(); }
+  function remeasure() { dirty = true; wake(); }
   window.addEventListener('resize', remeasure);
   window.addEventListener('load', remeasure);
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(remeasure);
@@ -270,7 +305,7 @@
 
   /* the corridor re-measures on resize; the head does too */
   window.__marquee = {
-    remeasure: function () { lastKey = ''; dirty = false; build(); draw(performance.now() / 1000); wake(); },
+    remeasure: function () { lastKey = ''; dirty = false; build(); draw(clock); wake(); },
     grid: function () { return grid; },
     canvas: canvas
   };

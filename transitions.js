@@ -55,6 +55,27 @@
   });
 
   /* ── the rule itself, ridden down the screen ─────────────────────── */
+  /* The sweep runs as compositor animations of transform, not as a frame
+     loop. The arriving page is at its busiest while it plays (every script,
+     the WebGL contexts, the title's first build), and a loop on the main
+     thread stalled with it: the rule jumped down the screen in steps, and
+     where a stall outlasted the 800 ms it finished unseen (Hudson,
+     2026-09-30: "the scan line on the page transition is choppy on mac and
+     also just straight up not there on windows versions of firefox"). Only
+     the readout beside the rule is text, so only it waits for the main
+     thread: a stall pauses the numbers, never the rule. */
+  var EASE = 'cubic-bezier(0.33, 1, 0.68, 1)';         /* 1 - (1 - p)^3, the curve the loop drew */
+  function ride(el, to, ms) {
+    return el.animate([{ transform: 'translateY(0)' }, { transform: 'translateY(' + to + ')' }],
+                      { duration: ms, easing: EASE, fill: 'forwards' });
+  }
+  function readout(tag, anim, H, ms) {
+    (function tick() {
+      var p = Math.min(1, Math.max(0, (anim.currentTime || 0) / ms));
+      tag.textContent = 'Y ' + String(Math.round((1 - Math.pow(1 - p, 3)) * H)).padStart(4, '0');
+      if (p < 1 && tag.isConnected) requestAnimationFrame(tick);
+    })();
+  }
   function sweepLine(ms) {
     var line = document.createElement('div');
     line.className = 'pt-scan-line';
@@ -62,18 +83,13 @@
     document.body.appendChild(line);
     var tag = line.firstChild;
     var H = window.innerHeight;
-    var t0 = null;
-    function frame(ts) {
-      if (!t0) t0 = ts;
-      var p = Math.min(1, (ts - t0) / ms);
-      var e2 = 1 - Math.pow(1 - p, 3);
-      line.style.transform = 'translateY(' + (e2 * H).toFixed(1) + 'px)';
-      tag.textContent = 'Y ' + String(Math.round(e2 * H)).padStart(4, '0');
-      if (p < 1) requestAnimationFrame(frame);
-      else line.remove();
-    }
-    requestAnimationFrame(frame);
-    setTimeout(function () { if (line.parentNode) line.remove(); }, ms + 600);
+    function done() { if (line.parentNode) line.remove(); }
+    if (!line.animate) { done(); return; }
+    var a = ride(line, H + 'px', ms);
+    readout(tag, a, H, ms);
+    a.finished.then(done, done);
+    a.ready.then(function () { setTimeout(done, ms + 600); });
+    setTimeout(done, ms + 4000);
   }
 
   /* Chromium/Safari: the View Transition wipes the new page down over the
@@ -108,23 +124,26 @@
     document.body.appendChild(line);
     var tag = line.firstChild;
     var H = window.innerHeight;
-    var t0 = null;
     function cleanup() {
       if (cover.parentNode) cover.remove();
       if (line.parentNode) line.remove();
     }
-    function frame(ts) {
-      if (!t0) t0 = ts;
-      var p = Math.min(1, (ts - t0) / IN_MS);
-      var e2 = 1 - Math.pow(1 - p, 3);
-      cover.style.clipPath = 'inset(' + (e2 * 100).toFixed(2) + '% 0 0 0)';
-      line.style.transform = 'translateY(' + (e2 * H).toFixed(1) + 'px)';
-      tag.textContent = 'Y ' + String(Math.round(e2 * H)).padStart(4, '0');
-      if (p < 1) requestAnimationFrame(frame);
-      else cleanup();
-    }
-    requestAnimationFrame(frame);
-    setTimeout(cleanup, IN_MS + 800);      /* dead-man: never a stuck cover */
+    if (!cover.animate) { cleanup(); return; }
+    /* The cover is one flat colour, so sliding it down uncovers the page
+       exactly as clipping its top did, and a transform stays on the
+       compositor where clip-path needs the main thread every frame. It
+       starts on the page's first frame, as the loop did: started any
+       earlier, its clock ran while the page was still being built and the
+       first frame shown already had the rule a quarter of the way down. */
+    requestAnimationFrame(function () {
+      var a = ride(cover, '100%', IN_MS);
+      ride(line, H + 'px', IN_MS);
+      readout(tag, a, H, IN_MS);
+      a.finished.then(cleanup, cleanup);
+      /* dead-man: never a stuck cover, timed from when the sweep really began */
+      a.ready.then(function () { setTimeout(cleanup, IN_MS + 800); });
+    });
+    setTimeout(cleanup, IN_MS + 4000);
   }
 
   /* ── fade mode (kept one flip away) ───────────────────────────────── */
