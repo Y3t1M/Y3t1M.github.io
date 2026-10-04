@@ -7,7 +7,7 @@ permissions:
 jobs:
   device-check:
     runs-on: windows-latest
-    timeout-minutes: 60
+    timeout-minutes: 90
     strategy:
       fail-fast: false
       matrix:
@@ -39,6 +39,8 @@ jobs:
           BASE_URL: https://hudsontinch.com
           TARGET: ${{ matrix.target }}
           OUT: results
+          ORDER: nav,home,resume,projects,readability,pages,rh,taps,perf
+          BUDGET_MIN: '70'
         run: node dc.js
       - uses: actions/upload-artifact@v4
         if: always()

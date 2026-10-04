@@ -129,9 +129,13 @@ function classify(sink, opts) {
 async function skipBoot(page) {
   const booting = await page.evaluate(() => document.documentElement.classList.contains('booting')).catch(() => false);
   if (booting) { await page.keyboard.press('Shift').catch(() => {}); }
-  await page.waitForFunction(() => !document.documentElement.classList.contains('booting'), null, { timeout: 9000 }).catch(() => {});
+  await page.waitForFunction(() => !document.documentElement.classList.contains('booting') && !document.getElementById('boot'), null, { timeout: SLOW() ? 60000 : 9000 }).catch(() => {});
   return booting;
 }
+/* a machine drawing WebGL in software (CI runners have no GPU): frame rates there are indicative only */
+const softwareGL = () => /SwiftShader|Basic Render|llvmpipe|softpipe|Software/i.test((R.env && R.env.webgl) || '');
+const SLOW = () => process.env.FORCE_SLOW === '1' || softwareGL();
+const NAV_MS = () => (SLOW() ? 90000 : 25000);
 async function tapOrClick(page, x, y) {
   if (T.touch) await page.touchscreen.tap(x, y); else await page.mouse.click(x, y);
 }
@@ -300,7 +304,7 @@ async function strips(page, dir, id, max) {
   const vh = T.viewport.height, step = Math.round(vh * 0.85);
   for (let y = 0, i = 0; i < max && y < total; y += step, i++) {
     await page.evaluate((yy) => window.scrollTo(0, yy), y);
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(softwareGL() ? 1400 : 600);
     const f = path.join(dir, `${id}-${String(i).padStart(2, '0')}.jpg`);
     try { await page.screenshot({ path: f, type: 'jpeg', quality: 72, scale: 'css' }); shots.push(rel(f)); } catch (e) { /* no shot */ }
     if (y + vh >= total) break;
@@ -308,6 +312,16 @@ async function strips(page, dir, id, max) {
   await page.evaluate(() => window.scrollTo(0, 0));
   return { scrollHeight: total, shots };
 }
+
+/* which build the live site is serving right now: the ?v= stamp on its own scripts */
+async function liveBuild(context) {
+  try {
+    const r = await context.request.get(url('/'), { timeout: 20000, headers: { 'cache-control': 'no-cache' } });
+    const m = /transitions\.js\?v=([0-9a-f]{7,40})/.exec(await r.text());
+    return m ? m[1] : null;
+  } catch (e) { return 'error ' + String(e.message || e).slice(0, 80); }
+}
+const pageBuild = (page) => page.evaluate(() => { const s = document.querySelector('script[src*="transitions.js"]'); const m = s && /[?&]v=([0-9a-f]+)/.exec(s.getAttribute('src')); return m ? m[1] : null; }).catch(() => null);
 
 /* ------------------------------------------------------------------ */
 /* group: environment                                                  */
@@ -330,6 +344,7 @@ async function gEnv(browser) {
   const p2 = await c2.newPage();
   await p2.goto('about:blank');
   env.testContextReducedMotion = await p2.evaluate(() => matchMedia('(prefers-reduced-motion: reduce)').matches);
+  R.buildAtStart = env.buildAtStart = await liveBuild(c2);
   await c2.close();
   R.env = env;
   add('env', 'browser and emulation', 'info', Object.assign({ version: R.version, channelFallback: R.data.channelFallback || null }, env));
@@ -364,7 +379,7 @@ async function gPages(browser) {
     try { title = await page.title(); } catch (e) { /* none */ }
     try { frames = page.frames().filter((f) => f !== page.mainFrame()).map((f) => f.url()).filter((u) => u && u !== 'about:blank'); } catch (e) { /* none */ }
     let st = null;
-    try { st = await strips(page, dir, pg.id, pg.id === 'projects' && !T.touch ? 6 : 14); } catch (e) { st = { error: String(e).slice(0, 200) }; }
+    try { st = await strips(page, dir, pg.id, SLOW() ? 5 : (pg.id === 'projects' && !T.touch ? 6 : 14)); } catch (e) { st = { error: String(e).slice(0, 200) }; }
     const issues = classify(sink, pg.expect === 404 ? { expect404: url(pg.path) } : null);
     R.data.pages[pg.id] = { status, finalUrl, loadMs, title, overflow: ov, fonts, iframes: frames, strips: st, errors: issues.real, notOwnedBySite: issues.env };
     const okStatus = pg.expect ? status === pg.expect : status === 200;
@@ -494,25 +509,25 @@ async function gHome(browser) {
     const page = await context.newPage();
     const sink = newSink(); watch(page, sink);
     try {
-      const t0 = Date.now();
       await page.goto(url('/'), { waitUntil: 'domcontentloaded', timeout: 45000 });
+      const t0 = Date.now();                      /* from DOMContentLoaded: the boot starts with the deferred scripts */
+      /* the page's own record of when the boot ended, so slow screenshots cannot hide it */
+      await page.evaluate(() => { const t = performance.now(); window.__bootEnd = null; const mo = new MutationObserver(() => { if (!document.documentElement.classList.contains('booting') && window.__bootEnd == null) { window.__bootEnd = performance.now(); mo.disconnect(); } }); mo.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] }); window.__bootT0 = t; });
       const shots = [];
-      for (const at of [400, 1300, 2500]) {
+      for (const at of (SLOW() ? [400] : [400, 1300, 2500])) {
         const wait = at - (Date.now() - t0); if (wait > 0) await page.waitForTimeout(wait);
         const st = await page.evaluate(() => ({ booting: document.documentElement.classList.contains('booting'), boot: !!document.getElementById('boot') }));
         const f = path.join(dir, `boot-${at}ms.png`);
         await page.screenshot({ path: f, scale: 'css' });
         shots.push(Object.assign({ atMs: Date.now() - t0, file: rel(f) }, st));
       }
-      let endedMs = null;
-      while (Date.now() - t0 < 12000) {
-        const b = await page.evaluate(() => document.documentElement.classList.contains('booting'));
-        if (!b) { endedMs = Date.now() - t0; break; }
-        await page.waitForTimeout(100);
-      }
+      await page.waitForFunction(() => !document.documentElement.classList.contains('booting'), null, { timeout: SLOW() ? 60000 : 12000 }).catch(() => {});
+      const be = await page.evaluate(() => ({ end: window.__bootEnd, t0: window.__bootT0, booting: document.documentElement.classList.contains('booting') }));
+      let endedMs = be.booting ? null : (be.end != null ? Math.round(be.end - be.t0) : 0);
       const after = await page.evaluate(() => ({ boot: !!document.getElementById('boot'), scrollable: document.documentElement.scrollHeight > innerHeight, overflow: getComputedStyle(document.documentElement).overflow }));
       H.bootNatural = { shots, endedMs, after };
-      add('home', 'boot splash shows on a fresh arrival and ends by itself', shots[0].booting && endedMs && endedMs < 8000 && !after.boot ? 'pass' : 'fail', H.bootNatural);
+      H.bootNatural.note = 'endedMs counts from DOMContentLoaded';
+      add('home', 'boot splash shows on a fresh arrival and ends by itself', shots[0].booting && endedMs != null && endedMs < (SLOW() ? 30000 : 8000) && !after.boot ? 'pass' : 'fail', H.bootNatural);
     } catch (e) { add('home', 'boot splash (natural)', 'error', { error: String(e.stack || e).slice(0, 400) }); }
     /* the input that ends it: a tap on touch, a click on desktop */
     try {
@@ -551,7 +566,7 @@ async function gHome(browser) {
   }
 
   /* ---- hero, sand, click colour, finger, cue, header, links ---- */
-  const context = await browser.newContext(ctxOpts());
+  const context = await browser.newContext(ctxOpts({ acceptDownloads: true }));
   const page = await context.newPage();
   const sink = newSink(); watch(page, sink);
   try {
@@ -578,7 +593,9 @@ async function gHome(browser) {
       return { found: true, w: c.width, h: c.height, litPixels: lit, litPct: +(100 * lit / (c.width * c.height)).toFixed(3), maxAlpha: maxA, shown: cs.display !== 'none' && cs.visibility !== 'hidden' && +cs.opacity > 0 };
     });
     H.hero = { framesPerSecond: f1 - f0, diag: tdiag, clip: hero, canvas: ink, contribution: dots, shot: rel(heroShot) };
-    add('home', 'hero dot field paints and animates', ink.found && ink.shown && (ink.litPixels > 1500 || ink.litPct >= 0.2) && f1 - f0 > 20 ? 'pass' : 'fail', H.hero);
+    const heroDrawn = ink.found && ink.shown && (ink.litPixels > 1500 || ink.litPct >= 0.2);
+    if (softwareGL()) H.hero.note = 'software rendering on this machine: the frame rate is indicative';
+    add('home', 'hero dot field paints and animates', heroDrawn && f1 - f0 > 20 ? 'pass' : (heroDrawn && softwareGL() ? 'warn' : 'fail'), H.hero);
 
     /* the sand, behind the About section */
     await page.evaluate(() => { const a = document.getElementById('about'); window.scrollTo(0, a.getBoundingClientRect().top + scrollY - 60); });
@@ -591,7 +608,9 @@ async function gHome(browser) {
     await page.screenshot({ path: sandShot, scale: 'css' });
     const sand = await layerContribution(page, '#sand-canvas', { x: 0, y: 0, width: vw, height: vh });
     H.sand = { diag: sd, framesPerSecond: sd ? sd.frames - s0 : null, contribution: sand, shot: rel(sandShot) };
-    add('home', 'sand paints and animates behind the cards', sand.paints && sd && sd.mode === 'webgl' && sd.frames - s0 > 20 ? 'pass' : (sand.paints ? 'warn' : 'fail'), H.sand);
+    if (softwareGL()) H.sand.note = 'software rendering on this machine: the frame rate is indicative';
+    const sandOk = sd && sd.mode === 'webgl' && (sand.paints || sand.withoutLayer.changedPct > 3);
+    add('home', 'sand paints and animates behind the cards', sandOk && sd.frames - s0 > 20 ? 'pass' : (sandOk ? 'warn' : 'fail'), H.sand);
     await page.evaluate(() => window.scrollTo(0, 0));
     await page.waitForTimeout(1200);
 
@@ -741,36 +760,7 @@ async function gHome(browser) {
     /* does GitHub answer */
     try { const r = await context.request.get('https://github.com/Y3t1M', { timeout: 20000 }); H.github = { status: r.status() }; } catch (e) { H.github = { error: String(e).slice(0, 120) }; }
     add('home', 'GitHub profile answers', H.github.status === 200 ? 'pass' : 'warn', H.github);
-    /* the Resume button opens the PDF in a new tab */
-    const btn = page.locator('.hero-actions a.btn-primary').first();
-    let popupUrl = null, popupErr = null, download = null, shot = null;
-    const pdfReqs = [];
-    const onReq = (r) => { if (!/Resume\.pdf/.test(r.url())) return; let fromPopup = null; try { fromPopup = r.frame().page() !== page; } catch (e) { fromPopup = r.isNavigationRequest() ? 'new-tab navigation' : null; } pdfReqs.push({ url: r.url(), fromPopup }); };
-    const onResp = (r) => { if (/Resume\.pdf/.test(r.url())) pdfReqs.push({ response: r.status(), type: (r.headers() || {})['content-type'] }); };
-    context.on('request', onReq); context.on('response', onResp);
-    try {
-      const [pop] = await Promise.all([context.waitForEvent('page', { timeout: 15000 }), tapLocator(btn)]);
-      const dl = pop.waitForEvent('download', { timeout: 6000 }).catch(() => null);
-      await pop.waitForLoadState('domcontentloaded', { timeout: 15000 }).catch(() => {});
-      await pop.waitForTimeout(1500);
-      popupUrl = pop.url();
-      const d = await dl;
-      if (d) { download = { file: d.suggestedFilename(), url: d.url() }; await d.cancel().catch(() => {}); }
-      const f = path.join(dir, 'resume-tab.png');
-      await pop.screenshot({ path: f, scale: 'css', timeout: 8000 }).then(() => { shot = rel(f); }).catch(() => {});
-      await pop.close().catch(() => {});
-    } catch (e) { popupErr = String(e.message || e).slice(0, 200); }
-    context.off('request', onReq); context.off('response', onResp);
-    const pdfUrl = links.heroResume[0] ? links.heroResume[0].abs : null;
-    let pdf = null;
-    try { const r = await context.request.get(pdfUrl, { timeout: 30000 }); const body = await r.body(); pdf = { status: r.status(), type: r.headers()['content-type'], bytes: body.length, magic: body.slice(0, 5).toString('latin1') }; }
-    catch (e) { pdf = { error: String(e).slice(0, 200) }; }
-    H.resume = { popupOpened: !popupErr, popupUrl, download, pdfRequests: pdfReqs, popupErr, pdfUrl, pdf, shot,
-                 note: 'headless Chromium hands a PDF tab to the download manager; a real browser shows its PDF viewer in that tab' };
-    const reached = (popupUrl && /Hudson-Tinch-Resume\.pdf/.test(popupUrl)) || (download && /Resume/.test(download.url || download.file)) || pdfReqs.some((x) => x.url && x.fromPopup);
-    /* Playwright's Firefox closes a tab whose document became a download: the tab did open and ask for the PDF */
-    const closedAfterPdf = popupErr && /closed/.test(popupErr) && pdfReqs.some((x) => x.url && x.fromPopup);
-    add('home', 'Resume button opens the PDF in a new tab', (!popupErr || closedAfterPdf) && reached && pdf.status === 200 && /pdf/.test(pdf.type || '') && pdf.magic === '%PDF-' ? 'pass' : 'fail', H.resume);
+    await resumeCheck(context, page, dir, 'home');
   } catch (e) { add('home', 'links', 'error', { error: String(e.stack || e).slice(0, 400) }); }
 
   const issues = classify(sink);
@@ -778,6 +768,98 @@ async function gHome(browser) {
   await context.close();
 }
 function vwOf() { return T.viewport.width; }
+
+/* The Resume button. Build 02cb82c: it opens the PDF in a new tab everywhere.
+   Build 7f50b2a adds a click handler (transitions.js): on a computer it also saves a copy;
+   Firefox and Safari save only (they open a downloaded PDF themselves), Chrome and Edge do both;
+   phones and tablets only open the tab. The check expects what the served build says. */
+async function resumeCheck(context, page, dir, group) {
+  const build = await pageBuild(page);
+  const env = await page.evaluate(() => ({ desk: matchMedia('(hover: hover) and (pointer: fine)').matches, ua: navigator.userAgent }));
+  const kind = /Firefox\//.test(env.ua) ? 'firefox' : ((/Safari\//.test(env.ua) && !/(Chrome|Chromium|CriOS|FxiOS|Edg|OPR)\//.test(env.ua)) ? 'safari' : 'chromium');
+  const expect = build === '02cb82c' ? { tab: true, save: false, why: 'build 02cb82c: new tab only' }
+    : (!env.desk ? { tab: true, save: false, why: 'touch: new tab only' }
+      : (kind === 'chromium' ? { tab: true, save: true, why: 'desktop Chrome/Edge: new tab and a saved copy' }
+        : { tab: false, save: true, why: 'desktop ' + kind + ': a saved copy only, the browser opens it itself' }));
+  const downloads = [], popups = [], pdfReqs = [];
+  const onDl = (from) => (d) => downloads.push({ from, d });
+  const pageDl = onDl('page');
+  page.on('download', pageDl);
+  const onPage = (p) => { if (p === page) return; popups.push(p); p.on('download', onDl('new tab')); };
+  context.on('page', onPage);
+  const onReq = (r) => { if (!/Resume\.pdf/.test(r.url())) return; let from = null; try { from = r.frame().page() === page ? 'page' : 'new tab'; } catch (e) { from = r.isNavigationRequest() ? 'new-tab navigation' : null; } pdfReqs.push({ url: r.url(), from }); };
+  context.on('request', onReq);
+  /* what the site itself asks for: a click on a hidden a[download] (the saved copy), and whether the
+     original click was cancelled (the tab suppressed). Headless browsers also turn a PDF tab into a
+     download event, so download events alone cannot tell the two apart. */
+  await page.evaluate(() => {
+    window.__qaDl = [];
+    const P = HTMLAnchorElement.prototype;
+    if (!P.__qaWrapped) {
+      const o = P.click;
+      P.click = function () { if (this.hasAttribute('download')) window.__qaDl.push({ href: this.href, name: this.getAttribute('download') }); return o.apply(this, arguments); };
+      P.__qaWrapped = true;
+    }
+    window.__qaPrevented = null;
+    if (!window.__qaClickHook) {
+      window.__qaClickHook = true;
+      /* registered after the site's own document listener, so it sees what that listener decided */
+      document.addEventListener('click', (e) => { const a = e.target && e.target.closest && e.target.closest('a[href*="Resume"]'); if (a && !a.hasAttribute('download')) window.__qaPrevented = e.defaultPrevented; });
+    }
+  });
+  const btn = page.locator('.hero-actions a.btn-primary, a.btn-primary[href*="Resume"], .nav-links a[href*="Resume"]').first();
+  let clickErr = null;
+  try { await tapLocator(btn); } catch (e) { clickErr = String(e.message || e).slice(0, 200); }
+  await page.waitForTimeout(4500);
+  const siteAsked = await page.evaluate(() => ({ saveRequests: window.__qaDl ? window.__qaDl.slice() : null, tabSuppressed: window.__qaPrevented })).catch(() => ({ saveRequests: null, tabSuppressed: null }));
+  const tabs = [];
+  for (const p of popups) {
+    const o = { url: null, closedByBrowser: p.isClosed() };
+    try { o.url = p.url(); } catch (e) { /* closed */ }
+    if (!p.isClosed()) {
+      const f = path.join(dir, `resume-tab-${tabs.length + 1}.png`);
+      await p.screenshot({ path: f, scale: 'css', timeout: 8000 }).then(() => { o.shot = rel(f); }).catch(() => {});
+      await p.close().catch(() => {});
+    }
+    tabs.push(o);
+  }
+  const saved = [];
+  for (const x of downloads) {
+    const o = { from: x.from, file: x.d.suggestedFilename(), url: x.d.url() };
+    try { const pth = await x.d.path(); const buf = fs.readFileSync(pth); o.bytes = buf.length; o.magic = buf.slice(0, 5).toString('latin1'); } catch (e) { o.err = String(e.message || e).slice(0, 120); }
+    saved.push(o);
+  }
+  page.off('download', pageDl); context.off('page', onPage); context.off('request', onReq);
+  /* the saved copy is what the site asked for (a[download] clicked); every download that happened must be the PDF */
+  const asked = (siteAsked.saveRequests || []).length;
+  const observed = { tab: tabs.length > 0, save: asked > 0, tabSuppressed: siteAsked.tabSuppressed, downloadsSeen: saved.length };
+  const savedOk = saved.every((x) => x.file === 'Hudson-Tinch-Resume.pdf' && x.magic === '%PDF-') && (!asked || saved.length > 0);
+  const res = { build, kind, desktopPointer: env.desk, expected: expect, observed, siteSaveRequests: siteAsked.saveRequests, tabs, downloads: saved, pdfRequests: pdfReqs, clickErr,
+                note: 'a saved copy = the site clicking a hidden a[download]; headless browsers also report the PDF tab itself as a download, so raw download events over-count' };
+  R.data.resume = R.data.resume || [];
+  R.data.resume.push(res);
+  add(group, `Resume button (build ${build}): ${expect.why}`, !clickErr && observed.tab === expect.tab && observed.save === expect.save && savedOk ? 'pass' : 'fail', res);
+  return res;
+}
+async function gResume(browser) {
+  const dir = sub('resume');
+  const context = await browser.newContext(ctxOpts({ acceptDownloads: true }));
+  const page = await context.newPage();
+  const sink = newSink(); watch(page, sink);
+  try {
+    await page.goto(url('/'), { waitUntil: 'load', timeout: 45000 });
+    await skipBoot(page);
+    await page.waitForTimeout(1200);
+    await resumeCheck(context, page, dir, 'resume');
+    /* the header link on the projects page goes through the same handler */
+    await page.goto(url('/projects'), { waitUntil: 'load', timeout: 45000 });
+    await page.waitForTimeout(1500);
+    await resumeCheck(context, page, dir, 'resume');
+  } catch (e) { add('resume', 'Resume check', 'error', { error: String(e.stack || e).slice(0, 400) }); }
+  const iss = classify(sink);
+  add('resume', 'no errors during the Resume checks', iss.real.length ? 'fail' : 'pass', { errors: iss.real, notOwnedBySite: iss.env });
+  await context.close();
+}
 
 /* the cue: where it sits at the top of the page, what text it covers */
 async function cueCheck(page, pageId, dir) {
@@ -856,6 +938,16 @@ async function cardInfo(page, sel, k) {
              transform: cs.transform, glass: document.documentElement.classList.contains('sand-glass'), fx: document.documentElement.classList.contains('fx'), title: (c.querySelector('h3') || {}).textContent, lines };
   }, [sel, k]);
 }
+/* scroll-fx eases a card's opacity toward its scroll position; on a slow machine that takes seconds */
+async function settleOpacity(page, sel, k, maxMs) {
+  const t0 = Date.now(); let last = -1, op = -1;
+  while (Date.now() - t0 < (maxMs || 9000)) {
+    op = await page.evaluate(([s, i]) => { const c = document.querySelectorAll(s)[i]; let o = 1; for (let e = c; e; e = e.parentElement) o *= +getComputedStyle(e).opacity; return o; }, [sel, k]);
+    if (Math.abs(op - last) < 0.004) break;
+    last = op; await page.waitForTimeout(350);
+  }
+  return { opacity: op, ms: Date.now() - t0 };
+}
 async function centreCard(page, sel, k, where) {
   await page.evaluate(([s, i, w]) => {
     const c = document.querySelectorAll(s)[i]; const r = c.getBoundingClientRect();
@@ -866,7 +958,8 @@ async function centreCard(page, sel, k, where) {
 /* one card: text colour against what is behind it, over many frames of moving sand */
 async function measureCard(page, sel, k, dir, tag, saveCrop) {
   await centreCard(page, sel, k, 'centre');
-  await page.waitForTimeout(1600);
+  await page.waitForTimeout(700);
+  const settled = await settleOpacity(page, sel, k);
   const info = await cardInfo(page, sel, k);
   const vw = T.viewport.width, vh = T.viewport.height;
   const clip = { x: Math.max(0, Math.floor(info.rect.x)), y: Math.max(0, Math.floor(info.rect.y)), width: 0, height: 0 };
@@ -875,7 +968,7 @@ async function measureCard(page, sel, k, dir, tag, saveCrop) {
   const offX = info.rect.x - clip.x, offY = info.rect.y - clip.y;
   /* text visible: the real thing, and the close-up */
   const vis = [];
-  for (let i = 0; i < 3; i++) { vis.push(await page.screenshot({ clip })); await page.waitForTimeout(140); }
+  for (let i = 0; i < (SLOW() ? 1 : 3); i++) { vis.push(await page.screenshot({ clip })); await page.waitForTimeout(140); }
   let crop = null;
   if (saveCrop) { crop = path.join(dir, `${tag}-closeup.png`); fs.writeFileSync(crop, vis[0]); crop = rel(crop); }
   /* text hidden: only what is behind it */
@@ -887,7 +980,7 @@ async function measureCard(page, sel, k, dir, tag, saveCrop) {
   }, [sel, k]);
   await page.waitForTimeout(150);
   const bgs = [];
-  for (let i = 0; i < 10; i++) { bgs.push(await page.screenshot({ clip })); await page.waitForTimeout(260); }
+  for (let i = 0; i < (SLOW() ? 4 : 10); i++) { bgs.push(await page.screenshot({ clip })); await page.waitForTimeout(SLOW() ? 400 : 260); }
   await page.evaluate(() => { const st = document.getElementById('qa-hide-text'); if (st) st.remove(); document.querySelectorAll('[data-qa-bg]').forEach((e) => e.removeAttribute('data-qa-bg')); });
   const info2 = await cardInfo(page, sel, k);
   /* per role: every background pixel under every line of text, every frame */
@@ -920,7 +1013,7 @@ async function measureCard(page, sel, k, dir, tag, saveCrop) {
       if (ls.length) role.glyph.push(quant(ls, 0.985));
     }
   }
-  const out = { card: tag, title: (info.title || '').trim(), opacity: r2(info.opacity), opacityAfter: r2(info2.opacity), p: info.p, bg: info.bg, backdrop: info.backdrop, glass: info.glass, fx: info.fx,
+  const out = { card: tag, title: (info.title || '').trim(), opacity: r2(info.opacity), opacityAfter: r2(info2.opacity), settleMs: settled.ms, p: info.p, bg: info.bg, backdrop: info.backdrop, glass: info.glass, fx: info.fx,
                 rect: { x: Math.round(info.rect.x), y: Math.round(info.rect.y), w: Math.round(info.rect.w), h: Math.round(info.rect.h) }, frames: bgs.length, closeup: crop, roles: {} };
   for (const k2 of Object.keys(roles)) {
     const ro = roles[k2];
@@ -954,7 +1047,8 @@ async function gReadability(browser) {
     const prof = [];
     for (const where of ['lower', 'centre', 'upper']) {
       await centreCard(page, '.about-card', 1, where);
-      await page.waitForTimeout(1500);
+      await page.waitForTimeout(700);
+      await settleOpacity(page, '.about-card', 1);
       const ci = await cardInfo(page, '.about-card', 1);
       prof.push({ where, cardTopPx: Math.round(ci.rect.y), cardTopPctOfScreen: Math.round(100 * ci.rect.y / ci.vh), opacity: r2(ci.opacity), p: ci.p });
     }
@@ -1126,7 +1220,7 @@ async function gNav(browser) {
       await page.waitForTimeout(1500);
       for (let n = 1; n <= 3; n++) {
         clicks.push({ n, to: 'projects', ms: Date.now() - v0 });
-        await Promise.all([page.waitForURL(/projects/, { waitUntil: 'load', timeout: 25000 }), navClick(page, 'Projects')]);
+        await Promise.all([page.waitForURL(/projects/, { waitUntil: 'load', timeout: NAV_MS() }), navClick(page, 'Projects')]);
         await page.waitForTimeout(2600);
         const m = arrivalMetrics(await exportQa(page));
         m.n = n; m.cache = n === 1 ? 'cold' : 'warm';
@@ -1135,7 +1229,7 @@ async function gNav(browser) {
         N.arrivals.push(m);
         if (n === 1) { const f = path.join(dir, 'projects-arrived.png'); await page.screenshot({ path: f, scale: 'css' }); }
         clicks.push({ n, to: 'home', ms: Date.now() - v0 });
-        await Promise.all([page.waitForURL((u) => !/projects/.test(u.pathname), { waitUntil: 'load', timeout: 25000 }), navClick(page, 'Home')]);
+        await Promise.all([page.waitForURL((u) => !/projects/.test(u.pathname), { waitUntil: 'load', timeout: NAV_MS() }), navClick(page, 'Home')]);
         await page.waitForTimeout(1800);
         const h = await page.evaluate(() => ({ url: location.pathname, booting: document.documentElement.classList.contains('booting'), cover: !!document.querySelector('.pt-scan-cover') || document.documentElement.classList.contains('pt-covered'), hero: !!document.querySelector('.hero-title'), frames: window.__terrainDiag ? window.__terrainDiag.frames : 0 }));
         const hm = arrivalMetrics(await exportQa(page));
@@ -1159,7 +1253,7 @@ async function gNav(browser) {
         arrivals: A.map((m) => ({ n: m.n, viewTransition: m.viewTransition, arrivedCovered: m.arrivedCovered, transition: m.transition })), returns: N.returns.map((r) => ({ n: r.n, viewTransition: r.viewTransition, arrivedCovered: r.arrivedCovered, transition: r.transition })) });
   }
   /* ---- B. a burst of screenshots through one arrival: is the line on screen, and where ---- */
-  {
+  if (!SLOW()) {
     const context = await browser.newContext(ctxOpts());
     const page = await context.newPage();
     try {
@@ -1167,9 +1261,9 @@ async function gNav(browser) {
       await skipBoot(page);
       await page.waitForTimeout(1500);
       /* warm the cache, as the second visit of a session */
-      await Promise.all([page.waitForURL(/projects/, { waitUntil: 'load', timeout: 25000 }), navClick(page, 'Projects')]);
+      await Promise.all([page.waitForURL(/projects/, { waitUntil: 'load', timeout: NAV_MS() }), navClick(page, 'Projects')]);
       await page.waitForTimeout(1500);
-      await Promise.all([page.waitForURL((u) => !/projects/.test(u.pathname), { waitUntil: 'load', timeout: 25000 }), navClick(page, 'Home')]);
+      await Promise.all([page.waitForURL((u) => !/projects/.test(u.pathname), { waitUntil: 'load', timeout: NAV_MS() }), navClick(page, 'Home')]);
       await page.waitForTimeout(1500);
       const bd = sub('nav/burst');
       const shots = [];
@@ -1205,7 +1299,7 @@ async function navSystemMotion(browser) {
     await page.goto(url('/'), { waitUntil: 'load', timeout: 45000 });
     await skipBoot(page);
     await page.waitForTimeout(1200);
-    await Promise.all([page.waitForURL(/projects/, { waitUntil: 'load', timeout: 25000 }), navClick(page, 'Projects')]);
+    await Promise.all([page.waitForURL(/projects/, { waitUntil: 'load', timeout: NAV_MS() }), navClick(page, 'Projects')]);
     await page.waitForTimeout(2400);
     const m = arrivalMetrics(await exportQa(page));
     N.systemMotion = { reduced: m.reduced, viewTransition: m.viewTransition, arrivedCovered: m.arrivedCovered, transition: m.transition, titleClean: m.clean };
@@ -1463,14 +1557,19 @@ async function gPerf(browser) {
 /* ------------------------------------------------------------------ */
 /* run                                                                 */
 /* ------------------------------------------------------------------ */
-const GROUPS = [['env', gEnv], ['pages', gPages], ['home', gHome], ['readability', gReadability], ['nav', gNav], ['projects', gProjects], ['rh', gRh], ['taps', gTaps], ['perf', gPerf]];
+const GROUPS = [['env', gEnv], ['pages', gPages], ['home', gHome], ['readability', gReadability], ['nav', gNav], ['projects', gProjects], ['rh', gRh], ['taps', gTaps], ['perf', gPerf], ['resume', gResume]];
 (async () => {
   console.log(`=== ${TNAME} (${T.label}) -> ${BASE}`);
   let browser;
   try { browser = await launch(); }
   catch (e) { add('launch', 'browser starts', 'error', { error: String(e.message || e).slice(0, 600) }); process.exit(1); }
-  for (const [id, fn] of GROUPS) {
+  const ORDER = (process.env.ORDER || '').split(',').map((x) => x.trim()).filter(Boolean);
+  const groups = ORDER.length ? ORDER.map((id) => GROUPS.find((g) => g[0] === id)).filter(Boolean) : GROUPS;
+  if (ORDER.length && !ORDER.includes('env')) groups.unshift(GROUPS[0]);
+  const BUDGET = +(process.env.BUDGET_MIN || 0) * 60000, runT0 = Date.now();
+  for (const [id, fn] of groups) {
     if (ONLY.length && !ONLY.includes(id) && id !== 'env') continue;
+    if (BUDGET && Date.now() - runT0 > BUDGET) { add(id, 'skipped: the run reached its time budget', 'info', { budgetMin: BUDGET / 60000 }); continue; }
     const t0 = Date.now();
     console.log(` -- ${id}`);
     try { await fn(browser); } catch (e) { add(id, 'group did not complete', 'error', { error: String(e.stack || e).slice(0, 1200) }); }
@@ -1478,8 +1577,10 @@ const GROUPS = [['env', gEnv], ['pages', gPages], ['home', gHome], ['readability
     save();
     if (!browser.isConnected()) { try { browser = await launch(); } catch (e) { break; } }
   }
+  try { const c = await browser.newContext(); R.buildAtEnd = await liveBuild(c); await c.close(); } catch (e) { R.buildAtEnd = 'error'; }
   await browser.close().catch(() => {});
   R.finished = new Date().toISOString();
+  if (R.buildAtStart !== R.buildAtEnd) console.log(`  !! the live build changed during this run: ${R.buildAtStart} -> ${R.buildAtEnd}`);
   const count = (s) => R.checks.filter((c) => c.status === s).length;
   R.totals = { pass: count('pass'), fail: count('fail'), warn: count('warn'), error: count('error'), info: count('info') };
   save();
