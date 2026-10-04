@@ -225,3 +225,36 @@
     });
   });
 })();
+
+/* ── the Resume links: open it and save it ──────────────────────────
+   Hudson, 2026-10-04: "can it do both". A Resume link opens the PDF in a
+   new tab (target=_blank); on a computer the same click also saves a copy
+   to Downloads. Firefox and Safari open a downloaded PDF by themselves
+   by default (Firefox in a tab, Safari in Preview), so there the click only
+   downloads, or the resume would open twice; Chrome and Edge save quietly,
+   so there it does both. Phones and tablets only open it: a forced download
+   there asks first and files it away, and their viewer can save or share
+   it. A click with a modifier key or the middle button is the visitor's
+   own choice and is left alone. */
+(function () {
+  'use strict';
+  var PDF = 'Hudson-Tinch-Resume.pdf';
+  var desk = window.matchMedia ? window.matchMedia('(hover: hover) and (pointer: fine)') : null;
+  var ua = navigator.userAgent;
+  var opensItself = /Firefox\//.test(ua) ||
+    (/Safari\//.test(ua) && !/(Chrome|Chromium|CriOS|FxiOS|Edg|OPR)\//.test(ua));
+  document.addEventListener('click', function (e) {
+    if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    var a = e.target && e.target.closest && e.target.closest('a[href*="' + PDF + '"]');
+    /* the copy below is a download link itself, so its own click stops here */
+    if (!a || a.hasAttribute('download') || !desk || !desk.matches) return;
+    var dl = document.createElement('a');
+    dl.href = a.href;
+    dl.setAttribute('download', PDF);
+    dl.style.display = 'none';
+    document.body.appendChild(dl);
+    dl.click();
+    dl.remove();
+    if (opensItself) e.preventDefault();
+  });
+})();
