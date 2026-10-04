@@ -921,9 +921,11 @@ async function cardInfo(page, sel, k) {
     const r = c.getBoundingClientRect();
     let op = 1; for (let e = c; e; e = e.parentElement) op *= +getComputedStyle(e).opacity;
     const lines = [];
-    const roles = [['h3', 'h3'], ['p', 'p'], ['.project-card-tag', 'tag']];
+    const roles = [['h3', 'h3'], ['h4', 'h3'], ['p', 'p'], ['.project-card-tag', 'tag']];
     for (const [q, role] of roles) {
-      c.querySelectorAll(q).forEach((el) => {
+      const els = Array.from(c.querySelectorAll(q));
+      if (c.matches(q)) els.push(c);              /* the About intro is itself the paragraph */
+      els.forEach((el) => {
         const w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
         while (w.nextNode()) {
           const n = w.currentNode; if (!n.textContent.trim()) continue;
@@ -934,8 +936,11 @@ async function cardInfo(page, sel, k) {
       });
     }
     const cs = getComputedStyle(c);
-    return { rect: { x: r.left, y: r.top, w: r.width, h: r.height }, vh: innerHeight, opacity: op, p: c.style.getPropertyValue('--p'), bg: cs.backgroundColor, backdrop: cs.backdropFilter || cs.webkitBackdropFilter || 'none',
-             transform: cs.transform, glass: document.documentElement.classList.contains('sand-glass'), fx: document.documentElement.classList.contains('fx'), title: (c.querySelector('h3') || {}).textContent, lines };
+    const firstP = c.matches('p') ? c : c.querySelector('p');
+    return { rect: { x: r.left, y: r.top, w: r.width, h: r.height }, vh: innerHeight, opacity: op, p: c.style.getPropertyValue('--p'), q: c.style.getPropertyValue('--q'), bg: cs.backgroundColor, backdrop: cs.backdropFilter || cs.webkitBackdropFilter || 'none',
+             transform: cs.transform, glass: document.documentElement.classList.contains('sand-glass'), fx: document.documentElement.classList.contains('fx'),
+             lit: c.classList.contains('card-lit'), cardFocus: document.documentElement.classList.contains('card-focus'), bodyColor: firstP ? getComputedStyle(firstP).color : null,
+             title: ((c.querySelector('h3, h4') || {}).textContent || (c.matches('p') ? c.textContent.slice(0, 30) : '')), lines };
   }, [sel, k]);
 }
 /* scroll-fx eases a card's opacity toward its scroll position; on a slow machine that takes seconds */
@@ -1013,7 +1018,8 @@ async function measureCard(page, sel, k, dir, tag, saveCrop) {
       if (ls.length) role.glyph.push(quant(ls, 0.985));
     }
   }
-  const out = { card: tag, title: (info.title || '').trim(), opacity: r2(info.opacity), opacityAfter: r2(info2.opacity), settleMs: settled.ms, p: info.p, bg: info.bg, backdrop: info.backdrop, glass: info.glass, fx: info.fx,
+  const out = { card: tag, build: await pageBuild(page), title: (info.title || '').trim(), opacity: r2(info.opacity), opacityAfter: r2(info2.opacity), settleMs: settled.ms, p: info.p, q: info.q,
+                lit: info.lit, cardFocus: info.cardFocus, bodyColor: info.bodyColor, bg: info.bg, backdrop: info.backdrop, glass: info.glass, fx: info.fx,
                 rect: { x: Math.round(info.rect.x), y: Math.round(info.rect.y), w: Math.round(info.rect.w), h: Math.round(info.rect.h) }, frames: bgs.length, closeup: crop, roles: {} };
   for (const k2 of Object.keys(roles)) {
     const ro = roles[k2];
@@ -1039,10 +1045,16 @@ async function gReadability(browser) {
     await skipBoot(page);
     await page.waitForFunction(() => window.__sandDiag && window.__sandDiag.frames > 30, null, { timeout: 15000 }).catch(() => {});
     await page.waitForTimeout(800);
+    RD.build = await pageBuild(page);
     const nA = await page.evaluate(() => document.querySelectorAll('.about-card').length);
     for (let k = 0; k < nA; k++) RD.about.push(await measureCard(page, '.about-card', k, dir, `about-${k + 1}`, k === 1));
     const nP = await page.evaluate(() => document.querySelectorAll('.project-card').length);
     for (let k = 0; k < nP; k++) RD.project.push(await measureCard(page, '.project-card', k, dir, `project-${k + 1}`, k === 0));
+    /* the About intro and the first timeline entries (their body text changed in f3d19e2) */
+    RD.intro = [await measureCard(page, '#about .section-description', 0, dir, 'about-intro', true)];
+    RD.timeline = [];
+    for (let k = 0; k < 2; k++) RD.timeline.push(await measureCard(page, '.tl-item', k, dir, `timeline-${k + 1}`, k === 0));
+    RD.sectionOrder = await page.evaluate(() => Array.from(document.querySelectorAll('body > section, body > main > section')).map((s) => s.id || String(s.className).split(' ')[0]).filter(Boolean));
     /* how bright a card is at three places on the screen (desktop dims cards that are not yet "arrived") */
     const prof = [];
     for (const where of ['lower', 'centre', 'upper']) {
@@ -1050,7 +1062,7 @@ async function gReadability(browser) {
       await page.waitForTimeout(700);
       await settleOpacity(page, '.about-card', 1);
       const ci = await cardInfo(page, '.about-card', 1);
-      prof.push({ where, cardTopPx: Math.round(ci.rect.y), cardTopPctOfScreen: Math.round(100 * ci.rect.y / ci.vh), opacity: r2(ci.opacity), p: ci.p });
+      prof.push({ where, cardTopPx: Math.round(ci.rect.y), cardTopPctOfScreen: Math.round(100 * ci.rect.y / ci.vh), opacity: r2(ci.opacity), p: ci.p, q: ci.q, lit: ci.lit, bodyColor: ci.bodyColor });
     }
     RD.profile = prof;
     /* summary per card type and role */
@@ -1069,11 +1081,13 @@ async function gReadability(browser) {
       }
       return o;
     };
-    RD.summary = { about: sum(RD.about), project: sum(RD.project) };
+    RD.summary = { about: sum(RD.about), project: sum(RD.project), intro: sum(RD.intro), timeline: sum(RD.timeline) };
     const bodyA = RD.summary.about.p, bodyP = RD.summary.project.p;
     const status = (b) => (b && b.worstP1 >= 4.5 ? 'pass' : 'warn');
-    add('readability', `About cards: body text contrast (typical ${bodyA ? bodyA.typical : '?'}:1, lowest 1% ${bodyA ? bodyA.worstP1 : '?'}:1)`, status(bodyA), { summary: RD.summary.about, profile: prof });
-    add('readability', `Project cards: body text contrast (typical ${bodyP ? bodyP.typical : '?'}:1, lowest 1% ${bodyP ? bodyP.worstP1 : '?'}:1)`, status(bodyP), RD.summary.project);
+    add('readability', `About cards (build ${RD.build}): body text contrast (typical ${bodyA ? bodyA.typical : '?'}:1, lowest 1% ${bodyA ? bodyA.worstP1 : '?'}:1)`, status(bodyA), { summary: RD.summary.about, profile: prof });
+    add('readability', `Project cards (build ${RD.build}): body text contrast (typical ${bodyP ? bodyP.typical : '?'}:1, lowest 1% ${bodyP ? bodyP.worstP1 : '?'}:1)`, status(bodyP), RD.summary.project);
+    const bI = RD.summary.intro.p, bT = RD.summary.timeline.p;
+    add('readability', `About intro and timeline entries (build ${RD.build}): body text typical ${bI ? bI.typical : '?'} / ${bT ? bT.typical : '?'}:1, lowest 1% ${bI ? bI.worstP1 : '?'} / ${bT ? bT.worstP1 : '?'}:1`, status(bI) === 'pass' && status(bT) === 'pass' ? 'pass' : 'warn', { intro: RD.summary.intro, timeline: RD.summary.timeline, sectionOrder: RD.sectionOrder });
   } catch (e) { add('readability', 'card measurement', 'error', { error: String(e.stack || e).slice(0, 600) }); }
   const issues = classify(sink);
   if (issues.real.length) add('readability', 'errors during the readability pass', 'fail', issues.real);
@@ -1572,6 +1586,8 @@ const GROUPS = [['env', gEnv], ['pages', gPages], ['home', gHome], ['readability
     if (BUDGET && Date.now() - runT0 > BUDGET) { add(id, 'skipped: the run reached its time budget', 'info', { budgetMin: BUDGET / 60000 }); continue; }
     const t0 = Date.now();
     console.log(` -- ${id}`);
+    try { const c = await browser.newContext(); R.data[id + 'Build'] = await liveBuild(c); await c.close(); } catch (e) { /* none */ }
+    R.data[id + 'StartedAt'] = new Date().toISOString();
     try { await fn(browser); } catch (e) { add(id, 'group did not complete', 'error', { error: String(e.stack || e).slice(0, 1200) }); }
     R.data[id + 'Seconds'] = Math.round((Date.now() - t0) / 1000);
     save();

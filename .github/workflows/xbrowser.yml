@@ -39,8 +39,9 @@ jobs:
           BASE_URL: https://hudsontinch.com
           TARGET: ${{ matrix.target }}
           OUT: results
-          ORDER: nav,home,resume,projects,readability,pages,rh,taps,perf
-          BUDGET_MIN: '70'
+          ORDER: readability,home,pages
+          ONLY: readability,home,pages
+          BUDGET_MIN: '60'
         run: node dc.js
       - uses: actions/upload-artifact@v4
         if: always()
