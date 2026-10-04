@@ -980,10 +980,11 @@ async function measureCard(page, sel, k, dir, tag, saveCrop) {
   await page.evaluate(([s, i]) => {
     const c = document.querySelectorAll(s)[i]; c.setAttribute('data-qa-bg', '1');
     const st = document.createElement('style'); st.id = 'qa-hide-text';
-    st.textContent = '[data-qa-bg] *, [data-qa-bg] { color: transparent !important; text-shadow: none !important; } [data-qa-bg] svg { visibility: hidden !important; }';
+    /* transition: none, or text with a colour transition (f3d19e2: 180 ms) is still fading out in the first frames */
+    st.textContent = '[data-qa-bg] *, [data-qa-bg] { color: transparent !important; text-shadow: none !important; transition: none !important; } [data-qa-bg] svg { visibility: hidden !important; }';
     document.head.appendChild(st);
   }, [sel, k]);
-  await page.waitForTimeout(150);
+  await page.waitForTimeout(350);
   const bgs = [];
   for (let i = 0; i < (SLOW() ? 4 : 10); i++) { bgs.push(await page.screenshot({ clip })); await page.waitForTimeout(SLOW() ? 400 : 260); }
   await page.evaluate(() => { const st = document.getElementById('qa-hide-text'); if (st) st.remove(); document.querySelectorAll('[data-qa-bg]').forEach((e) => e.removeAttribute('data-qa-bg')); });
@@ -1030,6 +1031,8 @@ async function measureCard(page, sel, k, dir, tag, saveCrop) {
                       contrast: { min: r2(quant(ro.ratios, 0)), p1: r2(quant(ro.ratios, 0.01)), p5: r2(quant(ro.ratios, 0.05)), median: r2(quant(ro.ratios, 0.5)) },
                       bgGrey: { median: lumToGrey(bgMed), p95: lumToGrey(quant(ro.bgLum, 0.95)), max: lumToGrey(quant(ro.bgLum, 1)), maxChannel: ro.bgMax },
                       textGreyModel: lumToGrey(quant(ro.textLumModel, 0.5)), textGreyMeasured: glyphLum == null ? null : lumToGrey(glyphLum),
+                      /* a background frame that still holds text would show the text's own grey */
+                      bgHoldsText: ro.bgMax >= Math.max(ro.color ? (parseColor(ro.color) || {}).g || 255 : 255, 60) - 12,
                       measuredGlyphContrast: glyphLum == null ? null : r2(ratio(glyphLum, bgMed)) };
   }
   return out;

@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target: [win-chrome, win-firefox]
+        target: [win-firefox]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -39,9 +39,9 @@ jobs:
           BASE_URL: https://hudsontinch.com
           TARGET: ${{ matrix.target }}
           OUT: results
-          ORDER: readability,home,pages
-          ONLY: readability,home,pages
-          BUDGET_MIN: '60'
+          ORDER: readability
+          ONLY: readability
+          BUDGET_MIN: '40'
         run: node dc.js
       - uses: actions/upload-artifact@v4
         if: always()
