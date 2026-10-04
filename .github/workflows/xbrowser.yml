@@ -5,30 +5,44 @@ on:
 permissions:
   contents: read
 jobs:
-  windows-firefox:
+  device-check:
     runs-on: windows-latest
-    timeout-minutes: 50
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [win-chrome, win-firefox]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Install Playwright and Firefox
+      - name: Install Playwright, its Firefox and Chromium (Chromium is only a fallback for Chrome)
         run: |
           npm install --no-audit --no-fund
-          npx playwright install firefox ffmpeg
-      - name: Flicker and scan-line checks on the live site, then live files vs the fix through one proxy
+          npx playwright install chromium firefox ffmpeg
+      - name: What the runner reports (Chrome version, Windows animation setting)
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path results | Out-Null
+          $chrome = "C:\Program Files\Google\Chrome\Application\chrome.exe"
+          $cv = if (Test-Path $chrome) { (Get-Item $chrome).VersionInfo.ProductVersion } else { "not installed" }
+          Add-Type -TypeDefinition 'using System; using System.Runtime.InteropServices; public class SPI { [DllImport("user32.dll")] public static extern bool SystemParametersInfo(int a, int b, ref bool c, int d); }'
+          $anim = $false
+          [void][SPI]::SystemParametersInfo(0x1042, 0, [ref]$anim, 0)
+          $os = (Get-CimInstance Win32_OperatingSystem).Caption + " " + (Get-CimInstance Win32_OperatingSystem).Version
+          $info = [ordered]@{ chromeInstalled = $cv; windowsClientAreaAnimation = $anim; os = $os }
+          $info | ConvertTo-Json | Tee-Object -FilePath "results/runner-${{ matrix.target }}.json"
+      - name: Device check against the live site
         continue-on-error: true
         env:
           BASE_URL: https://hudsontinch.com
-          BROWSERS: firefox
-          ONLY: flicker,flicker-ab
-          OS_LABEL: windows
+          TARGET: ${{ matrix.target }}
           OUT: results
-        run: node xb.js
+        run: node dc.js
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: windows-firefox-results
+          name: ${{ matrix.target }}-results
           path: results
           retention-days: 14

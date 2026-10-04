@@ -1,8 +1,11 @@
 {
   "name": "hudsontinch-xbrowser",
   "private": true,
-  "description": "Cross-browser checks for hudsontinch.com (runs against the live site; no site files here)",
-  "scripts": { "test": "node xb.js" },
+  "description": "Cross-browser and device checks for hudsontinch.com (runs against the live site; no site files here)",
+  "scripts": {
+    "test": "node xb.js",
+    "device-check": "node dc.js"
+  },
   "dependencies": {
     "playwright": "1.63.0",
     "pngjs": "7.0.0"
