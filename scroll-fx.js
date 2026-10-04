@@ -32,7 +32,9 @@
   if (!cards.length && !document.querySelector('.led-sep') && !document.getElementById('showcase')) return;
 
   var items = cards.map(function (el) {
-    return { el: el, top: 0, h: 0, sp: 0, last: -1 };
+    /* q: the home cards also get --q, the readability pick's fade (F1, styles.css) */
+    var q = !SMALL && (el.classList.contains('about-card') || el.classList.contains('project-card'));
+    return { el: el, top: 0, h: 0, sp: 0, last: -1, q: q, ltop: 0, sq: 0, lastq: -1 };
   });
 
   function measure() {
@@ -41,6 +43,13 @@
       var r = it.el.getBoundingClientRect();
       it.top = r.top + scrollY;
       it.h = r.height;
+      if (it.q) {
+        /* the card's own top from layout, free of the lift's transform (the
+           rect above sits up to 2.5rem low while a card is still rising) */
+        var y = 0, n = it.el;
+        while (n) { y += n.offsetTop; n = n.offsetParent; }
+        it.ltop = y;
+      }
     });
   }
   measure();
@@ -111,6 +120,14 @@
       if (rounded !== it.last) {
         it.last = rounded;
         it.el.style.setProperty('--p', rounded);
+      }
+      if (it.q) {
+        /* F1: full strength once the card's top is 40% up the window, same easing */
+        var q = Math.max(0, Math.min(1, (bottom - it.ltop) / (vh * 0.4)));
+        if (Math.abs(q - it.sq) > 1e-4) { it.sq += (q - it.sq) * 0.14; busy = true; }
+        else it.sq = q;
+        var rq = Math.round(it.sq * 500) / 500;
+        if (rq !== it.lastq) { it.lastq = rq; it.el.style.setProperty('--q', rq); }
       }
     }
 

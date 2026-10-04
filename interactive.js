@@ -763,3 +763,65 @@
   }());
 
 })();
+
+/* ================================================================
+   CENTRE CARD (touch screens)  -  Hudson's readability pick P1, 2026-10-04
+   A phone has no hover, so the card nearest the middle of the screen
+   wears the hover look as you scroll (styles.css, .card-lit), one card
+   at a time, with a little hysteresis so two cards never trade places
+   at the handover. Card centres come from layout (offsetTop chains, so
+   the cards' own transforms do not move them) and are re-read only on
+   resize, load, fonts and size changes; a scroll only reads scrollY.
+   ================================================================ */
+(function () {
+  if (!window.matchMedia || !matchMedia('(pointer: coarse)').matches) return;
+  var els = Array.prototype.slice.call(document.querySelectorAll('.about-card, .project-card'));
+  if (!els.length) return;
+  document.documentElement.classList.add('card-focus');
+  var items = [], lit = null, raf = 0, sy = window.scrollY || 0;
+  var vh = window.innerHeight, vw = document.documentElement.clientWidth || window.innerWidth;
+  function measure() {
+    items = els.map(function (el) {
+      var x = 0, y = 0, n = el;
+      while (n) { x += n.offsetLeft; y += n.offsetTop; n = n.offsetParent; }
+      return { el: el, cx: x + el.offsetWidth / 2, cy: y + el.offsetHeight / 2 };
+    });
+    vh = window.innerHeight;
+    vw = document.documentElement.clientWidth || window.innerWidth;
+    sy = window.scrollY || 0;
+  }
+  function light(el) {
+    if (lit === el) return;
+    if (lit) lit.classList.remove('card-lit');
+    lit = el;
+    if (el) el.classList.add('card-lit');
+  }
+  function pick() {
+    raf = 0;
+    var mx = vw / 2, my = sy + vh / 2, best = null, bd = Infinity, litD = Infinity;
+    for (var i = 0; i < items.length; i++) {
+      var it = items[i];
+      if (it.cy < sy || it.cy > sy + vh) continue;          /* its middle has to be on screen */
+      var dx = it.cx - mx, dy = it.cy - my, d = Math.sqrt(dx * dx + dy * dy);
+      if (it.el === lit) litD = d;
+      if (d < bd) { bd = d; best = it; }
+    }
+    if (best && lit && best.el !== lit && litD - bd < 14) return;
+    light(best ? best.el : null);
+  }
+  function kick() { if (!raf) raf = requestAnimationFrame(pick); }
+  window.addEventListener('scroll', function () { sy = window.scrollY || 0; kick(); }, { passive: true });
+  window.addEventListener('resize', function () { measure(); kick(); });
+  window.addEventListener('load', function () { measure(); kick(); });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { measure(); kick(); });
+  if (window.ResizeObserver) {
+    var roT = 0;
+    new ResizeObserver(function () {
+      if (roT) return;
+      roT = requestAnimationFrame(function () { roT = 0; measure(); kick(); });
+    }).observe(document.body);
+  }
+  measure();
+  kick();
+})();
+

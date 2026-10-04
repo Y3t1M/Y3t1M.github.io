@@ -43,6 +43,8 @@
   --text:       #eaeaea;
   --text-muted: #9a9a9a;
   --text-faint: #6f6f6f;
+  --text-card: #e3e3e3;        /* card body text: the readability pick, 2026-10-04 (was --text-muted) */
+  --text-card-hover: #e4e4e4;  /* a hovered (or, on phones, centred) card's text */
   --accent:     #eaeaea;   /* monochrome — buttons, glows, board */
   --accent2:    #bdbdbd;   /* soft white — labels, meta accents */
   --amber:      #ffb02e;
@@ -674,7 +676,7 @@ section { position: relative; z-index: 1; }
 }
 .about-card-icon svg { width: 20px; height: 20px; }
 .about-card h3 { font-size: 15.5px; font-weight: 650; margin-bottom: 8px; }
-.about-card p { font-size: 13.5px; color: var(--text-muted); }
+.about-card p { font-size: 13.5px; color: var(--text-card); }
 
 /* ── Featured project cards (home teaser) ───────────────── */
 .projects-row {
@@ -706,7 +708,7 @@ section { position: relative; z-index: 1; }
   margin-bottom: 10px;
 }
 .project-card h3 { font-size: 17px; font-weight: 700; margin-bottom: 8px; color: var(--text); }
-.project-card p { font-size: 13.5px; color: var(--text-muted); }
+.project-card p { font-size: 13.5px; color: var(--text-card); }
 .project-card-arrow {
   position: absolute;
   top: 22px;
@@ -844,7 +846,7 @@ section { position: relative; z-index: 1; }
 }
 .tl-body h4 { font-size: 15.5px; font-weight: 650; margin: 4px 0 2px; }
 .tl-org { display: block; font-size: 13px; color: var(--accent2); margin-bottom: 6px; }
-.tl-body p { font-size: 13.5px; line-height: 1.6; color: var(--text-muted); max-width: 56ch; }
+.tl-body p { font-size: 13.5px; line-height: 1.6; color: var(--text-card); max-width: 56ch; }
 .tl-badge {
   display: inline-flex;
   align-items: center;
@@ -1876,6 +1878,8 @@ body.blueprint {
   --text:      #ffffff;
   --text-muted: rgba(255, 255, 255, 0.68);
   --text-faint: rgba(255, 255, 255, 0.35);
+  --text-card: rgba(255, 255, 255, 0.68);   /* blueprint keeps its card text as it was */
+  --text-card-hover: #ffffff;
   --accent:    #90caff;
   --accent2:   #b8dfff;
   --amber:     #ffe9a8;
@@ -2338,4 +2342,50 @@ body.blueprint #bp-scratch-btn { display: block; }
   /* the about paragraph read airy and loose on phones */
   .section-description { font-size: 15px; line-height: 1.62; }
   .avatar-row { margin: 14px 0 4px; }
+}
+
+
+/* ── Readability (Hudson's pick from the readability lab, 2026-10-04:
+      "read · text 96 · glass 0 · H1 · P1 · O1 · F1") ──────────────────
+   Outside users found the card text the hardest thing on the page to read.
+   text 96: card body text is --text-card (#e3e3e3; it was --text-muted,
+   #9a9a9a), set in the rules above. glass 0: the smoke glass is unchanged.
+   O1 lives in index.html: Experience and Toolkit come right after About. */
+#about .section-description { color: var(--text-card); }
+
+/* H1: a hovered card brightens every line of its text, not only its frame,
+   and the About cards' lift eases the way the project cards' does */
+.about-card p, .about-card-icon, .project-card p, .project-card-tag { transition: color 180ms ease; }
+.project-card-arrow { transition: color 180ms ease, transform 180ms ease; }
+.about-card { transition: border-color 0.15s ease, background 0.15s ease, transform 0.2s ease; }
+@media (hover: hover) {
+  .about-card:hover p, .about-card:hover .about-card-icon,
+  .project-card:hover p, .project-card:hover .project-card-tag,
+  .project-card:hover .project-card-arrow { color: var(--text-card-hover); }
+}
+
+/* P1: a touch screen has no hover, so the card nearest the middle of the
+   screen wears the hover look as you scroll (interactive.js adds .card-lit,
+   one card at a time, and html.card-focus while it runs) */
+.about-card.card-lit, .project-card.card-lit { border-color: var(--border-h); background: var(--bg-card-h); }
+html.sand-glass body:not(.blueprint) .card-lit {
+  background: rgba(26, 26, 26, 0.48);
+  border-color: rgba(255, 255, 255, 0.22);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), inset 0 0 0 1px rgba(255, 255, 255, 0.035),
+              0 10px 28px rgba(0, 0, 0, 0.45), 0 0 34px rgba(255, 255, 255, 0.05);
+}
+.card-lit p, .card-lit .about-card-icon, .card-lit .project-card-tag, .card-lit .project-card-arrow { color: var(--text-card-hover); }
+.project-card.card-lit .project-card-arrow { transform: translateX(2px); }
+html.card-focus:not(.fx) .about-card,
+html.card-focus:not(.fx) .project-card { transition: border-color 0.28s ease, background 0.28s ease, transform 0.28s ease, box-shadow 0.28s ease; }
+html.card-focus:not(.fx) .card-lit { transform: translateY(-3px); }
+
+/* F1: on a laptop a card reaches full strength once its top is 40% up the
+   window (scroll-fx.js writes --q). The old fade (still --p, which keeps the
+   lift) held a card in the middle of the window at about 61%, which took its
+   text from 6.9:1 to 3.2:1. The corridor's cards keep their own fade. */
+.project-card, .about-card { --q: 1; }
+html.fx .project-card, html.fx .about-card {
+  --qe: calc(var(--q) * var(--q) * (3 - 2 * var(--q)));
+  opacity: calc(0.2 + var(--qe) * 0.8);
 }
