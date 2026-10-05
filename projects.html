@@ -264,7 +264,10 @@
   <script>/* no corridor (touch): the home page's sand behind the plain flow
     (Hudson, 2026-09-16: "on mobile the projects page doesn't have a sand background") */
     if (!document.documentElement.classList.contains('fx')) {
-      var sd = document.createElement('script'); sd.src = 'sand.js'; document.body.appendChild(sd);
+      /* the same ?v= the deploy stamps on every other script, so a phone never runs a stale sand.js */
+      var fxs = (document.querySelector('script[src*="scroll-fx.js"]') || {}).src || '';
+      var fxv = (fxs.match(/[?&]v=([^&#]+)/) || [])[1];
+      var sd = document.createElement('script'); sd.src = 'sand.js' + (fxv ? '?v=' + fxv : ''); document.body.appendChild(sd);
     }
   </script>
   <script src="transitions.js"></script>

@@ -415,7 +415,10 @@
   const scrollHint = document.createElement('div');
   scrollHint.id = 'scroll-hint';
   scrollHint.innerHTML = '<span class="scroll-hint-line"></span><span class="scroll-hint-text">scroll</span>';
-  document.body.append(scrollHint);
+  /* Not on the Projects page: its title, index rows and first card are already
+     on screen, and the cue sat on the first card's text on every device
+     (device check, 2026-10-04). Detached, the code below runs harmlessly. */
+  if (!document.querySelector('.sc-slide')) document.body.append(scrollHint);
   /* On the corridor it shows almost immediately and only leaves once you are
      genuinely inside it (a full viewport deep); the home page keeps the
      patient timing, so it never competes with the boot. */
