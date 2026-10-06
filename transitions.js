@@ -226,28 +226,29 @@
   });
 })();
 
-/* ── the Resume links: open it and save it ──────────────────────────
-   Hudson, 2026-10-04: "can it do both". A Resume link opens the PDF in a
-   new tab (target=_blank); on a computer the same click also saves a copy
-   to Downloads. Firefox and Safari open a downloaded PDF by themselves
-   by default (Firefox in a tab, Safari in Preview), so there the click only
-   downloads, or the resume would open twice; Chrome and Edge save quietly,
-   so there it does both. Phones and tablets only open it: a forced download
-   there asks first and files it away, and their viewer can save or share
-   it. A click with a modifier key or the middle button is the visitor's
-   own choice and is left alone. */
+/* ── the Resume links: open it, and save one copy ───────────────────
+   Hudson, 2026-10-04: "can it do both"; then 2026-10-06: "the site shouldn't
+   download a bunch of copies of the resume, once one was downloaded unless
+   there's a hard reset there shouldn't be another copy downloaded. it should
+   still open new tabs though". Every Resume click opens the PDF in a new tab
+   (target=_blank). On a computer the first click also saves a copy, once per
+   version of the resume (its ?v= date), remembered in this browser's storage,
+   so clearing the site's data brings the save back. Phones and tablets only
+   open it. A click with a modifier key or the middle button is left alone. */
 (function () {
   'use strict';
-  var PDF = 'Hudson-Tinch-Resume.pdf';
+  var PDF = 'Hudson-Tinch-Resume.pdf', KEY = 'ht-resume-saved';
   var desk = window.matchMedia ? window.matchMedia('(hover: hover) and (pointer: fine)') : null;
-  var ua = navigator.userAgent;
-  var opensItself = /Firefox\//.test(ua) ||
-    (/Safari\//.test(ua) && !/(Chrome|Chromium|CriOS|FxiOS|Edg|OPR)\//.test(ua));
+  function saved() { try { return localStorage.getItem(KEY); } catch (err) { return null; } }
+  function remember(v) { try { localStorage.setItem(KEY, v); } catch (err) { /* no storage: it may save again */ } }
   document.addEventListener('click', function (e) {
     if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
     var a = e.target && e.target.closest && e.target.closest('a[href*="' + PDF + '"]');
     /* the copy below is a download link itself, so its own click stops here */
     if (!a || a.hasAttribute('download') || !desk || !desk.matches) return;
+    var v = (a.href.match(/[?&]v=([^&#]+)/) || [])[1] || 'unversioned';
+    if (saved() === v) return;                 /* this version is already saved: the tab only */
+    remember(v);
     var dl = document.createElement('a');
     dl.href = a.href;
     dl.setAttribute('download', PDF);
@@ -255,6 +256,5 @@
     document.body.appendChild(dl);
     dl.click();
     dl.remove();
-    if (opensItself) e.preventDefault();
   });
 })();

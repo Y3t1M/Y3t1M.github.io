@@ -415,10 +415,17 @@
   const scrollHint = document.createElement('div');
   scrollHint.id = 'scroll-hint';
   scrollHint.innerHTML = '<span class="scroll-hint-line"></span><span class="scroll-hint-text">scroll</span>';
-  /* Not on the Projects page: its title, index rows and first card are already
-     on screen, and the cue sat on the first card's text on every device
-     (device check, 2026-10-04). Detached, the code below runs harmlessly. */
-  if (!document.querySelector('.sc-slide')) document.body.append(scrollHint);
+  /* The Projects page says what to do, on every platform (Hudson, 2026-10-06:
+     "the scroll tooltip needs to show up on the projects page on all the
+     platforms and needs to be more encouraging because some users get confused
+     on how to navigate the projects page"). It reads bright, on a soft dark
+     pool, so it never fights the card text it sits over (styles.css). */
+  if (document.querySelector('.sc-slide')) {
+    scrollHint.classList.add('hint-projects');
+    scrollHint.querySelector('.scroll-hint-text').textContent =
+      matchMedia('(pointer: coarse)').matches ? 'swipe up to explore the projects' : 'scroll to explore the projects';
+  }
+  document.body.append(scrollHint);
   /* On the corridor it shows almost immediately and only leaves once you are
      genuinely inside it (a full viewport deep); the home page keeps the
      patient timing, so it never competes with the boot. */

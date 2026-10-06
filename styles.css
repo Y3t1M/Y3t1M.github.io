@@ -2389,3 +2389,43 @@ html.fx .project-card, html.fx .about-card {
   --qe: calc(var(--q) * var(--q) * (3 - 2 * var(--q)));
   opacity: calc(0.2 + var(--qe) * 0.8);
 }
+
+/* ── The Projects page's scroll cue (Hudson, 2026-10-06: "needs to be more
+   encouraging because some users get confused on how to navigate the projects
+   page"). It says what to do, bright enough to read, and sits on a soft dark
+   pool (not a capsule) so it never fights the text beneath it. The home
+   page's cue is unchanged. ── */
+#scroll-hint.hint-projects { gap: 10px; }
+#scroll-hint.hint-projects::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -48px;
+  width: min(680px, 100vw);
+  height: 210px;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse 55% 62% at 50% 100%, rgba(5, 5, 5, 0.97) 0%, rgba(5, 5, 5, 0.92) 42%, rgba(5, 5, 5, 0.55) 70%, rgba(5, 5, 5, 0) 100%);
+  z-index: -1;
+  pointer-events: none;
+}
+#scroll-hint.hint-projects .scroll-hint-text {
+  font-size: 11.5px;
+  letter-spacing: 0.2em;
+  color: rgba(236, 233, 241, 0.88);
+  white-space: nowrap;
+}
+#scroll-hint.hint-projects .scroll-hint-line {
+  height: 34px;
+  background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.85));
+}
+
+/* phones: the label nearly spans the screen, so the pool is a full-width fade
+   along the bottom edge instead; it leaves with the cue on the first swipe */
+@media (max-width: 700px) {
+  #scroll-hint.hint-projects::before {
+    width: 100vw;
+    height: 190px;
+    bottom: -28px;
+    background: linear-gradient(to bottom, rgba(5, 5, 5, 0) 0%, rgba(5, 5, 5, 0.88) 42%, rgba(5, 5, 5, 0.97) 70%);
+  }
+}
