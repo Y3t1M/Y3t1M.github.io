@@ -232,7 +232,7 @@
           printLine('    Bell AVR Nationals · 4th Place · 2nd in Presentation', 'out');
           printLine('    Robotics Best Design + Judges\' Choice', 'out');
           printLine('    Presidential Service Award', 'out');
-          printLine('    HP MAPS Scots Tank Winner', 'out');
+          printLine('    Highland Park HS · Scots Tank Pitch Competition Winner', 'out');
           printLine('    Chancellor\'s List · 4.0 GPA', 'out');
           printLine('', '');
           printLine('  SEE ALSO', 'info');

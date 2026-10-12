@@ -47,7 +47,7 @@
     { fig: '700+', unit: 'locations run · 2025 – 2026', row: '700+ locations', src: '700+ locations' },
     { fig: '13%',  unit: 'ahead of the S&P · agentic strategy', row: '13% over the S&P', src: null },
     /* Hudson, 2026-09-16: the Sam's Club mark instead of DEMO; the row keeps Demo Day */
-    { fig: 'SAMS', logo: SAMS, label: 'Sam’s Club', unit: 'Sam’s Club challenge · spring 2026', row: 'Demo Day', src: 'Demo Day, Spring 2026' },
+    { fig: 'SAMS', logo: SAMS, label: 'Sam’s Club', unit: 'built with Sam’s Club · spring 2026', row: 'Demo Day', src: 'Demo Day, Spring 2026' },
     /* Hudson, 2026-09-16: 0 instead of 2026. The whole photo-to-tray pipeline runs in the
        browser and photos never leave the device (the demo's own note), so like the 13% it
        is not in this slide's copy: src null. */
