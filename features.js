@@ -223,13 +223,14 @@
           printLine('    Georgia Tech Summer Institute · Highest Presentation Score', 'out');
           printLine('', '');
           printLine('  EXPERIENCE', 'info');
-          printLine('    Sam\'s Club  ·  Hollis Bloom (back-end dev)', 'out');
-          printLine('    Farah Law Firm (C++ programmer)', 'out');
+          printLine('    McMillon Innovation Studio (project manager)', 'out');
+          printLine('    S.C.A.L.E.ai (analyst)  ·  Hollis Bloom (developer)', 'out');
+          printLine('    Farah Law Firm (developer)', 'out');
           printLine('    Dimensional Design 3D · founded age 8 (2014–2020)', 'out');
           printLine('', '');
           printLine('  AWARDS', 'info');
-          printLine('    Bell AVR Nationals · 4th Place', 'out');
-          printLine('    Robotics Best Design + Judge\'s Choice', 'out');
+          printLine('    Bell AVR Nationals · 4th Place · 2nd in Presentation', 'out');
+          printLine('    Robotics Best Design + Judges\' Choice', 'out');
           printLine('    Presidential Service Award', 'out');
           printLine('    HP MAPS Scots Tank Winner', 'out');
           printLine('    Chancellor\'s List · 4.0 GPA', 'out');
