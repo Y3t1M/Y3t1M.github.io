@@ -30,7 +30,7 @@
       font-family: 'Site Sans', "Helvetica Neue", Helvetica, Arial, sans-serif;
       color: #17191c;
       font-size: 10pt;
-      line-height: 1.39;
+      line-height: 1.43;
       max-width: 7.4in;
       margin: 0 auto;
       padding: 24px 0;
@@ -105,7 +105,7 @@
     .entry-head h3 { font-size: 10.8pt; font-weight: 650; }
     .entry-head h3 span { font-weight: 400; color: #3c4043; }
     .entry-date { white-space: nowrap; }
-    .sb-course { font-size: 8.9pt !important; color: #44484e !important; margin-top: 5px; }
+    .sb-course { font-size: 8.9pt !important; color: #3c4043 !important; margin-top: 5px; }
     .entry-org { font-size: 9pt; color: #5f6368; margin: 1px 0 4px; }
     ul { list-style: none; padding-left: 12px; }
     li { margin-bottom: 2.5px; color: #26292d; position: relative; }
@@ -129,7 +129,7 @@
     .sb-strong { font-weight: 650; font-size: 10.2pt; }
     .sb-sub { color: #3c4043; font-size: 9.2pt; }
     .sb-row { margin-bottom: 6px; }
-    .skill-line { margin-bottom: 6px; }
+    .skill-line { margin-bottom: 6px; text-wrap: balance; }
     .skill-line .mono { display: block; margin-bottom: 1px; font-size: 7.8pt; letter-spacing: 0.1em; text-transform: uppercase; color: #5f6368; }
     .skill-line span.list { color: #26292d; font-size: 9.4pt; }
     .award-list div {
@@ -145,7 +145,7 @@
     .qr { display: block; flex: none; width: 0.8in; color: #17191c; text-decoration: none; }
     .qr svg { display: block; width: 100%; height: auto; }
     .qr-cap { display: block; margin-top: 3px; text-align: center; font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 6.2pt; letter-spacing: 0.14em; color: #6a6e74; white-space: nowrap; }
-    .sb-win { font-size: 9.2pt; font-weight: 600; color: #17191c; margin-top: 1px; }
+    .sb-win { font-size: 9.2pt; font-weight: 400; color: #26292d; margin-top: 1px; }
 
     /* Screen-only: stack the print grid on narrow screens. Print/PDF is
        untouched: @page + the print block above own that path. */
@@ -180,7 +180,7 @@
   <header>
     <div>
       <h1>Hudson H. Tinch</h1>
-      <div class="role-line">Finance &amp; entrepreneurship &middot; University of Arkansas Honors College</div>
+      <div class="role-line">Finance &amp; Entrepreneurship &middot; University of Arkansas Honors College</div>
     </div>
     <div class="hd-right">
       <div class="contact mono">
@@ -205,8 +205,8 @@
           </div>
           <div class="entry-org">University of Arkansas &middot; Walton College of Business</div>
           <ul>
-            <li>Lead the studio's student team partnered with Workday.</li>
-            <li>Built <a href="https://membersmoments.hudsontinch.com" style="color:inherit;text-decoration:none;">Members Moments</a>, a shoppable creator video prototype, with Sam's Club; advanced through the competitive pitch round to Demo&nbsp;Day, Spring&nbsp;2026, the studio's largest cohort (18 teams).</li>
+            <li>Lead the studio’s student team partnered with Workday.</li>
+            <li>Built <a href="https://membersmoments.hudsontinch.com" style="color:inherit;text-decoration:none;">Members Moments</a>, a shoppable creator-video prototype, with Sam’s Club; advanced through the competitive pitch round to the Spring&nbsp;2026 Demo&nbsp;Day (18 teams, the studio’s largest cohort).</li>
           </ul>
         </div>
 
@@ -217,7 +217,7 @@
           </div>
           <div class="entry-org">Part-time &middot; University of Arkansas supply chain simulation company</div>
           <ul>
-            <li>Aggregate simulation data from the master's and freshman sections and build weekly PowerPoint summaries of the results.</li>
+            <li>Aggregate simulation results from the master’s and freshman course sections into weekly PowerPoint summaries.</li>
           </ul>
         </div>
 
@@ -228,10 +228,10 @@
           </div>
           <div class="entry-org">Part-time &middot; Dallas, TX</div>
           <ul>
-            <li>Grew from the company website's front end to running app development for its work-order platform: 2,000+ work orders a year for three enterprise clients.</li>
-            <li>Integrity Marketing Group (client, Summer&nbsp;2026): shipped the work-order system its Fountain Place facilities team runs daily, unifying 5 intake channels (web, email, iOS, Siri, Teams) into one routed queue.</li>
-            <li>Built the Microsoft Teams integration, rolling out to Integrity's ~450-person Shared Service Center, that staff use to file jobs and get daily briefings.</li>
-            <li>Built client payment and donation flows (Stripe ACH, QuickBooks), including Prison Chapels' online donation system.</li>
+            <li>Started on the company website’s front end; now run app development for its work-order platform: 2,000+ work orders a year for three enterprise clients.</li>
+            <li>Integrity Marketing Group (client, Summer&nbsp;2026): shipped the work-order system its Dallas headquarters facilities team runs daily, unifying five intake channels (web, email, iOS, Siri, Teams) into one routed queue.</li>
+            <li>Built the Microsoft Teams integration now rolling out to Integrity’s ~450-person Shared Service Center; staff use it to file requests and get daily briefings.</li>
+            <li>Developed payment and donation tools (Stripe ACH, QuickBooks), including Prison Chapels’ online donation system.</li>
           </ul>
         </div>
 
@@ -252,16 +252,16 @@
             <span class="entry-date mono">2014 &ndash; 2020</span>
           </div>
           <ul>
-            <li>Started the 3D-printing business at eight; ran design, production, and sales to four-figure revenue, selling mainly to other students.</li>
+            <li>Started the 3D-printing business at eight; ran design, production, and sales, reaching four-figure revenue mainly from other students.</li>
           </ul>
         </div>
       </section>
 
       <section>
         <h2>Projects &amp; Competitions</h2>
-        <div class="proj"><p><b>S.C.A.L.E.ai Supply Chain Simulation</b><span class="mono">Walton College &middot; Spring&nbsp;2026</span><br>Built a cost-tracking model to run a simulated company and won the entire cohort of 450+ students with the highest net profit; ended with $103,421 in cash.</p></div>
-        <div class="proj"><p><b>Wharton Global Youth Program</b><span class="mono">The Wharton School &middot; 2024</span><br>Essentials of Entrepreneurship: elected team CEO and won Best Presentation in the program's competition.</p></div>
-        <div class="proj"><p><b>AVR Drone</b><span class="mono">Highland Park HS Robotics &middot; 2024</span><br>Captained the team behind an autonomous competition drone (A* pathfinding): 4th at Bell Advanced Vertical Robotics nationals, 2nd in presentation.</p></div>
+        <div class="proj"><p><b>S.C.A.L.E.ai Supply Chain Simulation</b><span class="mono">Walton College of Business &middot; Spring&nbsp;2026</span><br>Won the entire cohort of 450+ students with the highest net profit by building a cost-tracking model to run the simulated company; ended with $103,421 in cash.</p></div>
+        <div class="proj"><p><b>Wharton Global Youth Program</b><span class="mono">The Wharton School &middot; 2024</span><br>Essentials of Entrepreneurship: elected team CEO and won Best Presentation in the program’s competition.</p></div>
+        <div class="proj"><p><b>Bell Advanced Vertical Robotics</b><span class="mono">Highland Park HS Robotics &middot; 2024</span><br>Captained the autonomous-drone team: 4th at nationals, 2nd in presentation.</p></div>
       </section>
     </main>
 
@@ -270,10 +270,10 @@
         <h2>Education</h2>
         <div class="sb-row">
           <div class="sb-strong">University of Arkansas</div>
-          <div class="sb-sub">Sam M. Walton College of Business &middot; BSBA, Finance &amp; Entrepreneurship</div>
+          <div class="sb-sub">Sam M. Walton College of Business &middot; BSBA, Finance&nbsp;&amp;&nbsp;Entrepreneurship</div>
           <div class="mono" style="margin-top:2px;">Expected May 2029</div>
         </div>
-        <p>Honors College &middot; <b>4.0 GPA</b><br>Chancellor's List every term</p>
+        <p>Honors College &middot; <b>4.0 GPA</b><br>Chancellor’s List every term</p>
         <p class="sb-course">Coursework: Principles of Finance (in progress), Honors Survey of Accounting, Business Statistics, Supply Chain Management, Foundations of Business Analytics (in progress)</p>
         <div class="sb-row" style="margin-top:9px;">
           <div class="sb-strong">Duke University</div>
@@ -286,14 +286,14 @@
       <div class="sb-block">
         <h2>Skills</h2>
         <div class="skill-line"><span class="mono">FINANCE</span><span class="list">Financial statement analysis</span></div>
-        <div class="skill-line"><span class="mono">TOOLS</span><span class="list">Excel, Python, SQL</span></div>
-        <div class="skill-line"><span class="mono">TECHNICAL</span><span class="list">TypeScript, React, Node.js, Supabase/Postgres, Stripe, QuickBooks</span></div>
+        <div class="skill-line"><span class="mono">TOOLS</span><span class="list">Excel, PowerPoint, Python, SQL</span></div>
+        <div class="skill-line"><span class="mono">TECHNICAL</span><span class="list">TypeScript, React, Node.js, Postgres, Stripe, QuickBooks</span></div>
       </div>
 
       <div class="sb-block">
         <h2>Awards</h2>
         <div class="award-list">
-          <div>Highland Park HS Robotics &middot; Team Captain &middot; Best Design, Judges' Choice</div>
+          <div>Highland Park HS Robotics &middot; Team Captain &middot; Best Design, Judges’ Choice</div>
           <div>Highland Park HS &middot; Scots&nbsp;Tank Pitch Competition Winner</div>
           <div>Presidential Service Award</div>
         </div>
