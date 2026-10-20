@@ -1,9 +1,16 @@
-﻿/* ================================================================
-   DESKTOP.CSS — Authentic Windows 95 / 98 UI
-   ================================================================ */
+/* ================================================================
+   DESKTOP.CSS — Windows 95, done properly.
 
-/* ---------- Font Import ---------- */
-@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+   The reference for every bevel here is the real thing: a Win95
+   control is FOUR one-pixel edges, not a border and a blur —
+     raised:  #dfdfdf, #ffffff outside-in on the light corner,
+              #0a0a0a, #808080 outside-in on the dark corner
+   drawn with inset box-shadows so geometry never shifts. Flat navy
+   titlebars (the gradient was 98), no hover states anywhere the real
+   OS had none, checkerboard scrollbar tracks, and a dithered face on
+   the pressed taskbar button. Chrome text is Tahoma 11px — the
+   closest ubiquitous metric match to MS Sans Serif 8pt.
+   ================================================================ */
 
 /* ---------- Reset ---------- */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -11,234 +18,211 @@
 /* ---------- CSS Variables ---------- */
 :root {
   /* W95 palette */
-  --w-face:     #c0c0c0;   /* gray face */
-  --w-lt:       #ffffff;   /* light edge */
-  --w-dk:       #808080;   /* dark edge */
-  --w-ddk:      #000000;   /* deep dark (authentic W95 outer edge) */
-  --w-dfl:      #dfdfdf;   /* second light tone for the double bevel */
-  --w-btn:      #c0c0c0;
-  --w-titlebar: #000080;
-  --w-titlebar2:#1084d0;
+  --w-face:     #c0c0c0;
+  --w-lt:       #ffffff;
+  --w-dfl:      #dfdfdf;
+  --w-dk:       #808080;
+  --w-ddk:      #0a0a0a;
+  --w-titlebar: #000080;   /* flat — the 90° gradient arrived with 98 */
+  --w-title-in: #808080;   /* inactive titlebar */
   --w-text:     #000000;
   --w-white:    #ffffff;
   --w-select:   #000080;
   --w-select-t: #ffffff;
-  /* font */
-  --w-font: "MS Sans Serif", "Microsoft Sans Serif", "Pixelated MS Sans Serif", Tahoma, sans-serif;
-  /* taskbar */
-  --tb-h: 36px;
-  /* lock screen background — change this to retheme the lock screen */
-  --lock-bg: #000080;
+
+  /* the four-edge recipes, exactly as the OS drew them */
+  --bevel-raised:  inset -1px -1px var(--w-ddk), inset 1px 1px var(--w-lt),
+                   inset -2px -2px var(--w-dk), inset 2px 2px var(--w-dfl);
+  --bevel-pressed: inset -1px -1px var(--w-lt), inset 1px 1px var(--w-ddk),
+                   inset -2px -2px var(--w-dfl), inset 2px 2px var(--w-dk);
+  --bevel-field:   inset -1px -1px var(--w-lt), inset 1px 1px var(--w-dk),
+                   inset -2px -2px var(--w-dfl), inset 2px 2px var(--w-ddk);
+  --bevel-thin-up:   inset -1px -1px var(--w-dk), inset 1px 1px var(--w-lt);
+  --bevel-thin-down: inset -1px -1px var(--w-lt), inset 1px 1px var(--w-dk);
+
+  /* the 2px checkerboard — scrollbar tracks, pressed taskbar buttons */
+  --dither: repeating-conic-gradient(var(--w-lt) 0% 25%, var(--w-face) 0% 50%);
+
+  --w-font: Tahoma, "MS Sans Serif", "Segoe UI", Geneva, sans-serif;
+  --tb-h: 30px;
+  --lock-bg: #008080;
 }
 
 /* ----------------------------------------------------------------
-   WALLPAPER — Classic Windows 95 teal
+   WALLPAPER
    ---------------------------------------------------------------- */
 html, body {
   margin: 0; padding: 0;
   font-family: var(--w-font);
   font-size: 11px;
+  -webkit-font-smoothing: antialiased;
   user-select: none;
   overflow: hidden;
-  height: 100vh;
-  width: 100vw;
+  height: 100vh; width: 100vw;
   cursor: default;
 }
 
-body.desktop {
-  background: #008080;
-  height: 100vh; overflow: hidden;
-}
-
+body.desktop { background: #008080; height: 100vh; overflow: hidden; }
 body.desktop::before { content: none; }
 
-/* ----------------------------------------------------------------
-   DESKTOP CONTAINER
-   ---------------------------------------------------------------- */
-.desktop {
-  position: relative;
-  width: 100vw; height: 100vh;
-  display: block;
-}
+.desktop { position: relative; width: 100vw; height: 100vh; display: block; }
 
 /* ----------------------------------------------------------------
-   DESKTOP ICONS
+   DESKTOP ICONS — no hover state; the real shell only marked selection
    ---------------------------------------------------------------- */
 .icon {
   position: absolute;
-  width: 76px;
+  width: 82px;
   text-align: center;
   color: white;
-  cursor: pointer;
+  cursor: default;
   padding: 5px 4px 4px;
   border: 1px solid transparent;
   outline: none;
   z-index: 2;
-  transition: none;
-  border-radius: 0;
 }
 
-.icon:hover {
-  background: rgba(0,0,128,0.35);
-  border-color: rgba(255,255,255,0.6);
-}
-.icon:active { background: rgba(0,0,128,0.25); }
+.icon:active { border-color: transparent; }
 .icon.selected span {
   background: var(--w-select);
   color: var(--w-select-t);
-  outline: 1px dotted #ffff88;
+  outline: 1px dotted #ffff00;
+  outline-offset: -1px;
 }
-.icon.selected img { filter: brightness(0.8) saturate(1.4) hue-rotate(0deg); }
+.icon.selected img,
+.icon.selected .icon-emoji { filter: brightness(0.72) saturate(1.2) drop-shadow(0 0 0 rgba(0,0,128,0.5)); }
 
-/* Single-column layout, left side – overridden by JS drag after first move */
-.icon:nth-child(1) { top:  18px; left: 20px; }
-.icon:nth-child(2) { top: 110px; left: 20px; }
-.icon:nth-child(3) { top: 202px; left: 20px; }
-.icon:nth-child(4) { top: 294px; left: 20px; }
-.icon:nth-child(5) { top: 386px; left: 20px; }
-.icon:nth-child(6) { top:  18px; left: 112px; }
-.icon:nth-child(7) { top: 110px; left: 112px; }
-.icon:nth-child(8) { top: 202px; left: 112px; }
+.icon:nth-child(1) { top:  14px; left: 16px; }
+.icon:nth-child(2) { top: 108px; left: 16px; }
+.icon:nth-child(3) { top: 202px; left: 16px; }
+.icon:nth-child(4) { top: 296px; left: 16px; }
+.icon:nth-child(5) { top: 390px; left: 16px; }
+.icon:nth-child(6) { top:  14px; left: 108px; }
+.icon:nth-child(7) { top: 108px; left: 108px; }
+.icon:nth-child(8) { top: 202px; left: 108px; }
 
 .icon img {
-  width: 36px; height: 36px;
-  margin: 0 auto 5px;
+  width: 32px; height: 32px;
+  margin: 0 auto 6px;
   image-rendering: pixelated;
   display: block;
-  filter: drop-shadow(1px 2px 2px rgba(0,0,0,0.6));
+  filter: drop-shadow(1px 1px 0 rgba(0,0,0,0.45));
 }
-
-/* Pixel-art SVG icon placeholder when no image */
 .icon .icon-emoji {
-  font-size: 30px;
+  font-size: 28px;
   display: block;
-  margin: 0 auto 5px;
-  line-height: 1;
-  filter: drop-shadow(1px 1px 1px rgba(0,0,0,0.8));
+  margin: 0 auto 6px;
+  line-height: 32px;
+  filter: drop-shadow(1px 1px 0 rgba(0,0,0,0.55));
 }
-
 .icon span:last-child {
-  display: block;
-  font-size: 10px;
-  font-weight: 600;
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 400;
   color: #fff;
-  text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000,
-               0 1px 0 #000, 0 -1px 0 #000, 1px 0 0 #000, -1px 0 0 #000;
-  line-height: 1.3;
+  text-shadow: 1px 1px 1px #000;
+  line-height: 1.25;
+  padding: 0 2px 1px;
   word-break: break-word;
-  hyphens: auto;
 }
 
 /* ----------------------------------------------------------------
-   WINDOWS — W95 chrome
+   WINDOWS — silver plate, four-edge bevel, 3px face frame inside
    ---------------------------------------------------------------- */
 .window {
   position: absolute;
   min-width: 200px; min-height: 100px;
   background: var(--w-face);
-  /* classic W95 raised outer border */
-  border: 1px solid;
-  border-color: var(--w-dfl) var(--w-ddk) var(--w-ddk) var(--w-dfl);
-  box-shadow: inset 1px 1px 0 var(--w-lt), inset -1px -1px 0 var(--w-dk), 1px 1px 0 var(--w-ddk);
+  border: none;
+  box-shadow: var(--bevel-raised);
+  padding: 3px;
   display: none;
   flex-direction: column;
   overflow: hidden;
   z-index: 100;
 }
-
 .window.active { display: flex; }
 
-/* Window open animation */
-@keyframes winOpen {
-  from { transform: scale(0.92); opacity: 0; }
-  to   { transform: scale(1);    opacity: 1; }
-}
-.window.spawn { animation: winOpen 0.12s ease-out; }
+@keyframes winOpen { from { transform: scale(0.96); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.window.spawn { animation: winOpen 0.1s ease-out; }
 
 /* ----------------------------------------------------------------
-   TITLEBAR
+   TITLEBAR — flat navy when focused, flat gray when not
    ---------------------------------------------------------------- */
 .window-titlebar {
-  background: linear-gradient(90deg,
-    var(--w-titlebar) 0%,
-    var(--w-titlebar2) 100%
-  );
-  height: 22px;
+  background: var(--w-title-in);
+  height: 18px;
   display: flex;
   align-items: center;
-  padding: 0 3px 0 4px;
+  padding: 1px 2px 1px 3px;
+  margin-bottom: 1px;
   cursor: move;
   flex-shrink: 0;
   user-select: none;
-  gap: 4px;
+  gap: 3px;
 }
+.window.active .window-titlebar { background: var(--w-titlebar); }
 
-/* Title icon placeholder */
 .window-titlebar .title-icon {
-  font-size: 13px; line-height: 1;
-  flex-shrink: 0;
+  font-size: 12px; line-height: 1;
+  flex: 0 0 16px;                       /* never grows — the generic span rule below must not centre the title */
+  width: 16px; text-align: center;
+  filter: saturate(0.85);
 }
 
-.window-titlebar > span {
+.window-titlebar > span:not(.title-icon) {
   font-size: 11px;
   font-weight: 700;
-  color: #fff;
+  color: #c8c8c8;                       /* inactive title text */
   flex: 1;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  letter-spacing: 0.2px;
+  letter-spacing: 0;
+  padding-bottom: 1px;
 }
+.window.active .window-titlebar > span:not(.title-icon) { color: #fff; }
 
 /* ----------------------------------------------------------------
-   WINDOW CONTROLS (minimize / maximize / close)
+   WINDOW CONTROLS — real glyphs, drawn in pixels, no red hover
    ---------------------------------------------------------------- */
-.window-controls {
-  display: flex; gap: 2px; align-items: center; flex-shrink: 0;
-}
+.window-controls { display: flex; gap: 0; align-items: center; flex-shrink: 0; }
 
 .minimize-btn, .maximize-btn, .close-btn {
   width: 16px; height: 14px;
-  font-size: 8px;
-  display: flex; align-items: center; justify-content: center;
+  font-size: 0;                          /* the text glyph stays for AT, pixels draw the face */
   padding: 0;
-  cursor: pointer;
-  background: var(--w-face);
-  color: #000;
-  /* W95 raised button */
-  border: 1px solid;
-  border-color: var(--w-dfl) var(--w-ddk) var(--w-ddk) var(--w-dfl);
-  box-shadow: inset 1px 1px 0 var(--w-lt), inset -1px -1px 0 var(--w-dk);
-  font-weight: 900;
-  line-height: 1;
+  cursor: default;
+  background-color: var(--w-face);
+  border: none;
+  box-shadow: var(--bevel-thin-up), inset -2px -2px var(--w-dk);
+  background-repeat: no-repeat;
+  background-position: center;
+  image-rendering: pixelated;
 }
+.close-btn { margin-left: 2px; }
+
+.minimize-btn { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='14' shape-rendering='crispEdges'%3E%3Crect x='4' y='9' width='6' height='2' fill='%23000'/%3E%3C/svg%3E"); }
+.maximize-btn { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='14' shape-rendering='crispEdges'%3E%3Crect x='3' y='2' width='9' height='9' fill='none' stroke='%23000'/%3E%3Crect x='3' y='2' width='9' height='2' fill='%23000'/%3E%3C/svg%3E"); }
+.close-btn    { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='14' shape-rendering='crispEdges'%3E%3Cpath d='M4 3h2v1h1v1h2V4h1V3h2v1h-1v1h-1v1h-1v1h1v1h1v1h1v1h-2V9h-1V8H7v1H6v1H4V9h1V8h1V7h1V6H6V5H5V4H4z' fill='%23000'/%3E%3C/svg%3E"); }
 
 .minimize-btn:active, .maximize-btn:active, .close-btn:active {
-  border-color: var(--w-ddk) var(--w-lt) var(--w-lt) var(--w-ddk);
-  box-shadow: inset 1px 1px 0 var(--w-dk);
-  transform: none;
+  box-shadow: var(--bevel-thin-down), inset 2px 2px var(--w-dk);
+  background-position: 1px 1px, center;
+  padding: 1px 0 0 1px;
 }
 
-.close-btn:hover { background: #cc0000; color: white; }
-
 /* ----------------------------------------------------------------
-   MENUBAR (for windows that have it)
+   MENUBAR
    ---------------------------------------------------------------- */
 .window-menubar {
   display: flex;
   background: var(--w-face);
-  border-bottom: 1px solid var(--w-dk);
-  padding: 1px 2px;
+  padding: 1px 0;
   flex-shrink: 0;
 }
-
-.menu-item {
-  padding: 2px 8px; cursor: pointer; font-size: 11px; border: 1px solid transparent;
-}
-.menu-item:hover {
-  background: var(--w-select); color: var(--w-select-t);
-  border-color: var(--w-lt) var(--w-ddk) var(--w-ddk) var(--w-lt);
-}
+.menu-item { padding: 2px 7px 3px; cursor: default; font-size: 11px; }
+.menu-item:hover { background: var(--w-select); color: var(--w-select-t); }
 
 /* ----------------------------------------------------------------
    WINDOW CONTENT
@@ -250,105 +234,124 @@ body.desktop::before { content: none; }
   overflow: auto;
   font-size: 11px;
   color: #000;
-  /* Inner sunken border */
-  border-top: 1px solid var(--w-dk);
+  border-top: none;
 }
 
-/* W95 scrollbars */
-.window-content::-webkit-scrollbar { width: 16px; height: 16px; }
-.window-content::-webkit-scrollbar-track {
-  background: var(--w-face);
-  border: 1px solid var(--w-dk);
+/* W95 scrollbars — checkerboard track, beveled thumb, pixel arrows */
+.window-content::-webkit-scrollbar,
+.ie-content::-webkit-scrollbar,
+.explorer-sidebar::-webkit-scrollbar { width: 16px; height: 16px; }
+
+.window-content::-webkit-scrollbar-track,
+.ie-content::-webkit-scrollbar-track,
+.explorer-sidebar::-webkit-scrollbar-track {
+  background: var(--dither);
+  background-size: 2px 2px;
 }
-.window-content::-webkit-scrollbar-thumb {
+.window-content::-webkit-scrollbar-thumb,
+.ie-content::-webkit-scrollbar-thumb,
+.explorer-sidebar::-webkit-scrollbar-thumb {
   background: var(--w-face);
-  border: 1px solid;
-  border-color: var(--w-lt) var(--w-ddk) var(--w-ddk) var(--w-lt);
-  box-shadow: inset 1px 1px 0 var(--w-lt), inset -1px -1px 0 var(--w-dk);
+  box-shadow: var(--bevel-thin-up), inset -2px -2px var(--w-dk), inset 2px 2px var(--w-dfl);
 }
-.window-content::-webkit-scrollbar-button {
-  background: var(--w-face);
-  border: 1px solid;
-  border-color: var(--w-lt) var(--w-ddk) var(--w-ddk) var(--w-lt);
+.window-content::-webkit-scrollbar-button,
+.ie-content::-webkit-scrollbar-button,
+.explorer-sidebar::-webkit-scrollbar-button {
+  background-color: var(--w-face);
+  box-shadow: var(--bevel-thin-up), inset -2px -2px var(--w-dk), inset 2px 2px var(--w-dfl);
   display: block; height: 16px; width: 16px;
+  background-repeat: no-repeat; background-position: center;
+  image-rendering: pixelated;
 }
+.window-content::-webkit-scrollbar-button:vertical:decrement,
+.ie-content::-webkit-scrollbar-button:vertical:decrement,
+.explorer-sidebar::-webkit-scrollbar-button:vertical:decrement
+{ background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' shape-rendering='crispEdges'%3E%3Cpath d='M8 5l-4 4h8z' fill='%23000'/%3E%3C/svg%3E"); }
+.window-content::-webkit-scrollbar-button:vertical:increment,
+.ie-content::-webkit-scrollbar-button:vertical:increment,
+.explorer-sidebar::-webkit-scrollbar-button:vertical:increment
+{ background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' shape-rendering='crispEdges'%3E%3Cpath d='M8 11l4-4H4z' fill='%23000'/%3E%3C/svg%3E"); }
+.window-content::-webkit-scrollbar-button:horizontal:decrement,
+.ie-content::-webkit-scrollbar-button:horizontal:decrement
+{ background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' shape-rendering='crispEdges'%3E%3Cpath d='M5 8l4-4v8z' fill='%23000'/%3E%3C/svg%3E"); }
+.window-content::-webkit-scrollbar-button:horizontal:increment,
+.ie-content::-webkit-scrollbar-button:horizontal:increment
+{ background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' shape-rendering='crispEdges'%3E%3Cpath d='M11 8L7 4v8z' fill='%23000'/%3E%3C/svg%3E"); }
+.window-content::-webkit-scrollbar-corner { background: var(--w-face); }
 
 /* ----------------------------------------------------------------
-   STATUSBAR (bottom of windows)
+   STATUSBAR
    ---------------------------------------------------------------- */
 .window-statusbar {
-  height: 18px;
-  display: flex; align-items: center;
-  border-top: 1px solid var(--w-dk);
-  padding: 0 4px;
+  height: 20px;
+  display: flex; align-items: stretch;
+  padding: 2px 0 0;
   flex-shrink: 0;
-  font-size: 10px; color: #000;
+  font-size: 11px; color: #000;
   background: var(--w-face);
+  gap: 2px;
 }
 .statusbar-panel {
-  flex: 1; padding: 0 4px;
-  border: 1px solid; border-color: var(--w-dk) var(--w-lt) var(--w-lt) var(--w-dk);
-  margin-right: 2px; height: 12px; line-height: 12px;
+  flex: 1; padding: 1px 6px 0;
+  box-shadow: var(--bevel-thin-down);
+  line-height: 15px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 
 /* ----------------------------------------------------------------
-   SIDEBAR EXPLORER (My Computer, file explorer)
+   EXPLORER
    ---------------------------------------------------------------- */
-.explorer-layout {
-  display: flex; height: 100%; gap: 0;
-}
+.explorer-layout { display: flex; height: 100%; gap: 0; }
 .explorer-sidebar {
   width: 160px;
   background: var(--w-white);
-  border-right: 1px solid var(--w-dk);
-  padding: 8px 4px;
+  box-shadow: var(--bevel-field);
+  padding: 8px 6px;
   flex-shrink: 0;
   overflow-y: auto;
+  margin-right: 3px;
 }
 .explorer-sidebar h4 {
-  font-size: 10px; font-weight: 700; color: var(--w-titlebar);
+  font-size: 11px; font-weight: 700; color: var(--w-titlebar);
   margin-bottom: 8px; padding: 0 4px;
 }
 .explorer-sidebar-item {
   display: flex; align-items: center; gap: 6px;
-  padding: 2px 6px; cursor: pointer; border: 1px solid transparent; font-size: 11px;
+  padding: 2px 6px; cursor: default; font-size: 11px;
 }
-.explorer-sidebar-item:hover { background: var(--w-select); color: white; border-color: var(--w-select); }
+.explorer-sidebar-item:hover { background: var(--w-select); color: white; }
 
 /* ----------------------------------------------------------------
-   FOLDER GRID (inside windows)
+   FOLDER GRID
    ---------------------------------------------------------------- */
 .folder-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-  padding: 8px;
+  display: flex; flex-wrap: wrap;
+  gap: 2px; padding: 8px;
   align-content: flex-start;
+  background: var(--w-white);
+  box-shadow: var(--bevel-field);
+  min-height: 100%;
 }
-
 .folder {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  display: flex; flex-direction: column; align-items: center;
   text-align: center;
-  cursor: pointer;
-  padding: 6px;
+  cursor: default;
+  padding: 6px 4px;
   width: 80px;
   border: 1px solid transparent;
   word-break: break-word;
 }
-.folder:hover { background: rgba(0,0,128,0.1); border-color: var(--w-select); }
 .folder:focus, .folder.selected {
-  background: rgba(0,0,128,0.2); border: 1px dotted var(--w-ddk);
-  outline: none;
+  outline: none; border: 1px dotted var(--w-dk);
 }
+.folder:focus span, .folder.selected span,
+.folder:hover span { background: var(--w-select); color: #fff; }
 .folder img {
   width: 32px; height: 32px; margin-bottom: 4px;
   image-rendering: pixelated;
-  filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.3));
 }
-.folder .icon-emoji { font-size: 28px; margin-bottom: 4px; display: block; line-height: 1; }
-.folder span { font-size: 10px; font-weight: 600; color: #000; line-height: 1.3; }
+.folder .icon-emoji { font-size: 26px; margin-bottom: 4px; display: block; line-height: 32px; }
+.folder span { font-size: 11px; color: #000; line-height: 1.3; padding: 0 2px; }
 
 /* ----------------------------------------------------------------
    PROJECTS WINDOW
@@ -357,13 +360,12 @@ body.desktop::before { content: none; }
 .project-list { display: flex; flex-direction: column; gap: 8px; padding: 4px; }
 .project-item {
   background: var(--w-white);
-  border: 1px solid;
-  border-color: var(--w-dk) var(--w-lt) var(--w-lt) var(--w-dk);
-  padding: 10px; display: flex; gap: 12px;
+  box-shadow: var(--bevel-field);
+  padding: 12px; display: flex; gap: 12px;
 }
 .project-item img { width: 80px; height: 80px; object-fit: cover; border: 1px solid var(--w-dk); flex-shrink: 0; }
 .project-item h3 { font-size: 11px; font-weight: 700; margin-bottom: 4px; color: var(--w-titlebar); }
-.project-item p { font-size: 10px; line-height: 1.5; color: #333; }
+.project-item p { font-size: 11px; line-height: 1.5; color: #222; }
 
 /* ----------------------------------------------------------------
    ABOUT WINDOW
@@ -371,167 +373,166 @@ body.desktop::before { content: none; }
 #about-window { width: 480px; height: 420px; top: 80px; left: 160px; }
 .about-content { display: flex; flex-direction: column; gap: 10px; padding: 4px; }
 .profile-section { display: flex; align-items: center; gap: 12px; }
-.profile-pic { width: 64px; height: 64px; border: 1px solid; border-color: var(--w-dk) var(--w-lt) var(--w-lt) var(--w-dk); object-fit: cover; }
+.profile-pic { width: 64px; height: 64px; box-shadow: var(--bevel-field); padding: 2px; background: #fff; object-fit: cover; }
 .profile-section h2 { font-size: 14px; font-weight: 700; }
-.bio-section p { font-size: 10px; line-height: 1.6; margin-bottom: 6px; }
+.bio-section p { font-size: 11px; line-height: 1.6; margin-bottom: 6px; }
 .skills-section h3 { font-size: 11px; font-weight: 700; margin-bottom: 6px; }
 .skills-section ul { padding-left: 16px; }
-.skills-section li { font-size: 10px; margin-bottom: 3px; }
+.skills-section li { font-size: 11px; margin-bottom: 3px; }
 
 /* ----------------------------------------------------------------
    GAMES WINDOW
    ---------------------------------------------------------------- */
 #games-window { width: 600px; height: 480px; top: 80px; left: 180px; }
 .game-section { margin-bottom: 16px; }
-.game-title { font-size: 11px; font-weight: 700; margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid var(--w-dk); }
+.game-title {
+  font-size: 11px; font-weight: 700; margin-bottom: 8px; padding-bottom: 3px;
+  border-bottom: 1px solid var(--w-dk);
+  box-shadow: 0 1px 0 var(--w-lt);
+}
 
 /* ----------------------------------------------------------------
-   RECYCLE BIN
+   SMALL WINDOWS
    ---------------------------------------------------------------- */
-#recycle-window { width: 300px; height: 200px; top: 120px; left: 240px; }
+#recycle-window  { width: 300px; height: 200px; top: 120px; left: 240px; }
 .trash-button { margin-top: 12px; }
-
-/* ----------------------------------------------------------------
-   COMPUTER WINDOW
-   ---------------------------------------------------------------- */
-#computer-window { width: 520px; height: 380px; top: 60px; left: 180px; }
-
-/* ----------------------------------------------------------------
-   MY DOCUMENTS WINDOW
-   ---------------------------------------------------------------- */
-#mydocs-window { width: 500px; height: 420px; top: 80px; left: 200px; }
+#computer-window { width: 520px; height: 380px; top: 60px;  left: 180px; }
+#mydocs-window   { width: 500px; height: 420px; top: 80px;  left: 200px; }
 .mydocs-content { padding: 8px; }
-.mydocs-content h2 { font-size: 13px; color: var(--w-titlebar); margin-bottom: 10px; border-bottom: 1px solid var(--w-dk); padding-bottom: 4px; }
-.info-table { width: 100%; border-collapse: collapse; font-size: 10px; }
+.mydocs-content h2 {
+  font-size: 13px; color: var(--w-titlebar); margin-bottom: 10px;
+  border-bottom: 1px solid var(--w-dk); box-shadow: 0 1px 0 var(--w-lt); padding-bottom: 4px;
+}
+.info-table { width: 100%; border-collapse: collapse; font-size: 11px; background: #fff; }
 .info-table td { padding: 3px 8px; border: 1px solid var(--w-dk); }
 .info-table tr:nth-child(even) td { background: #f0f0f0; }
-.info-table td:first-child { font-weight: 700; background: #e0e0e0; width: 120px; }
+.info-table td:first-child { font-weight: 700; background: #e6e6e6; width: 120px; }
 .section-header td { background: var(--w-titlebar) !important; color: white; font-weight: 700 !important; }
 
 /* ----------------------------------------------------------------
-   NOTEPAD WINDOW
+   NOTEPAD
    ---------------------------------------------------------------- */
 #notepad-window { width: 480px; height: 360px; top: 100px; left: 220px; }
 .notepad-textarea {
   width: 100%; height: 100%;
   background: white; color: black;
-  border: 1px solid;
-  border-color: var(--w-dk) var(--w-lt) var(--w-lt) var(--w-dk);
-  font-family: "Courier New", monospace;
-  font-size: 12px;
-  resize: none; padding: 4px;
+  border: none;
+  box-shadow: var(--bevel-field);
+  font-family: "Fixedsys", "Courier New", monospace;
+  font-size: 13px;
+  resize: none; padding: 4px 6px;
   outline: none;
-  box-sizing: border-box;
 }
 
 /* ----------------------------------------------------------------
-   INTERNET EXPLORER WINDOW
+   INTERNET EXPLORER
    ---------------------------------------------------------------- */
 #ie-window { width: 720px; height: 500px; top: 60px; left: 120px; }
 .ie-toolbar {
-  display: flex; align-items: center; gap: 4px;
+  display: flex; align-items: center; gap: 3px;
   background: var(--w-face);
-  padding: 4px;
+  padding: 3px 4px;
   border-bottom: 1px solid var(--w-dk);
+  box-shadow: 0 1px 0 var(--w-lt);
   flex-shrink: 0;
 }
 .ie-btn {
-  padding: 2px 8px; font-size: 10px; cursor: pointer;
+  padding: 3px 9px 4px; font-size: 11px; cursor: default;
   background: var(--w-face);
-  border: 1px solid; border-color: var(--w-lt) var(--w-ddk) var(--w-ddk) var(--w-lt);
-  box-shadow: inset -1px -1px 0 var(--w-dk);
+  border: none;
+  box-shadow: none;                  /* flat until hover — the IE4 toolbar look */
+  color: #000;
 }
-.ie-btn:active {
-  border-color: var(--w-ddk) var(--w-lt) var(--w-lt) var(--w-ddk);
-  box-shadow: inset 1px 1px 0 var(--w-dk);
-}
-.ie-address {
-  flex: 1; display: flex; align-items: center; gap: 4px; font-size: 10px;
-}
-.ie-address span { font-weight: 600; }
+.ie-btn:hover  { box-shadow: var(--bevel-thin-up); }
+.ie-btn:active { box-shadow: var(--bevel-thin-down); padding: 4px 8px 3px 10px; }
+.ie-address { flex: 1; display: flex; align-items: center; gap: 5px; font-size: 11px; }
+.ie-address span { color: #000; }
 .ie-address-bar {
-  flex: 1; height: 18px; font-size: 10px;
-  border: 1px solid; border-color: var(--w-dk) var(--w-lt) var(--w-lt) var(--w-dk);
-  background: white; padding: 0 4px; font-family: inherit;
+  flex: 1; height: 20px; font-size: 11px;
+  border: none;
+  box-shadow: var(--bevel-field);
+  background: white; padding: 2px 5px 0; font-family: var(--w-font);
   outline: none;
 }
 .ie-content {
   flex: 1; background: white; overflow: auto;
-  padding: 16px; font-size: 12px; font-family: "Times New Roman", serif;
-  border-top: 1px solid var(--w-dk);
+  padding: 16px; font-size: 13px; font-family: "Times New Roman", serif;
+  box-shadow: var(--bevel-field);
+  margin: 0 0 2px;
 }
 .ie-content h1 { font-size: 24px; color: #000080; margin-bottom: 8px; }
 .ie-content h2 { font-size: 18px; color: #000080; margin: 12px 0 6px; border-bottom: 2px solid navy; }
 .ie-content a  { color: #0000cc; }
 .ie-content a:visited { color: #551a8b; }
 .ie-content hr { border: none; border-top: 1px solid #999; margin: 8px 0; }
-.ie-content .ie-marquee { color: red; font-family: Comic Sans MS, cursive; font-size: 14px; font-style: italic; }
+.ie-content .ie-marquee { color: red; font-family: "Comic Sans MS", cursive; font-size: 14px; font-style: italic; }
 .ie-statusbar {
-  height: 18px; background: var(--w-face);
-  border-top: 1px solid var(--w-dk);
-  display: flex; align-items: center; padding: 0 4px;
-  font-size: 10px; flex-shrink: 0;
+  height: 20px; background: var(--w-face);
+  display: flex; align-items: center; padding: 1px 6px 0;
+  font-size: 11px; flex-shrink: 0;
+  box-shadow: var(--bevel-thin-down);
 }
 
 /* ----------------------------------------------------------------
-   MINESWEEPER WINDOW
+   MINESWEEPER
    ---------------------------------------------------------------- */
 #minesweeper-window { width: 300px; height: 380px; top: 80px; left: 300px; }
 .ms-wrapper {
   display: flex; flex-direction: column; align-items: center;
-  padding: 8px; gap: 6px;
+  padding: 8px; gap: 8px;
+  background: var(--w-face);
+  box-shadow: var(--bevel-thin-up);
 }
 .ms-info-bar {
   display: flex; align-items: center; justify-content: space-between;
   width: 100%;
   background: var(--w-face);
-  border: 2px solid;
-  border-color: var(--w-dk) var(--w-lt) var(--w-lt) var(--w-dk);
-  padding: 4px 8px;
+  box-shadow: var(--bevel-thin-down), inset 2px 2px var(--w-dk);
+  padding: 6px 8px;
 }
 .ms-counter {
   font-family: "Courier New", monospace;
-  font-size: 18px; font-weight: 700; color: red;
-  background: #000; padding: 2px 6px; min-width: 40px; text-align: center;
-  border: 1px solid; border-color: var(--w-dk) var(--w-lt) var(--w-lt) var(--w-dk);
-  letter-spacing: 2px;
+  font-size: 19px; font-weight: 700; color: #ff0000;
+  background: #000; padding: 0 3px; min-width: 44px; text-align: center;
+  box-shadow: var(--bevel-thin-down);
+  letter-spacing: 1px;
+  line-height: 23px;
+  text-shadow: 0 0 1px rgba(255,0,0,0.6);
 }
 .ms-smiley {
-  font-size: 18px; cursor: pointer; width: 28px; height: 24px;
+  font-size: 16px; cursor: default; width: 26px; height: 26px;
   display: flex; align-items: center; justify-content: center;
   background: var(--w-face);
-  border: 2px solid; border-color: var(--w-lt) var(--w-ddk) var(--w-ddk) var(--w-lt);
-  box-shadow: inset -1px -1px 0 var(--w-dk);
+  border: none;
+  box-shadow: var(--bevel-thin-up), inset -2px -2px var(--w-dk), inset 2px 2px var(--w-dfl);
 }
 .ms-smiley:active {
-  border-color: var(--w-ddk) var(--w-lt) var(--w-lt) var(--w-ddk);
-  transform: translate(1px,1px);
+  box-shadow: var(--bevel-thin-down);
+  padding-top: 2px;
 }
 .ms-grid {
   display: grid;
-  border: 2px solid;
-  border-color: var(--w-dk) var(--w-lt) var(--w-lt) var(--w-dk);
+  box-shadow: var(--bevel-thin-down), inset 2px 2px var(--w-dk), inset -2px -2px var(--w-dfl);
+  padding: 3px;
   background: var(--w-face);
 }
 .ms-cell {
   width: 20px; height: 20px;
   display: flex; align-items: center; justify-content: center;
-  font-size: 10px; font-weight: 700; cursor: pointer;
-  border: 2px solid; border-color: var(--w-lt) var(--w-dk) var(--w-dk) var(--w-lt);
-  box-shadow: inset 1px 1px 0 var(--w-lt);
+  font-size: 12px; font-weight: 700; cursor: default;
+  background: var(--w-face);
+  border: none;
+  box-shadow: inset -2px -2px var(--w-dk), inset 2px 2px var(--w-lt);
   font-family: "Courier New", monospace;
   user-select: none;
 }
 .ms-cell.revealed {
-  border: 1px solid var(--w-dk);
-  border-color: var(--w-dk) var(--w-lt) var(--w-lt) var(--w-dk);
-  box-shadow: none;
+  box-shadow: inset 1px 1px 0 var(--w-dk);
   background: var(--w-face);
 }
-.ms-cell.mine       { color: #000; font-size: 16px; font-weight: 900; }
-.ms-cell.mine-hit   { background: red !important; color: white !important; }
-.ms-cell.flagged    { color: #cc0000; font-weight: 900; font-size: 11px; letter-spacing: 0; }
-/* Number colors */
+.ms-cell.mine     { color: #000; font-size: 14px; }
+.ms-cell.mine-hit { background: #ff0000 !important; color: #000 !important; box-shadow: inset 1px 1px 0 var(--w-dk); }
+.ms-cell.flagged  { color: #cc0000; font-weight: 900; font-size: 11px; }
 .ms-cell[data-n="1"] { color: #0000ff; }
 .ms-cell[data-n="2"] { color: #008000; }
 .ms-cell[data-n="3"] { color: #ff0000; }
@@ -540,77 +541,54 @@ body.desktop::before { content: none; }
 .ms-cell[data-n="6"] { color: #008080; }
 .ms-cell[data-n="7"] { color: #000000; }
 .ms-cell[data-n="8"] { color: #808080; }
-.ms-status { font-size: 10px; text-align: center; }
+.ms-status { font-size: 11px; text-align: center; }
 
 /* ----------------------------------------------------------------
-   PIXOS WINDOW
+   EMBEDDED APPS
    ---------------------------------------------------------------- */
-#pixos-window { width: 800px; height: 580px; top: 40px; left: 100px; }
-#pixos-window .window-content { padding: 0; }
-#pixos-window iframe { width: 100%; height: 100%; border: none; background: var(--w-face); }
-
-/* ----------------------------------------------------------------
-   TETRIS WINDOW
-   ---------------------------------------------------------------- */
+#pixos-window  { width: 800px; height: 580px; top: 40px; left: 100px; }
 #tetris-window { width: 520px; height: 500px; top: 60px; left: 160px; }
-#tetris-window .window-content { padding: 0; }
-#tetris-window iframe { width: 100%; height: 100%; border: none; background: var(--w-face); }
-
-/* ----------------------------------------------------------------
-   CLICKER / INFINITE DOWNLOAD WINDOWS
-   ---------------------------------------------------------------- */
 #clicker-window { width: 360px; height: 300px; top: 120px; left: 200px; }
 #infinite-download-window { width: 700px; height: 360px; top: 100px; left: 150px; }
-#clicker-window .window-content,
-#infinite-download-window .window-content { padding: 0; }
-#clicker-window iframe,
-#infinite-download-window iframe { width: 100%; height: 100%; border: none; }
+#pixos-window .window-content, #tetris-window .window-content,
+#clicker-window .window-content, #infinite-download-window .window-content { padding: 0; }
+#pixos-window iframe, #tetris-window iframe,
+#clicker-window iframe, #infinite-download-window iframe {
+  width: 100%; height: 100%; border: none; background: var(--w-face); display: block;
+}
 
 /* ----------------------------------------------------------------
-   CONTACT / ERROR DIALOG
+   DIALOGS
    ---------------------------------------------------------------- */
 #contact-error-window {
-  width: 340px; height: 160px;
+  width: 340px; height: auto; min-height: 0;
   top: 50%; left: 50%;
   transform: translate(-50%, -50%);
 }
-.error-dialog {
-  display: flex; flex-direction: column; gap: 8px;
-  padding: 12px; background: var(--w-face);
-}
-.error-icon-row { display: flex; align-items: flex-start; gap: 12px; }
+.error-dialog { display: flex; flex-direction: column; gap: 8px; padding: 14px 12px 12px; background: var(--w-face); }
+.error-icon-row { display: flex; align-items: flex-start; gap: 14px; }
 .error-icon { font-size: 32px; line-height: 1; }
-.error-message-text p { font-size: 11px; margin-bottom: 4px; }
-.ok-button {
-  margin-top: 8px; padding: 4px 24px;
-  background: var(--w-face);
-  border: 1px solid; border-color: var(--w-lt) var(--w-ddk) var(--w-ddk) var(--w-lt);
-  box-shadow: inset -1px -1px 0 var(--w-dk);
-  cursor: pointer; font-size: 11px; min-width: 75px;
-}
-.ok-button:active {
-  border-color: var(--w-ddk) var(--w-lt) var(--w-lt) var(--w-ddk);
-  box-shadow: inset 1px 1px 0 var(--w-dk);
-  transform: translate(1px,1px);
-}
+.error-message-text p { font-size: 11px; margin-bottom: 4px; line-height: 1.5; }
 
 /* ----------------------------------------------------------------
-   W95 BUTTON (generic)
+   BUTTONS — one recipe everywhere
    ---------------------------------------------------------------- */
-.w95-btn {
-  padding: 3px 16px;
+.ok-button, .w95-btn, #login-btn {
+  padding: 4px 12px 5px;
   background: var(--w-face); color: #000;
-  border: 1px solid; border-color: var(--w-lt) var(--w-ddk) var(--w-ddk) var(--w-lt);
-  box-shadow: inset -1px -1px 0 var(--w-dk);
-  cursor: pointer; font-size: 11px; font-family: inherit;
+  border: none;
+  box-shadow: var(--bevel-raised);
+  cursor: default; font-size: 11px; font-family: var(--w-font);
   min-width: 75px; text-align: center;
 }
-.w95-btn:active {
-  border-color: var(--w-ddk) var(--w-lt) var(--w-lt) var(--w-ddk);
-  box-shadow: inset 1px 1px 0 var(--w-dk);
-  transform: translate(1px,1px);
+.ok-button:active, .w95-btn:active, #login-btn:active {
+  box-shadow: var(--bevel-pressed);
+  padding: 5px 11px 4px 13px;
 }
-.w95-btn:hover { filter: brightness(0.97); }
+.ok-button:focus, .w95-btn:focus, #login-btn:focus {
+  outline: 1px dotted #000; outline-offset: -5px;
+}
+.ok-button { align-self: flex-end; margin-top: 8px; }
 
 /* ----------------------------------------------------------------
    TASKBAR
@@ -618,82 +596,88 @@ body.desktop::before { content: none; }
 .taskbar {
   position: fixed; bottom: 0; left: 0; right: 0;
   height: var(--tb-h);
-  background: linear-gradient(180deg, #c0bbbb 0%, #c0c0c0 3%, var(--w-face) 5%, var(--w-face) 95%, #808080 100%);
-  border-top: 2px solid var(--w-lt);
+  background: var(--w-face);
+  border-top: 1px solid var(--w-dfl);
+  box-shadow: inset 0 1px 0 var(--w-lt);
   display: flex; align-items: center;
-  padding: 2px 4px 2px 2px;
-  z-index: 9000; gap: 4px;
+  padding: 3px 4px 2px 2px;
+  z-index: 9000; gap: 3px;
 }
 
 /* ----------------------------------------------------------------
-   START BUTTON
+   START BUTTON — bold, upright, waving flag
    ---------------------------------------------------------------- */
 .start-btn {
-  display: flex; align-items: center; gap: 5px;
-  padding: 0 10px; height: 28px;
+  display: flex; align-items: center; gap: 4px;
+  padding: 0 7px 1px 5px; height: 24px;
   background: var(--w-face);
-  border: 1px solid; border-color: var(--w-lt) var(--w-ddk) var(--w-ddk) var(--w-lt);
-  box-shadow: inset -1px -1px 0 var(--w-dk);
-  cursor: pointer; font-weight: 900; font-size: 12px;
-  letter-spacing: 0.5px; font-style: italic;
+  border: none;
+  box-shadow: var(--bevel-raised);
+  cursor: default; font-weight: 700; font-size: 11px;
+  letter-spacing: 0; font-style: normal;
+  font-family: var(--w-font);
   flex-shrink: 0;
 }
 .start-btn:active, .start-btn.active {
-  border-color: var(--w-ddk) var(--w-lt) var(--w-lt) var(--w-ddk);
-  box-shadow: inset 1px 1px 0 var(--w-dk);
-  transform: translate(1px,1px);
+  box-shadow: var(--bevel-pressed);
+  background: var(--dither);
+  background-size: 2px 2px;
+  padding: 1px 6px 0 6px;
 }
-.start-btn img { width: 18px; height: 18px; image-rendering: pixelated; }
+.start-btn img { width: 16px; height: 16px; image-rendering: pixelated; }
+/* the waving four-pane flag, drawn in pixels */
 .start-btn .pixel-logo {
-  width: 18px; height: 18px; display: grid; grid-template-columns: 1fr 1fr;
-  gap: 1px; flex-shrink: 0;
+  width: 18px; height: 15px;
+  display: block; flex-shrink: 0;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='15' shape-rendering='crispEdges'%3E%3Cpath d='M2 4 L4 3 L4 12 L2 13 Z' fill='%23000'/%3E%3Cpath d='M4 3 Q8 1 9 2 L9 6 Q6 5 4 7 Z' fill='%23ff0000'/%3E%3Cpath d='M9 2 Q13 0 16 2 L16 5 Q12 4 9 6 Z' fill='%2300a800'/%3E%3Cpath d='M4 7 Q6 5 9 6 L9 10 Q6 9 4 11 Z' fill='%230000ff'/%3E%3Cpath d='M9 6 Q12 4 16 5 L16 9 Q12 8 9 10 Z' fill='%23ffbf00'/%3E%3C/svg%3E") no-repeat center;
+  image-rendering: pixelated;
 }
-.start-btn .pixel-logo span {
-  display: block;
-}
-.start-btn .pixel-logo span:nth-child(1) { background: #ff0000; }
-.start-btn .pixel-logo span:nth-child(2) { background: #00cc00; }
-.start-btn .pixel-logo span:nth-child(3) { background: #0000ff; }
-.start-btn .pixel-logo span:nth-child(4) { background: #ffcc00; }
+.start-btn .pixel-logo span { display: none; }
 
 /* ----------------------------------------------------------------
-   TASKBAR ITEMS (minimized windows)
+   TASKBAR ITEMS — pressed one gets the dithered face
    ---------------------------------------------------------------- */
-.taskbar-items {
-  display: flex; gap: 2px; flex: 1; align-items: center; overflow: hidden;
-}
+.taskbar-items { display: flex; gap: 3px; flex: 1; align-items: center; overflow: hidden; }
 .taskbar-item {
   display: flex; align-items: center; gap: 4px;
-  height: 28px; padding: 2px 8px;
+  height: 24px; padding: 2px 8px;
   background: var(--w-face);
-  border: 1px solid; border-color: var(--w-lt) var(--w-ddk) var(--w-ddk) var(--w-lt);
-  box-shadow: inset -1px -1px 0 var(--w-dk);
-  cursor: pointer; font-size: 10px; font-weight: 600;
-  min-width: 100px; max-width: 150px;
+  border: none;
+  box-shadow: var(--bevel-raised);
+  cursor: default; font-size: 11px;
+  min-width: 100px; max-width: 160px;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  font-family: var(--w-font);
 }
 .taskbar-item.focused {
-  border-color: var(--w-ddk) var(--w-lt) var(--w-lt) var(--w-ddk);
-  box-shadow: inset 1px 1px 0 var(--w-dk);
-  background: #b4b4b4;
+  box-shadow: var(--bevel-pressed);
+  background: var(--dither);
+  background-size: 2px 2px;
+  font-weight: 700;
+  padding: 3px 7px 1px 9px;
 }
 .taskbar-item img { width: 14px; height: 14px; image-rendering: pixelated; flex-shrink: 0; }
 
 /* ----------------------------------------------------------------
-   SYSTEM TRAY
+   SYSTEM TRAY — sunken well, pixel speaker, live clock
    ---------------------------------------------------------------- */
 .system-tray {
-  display: flex; align-items: center; gap: 0;
-  height: 28px; padding: 0 8px;
-  border: 1px solid; border-color: var(--w-dk) var(--w-lt) var(--w-lt) var(--w-dk);
-  box-shadow: inset 1px 1px 0 var(--w-dk);
+  display: flex; align-items: center; gap: 4px;
+  height: 24px; padding: 0 8px 0 6px;
+  box-shadow: var(--bevel-thin-down);
   background: var(--w-face); flex-shrink: 0;
 }
-
+.system-tray > span:first-child {
+  font-size: 0;
+  width: 16px; height: 16px; margin: 0 !important;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' shape-rendering='crispEdges'%3E%3Cpath d='M3 6h3l4-4v12l-4-4H3z' fill='%23000'/%3E%3Cpath d='M11 5q2 3 0 6' stroke='%23000' fill='none'/%3E%3Cpath d='M12.5 3.5q3 4.5 0 9' stroke='%23000' fill='none'/%3E%3C/svg%3E") no-repeat center;
+  image-rendering: pixelated;
+}
 .taskbar-clock {
-  font-size: 10px; font-weight: 600; color: #000;
-  padding: 0 8px; letter-spacing: 0.2px;
-  border-left: 1px solid var(--w-dk);
+  font-size: 11px; color: #000;
+  padding: 0 2px; letter-spacing: 0;
+  border-left: none;
+  font-family: var(--w-font);
 }
 
 /* ----------------------------------------------------------------
@@ -701,70 +685,88 @@ body.desktop::before { content: none; }
    ---------------------------------------------------------------- */
 .start-menu {
   display: none;
-  position: fixed; bottom: var(--tb-h); left: 0;
-  width: 200px;
+  position: fixed; bottom: calc(var(--tb-h) - 2px); left: 2px;
+  width: 198px;
   background: var(--w-face);
-  border: 1px solid; border-color: var(--w-lt) var(--w-ddk) var(--w-ddk) var(--w-lt);
-  box-shadow: 2px 2px 4px rgba(0,0,0,0.3), inset -1px -1px 0 var(--w-dk);
+  border: none;
+  box-shadow: var(--bevel-raised);
+  padding: 3px;
   z-index: 9500;
   flex-direction: row;
 }
 .start-menu.visible { display: flex; }
-.start-menu.hidden   { display: none; }
+.start-menu.hidden  { display: none; }
 
-/* Left banner */
+/* the vertical banner */
 .start-menu-banner {
-  width: 30px; background: linear-gradient(0deg, var(--w-titlebar) 0%, #6060c0 100%);
-  display: flex; align-items: center; justify-content: center;
+  width: 24px;
+  background: linear-gradient(180deg, #1084d0 0%, var(--w-titlebar) 55%, #000 100%);
   flex-shrink: 0; position: relative;
+  overflow: hidden;
 }
 .start-menu-banner::after {
-  content: '';
+  content: "HUDSON 95";
   position: absolute;
-  top: 6px; bottom: 6px; left: 50%; transform: translateX(-50%);
-  width: 2px;
-  background: rgba(255,255,255,0.12);
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 8px 0;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  font-family: var(--w-font);
+  white-space: nowrap;
 }
 
-/* Menu items column */
-.start-menu-items {
-  flex: 1; display: flex; flex-direction: column;
-}
+.start-menu-items { flex: 1; display: flex; flex-direction: column; padding: 1px 0; }
 
 .start-item {
-  display: flex; align-items: center; gap: 10px;
-  padding: 5px 12px; cursor: pointer; font-size: 11px; font-weight: 600;
-  border-top: 1px solid transparent;
+  display: flex; align-items: center; gap: 9px;
+  padding: 6px 10px; cursor: default; font-size: 11px;
+  min-height: 32px;
 }
-.start-item:hover {
-  background: var(--w-select); color: white;
+.start-item:hover { background: var(--w-select); color: white; }
+.start-item img { width: 24px; height: 24px; image-rendering: pixelated; flex-shrink: 0; }
+.start-item .icon-emoji { font-size: 20px; flex-shrink: 0; width: 24px; text-align: center; }
+
+/* the double-groove separator */
+.start-separator {
+  height: 2px; margin: 2px 4px;
+  background: none;
+  border-top: 1px solid var(--w-dk);
+  border-bottom: 1px solid var(--w-lt);
 }
-.start-item img { width: 22px; height: 22px; image-rendering: pixelated; flex-shrink: 0; }
-.start-item .icon-emoji { font-size: 20px; flex-shrink: 0; width: 22px; text-align: center; }
 
-/* Separator */
-.start-separator { height: 1px; background: var(--w-dk); margin: 2px 0; }
-
-/* Programs submenu */
-.start-item.has-submenu { position: relative; justify-content: space-between; }
-.start-item.has-submenu::after { content: "▶"; font-size: 8px; }
+.start-item.has-submenu { position: relative; justify-content: flex-start; }
+.start-item.has-submenu::after {
+  content: ""; margin-left: auto;
+  width: 8px; height: 8px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' shape-rendering='crispEdges'%3E%3Cpath d='M2 0l4 4-4 4z' fill='%23000'/%3E%3C/svg%3E") no-repeat center;
+}
+.start-item.has-submenu:hover::after { filter: invert(1); }
 .start-submenu {
-  display: none; position: absolute; left: calc(100% - 2px); top: 0;
+  display: none; position: absolute; left: calc(100% - 3px); top: -3px;
   background: var(--w-face);
-  border: 1px solid; border-color: var(--w-lt) var(--w-ddk) var(--w-ddk) var(--w-lt);
-  box-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-  min-width: 200px; z-index: 9600;
+  border: none;
+  box-shadow: var(--bevel-raised);
+  padding: 3px;
+  min-width: 190px; z-index: 9600;
 }
 .start-item.has-submenu:hover .start-submenu { display: block; }
 .start-submenu .sub-item {
   display: flex; align-items: center; gap: 8px;
-  padding: 4px 12px; cursor: pointer; font-size: 11px;
+  padding: 5px 12px 5px 8px; cursor: default; font-size: 11px;
+  color: #000;
 }
 .start-submenu .sub-item:hover { background: var(--w-select); color: white; }
-.start-submenu .sub-item .icon-emoji { font-size: 16px; }
+.start-submenu .sub-item .icon-emoji { font-size: 16px; width: 20px; text-align: center; }
 
 /* ----------------------------------------------------------------
-   LOCK SCREEN
+   LOCK SCREEN — the Welcome logon over desktop teal
    ---------------------------------------------------------------- */
 .lock-screen {
   display: none; position: fixed; inset: 0;
@@ -778,16 +780,17 @@ body.desktop::before { content: none; }
 .lock-content {
   display: flex; flex-direction: column; align-items: stretch;
   background: var(--w-face);
-  border: 2px solid;
-  border-color: var(--w-lt) var(--w-ddk) var(--w-ddk) var(--w-lt);
-  box-shadow: 2px 2px 0 var(--w-ddk), inset 1px 1px 0 #fff;
-  min-width: 260px;
+  border: none;
+  box-shadow: var(--bevel-raised), 4px 4px 0 rgba(0,0,0,0.35);
+  padding: 3px;
+  min-width: 280px;
 }
 .lock-titlebar {
-  background: linear-gradient(90deg, var(--w-titlebar) 0%, var(--w-titlebar2) 100%);
+  background: var(--w-titlebar);
   color: #fff;
-  font-size: 12px; font-weight: bold;
-  padding: 3px 6px;
+  font-size: 11px; font-weight: bold;
+  padding: 2px 6px 3px;
+  height: 18px;
   font-family: var(--w-font);
   display: flex; align-items: center;
   user-select: none;
@@ -798,72 +801,37 @@ body.desktop::before { content: none; }
 }
 .lock-avatar-pixel {
   width: 64px; height: 64px;
-  border: 2px solid;
-  border-color: var(--w-dk) var(--w-lt) var(--w-lt) var(--w-dk);
-  box-shadow: inset 1px 1px 0 var(--w-ddk);
+  box-shadow: var(--bevel-field);
+  padding: 2px; background: #fff;
   overflow: hidden;
   margin-bottom: 2px;
 }
-.lock-avatar-pixel img {
-  width: 100%; height: 100%;
-  object-fit: cover;
-  display: block;
-}
-.lock-username {
-  font-size: 13px; font-weight: bold;
-  color: #000;
-  font-family: var(--w-font);
-  margin: 0;
-}
-.password-input { display: flex; gap: 4px; }
+.lock-avatar-pixel img { width: 100%; height: 100%; object-fit: cover; display: block; image-rendering: pixelated; }
+.lock-username { font-size: 12px; font-weight: bold; color: #000; font-family: var(--w-font); margin: 0; }
+.password-input { display: flex; gap: 6px; }
 .password-input input {
-  padding: 4px 6px; font-size: 13px; width: 160px;
+  padding: 3px 6px 4px; font-size: 12px; width: 160px;
   background: #fff;
-  border: 2px solid;
-  border-color: var(--w-dk) var(--w-lt) var(--w-lt) var(--w-dk);
-  box-shadow: inset 1px 1px 0 var(--w-ddk);
+  border: none;
+  box-shadow: var(--bevel-field);
   color: #000;
   font-family: var(--w-font);
   outline: none;
 }
-.password-input input::placeholder { color: #808080; letter-spacing: 0; }
-.lock-hint {
-  font-size: 11px;
-  color: #444;
-  font-family: var(--w-font);
-  font-style: normal;
-  margin-top: -2px;
-}
-#login-btn {
-  padding: 4px 10px;
-  background: var(--w-face);
-  border: 2px solid;
-  border-color: var(--w-lt) var(--w-ddk) var(--w-ddk) var(--w-lt);
-  box-shadow: inset -1px -1px 0 var(--w-dk);
-  color: #000; font-size: 14px; font-weight: bold;
-  cursor: pointer;
-  font-family: var(--w-font);
-}
-#login-btn:hover { background: #d4d0c8; }
-#login-btn:active {
-  border-color: var(--w-ddk) var(--w-lt) var(--w-lt) var(--w-ddk);
-  box-shadow: inset 1px 1px 0 var(--w-ddk);
-}
-.lock-screen .error-message {
-  font-size: 11px; color: #c00000;
-  height: 14px; font-family: var(--w-font);
-}
+.password-input input::placeholder { color: #808080; }
+.lock-hint { font-size: 11px; color: #333; font-family: var(--w-font); margin-top: -2px; }
+.lock-screen .error-message { font-size: 11px; color: #c00000; height: 14px; font-family: var(--w-font); }
 @keyframes shake {
   0%,100%{ transform:translateX(0); }
-  20%     { transform:translateX(-7px); }
-  40%     { transform:translateX(7px); }
-  60%     { transform:translateX(-5px); }
-  80%     { transform:translateX(5px); }
+  20%    { transform:translateX(-7px); }
+  40%    { transform:translateX(7px); }
+  60%    { transform:translateX(-5px); }
+  80%    { transform:translateX(5px); }
 }
 .password-input input.shake { animation: shake 0.35s ease; }
 
 /* ----------------------------------------------------------------
-   SCREEN EFFECTS (shutdown / wake)
+   SCREEN EFFECTS
    ---------------------------------------------------------------- */
 .screen-overlay {
   position: fixed; inset: 0; background: black;
@@ -881,27 +849,15 @@ body.desktop::before { content: none; }
 .spinner {
   width: 40px; height: 40px;
   border: 3px solid #333;
-  border-top-color: var(--w-titlebar2);
+  border-top-color: #1084d0;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-.black-screen {
-  position: fixed; inset: 0; background: black;
-  z-index: 29997;
-}
-.shutdown-active .taskbar  { display: none; }
-.shutdown-active .desktop  { pointer-events: none; }
-
-/* ----------------------------------------------------------------
-   IE PROGRESS BAR (throbber)
-   ---------------------------------------------------------------- */
-@keyframes ie-throb {
-  0%   { background-position: 0 0; }
-  100% { background-position: -200px 0; }
-}
-
+.black-screen { position: fixed; inset: 0; background: black; z-index: 29997; }
+.shutdown-active .taskbar { display: none; }
+.shutdown-active .desktop { pointer-events: none; }
 
 /* ── Mobile / touch support ─────────────────────────────── */
 .icon, .window-titlebar { touch-action: none; }
@@ -911,11 +867,7 @@ body.desktop::before { content: none; }
     max-width: 96vw !important;
     max-height: 74vh !important;
   }
-  [id$="-window"] {
-    width: 96vw;
-    left: 2vw;
-    top: 8vh;
-  }
+  [id$="-window"] { width: 96vw; left: 2vw; top: 8vh; }
   .window-content { overflow: auto; -webkit-overflow-scrolling: touch; }
   .window iframe { width: 100%; }
   .taskbar-items { overflow-x: auto; }

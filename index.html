@@ -4,17 +4,121 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hudson Tinch</title>
+  <title>Hudson Tinch &mdash; Finance &amp; Entrepreneurship at Arkansas &middot; Developer</title>
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16.png">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
-  <meta name="description" content="Hudson Tinch — business student at Arkansas, developer at Hollis Bloom. Work-order platforms, trading systems, competition drones.">
+  <meta name="description" content="Hudson Tinch — business student at Arkansas, developer at Hollis Bloom. Work-order platforms, an autonomous trading system, competition drones.">
+
+  <!-- Share card. og:image must be absolute — every scraper fetches it
+       out of context, so a relative path silently yields no preview. -->
+  <link rel="canonical" href="https://hudsontinch.com/">
+  <meta property="og:site_name" content="Hudson Tinch">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://hudsontinch.com/">
+  <meta property="og:title" content="Hudson Tinch — Finance &amp; Entrepreneurship at Arkansas · Developer">
+  <meta property="og:description" content="Finance &amp; entrepreneurship at Arkansas Honors, 4.0. Developer at Hollis Bloom.">
+  <meta property="og:image" content="https://hudsontinch.com/assets/og-card.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Hudson Tinch — studying business, shipping software.">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <!-- Entity data. A search for a person's name is an entity query, so this
+       states plainly that the site IS Hudson Tinch rather than leaving Google
+       to infer it from prose. sameAs is the load-bearing part: it ties this
+       domain to the profiles that already rank.
+       NOTE: github.com/Y3t1M was removed from sameAs on 2026-07-26 — the
+       account is flagged and the profile 404s to the public, so the entry
+       was handing Google a dead identity claim. Put it back the moment the
+       GitHub support ticket resolves. -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Hudson Tinch",
+    "url": "https://hudsontinch.com/",
+    "image": "https://hudsontinch.com/assets/og-card.png",
+    "jobTitle": "Developer",
+    "description": "Finance and entrepreneurship double major at the University of Arkansas Honors College and developer at Hollis Bloom, building work-order platforms, an autonomous trading system and competition drones.",
+    "worksFor": { "@type": "Organization", "name": "Hollis Bloom" },
+    "affiliation": { "@type": "CollegeOrUniversity", "name": "University of Arkansas" },
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "Dallas",
+      "addressRegion": "TX",
+      "addressCountry": "US"
+    },
+    "sameAs": [
+      "https://linkedin.com/in/hudsontinch"
+    ]
+  }
+  </script>
+
   <link rel="stylesheet" href="styles.css">
-  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <script>/* scan-arrival gate: cover before first paint, never a flash */
+  (function(){try{var t=+sessionStorage.getItem('pt-cover')||0;
+  if(t&&Date.now()-t<4000)document.documentElement.classList.add('pt-covered');
+  sessionStorage.removeItem('pt-cover');}catch(e){}})();</script>
+
+  <script src="icons.js" defer></script>
+  <!-- Boot gate. Runs before the body is parsed so the page never flashes
+       ahead of the overlay. The timeout is a hard safety net: if boot.js 404s
+       or throws at parse time, nothing can leave the site permanently covered.
+
+       Plays on first arrival and on every REFRESH — but still not on
+       internal navigation. Two different things were wanted at once: a
+       reload should always replay the boot (you reload to see it), while
+       Home -> Projects -> Home should not (that was the whole point of
+       gating it in the first place). So the sessionStorage flag stays and
+       a reload simply overrides it.
+
+       Navigation Timing says which kind of load this is. The modern entry
+       is read first; performance.navigation.type === 1 is the same answer
+       for older WebKit, which matters because this is mostly checked on a
+       phone. If neither is readable we fall through to the flag alone, so
+       the worst case is the old behaviour, never a broken page.
+
+       The flag is set here rather than in boot.js so exactly one boot happens
+       per visit even if you navigate away mid-animation.
+
+       Reduced motion does NOT skip the boot — Hudson's call, asked for
+       twice: the splash is the site's front door and he wants everyone to
+       see it. Same decision already made for the sand and the terrain. The
+       accommodation that remains is the escape hatch in boot.js: the first
+       tap, key, scroll or click ends it immediately, so nobody is held in
+       front of it. The matching CSS media query is gone too — leaving it
+       would hide the overlay while html.booting still locked the page,
+       which is a blank seven-second hold rather than an animation. -->
+  <script>
+    (function () {
+      try {
+        var reload = false;
+        try {
+          var nav = performance.getEntriesByType('navigation')[0];
+          reload = nav ? nav.type === 'reload'
+                       : !!(performance.navigation && performance.navigation.type === 1);
+        } catch (e) {}
+
+        if (!reload && sessionStorage.getItem('ht-boot-session')) return;
+        sessionStorage.setItem('ht-boot-session', '1');
+        // fw-boot holds the hero's staggered entrance back so it plays as the
+        // mark clears, rather than being spent behind the overlay.
+        document.documentElement.className += ' booting fw-boot';
+        setTimeout(function () {
+          var d = document.documentElement;
+          d.classList.remove('booting');
+          d.classList.remove('fw-boot');
+          d.classList.add('fw-booted');
+        }, 7000);
+      } catch (e) {}
+    })();
+  </script>
 </head>
 
 <body>
+  <div id="boot" aria-hidden="true"></div>
 
   <!-- Ambient background -->
   <div class="bg-blob bg-blob-1"></div>
@@ -24,7 +128,7 @@
   <!-- Navigation -->
   <header class="site-header">
     <nav class="site-nav" aria-label="Primary">
-      <div class="nav-logo"><a href="index.html" class="nav-logo-text" data-no-magnet>Hudson Tinch</a></div>
+      <div class="nav-logo"><span class="nav-mark" aria-hidden="true"><svg viewBox="0 0 120 120"><rect x="20" y="24" width="11" height="72"/><rect x="38" y="24" width="11" height="72"/><rect x="54.5" y="24" width="11" height="72"/><rect x="71" y="24" width="11" height="72"/><rect x="89" y="24" width="11" height="72"/><rect x="20" y="54.5" width="29" height="11"/><rect x="71" y="54.5" width="29" height="11"/><rect x="44" y="24" width="32" height="11"/></svg></span><a href="index.html" class="nav-logo-text" data-no-magnet>Hudson Tinch</a></div>
       <div class="nav-links">
         <a href="index.html" aria-current="page" class="nav-link active" data-no-magnet>Home</a>
         <a href="projects.html" class="nav-link" data-no-magnet>Projects</a>
@@ -39,14 +143,13 @@
     <canvas id="pcb-canvas"></canvas>
 
     <div class="hero-panel hero-open">
-      <p class="hero-designator">Hudson Tinch · Dallas, TX</p>
       <h1 class="hero-title">Studying business.<br>Shipping software.</h1>
-      <p class="hero-subtitle">Developer at Hollis Bloom. Business student at Arkansas.</p>
+      <p class="hero-subtitle">Finance &amp; entrepreneurship at Arkansas Honors, 4.0. Developer at Hollis Bloom.</p>
       <div class="hero-actions">
         <a href="projects.html" class="btn-primary">View projects</a>
         <a href="assets/Hudson-Tinch-Resume.pdf" target="_blank" rel="noopener" class="btn-ghost">Resume</a>
       </div>
-      <p class="hero-now">Now // sophomore year at Arkansas &middot; building <b>hollisbloom.com</b></p>
+      <p class="hero-now">Hudson Tinch &middot; Dallas, TX &middot; <b class="hd-seek">Seeking internship &mdash; Summer 2027</b></p>
     </div>
 
   </section>
@@ -59,14 +162,28 @@
       I'm <strong>Hudson Tinch</strong> &mdash; Honors College business student at the University of Arkansas
       who ships production software. My work spans full-stack platforms running daily at real companies,
       autonomous systems, and hardware &mdash; built for clients and competitions since I was eight. I work the
-      overlap between business and engineering: scope it, build it, sell it.
+      overlap between business and engineering &mdash; working out what is worth building, building
+      it, then putting it in front of the people who pay for it.
     </p>
+
+    <!-- The academic number is a screening figure for the roles Hudson is
+         actually recruiting for, and it was previously one clause buried in
+         the paragraph above. Reuses the projects page's spec component. -->
+    <div class="spec-strip">
+      <div class="spec"><b>4.0</b><span>GPA &middot; Honors</span></div>
+      <div class="spec"><b>700+</b><span>locations run</span></div>
+      <div class="spec"><b>331</b><span>edge functions</span></div>
+      <div class="spec"><b>$103,421</b><span>SCALE.AI sim</span></div>
+    </div>
     <div class="avatar-row">
       <span class="avatar-link">
         <img src="assets/img/profile1.jpg" alt="Hudson Tinch" class="about-avatar" id="profile1">
       </span>
       <span class="avatar-link">
-        <img src="assets/img/profile2.jpg" alt="Hudson Tinch" class="about-avatar" id="profile2">
+        <!-- monochrome cut of the face: profile2.jpg is a saturated blue, which was
+             the only colour on the whole site. The blue original still ships, and
+             the Win95 desktop keeps using it — colour is period-correct there. -->
+        <img src="assets/img/face-mono.png" alt="" aria-hidden="true" class="about-avatar" id="profile2">
       </span>
     </div>
 
@@ -74,17 +191,17 @@
       <div class="about-card">
         <div class="about-card-icon"><i data-lucide="graduation-cap"></i></div>
         <h3>University of Arkansas</h3>
-        <p>Honors College, Walton College of Business. A 4.0 throughout my college career &mdash; Chancellor's List every semester. McMillon Innovation Studio.</p>
+        <p>Honors College, Walton College of Business &mdash; finance and entrepreneurship double major. A 4.0 throughout my college career &mdash; Chancellor's List every semester. McMillon Innovation Studio.</p>
       </div>
       <div class="about-card">
         <div class="about-card-icon"><i data-lucide="briefcase"></i></div>
         <h3>Hollis Bloom</h3>
-        <p>Production facilities software — a work-order platform with web, email, iOS, and Microsoft Teams intake. 300+ backend functions. In service daily.</p>
+        <p>Production facilities software: a work-order platform that takes a request in by web, email, iOS or Microsoft Teams and carries it through to a paid invoice. Running 700+ locations.</p>
       </div>
       <div class="about-card">
         <div class="about-card-icon"><i data-lucide="cpu"></i></div>
         <h3>Hardware</h3>
-        <p>Arduino firmware, PCB design in KiCad, 3D printing. Captained a drone team to a top-10 finish at Bell AVR nationals &mdash; 3rd in presentation.</p>
+        <p>Arduino firmware, PCB design in KiCad, 3D printing. Captained a drone team to 4th at Bell AVR nationals &mdash; 2nd in presentation.</p>
       </div>
       <div class="about-card">
         <div class="about-card-icon"><i data-lucide="terminal"></i></div>
@@ -99,22 +216,22 @@
     <div class="section-label">Selected work</div>
     <h2 class="section-title">Projects</h2>
     <div class="projects-row">
-      <a href="https://hollisbloom.com" target="_blank" class="project-card">
+      <a href="https://hollisbloom.com" target="_blank" class="project-card" rel="noopener">
         <div class="project-card-tag">Production &middot; TypeScript</div>
         <h3>Hollis Bloom Platform</h3>
         <p>Facilities work-order system running Integrity Marketing Group's Dallas offices. Web, email, iOS, and Teams intake; vendor scheduling; invoicing.</p>
         <span class="project-card-arrow">&rarr;</span>
       </a>
-      <a href="https://samsclub-demo.pages.dev" target="_blank" class="project-card">
-        <div class="project-card-tag">Live demo &middot; Vanilla JS</div>
-        <h3>Members Moments</h3>
-        <p>Shoppable video for Sam's Club &mdash; open a reel, tap See products, check out without leaving the video. Presented at Demo Day, Spring 2026.</p>
+      <a href="demos/rh-agentic.html" class="project-card">
+        <div class="project-card-tag">Live demo &middot; Python</div>
+        <h3>RH Agentic</h3>
+        <p>Autonomous agents analyze market data and execute equity and options trades end to end, reporting to an encrypted dashboard. A deterministic risk engine gates every order.</p>
         <span class="project-card-arrow">&rarr;</span>
       </a>
-      <a href="demos/neatfreak.html" class="project-card">
-        <div class="project-card-tag">Live demo &middot; Python</div>
-        <h3>NeatFreak</h3>
-        <p>Photo in, 3D-printable drawer organizer out. The extraction engine runs live on this site &mdash; try it on your own photo and download the STL.</p>
+      <a href="https://samsclub-demo.pages.dev" target="_blank" class="project-card" rel="noopener">
+        <div class="project-card-tag">Live demo &middot; Vanilla JS</div>
+        <h3>Members Moments</h3>
+        <p>Shoppable video built for McMillon Innovation Studio's Sam's Club challenge &mdash; open a reel, tap See products, check out without leaving the video. Presented at Demo Day, Spring 2026.</p>
         <span class="project-card-arrow">&rarr;</span>
       </a>
     </div>
@@ -150,19 +267,20 @@
           <div class="tl-item tl-edu">
             <div class="tl-dot edu"></div>
             <div class="tl-body">
+              <span class="tl-date">2026</span>
+              <h4>SCALE.AI Supply Chain Simulation</h4>
+              <span class="tl-org">University of Arkansas &mdash; Walton College of Business</span>
+              <p><span class="tl-badge"><i data-lucide="trophy"></i> Won my section &mdash; 450+ students</span></p>
+              <p style="margin-top:8px;">Ran my company to $103,421 in cash and the highest net profit across both sections.</p>
+            </div>
+          </div>
+          <div class="tl-item tl-edu">
+            <div class="tl-dot edu"></div>
+            <div class="tl-body">
               <span class="tl-date">2025 &ndash; Present</span>
               <h4>Honors College</h4>
               <span class="tl-org">University of Arkansas &mdash; Fayetteville</span>
               <p><span class="tl-badge"><i data-lucide="star"></i> Chancellor's List &mdash; 4.0 every semester</span></p>
-            </div>
-          </div>
-          <div class="tl-item">
-            <div class="tl-dot"></div>
-            <div class="tl-body">
-              <span class="tl-date">2025 &ndash; Present</span>
-              <h4>Team Member</h4>
-              <span class="tl-org">Sam's Club &mdash; Walmart Inc.</span>
-              <p>Retail operations at one of the largest membership warehouse networks.</p>
             </div>
           </div>
           <div class="tl-item">
@@ -251,7 +369,8 @@
 
         <div class="awards-list">
           <h4>Awards &amp; leadership</h4>
-          <div class="award-row"><span class="award-icon"><i data-lucide="trophy"></i></span><span>Bell AVR Nationals &mdash; 8th place &middot; 3rd in presentation</span></div>
+          <div class="award-row"><span class="award-icon"><i data-lucide="trophy"></i></span><span>SCALE.AI Simulation &mdash; won my section of 450+ &middot; $103,421 cash, highest net profit</span></div>
+          <div class="award-row"><span class="award-icon"><i data-lucide="trophy"></i></span><span>Bell AVR Nationals &mdash; 4th place &middot; 2nd in presentation</span></div>
           <div class="award-row"><span class="award-icon"><i data-lucide="star"></i></span><span>Chancellor's List &mdash; 4.0 every semester</span></div>
           <div class="award-row"><span class="award-icon"><i data-lucide="lightbulb"></i></span><span>McMillon Demo Day &mdash; Spring 2026</span></div>
           <div class="award-row"><span class="award-icon"><i data-lucide="trophy"></i></span><span>Wharton GYP &mdash; Best Presentation</span></div>
@@ -287,8 +406,8 @@
       </div>
       <div class="contact-actions">
         <a href="mailto:hudson.tinch@gmail.com" class="btn-primary">Email me</a>
-        <a href="https://github.com/Y3t1M" target="_blank" class="btn-ghost">GitHub</a>
-        <a href="https://linkedin.com/in/hudsontinch" target="_blank" class="btn-ghost">LinkedIn</a>
+        <a href="https://github.com/Y3t1M" target="_blank" class="btn-ghost" rel="noopener">GitHub</a>
+        <a href="https://linkedin.com/in/hudsontinch" target="_blank" class="btn-ghost" rel="noopener">LinkedIn</a>
       </div>
     </div>
   </section>
@@ -298,8 +417,8 @@
     <div class="footer-inner">
       <span class="footer-copy">&copy; 2026 &middot; Dallas, TX</span>
       <div class="footer-links">
-        <a href="https://github.com/Y3t1M" target="_blank" class="footer-link">GitHub</a>
-        <a href="https://linkedin.com/in/hudsontinch" target="_blank" class="footer-link">LinkedIn</a>
+        <a href="https://github.com/Y3t1M" target="_blank" class="footer-link" rel="noopener">GitHub</a>
+        <a href="https://linkedin.com/in/hudsontinch" target="_blank" class="footer-link" rel="noopener">LinkedIn</a>
         <a href="mailto:hudson.tinch@gmail.com" class="footer-link">Email</a>
       </div>
     </div>
@@ -429,7 +548,67 @@
     }
   })();
   </script>
-  <script>lucide.createIcons();</script>
+
+  <!-- Diagnostics: hudsontinch.com/?diag=1
+       Renders nothing unless asked for. Exists because the sand and the terrain
+       are canvas work that can fail silently on a real phone in ways no desktop
+       browser reproduces — WebGL refused, a shader rejected by the actual GPU,
+       or the render loop suspended by the OS. This reports which. -->
+  <script>
+  (function () {
+    if (!/[?&]diag=1/.test(location.search)) return;
+    var errs = [];
+    window.addEventListener('error', function (e) {
+      errs.push((e.message || 'error') + ' @ ' + (e.filename || '?').split('/').pop() + ':' + (e.lineno || '?'));
+    });
+    function paint() {
+      var S = window.__sandDiag || {mode:'script did not run'};
+      var T = window.__terrainDiag || {mode:'script did not run'};
+      var sc = document.getElementById('sand-canvas');
+      var pc = document.getElementById('pcb-canvas');
+      function box(el) {
+        if (!el) return 'missing';
+        var r = el.getBoundingClientRect();
+        return Math.round(r.width) + 'x' + Math.round(r.height) + ' css, ' +
+               el.width + 'x' + el.height + ' buf';
+      }
+      var webgl = (function () {
+        try { var c = document.createElement('canvas');
+              return !!(c.getContext('webgl') || c.getContext('experimental-webgl')); }
+        catch (e) { return false; }
+      })();
+      var rows = [
+        ['UA', navigator.userAgent.slice(0, 78)],
+        ['viewport', innerWidth + 'x' + innerHeight + ' dpr ' + (devicePixelRatio || 1)],
+        ['reduced motion', matchMedia('(prefers-reduced-motion: reduce)').matches ? 'ON  <-- freezes the sand; splash plays anyway' : 'off'],
+        ['webgl available', webgl ? 'yes' : 'NO  <-- sand cannot render'],
+        ['sand mode', S.mode],
+        ['sand frames', S.frames],
+        ['sand card rects', S.rects],
+        ['sand canvas', box(sc) + ' op ' + (sc ? sc.style.opacity || '?' : '-')],
+        ['sand shader log', S.log || '(none)'],
+        ['terrain mode', T.mode],
+        ['terrain frames', T.frames],
+        ['terrain canvas', box(pc)],
+        ['js errors', errs.length ? errs.join(' | ') : '(none)']
+      ];
+      var el = document.getElementById('__diag') || (function () {
+        var d = document.createElement('div');
+        d.id = '__diag';
+        d.style.cssText = 'position:fixed;left:0;right:0;top:0;z-index:2147483647;background:#000;' +
+          'color:#eaeaea;font:11px ui-monospace,Menlo,monospace;padding:10px 12px;line-height:1.5;' +
+          'border-bottom:1px solid #333;white-space:pre-wrap;word-break:break-word;max-height:70vh;overflow:auto';
+        document.body.appendChild(d);
+        return d;
+      })();
+      el.textContent = rows.map(function (r) {
+        return (r[0] + '                ').slice(0, 16) + ' ' + r[1];
+      }).join('\n');
+    }
+    addEventListener('load', function () { paint(); setInterval(paint, 700); });
+  })();
+  </script>
+  <script src="boot.js" defer></script>
   <script src="sand.js"></script>
   <script src="scroll-fx.js"></script>
   <script src="transitions.js"></script>

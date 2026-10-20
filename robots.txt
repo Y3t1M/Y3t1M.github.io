@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+# /games/ and /PixOS/ are iframe panes inside the desktop and mac portals,
+# not destinations. They render with no navigation and no way back, so
+# landing on one from a search result is a dead end.
+Disallow: /games/
+Disallow: /PixOS/
+
+Sitemap: https://hudsontinch.com/sitemap.xml

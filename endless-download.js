@@ -60,10 +60,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const dinoImg = new Image();
     const cactusImg = new Image();
     const firewallImg = new Image();
-    const backgroundImg = new Image();
-    // const floorImg = new Image(); // Updated floor image
+    // (no backgroundImg: assets/img/background.jpg has never existed, and the one
+    //  drawImage call that would have used it is commented out below — so it was
+    //  a guaranteed 404 for an image the game never draws.)
     let loadedImages = 0;
-    const totalImages = 5; // Updated total images to include new floor
+    const totalImages = 4; // dino, cactus, firewall, floor
     
     function loadImages() {
         function handleImageLoad() {
@@ -96,10 +97,6 @@ document.addEventListener('DOMContentLoaded', function() {
         firewallImg.onload = handleImageLoad;
         firewallImg.onerror = handleImageError;
         firewallImg.src = 'assets/img/firewall.jpg'; // Remove leading slash
-    
-        backgroundImg.onload = handleImageLoad;
-        backgroundImg.onerror = handleImageError;
-        backgroundImg.src = 'assets/img/background.jpg'; // Remove leading slash
     
         floorImg.onload = handleImageLoad;
         floorImg.onerror = handleImageError;

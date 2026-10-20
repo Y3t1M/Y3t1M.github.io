@@ -1,23 +1,42 @@
 /* ================================================================
-   MAC.CSS  —  Classic Mac OS 9 "Platinum" UI
+   MAC.CSS — Mac OS 9 "Platinum", done properly.
+
+   Reference points, from the real thing: the default desktop is the
+   blue-lavender woven pattern, not gray; the menu bar and titlebars
+   share the same fine horizontal pinstripe; an INACTIVE window hides
+   its widgets entirely and drops to plain platinum; the highlight
+   colour is Platinum blue; scroll thumbs are the lavender pill with
+   grip lines; buttons are rounded platinum with a gradient, and the
+   default button wears the heavy return ring. No hover tints on the
+   title boxes — that is OS X talking.
    ================================================================ */
 
 /* ---------- Reset & Base ---------- */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --mac-desk:     #818181;   /* classic platinum desktop gray */
-  --mac-face:     #cfcfcf;   /* Platinum window chrome / button face */
-  --mac-lt:       #ffffff;   /* light bevel edge               */
-  --mac-dk:       #888888;   /* dark bevel edge                */
-  --mac-ddk:      #444444;   /* deep dark edge                 */
+  --mac-desk:     #7683b8;   /* OS 9 default blue-lavender */
+  --mac-face:     #cccccc;   /* Platinum face */
+  --mac-face-lt:  #eeeeee;
+  --mac-lt:       #ffffff;
+  --mac-dk:       #999999;
+  --mac-ddk:      #555555;
+  --mac-frame:    #333333;   /* the 1px outer frame every window wears */
   --mac-black:    #000000;
   --mac-white:    #ffffff;
-  --mac-menubar:  #ffffff;
-  --mac-blue:     #2963cc;   /* Platinum highlight / selection */
-  --mac-font:     "Charcoal", "Geneva", "Helvetica Neue", Arial, sans-serif;
+  --mac-blue:     #305cbf;   /* Platinum highlight */
+  --mac-thumb-1:  #a6aef0;   /* scroll thumb lavender, light edge */
+  --mac-thumb-2:  #7d86d9;   /* scroll thumb lavender, dark edge  */
+  --mac-font:     "Charcoal", "Chicago", Geneva, Verdana, "Helvetica Neue", sans-serif;
   --mac-font-sz:  11px;
   --menubar-h:    21px;
+
+  /* the shared pinstripe — menu bar and active titlebars */
+  --pinstripe: repeating-linear-gradient(
+    to bottom,
+    #e8e8e8 0px, #e8e8e8 1px,
+    #cfcfcf 1px, #cfcfcf 2px
+  );
 }
 
 html, body {
@@ -31,17 +50,31 @@ html, body {
   background: var(--mac-desk);
 }
 
+/* the OS 9 woven desktop — two diagonal weaves over the lavender ground,
+   and a soft vignette so full screenshots read like the CRT did */
+body::before {
+  content: "";
+  position: fixed; inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(140% 110% at 50% 40%, rgba(255,255,255,0.07), rgba(0,0,30,0.16) 88%),
+    repeating-linear-gradient(45deg,  rgba(255,255,255,0.05) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(-45deg, rgba(0,0,60,0.06)      0 1px, transparent 1px 3px);
+}
+
 /* ----------------------------------------------------------------
-   MENU BAR
+   MENU BAR — pinstripes, rainbow apple, Platinum blue highlight
    ---------------------------------------------------------------- */
 #mac-menubar {
   position: fixed; top: 0; left: 0; right: 0;
   height: var(--menubar-h);
-  background: var(--mac-menubar);
-  border-bottom: 1px solid #888;
+  background: var(--pinstripe);
+  border-bottom: 1px solid #444;
+  box-shadow: 0 1px 0 rgba(0,0,0,0.15);
   display: flex; align-items: center;
   z-index: 10000;
-  font-size: 13px;
+  font-size: 12px;
   font-family: var(--mac-font);
 }
 
@@ -52,17 +85,25 @@ html, body {
   cursor: default;
   white-space: nowrap;
   position: relative;
+  color: #000;
 }
 .mac-menu-item:hover,
 .mac-menu-item.open {
-  background: var(--mac-black);
+  background: var(--mac-blue);
   color: var(--mac-white);
 }
+
+/* the six-colour apple, drawn in bands and clipped to the silhouette */
 #apple-menu-btn {
-  font-size: 16px;
-  padding: 0 12px;
-  font-family: "Apple Symbols", "Symbol", serif;
+  font-size: 0;                                /* the  glyph stays for AT */
+  padding: 0 9px;
+  width: 32px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='16' viewBox='0 0 14 16'%3E%3CclipPath id='a'%3E%3Cpath d='M10.8 0c.2 1.2-.3 2.3-1 3.1-.7.9-1.9 1.5-3 1.4-.2-1.1.4-2.3 1-3C8.6.7 9.8.1 10.8 0zM13.9 11.5c-.4 1.2-.9 2.3-1.7 3.3-.6.9-1.4 1.9-2.6 1.9-1.1 0-1.5-.7-2.8-.7-1.3 0-1.7.7-2.8.7-1.2 0-2-1-2.7-1.9C-.6 12.6-.9 9.2.7 7.2c.8-1 2-1.7 3.2-1.7 1.2 0 2 .7 3 .7 1 0 1.6-.7 3-.7 1.1 0 2.2.6 3 1.6-2.6 1.4-2.2 5.1 1 4.4z'/%3E%3C/clipPath%3E%3Cg clip-path='url(%23a)'%3E%3Crect width='14' height='4.4' fill='%236fbf4c'/%3E%3Crect y='4.4' width='14' height='2.6' fill='%23f5c518'/%3E%3Crect y='7' width='14' height='2.6' fill='%23f08c1e'/%3E%3Crect y='9.6' width='14' height='2.6' fill='%23e34b46'/%3E%3Crect y='12.2' width='14' height='1.9' fill='%23974f9e'/%3E%3Crect y='14.1' width='14' height='1.9' fill='%233d7fc4'/%3E%3C/g%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
 }
+#apple-menu-btn:hover, #apple-menu-btn.open { background-color: var(--mac-blue); }
+
 .active-app-name { font-weight: bold; }
 
 #mac-menubar-right {
@@ -79,43 +120,33 @@ html, body {
 .mac-dropdown {
   display: none;
   position: fixed;
-  background: var(--mac-white);
-  border: 1px solid var(--mac-black);
-  box-shadow: 2px 2px 0 rgba(0,0,0,0.4);
-  min-width: 160px;
+  background: var(--mac-face-lt);
+  border: 1px solid var(--mac-frame);
+  box-shadow: 1px 2px 0 rgba(0,0,0,0.35);
+  min-width: 170px;
   z-index: 10001;
   padding: 2px 0;
 }
 .mac-dropdown.visible { display: block; }
 
 .mac-drop-item {
-  padding: 2px 20px 2px 24px;
-  font-size: 13px;
+  padding: 3px 20px 3px 24px;
+  font-size: 12px;
   font-family: var(--mac-font);
   cursor: default;
   white-space: nowrap;
+  position: relative;
+  color: #000;
 }
-.mac-drop-item:hover {
-  background: var(--mac-blue);
-  color: var(--mac-white);
-}
-.mac-drop-item.checked::before {
-  content: "✓";
-  position: absolute; left: 8px;
-}
-.mac-drop-item.disabled {
-  color: #aaa;
-  pointer-events: none;
-}
+.mac-drop-item:hover { background: var(--mac-blue); color: var(--mac-white); }
+.mac-drop-item.checked::before { content: "✓"; position: absolute; left: 9px; }
+.mac-drop-item.disabled { color: #999; pointer-events: none; }
 .mac-drop-separator {
-  height: 1px;
-  background: #aaa;
-  margin: 3px 4px;
+  height: 2px; margin: 3px 2px;
+  border-top: 1px solid #aaa;
+  border-bottom: 1px solid #fff;
 }
-.mac-drop-item.has-submenu::after {
-  content: "▶";
-  float: right;
-}
+.mac-drop-item.has-submenu::after { content: "▶"; float: right; font-size: 9px; margin-top: 1px; }
 
 /* ----------------------------------------------------------------
    DESKTOP
@@ -124,6 +155,7 @@ html, body {
   position: fixed;
   top: var(--menubar-h); left: 0; right: 0; bottom: 0;
   overflow: hidden;
+  z-index: 1;
 }
 
 /* ----------------------------------------------------------------
@@ -140,6 +172,7 @@ html, body {
 .mac-desk-icon .icon-img {
   width: 32px; height: 32px;
   display: flex; align-items: center; justify-content: center;
+  filter: drop-shadow(1px 1px 1px rgba(0,0,40,0.4));
 }
 .mac-desk-icon .icon-img svg { display: block; }
 .mac-desk-icon .icon-label {
@@ -150,10 +183,10 @@ html, body {
   word-break: break-word;
   line-height: 1.2;
   text-shadow: 1px 1px 1px rgba(0,0,0,0.8);
-  padding: 1px 3px;
+  padding: 1px 4px;
+  border-radius: 1px;
 }
-.mac-desk-icon.selected .icon-img svg rect,
-.mac-desk-icon.selected .icon-img svg path { opacity: 0.6; }
+.mac-desk-icon.selected .icon-img svg { filter: brightness(0.55) saturate(1.3); }
 .mac-desk-icon.selected .icon-label {
   background: var(--mac-blue);
   color: white;
@@ -161,107 +194,156 @@ html, body {
 }
 
 /* ----------------------------------------------------------------
-   MAC WINDOWS
+   MAC WINDOWS — platinum plate around the content, 1px frame, hard shadow
    ---------------------------------------------------------------- */
 .mac-window {
   position: fixed;
   display: none;
   flex-direction: column;
-  background: var(--mac-white);
-  border: 1px solid var(--mac-black);
-  box-shadow: 2px 2px 0 rgba(0,0,0,0.5);
+  background: var(--mac-face);
+  border: 1px solid var(--mac-frame);
+  box-shadow:
+    inset 1px 1px 0 var(--mac-lt),
+    inset -1px -1px 0 var(--mac-dk),
+    2px 2px 0 rgba(0,0,0,0.35);
+  padding: 0 5px 5px;
   min-width: 200px; min-height: 120px;
+  z-index: 500;
 }
 .mac-window.open { display: flex; }
 
-/* Active title bar — pinstripe */
+/* Active title bar — the full-width pinstripe */
 .mac-window .mac-titlebar {
-  height: 19px;
+  height: 20px;
   display: flex; align-items: center;
   position: relative;
   cursor: move;
   flex-shrink: 0;
-  background: repeating-linear-gradient(
-    to bottom,
-    #aeaeae 0px, #aeaeae 1px,
-    #dedede 1px, #dedede 2px
-  );
-  border-bottom: 1px solid #555;
+  margin: 0 -5px 0;                    /* stripes run edge to edge of the plate */
+  padding: 0 5px;
+  background: var(--pinstripe);
+  border-bottom: 1px solid #777;
 }
-/* Inactive title bar */
-.mac-window.inactive .mac-titlebar {
-  background: var(--mac-face);
-}
+/* Inactive: plain platinum, widgets gone — exactly what the real one did */
+.mac-window.inactive .mac-titlebar { background: var(--mac-face); }
+.mac-window.inactive .mac-close-box,
+.mac-window.inactive .mac-zoom-box,
+.mac-window.inactive .mac-collapse-box { visibility: hidden; }
 
 .mac-titlebar-title {
   position: absolute; left: 50%; transform: translateX(-50%);
-  background: var(--mac-white);
-  padding: 0 6px;
-  font-size: 11px; font-weight: bold;
+  background: transparent;
+  padding: 0 8px;
+  font-size: 12px; font-weight: bold;
   font-family: var(--mac-font);
   white-space: nowrap;
   pointer-events: none;
+  color: #000;
+  /* the stripe gap behind the title */
+  background: linear-gradient(to bottom, #e2e2e2, #d4d4d4);
+  border-radius: 1px;
+  line-height: 16px;
 }
 .mac-window.inactive .mac-titlebar-title {
   background: var(--mac-face);
+  color: #777;
 }
 
-/* Close / zoom boxes */
+/* Close / collapse / zoom boxes — platinum gradient, pressed = inverted.
+   No colour hovers; OS 9 never tinted these. */
 .mac-close-box, .mac-zoom-box {
   width: 13px; height: 13px;
-  border: 1px solid var(--mac-black);
-  background: var(--mac-face);
+  border: 1px solid #222;
+  background: linear-gradient(135deg, #f4f4f4 0%, #cfcfcf 55%, #9d9d9d 100%);
+  box-shadow: inset 1px 1px 0 rgba(255,255,255,0.8);
   flex-shrink: 0;
-  cursor: pointer;
+  cursor: default;
   display: flex; align-items: center; justify-content: center;
-  font-size: 9px;
+  font-size: 0;                          /* any glyph text is decorative */
   z-index: 1;
+}
+.mac-close-box:hover, .mac-zoom-box:hover { background: linear-gradient(135deg, #f4f4f4 0%, #cfcfcf 55%, #9d9d9d 100%); }
+.mac-close-box:active, .mac-zoom-box:active {
+  background: linear-gradient(135deg, #7f7f7f 0%, #a9a9a9 60%, #d0d0d0 100%);
+  box-shadow: inset 1px 1px 1px rgba(0,0,0,0.35);
 }
 .mac-close-box { margin-left: 4px; }
 .mac-zoom-box  { margin-left: auto; margin-right: 4px; }
-.mac-close-box:hover { background: #ff6060; }
-.mac-zoom-box:hover  { background: #60c060; }
+/* zoom box keeps its inner square */
+.mac-zoom-box::after {
+  content: "";
+  width: 5px; height: 5px;
+  border: 1px solid #333;
+  display: block;
+}
 
-/* Window content */
+/* Window content sits in a hairline well inside the plate */
 .mac-win-body {
   flex: 1;
   overflow: auto;
   background: var(--mac-white);
   position: relative;
+  border: 1px solid #808080;
+  border-top: none;
 }
 
-/* Scrollbar styling */
+/* Platinum scrollbars — lavender pill with grip lines */
 .mac-win-body::-webkit-scrollbar { width: 15px; height: 15px; }
-.mac-win-body::-webkit-scrollbar-track { background: var(--mac-face); }
+.mac-win-body::-webkit-scrollbar-track {
+  background: #ececec;
+  box-shadow: inset 1px 0 0 #c8c8c8;
+}
 .mac-win-body::-webkit-scrollbar-thumb {
-  background: var(--mac-face);
-  border: 1px solid var(--mac-black);
+  background:
+    linear-gradient(90deg, var(--mac-thumb-1) 0%, var(--mac-thumb-2) 100%);
+  border: 1px solid #4a4a8a;
+  box-shadow: inset 1px 1px 0 rgba(255,255,255,0.55);
+}
+.mac-win-body::-webkit-scrollbar-thumb:vertical {
+  background:
+    repeating-linear-gradient(to bottom, transparent 0 3px, rgba(255,255,255,0.5) 3px 4px, rgba(70,70,140,0.4) 4px 5px, transparent 5px 8px) center/7px 24px no-repeat,
+    linear-gradient(90deg, var(--mac-thumb-1) 0%, var(--mac-thumb-2) 100%);
+}
+.mac-win-body::-webkit-scrollbar-thumb:horizontal {
+  background:
+    repeating-linear-gradient(to right, transparent 0 3px, rgba(255,255,255,0.5) 3px 4px, rgba(70,70,140,0.4) 4px 5px, transparent 5px 8px) center/24px 7px no-repeat,
+    linear-gradient(180deg, var(--mac-thumb-1) 0%, var(--mac-thumb-2) 100%);
 }
 .mac-win-body::-webkit-scrollbar-button {
-  background: var(--mac-face);
-  border: 1px solid var(--mac-black);
-  display: block; height: 15px;
+  background-color: var(--mac-face);
+  border: 1px solid #777;
+  box-shadow: inset 1px 1px 0 rgba(255,255,255,0.7);
+  display: block; height: 15px; width: 15px;
+  background-repeat: no-repeat; background-position: center;
 }
+.mac-win-body::-webkit-scrollbar-button:vertical:decrement
+{ background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='15' height='15'%3E%3Cpath d='M7.5 4.5l-4 5h8z' fill='%23111'/%3E%3C/svg%3E"); }
+.mac-win-body::-webkit-scrollbar-button:vertical:increment
+{ background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='15' height='15'%3E%3Cpath d='M7.5 10.5l4-5h-8z' fill='%23111'/%3E%3C/svg%3E"); }
+.mac-win-body::-webkit-scrollbar-button:horizontal:decrement
+{ background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='15' height='15'%3E%3Cpath d='M4.5 7.5l5-4v8z' fill='%23111'/%3E%3C/svg%3E"); }
+.mac-win-body::-webkit-scrollbar-button:horizontal:increment
+{ background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='15' height='15'%3E%3Cpath d='M10.5 7.5l-5 4v-8z' fill='%23111'/%3E%3C/svg%3E"); }
+.mac-win-body::-webkit-scrollbar-corner { background: var(--mac-face); }
 
-/* Resize handle bottom-right */
+/* Resize handle — the diagonal grip in the platinum corner */
 .mac-window .mac-resize-handle {
-  position: absolute; bottom: 0; right: 0;
-  width: 14px; height: 14px;
+  position: absolute; bottom: 1px; right: 1px;
+  width: 15px; height: 15px;
   cursor: se-resize;
-  background: linear-gradient(135deg,
-    transparent 0%,   transparent 40%,
-    #888 40%,         #888 50%,
-    transparent 50%,  transparent 65%,
-    #888 65%,         #888 75%,
-    transparent 75%,  transparent 90%,
-    #888 90%,         #888 100%
-  );
+  background:
+    linear-gradient(135deg,
+      transparent 0 40%, #fff 40% 45%, #888 45% 50%,
+      transparent 50% 60%, #fff 60% 65%, #888 65% 70%,
+      transparent 70% 80%, #fff 80% 85%, #888 85% 90%,
+      transparent 90%);
 }
 
 /* Window status bar */
 .mac-win-statusbar {
-  height: 16px;
-  border-top: 1px solid var(--mac-black);
+  height: 17px;
+  border: 1px solid #808080;
+  border-top: 1px solid #b0b0b0;
   background: var(--mac-face);
   display: flex; align-items: center;
   padding: 0 6px;
@@ -270,26 +352,31 @@ html, body {
 }
 
 /* ----------------------------------------------------------------
-   MAC BUTTON (standard Platinum)
+   MAC BUTTON — rounded platinum, gradient, heavy default ring
    ---------------------------------------------------------------- */
 .mac-btn {
-  background: var(--mac-face);
-  border: 1px solid var(--mac-black);
-  padding: 3px 14px;
+  background: linear-gradient(to bottom, #fdfdfd 0%, #d6d6d6 60%, #bdbdbd 100%);
+  border: 1px solid #444;
+  border-radius: 4px;
+  padding: 3px 14px 4px;
   font-family: var(--mac-font);
   font-size: 11px;
   cursor: default;
-  min-width: 60px;
+  min-width: 64px;
   text-align: center;
-  box-shadow: inset 1px 1px 0 var(--mac-lt), inset -1px -1px 0 var(--mac-dk);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.9);
+  color: #000;
 }
 .mac-btn.default-btn {
-  border-width: 2px;
   font-weight: bold;
+  outline: 2px solid #444;
+  outline-offset: 2px;
+  border-radius: 4px;
 }
-.mac-btn:hover { background: #d8d8d8; }
+.mac-btn:hover { background: linear-gradient(to bottom, #ffffff 0%, #dedede 60%, #c6c6c6 100%); }
 .mac-btn:active {
-  box-shadow: inset -1px -1px 0 var(--mac-lt), inset 1px 1px 0 var(--mac-dk);
+  background: linear-gradient(to bottom, #9a9a9a 0%, #b5b5b5 60%, #cfcfcf 100%);
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.35);
 }
 
 /* ----------------------------------------------------------------
@@ -301,11 +388,12 @@ html, body {
   padding: 16px 20px 20px;
   gap: 10px;
   text-align: center;
+  background: var(--mac-white);
 }
 .about-logo { font-size: 40px; }
 .about-os-name { font-size: 18px; font-weight: bold; }
 .about-os-ver  { font-size: 12px; color: #444; }
-.about-divider { width: 100%; height: 1px; background: #aaa; }
+.about-divider { width: 100%; height: 2px; border-top: 1px solid #aaa; border-bottom: 1px solid #fff; background: none; }
 .about-info { font-size: 11px; color: #333; line-height: 1.7; }
 .about-info strong { color: #000; }
 
@@ -314,25 +402,25 @@ html, body {
    ---------------------------------------------------------------- */
 #finder-win { width: 500px; }
 .finder-toolbar {
-  height: 24px;
-  background: var(--mac-face);
+  height: 25px;
+  background: linear-gradient(to bottom, #e6e6e6, #c8c8c8);
   border-bottom: 1px solid #888;
   display: flex; align-items: center;
   padding: 0 6px; gap: 4px;
   flex-shrink: 0;
 }
-.finder-path {
-  font-size: 11px; color: #333;
-  flex: 1;
-}
+.finder-path { font-size: 11px; color: #222; flex: 1; }
 .finder-view-btn {
-  width: 20px; height: 16px;
-  background: var(--mac-face);
-  border: 1px solid #888;
+  width: 22px; height: 17px;
+  background: linear-gradient(to bottom, #fdfdfd, #c9c9c9);
+  border: 1px solid #666;
+  border-radius: 3px;
   cursor: default;
   display: flex; align-items: center; justify-content: center;
   font-size: 9px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.8);
 }
+.finder-view-btn:active { background: linear-gradient(to bottom, #9a9a9a, #c2c2c2); }
 .finder-body {
   flex: 1; overflow: auto;
   padding: 8px;
@@ -355,38 +443,39 @@ html, body {
   font-size: 10px; text-align: center;
   max-width: 64px; word-break: break-word;
   line-height: 1.2;
+  padding: 1px 3px;
 }
-.finder-item.selected {
-  background: var(--mac-blue);
-}
-.finder-item.selected .fitem-label { color: white; }
+.finder-item.selected { background: none; }
+.finder-item.selected .fitem-icon svg { filter: brightness(0.55) saturate(1.3); }
+.finder-item.selected .fitem-label { background: var(--mac-blue); color: white; }
 
 /* ----------------------------------------------------------------
    SIMPLETEXT
    ---------------------------------------------------------------- */
 #simpletext-win { width: 440px; }
 .simpletext-toolbar {
-  height: 22px;
-  background: var(--mac-face);
+  height: 23px;
+  background: linear-gradient(to bottom, #e6e6e6, #c8c8c8);
   border-bottom: 1px solid #888;
   display: flex; align-items: center;
-  padding: 0 4px; gap: 2px;
+  padding: 0 4px; gap: 3px;
   flex-shrink: 0;
 }
 .st-font-select, .st-size-select {
-  height: 16px;
+  height: 17px;
   font-size: 10px;
   font-family: var(--mac-font);
-  border: 1px solid #888;
-  background: white;
+  border: 1px solid #666;
+  border-radius: 2px;
+  background: linear-gradient(to bottom, #fff, #ddd);
   padding: 0 2px;
 }
-.st-divider { width: 1px; height: 14px; background: #888; margin: 0 2px; }
+.st-divider { width: 2px; height: 15px; border-left: 1px solid #999; border-right: 1px solid #fff; margin: 0 3px; }
 .simpletext-area {
   width: 100%; height: 100%;
   border: none; outline: none;
   padding: 8px;
-  font-family: var(--mac-font);
+  font-family: Geneva, Verdana, sans-serif;
   font-size: 12px;
   resize: none;
   background: var(--mac-white);
@@ -398,13 +487,14 @@ html, body {
    CALCULATOR
    ---------------------------------------------------------------- */
 #calc-win { width: 198px; }
+#calc-win .mac-win-body { background: var(--mac-face); }
 .calc-display {
-  background: #c8dbc8;
-  border: 2px inset;
-  border-color: var(--mac-dk) var(--mac-lt) var(--mac-lt) var(--mac-dk);
-  height: 32px;
+  background: #cfe0cd;
+  border: 1px solid #555;
+  box-shadow: inset 1px 1px 2px rgba(0,0,0,0.35);
+  height: 34px;
   text-align: right;
-  padding: 0 6px;
+  padding: 0 8px;
   font-size: 20px;
   font-family: "Monaco", "Courier New", monospace;
   display: flex; align-items: center; justify-content: flex-end;
@@ -414,26 +504,27 @@ html, body {
 .calc-btns {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 3px;
+  gap: 4px;
   padding: 4px 8px 8px;
 }
 .calc-btn {
   height: 28px;
-  background: var(--mac-face);
-  border: 1px solid var(--mac-black);
+  background: linear-gradient(to bottom, #fdfdfd 0%, #d6d6d6 60%, #bdbdbd 100%);
+  border: 1px solid #444;
+  border-radius: 4px;
   font-size: 12px;
   font-family: var(--mac-font);
   cursor: default;
   display: flex; align-items: center; justify-content: center;
-  box-shadow: inset 1px 1px 0 var(--mac-lt), inset -1px -1px 0 #888;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.9);
 }
 .calc-btn:active, .calc-btn.pressed {
-  box-shadow: inset -1px -1px 0 var(--mac-lt), inset 1px 1px 0 #888;
-  background: #b0b0b0;
+  background: linear-gradient(to bottom, #9a9a9a 0%, #b5b5b5 60%, #cfcfcf 100%);
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.35);
 }
-.calc-btn.op  { background: #d8d8d8; }
-.calc-btn.eq  { background: var(--mac-blue); color: white; }
-.calc-btn.clr { background: #e8c8c8; }
+.calc-btn.op  { background: linear-gradient(to bottom, #eef1ff 0%, #c9cfe8 60%, #b3bad9 100%); }
+.calc-btn.eq  { background: linear-gradient(to bottom, #5b83d6 0%, #305cbf 100%); color: white; border-color: #1d3c86; }
+.calc-btn.clr { background: linear-gradient(to bottom, #f6e2e2 0%, #dcbcbc 100%); }
 .calc-btn.span2 { grid-column: span 2; }
 
 /* ----------------------------------------------------------------
@@ -441,7 +532,7 @@ html, body {
    ---------------------------------------------------------------- */
 #netscape-win { width: 580px; }
 .ns-toolbar {
-  background: var(--mac-face);
+  background: linear-gradient(to bottom, #e6e6e6, #c4c4c4);
   border-bottom: 1px solid #888;
   padding: 3px 6px;
   display: flex; flex-wrap: wrap; gap: 3px;
@@ -449,27 +540,35 @@ html, body {
 }
 .ns-nav-btn {
   padding: 2px 8px; font-size: 10px;
-  background: var(--mac-face); border: 1px solid #888;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 3px;
   cursor: default; font-family: var(--mac-font);
   display: flex; flex-direction: column; align-items: center; gap: 1px;
 }
+.ns-nav-btn:hover {
+  background: linear-gradient(to bottom, #fdfdfd, #cfcfcf);
+  border-color: #777;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.8);
+}
+.ns-nav-btn:active { background: linear-gradient(to bottom, #a0a0a0, #c6c6c6); }
 .ns-nav-btn .nb-icon { font-size: 14px; }
 .ns-nav-btn .nb-label { font-size: 9px; }
 .ns-url-bar {
   display: flex; align-items: center;
-  gap: 4px; padding: 2px 6px;
+  gap: 5px; padding: 3px 6px;
   background: var(--mac-face);
   border-bottom: 1px solid #888;
   flex-shrink: 0;
 }
 .ns-url-label { font-size: 11px; white-space: nowrap; }
 .ns-url-input {
-  flex: 1; height: 16px;
-  border: 2px inset;
-  border-color: var(--mac-dk) var(--mac-lt) var(--mac-lt) var(--mac-dk);
+  flex: 1; height: 18px;
+  border: 1px solid #666;
+  box-shadow: inset 1px 1px 2px rgba(0,0,0,0.25);
   font-size: 11px;
-  font-family: var(--mac-font);
-  padding: 0 3px;
+  font-family: Geneva, Verdana, sans-serif;
+  padding: 0 4px;
   outline: none;
   background: white;
 }
@@ -487,13 +586,14 @@ html, body {
 .ns-body ul { padding-left: 20px; margin-bottom: 8px; }
 .ns-body li { font-size: 12px; margin-bottom: 4px; line-height: 1.4; }
 .ns-statusbar {
-  height: 16px; border-top: 1px solid #888;
+  height: 17px; border-top: 1px solid #999;
   background: var(--mac-face);
   display: flex; align-items: center; padding: 0 6px; gap: 8px;
   flex-shrink: 0;
 }
-.ns-progress { flex: 1; height: 8px; background: white; border: 1px inset; }
-.ns-progress-fill { height: 100%; background: var(--mac-blue); width: 0%; }
+.ns-progress { flex: 1; height: 9px; background: #fff; border: 1px solid #777; box-shadow: inset 1px 1px 1px rgba(0,0,0,0.2); }
+.ns-progress-fill { height: 100%; background: linear-gradient(to bottom, #7d9fe8, var(--mac-blue)); width: 0%; }
+.ns-nav-btn.ns-disabled { opacity: 0.4; pointer-events: none; }
 
 /* ----------------------------------------------------------------
    STICKIES
@@ -501,25 +601,30 @@ html, body {
 .sticky-win {
   width: 240px;
   border: 1px solid #555;
-  box-shadow: 2px 2px 0 rgba(0,0,0,0.4);
+  box-shadow: 2px 2px 0 rgba(0,0,0,0.35);
+  padding: 0 1px 1px;
+  background: #ffff99;
 }
 .sticky-win .mac-titlebar {
-  background: #ffff99;
-  border-bottom: 1px solid #888;
+  background: repeating-linear-gradient(to bottom, #ffffbb 0 1px, #eded8e 1px 2px);
+  border-bottom: 1px solid #b8b860;
   cursor: move;
+  margin: 0 -1px;
+  padding: 0 4px;
 }
 .sticky-win .mac-titlebar-title {
-  background: #ffff99;
+  background: none;
   font-size: 10px;
   font-weight: normal;
 }
-.sticky-win.inactive .mac-titlebar { background: #eeeeaa; }
-.sticky-win.inactive .mac-titlebar-title { background: #eeeeaa; }
+.sticky-win.inactive .mac-titlebar { background: #f4f4a6; }
+.sticky-win.inactive .mac-titlebar-title { background: none; }
+.sticky-win .mac-win-body { border: none; }
 .sticky-area {
   width: 100%; min-height: 100px;
   border: none; outline: none;
   padding: 8px;
-  font-family: var(--mac-font); font-size: 12px;
+  font-family: Geneva, Verdana, sans-serif; font-size: 12px;
   background: #ffff99;
   resize: none; cursor: text;
   color: #000;
@@ -534,42 +639,48 @@ html, body {
   background: var(--mac-face);
   justify-content: center;
 }
-.mac-tetris-canvas { border: 2px inset; background: #000; display: block; }
+.mac-tetris-canvas { border: 1px solid #555; box-shadow: inset 1px 1px 2px rgba(0,0,0,0.4); background: #000; display: block; }
 .tetris-side { display: flex; flex-direction: column; gap: 8px; font-size: 11px; }
-.tetris-side label { font-size: 10px; color: #555; }
+.tetris-side label { font-size: 10px; color: #444; }
 .tetris-side .score-val { font-size: 14px; font-weight: bold; font-family: "Monaco", monospace; }
-.tetris-side .next-canvas { border: 1px solid #888; background: #000; display: block; }
+.tetris-side .next-canvas { border: 1px solid #777; background: #000; display: block; }
 
 /* ----------------------------------------------------------------
-   ALERT DIALOG
+   ALERT DIALOG — platinum plate, like every real alert
    ---------------------------------------------------------------- */
 .mac-alert {
   position: fixed;
-  background: var(--mac-white);
-  border: 1px solid var(--mac-black);
-  box-shadow: 3px 3px 0 rgba(0,0,0,0.5);
+  background: var(--mac-face);
+  border: 1px solid var(--mac-frame);
+  box-shadow:
+    inset 1px 1px 0 var(--mac-lt),
+    inset -1px -1px 0 var(--mac-dk),
+    3px 3px 0 rgba(0,0,0,0.4);
   z-index: 20000;
   display: none;
   flex-direction: column;
   min-width: 280px; max-width: 380px;
   top: 50%; left: 50%;
   transform: translate(-50%, -50%);
+  padding: 0 5px 5px;
 }
 .mac-alert.visible { display: flex; }
 .mac-alert .mac-titlebar { cursor: default; }
 .mac-alert-body {
-  padding: 16px 20px;
+  padding: 16px 16px;
   display: flex; gap: 14px; align-items: flex-start;
+  background: var(--mac-face);
 }
 .mac-alert-icon { font-size: 32px; flex-shrink: 0; }
 .mac-alert-text { font-size: 12px; line-height: 1.5; }
 .mac-alert-btns {
-  padding: 0 16px 16px;
-  display: flex; justify-content: flex-end; gap: 8px;
+  padding: 0 12px 12px;
+  display: flex; justify-content: flex-end; gap: 12px;
+  background: var(--mac-face);
 }
 
 /* ----------------------------------------------------------------
-   TRASH / SHUTDOWN / BOOT BACK
+   SHUTDOWN
    ---------------------------------------------------------------- */
 #shutdown-overlay {
   display: none;
@@ -590,28 +701,35 @@ html, body {
    CONTROL PANELS
    ---------------------------------------------------------------- */
 #ctrlpanel-win { width: 360px; }
+#ctrlpanel-win .mac-win-body { background: var(--mac-face); }
 .ctrlpanel-body { padding: 12px; display: flex; flex-direction: column; gap: 12px; }
-.ctrlpanel-section { border: 1px solid #aaa; padding: 10px; }
+.ctrlpanel-section {
+  border: 2px groove #ddd;
+  padding: 10px;
+  background: var(--mac-face);
+}
 .ctrlpanel-section h3 { font-size: 11px; margin-bottom: 8px; }
 .ctrlpanel-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-size: 11px; }
 .ctrlpanel-row label { min-width: 100px; }
-.ctrlpanel-row input[type="color"] { width: 30px; height: 20px; border: 1px solid #888; padding: 0; cursor: pointer; }
+.ctrlpanel-row input[type="color"] { width: 30px; height: 20px; border: 1px solid #666; padding: 0; cursor: pointer; }
 .ctrlpanel-row input[type="range"] { width: 120px; }
 .ctrlpanel-row select {
   font-size: 11px; font-family: var(--mac-font);
-  border: 1px solid var(--mac-dk);
-  background: white; padding: 1px;
+  border: 1px solid #666;
+  border-radius: 2px;
+  background: linear-gradient(to bottom, #fff, #ddd);
+  padding: 1px;
 }
 
 /* ----------------------------------------------------------------
-   SYSTEM CONTEXT MENU (right click desktop)
+   CONTEXT MENU
    ---------------------------------------------------------------- */
 #mac-ctx-menu {
   display: none;
   position: fixed;
-  background: var(--mac-white);
-  border: 1px solid var(--mac-black);
-  box-shadow: 2px 2px 0 rgba(0,0,0,0.4);
+  background: var(--mac-face-lt);
+  border: 1px solid var(--mac-frame);
+  box-shadow: 1px 2px 0 rgba(0,0,0,0.35);
   min-width: 150px;
   z-index: 10002;
   padding: 2px 0;
@@ -619,36 +737,46 @@ html, body {
 #mac-ctx-menu.visible { display: block; }
 
 /* ----------------------------------------------------------------
-   SCROLLBAR global reset for mac feel
+   GLOBAL SCROLLBARS (outside window bodies)
    ---------------------------------------------------------------- */
 ::-webkit-scrollbar { width: 15px; height: 15px; }
-::-webkit-scrollbar-track { background: var(--mac-face); }
+::-webkit-scrollbar-track { background: #ececec; }
 ::-webkit-scrollbar-thumb {
-  background: var(--mac-face);
-  border-top: 1px solid var(--mac-lt);
-  border-left: 1px solid var(--mac-lt);
-  border-right: 1px solid var(--mac-dk);
-  border-bottom: 1px solid var(--mac-dk);
+  background: linear-gradient(90deg, var(--mac-thumb-1), var(--mac-thumb-2));
+  border: 1px solid #4a4a8a;
 }
 ::-webkit-scrollbar-corner { background: var(--mac-face); }
 
-
-/* ── Collapse (window-shade) box — OS 9 authentic ── */
+/* ── Collapse (window-shade) box — injected by mac.js as
+      class="mac-close-box mac-collapse-box", so it inherits the box chrome ── */
 .mac-collapse-box {
   margin-left: 4px;
   margin-right: 4px;
 }
-.mac-collapse-box:hover { background: #e0c060; }
 .mac-collapse-box::after {
   content: "";
   display: block;
-  margin: 3px 1px;
-  border-top: 1px solid #444;
-  border-bottom: 1px solid #444;
-  height: 2px;
+  width: 9px;
+  margin: 0 1px;
+  border-top: 1px solid #333;
+  border-bottom: 1px solid #333;
+  height: 3px;
 }
 .mac-window.shaded > :not(.mac-titlebar) { display: none !important; }
-.mac-window.shaded { min-height: 0 !important; height: auto !important; }
+.mac-window.shaded { min-height: 0 !important; height: auto !important; padding-bottom: 0; }
+.mac-window.shaded .mac-titlebar { border-bottom: none; }
 
-/* Netscape: idle buttons gray out like the real Navigator */
-.ns-nav-btn.ns-disabled { opacity: 0.45; pointer-events: none; }
+/* ── Mobile — same courtesy the Win95 side already had: nothing wider
+      than the screen, and the menu bar keeps to one line ── */
+@media (max-width: 760px) {
+  .mac-window {
+    max-width: 94vw !important;
+    left: 3vw !important;
+    max-height: 76vh !important;
+  }
+  .mac-menu-item { padding: 0 7px; font-size: 11px; }
+  #apple-menu-btn { width: 28px; }
+  #mac-clock { font-size: 11px; white-space: nowrap; }
+  #mac-menubar-right { padding-right: 6px; }
+  .mac-win-body { -webkit-overflow-scrolling: touch; }
+}

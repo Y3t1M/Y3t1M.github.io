@@ -12,6 +12,8 @@
   var canvas = document.getElementById('pcb-canvas');
   if (!hero || !canvas) return;
   var ctx = canvas.getContext('2d');
+  /* mirrors __sandDiag — see the ?diag=1 panel in index.html */
+  var TD = window.__terrainDiag = { mode: ctx ? 'init' : 'no-2d', frames:0, w:0, h:0, reduced:false };
 
   var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var desktopLayout = window.matchMedia('(min-width: 861px)');
@@ -52,6 +54,7 @@
        fires resize constantly — bailing when nothing changed is what stops
        the terrain flickering out while you scroll. */
     if (w === W && h === H) return;
+    TD.w = w; TD.h = h;
     W = canvas.width = w;
     H = canvas.height = h;
     measureComps();
@@ -204,13 +207,26 @@
     }
   }
 
-  if (reduced) { draw(4.2); return; }
+  /* Reduced motion drifts rather than freezing — see the same note in sand.js.
+     These are long, slow swells in a background field, not parallax; frozen,
+     the hero simply looked broken (an empty black band where the terrain
+     should be), which is what a phone with Reduce Motion on was showing. */
+  /* Full speed regardless of prefers-reduced-motion — Hudson's call, asked for
+     twice, and defensible: this is ambient background texture, not parallax or
+     large-object movement, which is what the setting exists to prevent. At
+     quarter speed it read as lifeless rather than calm. The blocking boot
+     animation still honours the setting; that one is a real event you can be
+     held behind. */
+  var TIME_SCALE = 1;
+  TD.reduced = reduced;
+  TD.mode = 'live';
 
   var rafId = null;
   var lastFrame = performance.now();
   function frame(ts) {
     lastFrame = performance.now();
-    draw(ts / 1000);
+    TD.frames++;
+    draw(ts / 1000 * TIME_SCALE);
     rafId = requestAnimationFrame(frame);
   }
   function start() { if (!rafId) { lastFrame = performance.now(); rafId = requestAnimationFrame(frame); } }

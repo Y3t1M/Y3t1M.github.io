@@ -7,7 +7,14 @@
 (function () {
   'use strict';
 
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  /* This used to bail out under prefers-reduced-motion — but the slides are
+     position:absolute and translated into place BY THIS SCRIPT, so bailing
+     left them stacked on top of each other and running off the side of the
+     screen. The showcase was not calmer with the setting on, it was broken:
+     every card clipped, which is what "the project scroll stinks" was.
+
+     It runs either way now. The traverse is driven by scroll position, so
+     nothing moves that the visitor did not move themselves. */
   document.documentElement.classList.add('fx');
 
   /* ---- per-card scroll progress -> --p ---- */
