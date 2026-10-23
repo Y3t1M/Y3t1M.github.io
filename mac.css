@@ -780,3 +780,24 @@ body::before {
   #mac-menubar-right { padding-right: 6px; }
   .mac-win-body { -webkit-overflow-scrolling: touch; }
 }
+/* A third-width Split View on the iPhone Duo is ~296 px: the menus only just
+   fit and the clock fell off the right edge. Tighter menus, no clock. */
+@media (max-width: 360px) {
+  .mac-menu-item { padding: 0 5px; }
+  #mac-menubar-right { display: none; }
+}
+
+/* iOS (Safari, and Chrome and Firefox, which are Safari's engine there) zooms
+   the whole page in when a field set under 16px takes focus, and leaves the
+   desktop zoomed until the visitor pinches back out. On touch screens, the fields
+   you type into are 16px and tall enough to hold it; with a mouse they keep
+   their period sizes. */
+@media (pointer: coarse) {
+  .simpletext-area,
+  .sticky-area,
+  .ns-url-input,
+  .st-font-select, .st-size-select,
+  .ctrlpanel-row select { font-size: 16px; }
+  .ns-url-input,
+  .st-font-select, .st-size-select { height: 26px; }
+}

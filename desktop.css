@@ -872,3 +872,15 @@ body.desktop::before { content: none; }
   .window iframe { width: 100%; }
   .taskbar-items { overflow-x: auto; }
 }
+
+/* iOS (Safari, and Chrome and Firefox, which are Safari's engine there) zooms
+   the whole page in when a field set under 16px takes focus, and leaves the
+   desktop zoomed until the visitor pinches back out. On touch screens, the fields
+   you type into are 16px and tall enough to hold it; with a mouse they keep
+   their period sizes. */
+@media (pointer: coarse) {
+  .notepad-textarea,
+  .ie-address-bar,
+  .password-input input { font-size: 16px; }
+  .ie-address-bar { height: 26px; }
+}

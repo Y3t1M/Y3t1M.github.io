@@ -1456,6 +1456,14 @@ html.fx body:not(.blueprint) .sc-slide .case-sm {
   transition: opacity 0.6s ease, transform 0.6s ease;
 }
 #scroll-hint.hint-show { opacity: 1; transform: translateX(-50%) translateY(0); }
+/* A phone held sideways (the iPhone Duo's outer screen in landscape leaves
+   ~410 px under the browser's toolbars) puts the home hero's last line exactly
+   where the cue sits: "SEEKING INTERSCROLL". There the hero's own View projects
+   button is already on screen, so the home cue steps aside. The Projects cue
+   stays: it is the one that tells people how to move through the corridor. */
+@media (max-height: 520px) {
+  #scroll-hint:not(.hint-projects) { display: none; }
+}
 #scroll-hint.hint-hide { opacity: 0; transform: translateX(-50%) translateY(10px); }
 .scroll-hint-line {
   width: 1px;
