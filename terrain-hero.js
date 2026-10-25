@@ -98,8 +98,15 @@
        fires resize constantly — bail when nothing changed. */
     if (w === W && h === H) return;
     TD.w = w; TD.h = h;
-    W = canvas.width = w;
-    H = canvas.height = h;
+    W = w; H = h;
+    /* Very wide screens draw into a narrower backing store and let CSS
+       stretch it: a 4K Firefox spent ~25 ms a frame clearing and dotting
+       3840 px of hero. The raster is soft by design, so 2560 px of it reads
+       the same; laptops and QHD are untouched (s = 1). */
+    var s = Math.min(1, 2560 / w);
+    canvas.width = Math.round(w * s);
+    canvas.height = Math.round(h * s);
+    ctx.setTransform(s, 0, 0, s, 0, 0);
     build();
   }
   resize();

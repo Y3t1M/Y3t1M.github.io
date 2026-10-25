@@ -441,9 +441,35 @@
      restyling every frame for as long as it was open. It breathes on the
      moment the cue comes back. */
   let hintFading = false;
+  /* The home cue points at what you cannot see yet. On a long phone, an iPad
+     or a 4K monitor the first screen already shows the next section under the
+     hero, and the cue would sit on that section's words ("About", the resume
+     timeline). So before it shows, it hit-tests its own spot: any element with
+     words of its own outside the hero means it stays away. The Projects cue is
+     exempt; it sits on its dark pool over the cards on purpose. */
+  const cueHero = document.querySelector('.hero');
+  let cueBlocked = false;
+  function measureCue() {
+    cueBlocked = false;
+    if (inCorridor || !cueHero) return;
+    const r = scrollHint.getBoundingClientRect();
+    if (!r.height) return;
+    /* the cue is fixed, so compare its band (both of its resting transforms)
+       with where the page's words sit when the page is at the top; boxes, not
+       hit-testing, because a label waiting on its reveal is not hittable yet */
+    const top = r.top - 24, bottom = r.bottom, left = r.left - 8, right = r.right + 8;
+    const hasWords = el => { for (const n of el.childNodes) if (n.nodeType === 3 && n.textContent.trim()) return true; return false; };
+    for (const el of document.body.querySelectorAll('*')) {
+      if (el === scrollHint || scrollHint.contains(el) || el === cueHero || cueHero.contains(el) || !hasWords(el)) continue;
+      const b = el.getBoundingClientRect();
+      if (b.width < 2 || b.height < 2) continue;
+      const t = b.top + window.scrollY, bt = b.bottom + window.scrollY;
+      if (bt > top && t < bottom && b.right > left && b.left < right) { cueBlocked = true; return; }
+    }
+  }
   function syncHint() {
     if (!hintLive || hintDone) return;
-    const away = window.scrollY > HINT_GONE_AT();
+    const away = window.scrollY > HINT_GONE_AT() || cueBlocked;
     const was = scrollHint.classList.contains('hint-show');
     scrollHint.classList.toggle('hint-hide', away);
     scrollHint.classList.toggle('hint-show', !away);
@@ -453,7 +479,8 @@
     if (away && coarse) hintDone = true;
   }
   window.addEventListener('scroll', syncHint, { passive: true });
-  setTimeout(() => { hintLive = true; syncHint(); }, HINT_SHOW_MS);
+  window.addEventListener('resize', () => { measureCue(); syncHint(); });
+  setTimeout(() => { hintLive = true; measureCue(); syncHint(); }, HINT_SHOW_MS);
   scrollHint.addEventListener('transitionend', (e) => {
     if (e.propertyName !== 'opacity' || !scrollHint.classList.contains('hint-hide')) return;
     hintFading = false;

@@ -296,12 +296,17 @@
     /* 1.5 everywhere: the earlier 1.0-on-touch experiment made each grain
        ~3 physical pixels on a 3x phone — chunky TV static, not sand. The
        dimmer mobile opacity above is the perf/readability lever instead. */
-    var dpr = dprNow = Math.min(window.devicePixelRatio || 1, 1.5);
     /* size from the canvas's own CSS box, not innerWidth/innerHeight —
        on iOS the fixed-position box and innerHeight disagree depending
        on the toolbar state, which stretched the texture and shoved the
        card-carve rects off their cards (black boxes) */
     var r = canvas.getBoundingClientRect();
+    /* ...and cap the pixel AREA too. A 4K monitor, or QHD at Windows' 150%,
+       otherwise renders 3840x2160 grains a frame, which Firefox draws at
+       13 fps. 3.6 MP leaves every laptop exactly as it was and trims only
+       the big monitors (4K at 1x comes down to ~2530x1420, stretched). */
+    var dpr = dprNow = Math.min(window.devicePixelRatio || 1, 1.5,
+      Math.sqrt(3.6e6 / Math.max(1, r.width * r.height)));
     var w = Math.max(2, Math.floor(r.width * dpr));
     var h = Math.max(2, Math.floor(r.height * dpr));
     canvas.width = w; canvas.height = h;

@@ -801,3 +801,9 @@ body::before {
   .ns-url-input,
   .st-font-select, .st-size-select { height: 26px; }
 }
+
+/* touch: the Finder's view and back buttons are 22x17 on a mouse desktop,
+   which is authentic and untappable; a thumb gets 30x24 inside the same bar */
+@media (pointer: coarse) {
+  .finder-view-btn { width: 30px; height: 24px; font-size: 11px; }
+}

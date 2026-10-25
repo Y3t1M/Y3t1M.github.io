@@ -559,8 +559,11 @@
   var dpr = 1;
   function resize() {
     if (!gl) return;
-    dpr = Math.min(window.devicePixelRatio || 1, 1.5);
     var r = stage.getBoundingClientRect();
+    /* the same 3.6 MP area cap as sand.js: 4K-class desktops otherwise push
+       3840x2160 grains a frame, which Firefox cannot hold anywhere near 60 */
+    dpr = Math.min(window.devicePixelRatio || 1, 1.5,
+      Math.sqrt(3.6e6 / Math.max(1, r.width * r.height)));
     var w = Math.max(2, Math.floor(r.width * dpr));
     var h = Math.max(2, Math.floor(r.height * dpr));
     stageW = w / dpr; stageH = h / dpr;
