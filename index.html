@@ -136,9 +136,9 @@
     </nav>
   </header>
 
-  <!-- Terrain hero: interactive wireframe topography; nav chips at right -->
+  <!-- Liquid hero: a pool drawn in text along the bottom; click, drag, tilt (liquid-hero.js) -->
   <section class="hero">
-    <canvas id="pcb-canvas"></canvas>
+    <div class="liquid" id="liquid" aria-hidden="true"></div>
 
     <div class="hero-panel hero-open">
       <h1 class="hero-title">Studying business.<br>Shipping software.</h1>
@@ -572,8 +572,8 @@
   </script>
 
   <!-- Diagnostics: hudsontinch.com/?diag=1
-       Renders nothing unless asked for. Exists because the sand and the terrain
-       are canvas work that can fail silently on a real phone in ways no desktop
+       Renders nothing unless asked for. Exists because the sand (canvas work) and
+       the liquid hero (a render loop) can fail silently on a real phone in ways no desktop
        browser reproduces — WebGL refused, a shader rejected by the actual GPU,
        or the render loop suspended by the OS. This reports which. -->
   <script>
@@ -585,9 +585,8 @@
     });
     function paint() {
       var S = window.__sandDiag || {mode:'script did not run'};
-      var T = window.__terrainDiag || {mode:'script did not run'};
+      var T = window.__liquidDiag || {mode:'script did not run'};
       var sc = document.getElementById('sand-canvas');
-      var pc = document.getElementById('pcb-canvas');
       function box(el) {
         if (!el) return 'missing';
         var r = el.getBoundingClientRect();
@@ -609,9 +608,11 @@
         ['sand card rects', S.rects],
         ['sand canvas', box(sc) + ' op ' + (sc ? sc.style.opacity || '?' : '-')],
         ['sand shader log', S.log || '(none)'],
-        ['terrain mode', T.mode],
-        ['terrain frames', T.frames],
-        ['terrain canvas', box(pc)],
+        ['liquid mode', T.mode],
+        ['liquid frames', T.frames],
+        ['liquid grid', (T.grid || '?') + ' characters, ' + (T.particles || 0) + ' particles, ' + (T.work || 0) + ' ms a frame'],
+        ['liquid tilt', T.tilt || '-'],
+        ['liquid error', T.err || '(none)'],
         ['js errors', errs.length ? errs.join(' | ') : '(none)']
       ];
       var el = document.getElementById('__diag') || (function () {
@@ -639,7 +640,7 @@
   <script src="desktop.js"></script>
   <script src="interactive.js"></script>
   <script src="features.js"></script>
-  <script src="terrain-hero.js"></script>
+  <script src="liquid-hero.js"></script>
 </body>
 
 </html>

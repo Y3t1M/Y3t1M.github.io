@@ -362,18 +362,90 @@ html.booting .nav-mark { opacity: 0; }
   overflow: hidden;
   z-index: 1;
 }
-#pcb-canvas {
+/* ── The liquid (liquid-hero.js) ──────────────────────────
+   A pool drawn in text: five stacked layers of real characters, one per
+   brightness, sized by the script (--lq-fs / --lq-lh). The whole layer ignores
+   the pointer; the hero itself takes the clicks. */
+.hero {
+  /* a sideways drag pushes the liquid, an up/down swipe still scrolls the page */
+  touch-action: pan-y pinch-zoom;
+  -webkit-tap-highlight-color: transparent;
+}
+.liquid {
   position: absolute;
   inset: 0;
-  width: 100%;
-  height: 100%;
-  display: block;
-  /* the seam (T4 Merge): the dots crumble into sand in terrain-hero.js; this is
-     only the last 70 px of softness so no dot is ever cut by the edge */
-  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 70px), transparent);
-  mask-image: linear-gradient(to bottom, #000 calc(100% - 70px), transparent);
+  overflow: hidden;
+  pointer-events: none;
+  -webkit-user-select: none;
+  user-select: none;
+  --lq-fs: 8px;
+  --lq-lh: 9px;
+  /* the pool's floor sinks into the sand below it instead of being cut by the hero's edge */
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 64px), transparent);
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 64px), transparent);
 }
-/* no line under the hero any more: the dots and the sand merge across the seam.
+.lq-shake { position: absolute; inset: 0; will-change: transform; }
+.lq {
+  position: absolute;
+  left: 0;
+  top: 0;
+  margin: 0;
+  /* its own stack, not --font-mono: that one falls back to the sans, and a grid needs every character the same width */
+  font-family: 'Site Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  font-size: var(--lq-fs);
+  line-height: var(--lq-lh);
+  font-weight: 500;
+  white-space: pre;
+  letter-spacing: 0;
+  font-variant-ligatures: none;
+  font-kerning: none;
+}
+.lq-t0 { color: rgba(234, 234, 234, 0.15); }
+.lq-t1 { color: rgba(234, 234, 234, 0.30); }
+.lq-t2 { color: rgba(234, 234, 234, 0.58); }
+.lq-t3 { color: rgba(242, 242, 242, 0.96); }
+.lq-t4 { color: #fff; text-shadow: 0 0 5px rgba(255, 255, 255, 0.85); }
+/* the glow is the paint cost; a device that falls behind sheds it first */
+.liquid.lite .lq-t4 { text-shadow: none; }
+.lq-probe { visibility: hidden; }
+/* headline letters: these spans exist only for the second the letters jump after a
+   strike; at rest the headline is its plain markup, so the type keeps its kerning */
+.lq-w { white-space: nowrap; }
+.lq-c { display: inline-block; }
+@keyframes lq-jolt {
+  0% { transform: none; }
+  28% { transform: translateY(-0.16em) rotate(-3deg); }
+  58% { transform: translateY(0.05em) rotate(1deg); }
+  100% { transform: none; }
+}
+/* phones: one button to turn tilt on (an iPhone needs a tap before it shares motion) */
+.lq-tilt {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  transform: translateX(-50%);
+  z-index: 3;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text);
+  background: rgba(11, 11, 11, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.42);
+  border-radius: 999px;
+  min-height: 40px;
+  padding: 0 16px;
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.lq-tilt[hidden] { display: none; }
+.lq-tilt:disabled { opacity: 0.7; }
+@media (pointer: coarse) {
+  /* a held finger charges a strike; it should not start selecting the headline */
+  .hero { -webkit-user-select: none; user-select: none; }
+}
+/* no line under the hero: the pool's floor and the sand merge across the seam.
    Blueprint mode keeps its dashed rule. */
 body:not(.blueprint) .hero { border-bottom-color: transparent; }
 
@@ -505,29 +577,21 @@ body:not(.blueprint) .hero { border-bottom-color: transparent; }
 }
 
 @media (max-width: 860px) {
-  /* The hero used to collapse to its content on mobile — about 390px inside
-     an 844px viewport — so the swells were crammed into the top third and
-     then chopped by the section border. Give it real height so the field has
-     somewhere to go, and centre the panel within it. svh, not vh: the small
-     viewport unit doesn't change when the URL bar collapses, so the terrain
-     can't be resized mid-scroll. */
   .hero {
     height: auto;
-    min-height: 78svh;
-    padding: 56px 0 72px;
+    /* The words sit at the top and the pool fills the rest of the first screen
+       (liquid-hero.js). The 300px under the words is the pool's room: about
+       100 of air for the splash and the tilt button, the rest liquid, so a
+       short phone gets a taller hero instead of a puddle. svh, not vh: the
+       small viewport unit doesn't change when the URL bar collapses, so the
+       pool is never rebuilt mid-scroll. */
+    min-height: 92svh;
+    padding: 36px 0 300px;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    /* the mask below handles the transition; a hard rule here was the seam */
+    justify-content: flex-start;
+    /* the mask on .liquid handles the transition; a hard rule here was the seam */
     border-bottom: none;
-  }
-  #pcb-canvas {
-    opacity: 0.85;
-    /* Feather only the bottom edge. The old 58% fade suited the wireframe
-       terrain; sandglow's boldest rows live low, and the deep fade washed
-       them out on phones. */
-    -webkit-mask-image: linear-gradient(to bottom, #000 0 88%, transparent 100%);
-            mask-image: linear-gradient(to bottom, #000 0 88%, transparent 100%);
   }
   .hero-panel {
     position: relative;
@@ -941,6 +1005,14 @@ html.settled .pcb-comp {
 }
 .hero-panel.hero-open .hero-subtitle { font-size: 15.5px; }
 .hero-panel.hero-open .hero-now { border-top: 0; padding-top: 6px; }
+/* Spray from a strike passes behind the hero's words for a moment (liquid-hero.js).
+   A dark halo on the small type and a dark fill inside the outlined buttons keep
+   them readable while it does; against the hero's own dark ground neither shows at
+   rest. :not(:hover) so the buttons keep their hover fill. */
+.hero-panel.hero-open .hero-subtitle,
+.hero-panel.hero-open .hero-now { text-shadow: 0 1px 12px #000, 0 0 30px rgba(0, 0, 0, 0.95); }
+.hero-panel.hero-open .btn-ghost:not(:hover),
+.hero-panel.hero-open .icon-btn:not(:hover) { background: rgba(11, 11, 11, 0.82); }
 @media (max-width: 860px) {
   .hero-panel.hero-open {
     position: relative;
@@ -1916,7 +1988,7 @@ body.blueprint::before {
 }
 body.blueprint .bg-blob { opacity: 0 !important; }
 body.blueprint .hero { border-bottom-style: dashed; }
-body.blueprint #pcb-canvas { opacity: 0.35; }
+body.blueprint .liquid { opacity: 0.35; }
 body.blueprint .section-label { color: #b8dfff; }
 body.blueprint .btn-primary {
   background: linear-gradient(180deg, rgba(16, 54, 98, 0.9), rgba(9, 32, 63, 0.92)) !important;

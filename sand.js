@@ -23,7 +23,7 @@
      hero, which met the hero's dots at a hard line with an empty band under it.
      Now it is shaped in space by the shader (uTop, see draw): it rises from
      SEAM_PRE px above the hero's bottom edge to full SEAM_W px below it, up
-     through the dots that terrain-hero.js crumbles into grains in that band.
+     through the floor of the hero's liquid pool, which liquid-hero.js fades out in that band.
      So the opacity is constant. Phones get a dimmer field (0.34 read as static
      on Hudson's iPhone; "a little sand", not weather). */
   var heroEl = document.querySelector('.hero');
@@ -366,7 +366,7 @@
     else start();
   });
 
-  /* Watchdog — same guard terrain-hero.js needed. Mobile Safari suspends rAF
+  /* Watchdog — same guard the hero (liquid-hero.js) needs. Mobile Safari suspends rAF
      under memory pressure and while the address bar animates, and does not
      always resume it, which leaves the grain frozen with no event to hang a
      fix on. If frames have stopped while the page is visible, restart. */

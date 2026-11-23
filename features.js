@@ -751,7 +751,7 @@
       acceptNode: function (n) {
         if (!n.textContent || !n.textContent.trim()) return NodeFilter.FILTER_REJECT;
         var p = n.parentElement;
-        if (!p || p.closest('#boot, script, style, .bp-ruined-overlay')) return NodeFilter.FILTER_REJECT;
+        if (!p || p.closest('#boot, script, style, .bp-ruined-overlay, .liquid')) return NodeFilter.FILTER_REJECT;   /* the hero's liquid is thousands of characters of texture, not words */
         return NodeFilter.FILTER_ACCEPT;
       }
     });
