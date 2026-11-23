@@ -325,11 +325,12 @@
   window.addEventListener('scroll', () => { const y = window.scrollY, d = y - lastY; lastY = y; const t = performance.now(); if (Math.abs(d) > 2 && t - kickT > 70 && onScreen && rafId) { kickT = t; F.kick(d); } }, { passive: true });
 
   /* ================= tilt ================= */
-  /* gravity follows the phone, in every direction. Android hands motion over without asking. An iPhone hands it over only
-     after a touch and Apple's own prompt, and no site can skip that, so there is no button: the first tap on the hero
-     (which is also a strike) asks, once. A yes and tilt simply works from then on; a no changes nothing. */
+  /* Gravity follows the phone, in every direction, wherever the browser hands motion over without asking (Android).
+     An iPhone hands it over only after Apple's own permission prompt, and a prompt on a first tap broke the moment
+     (Hudson, 2026-11-23: "it asked for permission to use it and i feel like that ruins the immersion"), so the site
+     never asks: on an iPhone there is no tilt, and taps and drags still move the pool. */
   const D2R = Math.PI / 180;
-  const TILT = { x: 0, y: 1, mag: 1, live: false, since: 0, state: 'off', listening: false, asked: false };
+  const TILT = { x: 0, y: 1, mag: 1, live: false, since: 0, state: 'off', listening: false };
   const touchy = !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches), hasDO = 'DeviceOrientationEvent' in window;
   const setTilt = st => { TILT.state = st; DIAG.tilt = st; };
   function onTilt(e) {
@@ -341,20 +342,11 @@
     if (m < 0.12) TILT.mag = 0.35; else { TILT.x = x / m; TILT.y = y / m; TILT.mag = clamp(m * 1.5, 0.35, 1); }   /* lying flat: keep the last direction, go light */
     if (!TILT.live) { TILT.live = true; TILT.since = performance.now(); setTilt('on'); }
   }
+  /* Asked once, at load, before any touch. A permission prompt can only open from a touch, so this can never put one on
+     screen: Chrome answers yes without asking, an iPhone answers no without showing anything (or yes, silently, if the
+     visitor already allowed it), and a browser with no permission step at all just starts sending readings. */
   function listen() { if (!TILT.listening) { TILT.listening = true; window.addEventListener('deviceorientation', onTilt); } }
-  function askTilt() {
-    const DO = window.DeviceOrientationEvent; if (TILT.live || TILT.asked || !DO || typeof DO.requestPermission !== 'function') return;
-    TILT.asked = true; setTilt('asking'); const t0 = performance.now();
-    /* an instant no is the view refusing (a page inside another page), not the person */
-    try { DO.requestPermission().then(r => { if (r === 'granted') { listen(); setTilt('waiting'); setTimeout(() => { if (!TILT.live) setTilt('blocked'); }, 1800); } else setTilt(performance.now() - t0 < 350 ? 'blocked' : 'denied'); }, () => setTilt('blocked')); }
-    catch (x) { setTilt('blocked'); }
-  }
-  if (touchy && hasDO) {
-    const DO = window.DeviceOrientationEvent;
-    /* where the browser hands motion over without asking (or already said yes this session), take it at once; otherwise this is refused quietly and nothing shows */
-    if (typeof DO.requestPermission !== 'function') listen(); else { try { DO.requestPermission().then(r => { if (r === 'granted') listen(); }, () => {}); } catch (x) {} }
-    hero.addEventListener('click', e => { if (!skip(e.target) && !document.body.classList.contains('blueprint')) askTilt(); });
-  }
+  if (touchy && hasDO) { const DO = window.DeviceOrientationEvent; if (typeof DO.requestPermission !== 'function') listen(); else { try { DO.requestPermission().then(r => { if (r === 'granted') listen(); }, () => {}); } catch (x) {} } }
 
   /* ================= loop, with a governor ================= */
   let onScreen = true, rafId = 0, last = 0, lastFrameAt = 0, err = '', slowT = 0; const cad = { arr: [], base: 0 };
