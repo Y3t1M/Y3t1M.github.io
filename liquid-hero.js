@@ -31,10 +31,12 @@
      single characters that sink on past the hero's edge into
      the next section and fade there, so the first screen runs
      into the second (his ask, 2026-11-22)
-   - the air above it carries a faint GRID of dots in the same
-     character grid, which lights under the mouse and where a
-     strike's ring passes: the backdrop that ties the nav, the
-     words and the pool together
+   - behind everything, the whole length of the page, is a faint
+     GRID of dots and crosses on the pool's own character grid
+     (his ask: "extend the entire length of the background
+     including behind the text"). The page draws it as one
+     repeating image; the pool only draws the marks that light
+     up, under the mouse and where a strike's ring passes
    - LEFT ALONE it is calm (his ask, same day: "it needs to be
      more calm at idle"): a few seconds after the last touch the
      particles are held to a slide instead of a simmer and the
@@ -91,10 +93,23 @@
     /* where the words end: the pool never rises into them, and on a phone the spray stays below them */
     pBot = panel ? Math.max(0, panel.getBoundingClientRect().bottom - r.top) : 0;
     aTop = narrow ? pBot + 6 : 0; rTop = Math.ceil(aTop / lh);
-    F.build();
-    /* on a wide screen the backdrop grid leaves the words a clean plate (on a phone it only starts below them) */
-    if (!narrow && panel) { const q = panel.getBoundingClientRect(); F.hole = [Math.floor((q.left - r.left - 16) / cw), Math.floor((q.top - r.top - 12) / lh), Math.ceil((q.right - r.left + 16) / cw), Math.ceil((q.bottom - r.top + 10) / lh)]; } else F.hole = null;
+    F.build(); F.hole = null;
+    pageGrid(fs, r.top + window.scrollY);
     DIAG.grid = cols + 'x' + rows;
+  }
+  /* The backdrop grid, the whole length of the page and behind everything on it. One image, as wide as the page and one grid
+     period tall (so it never drifts sideways), repeated down the document from the hero's top edge. The marks sit where the
+     pool's own '·' and '+' characters would: centred in their cell, 0.539 / 0.526 of the way down the line (measured). */
+  function pageGrid(fs, top) {
+    const st = document.body.style;
+    if (!CALM.grid) { st.removeProperty('--page-grid'); return; }
+    const gx = CALM.gridX, gy = CALM.gridY, g0 = gx >> 1, Hh = 4 * gy * lh, arm = fs * 0.235, f = v => v.toFixed(2); let dots = '', plus = '';
+    for (let j = 0; j < 4; j++) for (let x = g0, k = 0; x < cols; x += gx, k++) { const X = (x + 0.5) * cw;
+      if (j === 0 && k % 4 === 0) { const Y = 0.526 * lh; plus += 'M' + f(X - arm) + ' ' + f(Y) + 'h' + f(arm * 2) + 'M' + f(X) + ' ' + f(Y - arm) + 'v' + f(arm * 2); }
+      else dots += 'M' + f(X) + ' ' + f((j * gy + 0.539) * lh) + 'h.01'; }
+    const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + f(W) + '" height="' + Hh + '" viewBox="0 0 ' + f(W) + ' ' + Hh + '" fill="none" stroke="#eaeaea" stroke-opacity=".15"><path d="' + dots + '" stroke-width="' + f(Math.max(1, fs * 0.15)) + '" stroke-linecap="round"/><path d="' + plus + '" stroke-width="' + f(Math.max(0.8, fs * 0.085)) + '"/></svg>';
+    st.setProperty('--page-grid', 'url("data:image/svg+xml,' + encodeURIComponent(svg) + '")');
+    st.setProperty('--page-grid-y', f(top) + 'px'); st.setProperty('--page-grid-w', f(W) + 'px'); st.setProperty('--page-grid-h', Hh + 'px');
   }
   function set(x, y, code, tr) { if (x < 0 || y < 0 || x >= cols || y >= rows) return; const c = y * cols + x; ch[c] = code; tier[c] = tr; }
   function put(x, y, s, tr, solid) { x = Math.round(x); y = Math.round(y); if (y < 0 || y >= rows) return; for (let i = 0; i < s.length; i++) { const X = x + i; if (X < 0 || X >= cols) continue; const code = s.charCodeAt(i); if (code === 32 && !solid) continue; const c = y * cols + X; ch[c] = code; tier[c] = tr; } }
@@ -149,10 +164,10 @@
   const hsh = (x, y) => { let h = Math.imul(x, 374761393) + Math.imul(y, 668265263) | 0; h = Math.imul(h ^ (h >>> 13), 1274126177); return ((h ^ (h >>> 16)) >>> 0) / 4294967296; };
   /* idle: how the liquid behaves when nobody is touching it. rock = how far gravity leans side to side (share of gravity) and how fast; damp = extra drag once it has been left alone (t0 to t1 seconds after the last disturbance);
      drips = seconds between them and how many particles; jit = random nudge at the walls (1 keeps it simmering); shim = speed of the shading bands; level = start with a flat top row; sleep = px a settled particle may creep before it is held still */
-  const CALM = { depth: 1, glow: 0.12, rock: 0.02, rockW: 0.32, damp: 0.962, t0: 2.2, t1: 5.5, dripMin: 16, dripVar: 12, dripN: 2, jit: 0, shim: 0.55, level: 1, sleep: 0, relax: 0.2,
+  const CALM = { depth: 0.9, glow: 0.12, rock: 0.02, rockW: 0.32, damp: 0.962, t0: 2.2, t1: 5.5, dripMin: 16, dripVar: 12, dripN: 2, jit: 0, shim: 0.55, level: 1, sleep: 0, relax: 0.2,
     blur: 5, swell: 1.4, wave: 64, swellW: 0.42, rip: 1.7,
     thin0: 0.38, thinK: 0.14, sink: 0.5,      /* no floor: below thin0 of its depth the body thins out to thinK of its characters, which sink (rows a second) on through the floor and fade */
-    grid: 1, gridX: 4, gridY: 2 };            /* the backdrop: a faint grid of dots in the air above the pool, one every gridX columns and gridY rows, a + at every fourth */   /* the still surface: blur = characters it is eased over, swell = height of the slow wave (quarter rows), wave = its length in characters, swellW = its speed, rip = height of the ring a drip leaves */
+    grid: 2, gridX: 4, gridY: 2 };            /* grid 1: drawn here in characters; 2: the page draws it and only lit marks are drawn here. The backdrop: a faint grid of dots in the air above the pool, one every gridX columns and gridY rows, a + at every fourth */   /* the still surface: blur = characters it is eased over, swell = height of the slow wave (quarter rows), wave = its length in characters, swellW = its speed, rip = height of the ring a drip leaves */
   const F = {
     n: 0, qi: 0, px: null, py: null, vx: null, vy: null, qx: null, qy: null, rho: null, head: null, next: null, h: 16, sp: 8, gxn: 0, gyn: 0, rho0: 0, acc: 0, surf: 0,
     boost: 0, flash: 0, slow: 0, rings: [], mets: [], jets: [], sparks: [], flares: [], dripT: 3, calm: 0, qt: 0, pq: 0, rq: 0, tq: 0, hT: null, hA: null, hB: null, hOn: false, rips: [], rgx: 0, rgy: 1, gx: 0, gy: 1, glyph: 0, born: 0, strikes: 0, hintRow: 3, hole: null, colOff: null, keepRow: null,
@@ -256,7 +271,7 @@
       for (let x = 0; x < cols; x++) off[x] = Math.floor(sinkT * (0.4 + 0.6 * hsh(x, 7)) + hsh(x, 3) * 97);   /* each column sinks at its own pace */
       for (let y = 0; y < rows; y++) { let k = 1; if (y < FR) { const dz = (y + 0.5 - surfR) / spanR; if (dz > CALM.thin0) { const u = Math.min(1, (dz - CALM.thin0) / (1 - CALM.thin0)); k = 1 - (1 - CALM.thinK) * u * u * (3 - 2 * u); } } else k = CALM.thinK * Math.pow(1 - (y - FR + 0.5) / Math.max(1, rows - FR), 1.4); kr[y] = k; if (k < 1 && y < thinRow) thinRow = y; }
       const RL = RAMP.length - 1, fl = this.flash > 0, rings = this.rings, nr = rings.length, band = narrow ? 9 : 13, mend = this.qt > 0.5;
-      for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) { const c = y * cols + x, n = cN[c]; if (!n) continue; let L = cL[c], g, tr, full = n >= 6;
+      for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) { const c = y * cols + x, n = cN[c]; if (!n) continue; let L = cL[c], g, tr, full = n >= 6 || y >= FR - 2;   /* at the floor a half-covered cell is body like the rest and thins with it: no outline along the bottom */
         if (!full && mend && n >= 2 && (y === 0 ? 0 : cN[c - cols]) >= 4 && (y === rows - 1 ? 8 : cN[c + cols]) >= 4 && (x === 0 ? 8 : cN[c - 1]) >= 4 && (x === cols - 1 ? 8 : cN[c + 1]) >= 4) full = true;
         if (full) { if (y >= thinRow && hsh(x, y - off[x]) > kr[y]) continue;
           { const cs = Math.sin(x * 0.075 + 1.4 * Math.sin(y * 0.16 + tq * 0.13) - tq * 0.2); if (cs > 0) L += CALM.glow * cs * cs; } L += 0.06 * Math.sin(x * 0.33 + y * 0.7 - tq * CALM.shim) + (fl ? 0.35 : 0); let q = Math.round(Math.pow(clamp(L, 0, 1), 1.05) * RL); if (q < 1) q = 1; if (q > RL) q = RL; g = RAMP.charCodeAt(q); tr = L < 0.3 ? 1 : L < 0.55 ? 2 : 3; }
@@ -279,8 +294,9 @@
       if (TILT.live && performance.now() - TILT.since < 4500) mid(narrow ? cols / 2 : cols * 0.675, this.hintRow + 2, 'TILT YOUR PHONE', (now % 1.2) < 0.8 ? 3 : 2);
       if (CALM.grid) { const gx = CALM.gridX, gy = CALM.gridY, g0 = gx >> 1, hole = this.hole, y0 = narrow ? Math.ceil(rTop / gy) * gy : gy, mx = ptr.inside && ptr.mouse ? ptr.x : -9999, my = ptr.y;
         for (let y = y0; y < FR; y += gy) { const yp = (y + 0.5) * lh; for (let x = g0; x < cols; x += gx) { const c = y * cols + x; if (tier[c] || cN[c]) continue; if (hole && x >= hole[0] && x <= hole[2] && y >= hole[1] && y <= hole[3]) continue;
-          const xp = (x + 0.5) * cw, dm = (xp - mx) * (xp - mx) + (yp - my) * (yp - my); let tr = dm < 2500 ? 2 : dm < 14400 ? 1 : 5;
-          for (let k2 = 0; k2 < nr; k2++) { const rg = rings[k2], d = Math.abs(Math.hypot(xp - rg.x, yp - rg.y) - rg.r); if (d < 30) tr = d < 12 ? 3 : 2; }
+          const xp = (x + 0.5) * cw, dm = (xp - mx) * (xp - mx) + (yp - my) * (yp - my); let tr = dm < 2500 ? 2 : dm < 14400 ? 1 : 5; let lit = tr !== 5;
+          for (let k2 = 0; k2 < nr; k2++) { const rg = rings[k2], d = Math.abs(Math.hypot(xp - rg.x, yp - rg.y) - rg.r); if (d < 30) { tr = d < 12 ? 3 : 2; lit = true; } }
+          if (!lit && CALM.grid === 2) continue;   /* the page draws the resting grid; here only the marks that are lit */
           ch[c] = ((x - g0) / gx) % 4 === 0 && (y / gy) % 4 === 0 ? 43 : 183; tier[c] = tr; } } }
       const idle = this.strikes === 0 && now - this.born > 1.2; if (idle) mid(narrow ? cols / 2 : cols * 0.675, this.hintRow, touchy ? 'TAP IT' : 'CLICK IT', (now % 1.6) < 1 ? 2 : 1);
     }
