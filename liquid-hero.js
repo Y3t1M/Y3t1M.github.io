@@ -31,12 +31,13 @@
      single characters that sink on past the hero's edge into
      the next section and fade there, so the first screen runs
      into the second (his ask, 2026-11-22)
-   - behind everything, the whole length of the page, is a faint
-     GRID of dots and crosses on the pool's own character grid
-     (his ask: "extend the entire length of the background
-     including behind the text"). The page draws it as one
-     repeating image; the pool only draws the marks that light
-     up, under the mouse and where a strike's ring passes
+   - behind the whole hero, the words included, is a faint GRID
+     of dots and crosses on the pool's own character grid. It
+     fades out with the pool through the transition and stops
+     there: below it the sand is the centerpiece (his calls,
+     2026-11-22). The hero draws it as one repeating image; the
+     pool only draws the marks that light up, under the mouse
+     and where a strike's ring passes
    - LEFT ALONE it is calm (his ask, same day: "it needs to be
      more calm at idle"): a few seconds after the last touch the
      particles are held to a slide instead of a simmer and the
@@ -94,22 +95,23 @@
     pBot = panel ? Math.max(0, panel.getBoundingClientRect().bottom - r.top) : 0;
     aTop = narrow ? pBot + 6 : 0; rTop = Math.ceil(aTop / lh);
     F.build(); F.hole = null;
-    pageGrid(fs, r.top + window.scrollY);
+    heroGrid(fs);
     DIAG.grid = cols + 'x' + rows;
   }
-  /* The backdrop grid, the whole length of the page and behind everything on it. One image, as wide as the page and one grid
-     period tall (so it never drifts sideways), repeated down the document from the hero's top edge. The marks sit where the
-     pool's own '·' and '+' characters would: centred in their cell, 0.539 / 0.526 of the way down the line (measured). */
-  function pageGrid(fs, top) {
-    const st = document.body.style;
-    if (!CALM.grid) { st.removeProperty('--page-grid'); return; }
+  /* The backdrop grid. One image, as wide as the hero and one grid period tall (so it never drifts sideways), repeated down
+     the pool's own layer, which covers the hero and runs on through the transition, where its fade takes the grid out with
+     the pool. The marks sit where the pool's own '·' and '+' characters would: centred in their cell, 0.539 / 0.526 of the
+     way down the line (measured), so a mark the pool lights lands exactly on one of these. */
+  function heroGrid(fs) {
+    const st = host.style;
+    if (!CALM.grid) { st.backgroundImage = ''; return; }
     const gx = CALM.gridX, gy = CALM.gridY, g0 = gx >> 1, Hh = 4 * gy * lh, arm = fs * 0.235, f = v => v.toFixed(2); let dots = '', plus = '';
     for (let j = 0; j < 4; j++) for (let x = g0, k = 0; x < cols; x += gx, k++) { const X = (x + 0.5) * cw;
       if (j === 0 && k % 4 === 0) { const Y = 0.526 * lh; plus += 'M' + f(X - arm) + ' ' + f(Y) + 'h' + f(arm * 2) + 'M' + f(X) + ' ' + f(Y - arm) + 'v' + f(arm * 2); }
       else dots += 'M' + f(X) + ' ' + f((j * gy + 0.539) * lh) + 'h.01'; }
     const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + f(W) + '" height="' + Hh + '" viewBox="0 0 ' + f(W) + ' ' + Hh + '" fill="none" stroke="#eaeaea" stroke-opacity=".15"><path d="' + dots + '" stroke-width="' + f(Math.max(1, fs * 0.15)) + '" stroke-linecap="round"/><path d="' + plus + '" stroke-width="' + f(Math.max(0.8, fs * 0.085)) + '"/></svg>';
-    st.setProperty('--page-grid', 'url("data:image/svg+xml,' + encodeURIComponent(svg) + '")');
-    st.setProperty('--page-grid-y', f(top) + 'px'); st.setProperty('--page-grid-w', f(W) + 'px'); st.setProperty('--page-grid-h', Hh + 'px');
+    st.backgroundImage = 'url("data:image/svg+xml,' + encodeURIComponent(svg) + '")';
+    st.backgroundRepeat = 'repeat-y'; st.backgroundSize = f(W) + 'px ' + Hh + 'px'; st.backgroundPosition = '0 0';
   }
   function set(x, y, code, tr) { if (x < 0 || y < 0 || x >= cols || y >= rows) return; const c = y * cols + x; ch[c] = code; tier[c] = tr; }
   function put(x, y, s, tr, solid) { x = Math.round(x); y = Math.round(y); if (y < 0 || y >= rows) return; for (let i = 0; i < s.length; i++) { const X = x + i; if (X < 0 || X >= cols) continue; const code = s.charCodeAt(i); if (code === 32 && !solid) continue; const c = y * cols + X; ch[c] = code; tier[c] = tr; } }
@@ -164,7 +166,7 @@
   const hsh = (x, y) => { let h = Math.imul(x, 374761393) + Math.imul(y, 668265263) | 0; h = Math.imul(h ^ (h >>> 13), 1274126177); return ((h ^ (h >>> 16)) >>> 0) / 4294967296; };
   /* idle: how the liquid behaves when nobody is touching it. rock = how far gravity leans side to side (share of gravity) and how fast; damp = extra drag once it has been left alone (t0 to t1 seconds after the last disturbance);
      drips = seconds between them and how many particles; jit = random nudge at the walls (1 keeps it simmering); shim = speed of the shading bands; level = start with a flat top row; sleep = px a settled particle may creep before it is held still */
-  const CALM = { depth: 0.9, glow: 0.12, rock: 0.02, rockW: 0.32, damp: 0.962, t0: 2.2, t1: 5.5, dripMin: 16, dripVar: 12, dripN: 2, jit: 0, shim: 0.55, level: 1, sleep: 0, relax: 0.2,
+  const CALM = { depth: 0.8, glow: 0.12, rock: 0.02, rockW: 0.32, damp: 0.962, t0: 2.2, t1: 5.5, dripMin: 16, dripVar: 12, dripN: 2, jit: 0, shim: 0.55, level: 1, sleep: 0, relax: 0.2,
     blur: 5, swell: 1.4, wave: 64, swellW: 0.42, rip: 1.7,
     thin0: 0.38, thinK: 0.14, sink: 0.5,      /* no floor: below thin0 of its depth the body thins out to thinK of its characters, which sink (rows a second) on through the floor and fade */
     grid: 2, gridX: 4, gridY: 2 };            /* grid 1: drawn here in characters; 2: the page draws it and only lit marks are drawn here. The backdrop: a faint grid of dots in the air above the pool, one every gridX columns and gridY rows, a + at every fourth */   /* the still surface: blur = characters it is eased over, swell = height of the slow wave (quarter rows), wave = its length in characters, swellW = its speed, rip = height of the ring a drip leaves */

@@ -84,20 +84,7 @@ html {
 html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; display: none; }  /* Chrome/Safari */
 
 body {
-  /* Two layers. Under: the page's dark glow, fixed to the window. Over: the
-     backdrop grid (2026-11-22, Hudson: "i want the background grid to extend
-     the entire length of the background including behind the text"). On the
-     home page liquid-hero.js draws one tile of the pool's own dot-and-cross
-     grid, as wide as the page and one period tall, into --page-grid and
-     anchors it to the hero's top edge, so the marks behind the words line up
-     with the marks the pool lights up. Elsewhere --page-grid is unset and the
-     layer is empty. Blueprint mode's !important shorthand clears both. */
-  background-color: var(--bg);
-  background-image: var(--page-grid, none), radial-gradient(120% 80% at 50% 0%, #141414 0%, #0b0b0b 48%, #050505 100%);
-  background-repeat: repeat-y, repeat;
-  background-size: var(--page-grid-w, 100%) var(--page-grid-h, 0px), auto;
-  background-position: 0 var(--page-grid-y, 0px), 0 0;
-  background-attachment: scroll, fixed;
+  background: radial-gradient(120% 80% at 50% 0%, #141414 0%, #0b0b0b 48%, #050505 100%) fixed var(--bg);
   color: var(--text);
   font-family: var(--font);
   line-height: 1.6;
@@ -396,7 +383,9 @@ html.booting .nav-mark { opacity: 0; }
   /* The pool has no floor. The layer runs --lq-ext (set by the script) past the
      hero's bottom edge, and low in the pool the liquid thins into single
      characters that sink through that room and fade out over the top of the
-     next section, so there is no line where the first screen ends. */
+     next section, so there is no line where the first screen ends. The layer's
+     background is the hero's dot grid (also set by the script), so the grid
+     fades out with the pool here and the sand carries the page below. */
   --lq-ext: 0px;
   bottom: calc(-1 * var(--lq-ext));
   -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - var(--lq-ext) - 30px), transparent);
