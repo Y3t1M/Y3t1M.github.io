@@ -24,8 +24,17 @@
    - a DRAG or a moving mouse pushes the liquid; scrolling the
      page kicks it
    - on a phone, TILT pours it: gravity follows the way the
-     phone is held, in every direction. iPhones only hand over
-     motion after a tap and a yes, so there is one button
+     phone is held, in every direction. An iPhone only hands
+     over motion after a touch and Apple's own prompt; there is
+     no button for it, the first tap on the hero asks, once
+   - it has NO FLOOR: low in the pool the body thins out into
+     single characters that sink on past the hero's edge into
+     the next section and fade there, so the first screen runs
+     into the second (his ask, 2026-11-22)
+   - the air above it carries a faint GRID of dots in the same
+     character grid, which lights under the mouse and where a
+     strike's ring passes: the backdrop that ties the nav, the
+     words and the pool together
    - LEFT ALONE it is calm (his ask, same day: "it needs to be
      more calm at idle"): a few seconds after the last touch the
      particles are held to a slide instead of a simmer and the
@@ -57,13 +66,10 @@
   /* the five layers, dimmest first, and a hidden ruler for the character width */
   host.innerHTML = '<div class="lq-shake"><div class="lq lq-t0"></div><div class="lq lq-t1"></div><div class="lq lq-t2"></div><div class="lq lq-t3"></div><div class="lq lq-t4"></div><span class="lq lq-probe">' + 'M'.repeat(80) + '</span></div>';
   const shk = host.firstChild, LAY = [null, shk.children[1], shk.children[2], shk.children[3], shk.children[4], shk.children[0]], probe = shk.children[5];
-  const tiltBtn = document.createElement('button');
-  tiltBtn.type = 'button'; tiltBtn.className = 'lq-tilt'; tiltBtn.hidden = true;
-  hero.appendChild(tiltBtn);
 
   const SUBX = 2, SUBY = 4, RAMP = ' .:-=+*#%@', HEADS = '$#{<@%>';
   const REDUCED = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-  let W = 0, H = 0, cols = 0, rows = 0, cw = 5, lh = 9, BW = 0, BH = 0, subW = 2.5, subH = 2.25, narrow = false, aTop = 0, rTop = 0, pBot = 0, now = 0;
+  let W = 0, H = 0, cols = 0, rows = 0, cw = 5, lh = 9, BW = 0, BH = 0, subW = 2.5, subH = 2.25, narrow = false, aTop = 0, rTop = 0, pBot = 0, now = 0, EXT = 0, FR = 0, FB = 0;
   let lb, mb, cN, cL, cQ, ch, tier, rowBuf;
   const prev = ['', '', '', '', '', ''];
   const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
@@ -76,15 +82,18 @@
     lh = Math.round(fs * 1.14);
     host.style.setProperty('--lq-fs', fs + 'px'); host.style.setProperty('--lq-lh', lh + 'px');
     cw = probe.getBoundingClientRect().width / 80 || fs * 0.6;
-    cols = Math.max(24, Math.floor(W / cw)); rows = Math.max(12, Math.floor(H / lh));
-    BW = cols * SUBX; BH = rows * SUBY; subW = cw / SUBX; subH = lh / SUBY;
+    /* the grid runs EXT px past the hero's bottom edge: that is where what sinks out of the pool fades into the next section (styles.css gives the layer the same room) */
+    EXT = narrow ? 150 : 200; host.style.setProperty('--lq-ext', EXT + 'px');
+    cols = Math.max(24, Math.floor(W / cw)); rows = Math.max(12, Math.floor((H + EXT) / lh));
+    BW = cols * SUBX; BH = rows * SUBY; subW = cw / SUBX; subH = lh / SUBY; FR = Math.min(rows, Math.ceil(H / lh)); FB = Math.min(BH, Math.round(H / subH));   /* the floor's row and sub-row */
     const nb = BW * BH, nc = cols * rows;
     lb = new Float32Array(nb); mb = new Uint8Array(nb); cN = new Uint8Array(nc); cL = new Float32Array(nc); cQ = new Uint16Array(nc); ch = new Uint16Array(nc); tier = new Uint8Array(nc); rowBuf = new Uint16Array(cols);
     /* where the words end: the pool never rises into them, and on a phone the spray stays below them */
     pBot = panel ? Math.max(0, panel.getBoundingClientRect().bottom - r.top) : 0;
     aTop = narrow ? pBot + 6 : 0; rTop = Math.ceil(aTop / lh);
     F.build();
-    tiltBtn.style.top = Math.round(narrow ? aTop + 52 : Math.max(20, F.surf - 96)) + 'px'; tiltBtn.style.left = narrow ? '50%' : '67.5%';
+    /* on a wide screen the backdrop grid leaves the words a clean plate (on a phone it only starts below them) */
+    if (!narrow && panel) { const q = panel.getBoundingClientRect(); F.hole = [Math.floor((q.left - r.left - 16) / cw), Math.floor((q.top - r.top - 12) / lh), Math.ceil((q.right - r.left + 16) / cw), Math.ceil((q.bottom - r.top + 10) / lh)]; } else F.hole = null;
     DIAG.grid = cols + 'x' + rows;
   }
   function set(x, y, code, tr) { if (x < 0 || y < 0 || x >= cols || y >= rows) return; const c = y * cols + x; ch[c] = code; tier[c] = tr; }
@@ -136,22 +145,26 @@
 
   /* ================= the fluid ================= */
   const QL = [1, 0.8, 0.64, 0.5];
+  /* a stable random number for a cell, the same every frame */
+  const hsh = (x, y) => { let h = Math.imul(x, 374761393) + Math.imul(y, 668265263) | 0; h = Math.imul(h ^ (h >>> 13), 1274126177); return ((h ^ (h >>> 16)) >>> 0) / 4294967296; };
   /* idle: how the liquid behaves when nobody is touching it. rock = how far gravity leans side to side (share of gravity) and how fast; damp = extra drag once it has been left alone (t0 to t1 seconds after the last disturbance);
      drips = seconds between them and how many particles; jit = random nudge at the walls (1 keeps it simmering); shim = speed of the shading bands; level = start with a flat top row; sleep = px a settled particle may creep before it is held still */
-  const CALM = { glow: 0.12, rock: 0.02, rockW: 0.32, damp: 0.962, t0: 2.2, t1: 5.5, dripMin: 16, dripVar: 12, dripN: 2, jit: 0, shim: 0.55, level: 1, sleep: 0, relax: 0.2,
-    blur: 5, swell: 1.4, wave: 64, swellW: 0.42, rip: 1.7 };   /* the still surface: blur = characters it is eased over, swell = height of the slow wave (quarter rows), wave = its length in characters, swellW = its speed, rip = height of the ring a drip leaves */
+  const CALM = { depth: 1, glow: 0.12, rock: 0.02, rockW: 0.32, damp: 0.962, t0: 2.2, t1: 5.5, dripMin: 16, dripVar: 12, dripN: 2, jit: 0, shim: 0.55, level: 1, sleep: 0, relax: 0.2,
+    blur: 5, swell: 1.4, wave: 64, swellW: 0.42, rip: 1.7,
+    thin0: 0.38, thinK: 0.14, sink: 0.5,      /* no floor: below thin0 of its depth the body thins out to thinK of its characters, which sink (rows a second) on through the floor and fade */
+    grid: 1, gridX: 4, gridY: 2 };            /* the backdrop: a faint grid of dots in the air above the pool, one every gridX columns and gridY rows, a + at every fourth */   /* the still surface: blur = characters it is eased over, swell = height of the slow wave (quarter rows), wave = its length in characters, swellW = its speed, rip = height of the ring a drip leaves */
   const F = {
     n: 0, qi: 0, px: null, py: null, vx: null, vy: null, qx: null, qy: null, rho: null, head: null, next: null, h: 16, sp: 8, gxn: 0, gyn: 0, rho0: 0, acc: 0, surf: 0,
-    boost: 0, flash: 0, slow: 0, rings: [], mets: [], jets: [], sparks: [], flares: [], dripT: 3, calm: 0, qt: 0, pq: 0, rq: 0, hT: null, hA: null, hB: null, hOn: false, rips: [], rgx: 0, rgy: 1, gx: 0, gy: 1, glyph: 0, born: 0, strikes: 0, hintRow: 3,
+    boost: 0, flash: 0, slow: 0, rings: [], mets: [], jets: [], sparks: [], flares: [], dripT: 3, calm: 0, qt: 0, pq: 0, rq: 0, tq: 0, hT: null, hA: null, hB: null, hOn: false, rips: [], rgx: 0, rgy: 1, gx: 0, gy: 1, glyph: 0, born: 0, strikes: 0, hintRow: 3, hole: null, colOff: null, keepRow: null,
     build() {
-      const want = H * (narrow ? 0.36 : 0.34), depth = clamp(Math.min(want, H - pBot - (narrow ? 106 : 36)), H * 0.2, want), base = clamp(Math.round(W * depth / (narrow ? 50 : 118)), 500, 2600), N0 = Math.round(base * QL[this.qi]), sp = Math.sqrt(W * depth / N0), h = sp * 2.15, per = Math.max(4, Math.floor((W - 8) / sp)), N = CALM.level ? Math.max(per, Math.round(N0 / per) * per) : N0;
+      const want = H * (narrow ? 0.47 : 0.34) * CALM.depth, depth = clamp(Math.min(want, H - pBot - (narrow ? 78 : 36)), H * 0.16, want), base = clamp(Math.round(W * depth / (narrow ? 50 : 118)), 500, 2600), N0 = Math.round(base * QL[this.qi]), sp = Math.sqrt(W * depth / N0), h = sp * 2.15, per = Math.max(4, Math.floor((W - 8) / sp)), N = CALM.level ? Math.max(per, Math.round(N0 / per) * per) : N0;
       this.n = N; this.sp = sp; this.h = h; this.surf = H - depth;
       this.px = new Float32Array(N); this.py = new Float32Array(N); this.vx = new Float32Array(N); this.vy = new Float32Array(N); this.qx = new Float32Array(N); this.qy = new Float32Array(N); this.rho = new Float32Array(N).fill(9);
       this.gxn = Math.ceil(W / h) + 2; this.gyn = Math.ceil(H / h) + 2; this.head = new Int32Array(this.gxn * this.gyn); this.next = new Int32Array(N);
       for (let i = 0; i < N; i++) { const r = Math.floor(i / per), c = i % per; this.px[i] = 5 + c * sp + (r & 1 ? sp * 0.5 : 0) + ((i * 7919 % 100) / 100 - 0.5); this.py[i] = H - 5 - r * sp * 0.87; }
-      this.rho0 = 0; this.acc = 0; this.nb = new Int32Array(96); this.nq = new Float32Array(96); this.nux = new Float32Array(96); this.nuy = new Float32Array(96);
+      this.rho0 = 0; this.acc = 0; this.colOff = new Int32Array(cols); this.keepRow = new Float32Array(rows); this.nb = new Int32Array(96); this.nq = new Float32Array(96); this.nux = new Float32Array(96); this.nuy = new Float32Array(96);
       this.rings.length = 0; this.mets.length = 0; this.jets.length = 0; this.sparks.length = 0; this.flares.length = 0; this.born = now; work.n = 0; work.sum = 0; this.calm = CALM.t1; this.qt = 1; this.pq = 1; this.hOn = false; this.rips.length = 0; this.rgx = this.gx; this.rgy = this.gy; this.dripT = CALM.dripMin * 0.5 + Math.random() * CALM.dripVar * 0.5;
-      this.hintRow = narrow ? rTop + 3 : Math.max(2, Math.floor(this.surf / lh) - 7); DIAG.particles = N;
+      this.hintRow = narrow ? Math.max(rTop + 1, Math.floor(this.surf / lh) - 4) : Math.max(2, Math.floor(this.surf / lh) - 7); DIAG.particles = N;
     },
     step(dt) {
       const N = this.n, h = this.h, h2 = h * h, px = this.px, py = this.py, vx = this.vx, vy = this.vy, qx = this.qx, qy = this.qy, gxn = this.gxn, gyn = this.gyn, head = this.head, next = this.next, G = 1500;
@@ -204,17 +217,17 @@
       const a = this.hOn ? 1 - Math.exp(-dt / (0.02 + 0.3 * rq)) : 1; this.hOn = true; for (let x = 0; x < n; x++) hT[x] += (hA[x] - hT[x]) * a;
       const R = Math.round(CALM.blur * SUBX * rq); let src = hT;
       if (R > 0) for (let pass = 0; pass < 2; pass++) { hB[0] = 0; for (let x = 0; x < n; x++) hB[x + 1] = hB[x] + src[x]; for (let x = 0; x < n; x++) { const x0 = x - R < 0 ? 0 : x - R, x1 = x + R > n - 1 ? n - 1 : x + R; hA[x] = (hB[x1 + 1] - hB[x0]) / (x1 - x0 + 1); } src = hA; }
-      const sw = CALM.swell * rq, k1 = 2 * Math.PI / (CALM.wave * SUBX), w1 = now * CALM.swellW, snap = rq > 0.6, rips = this.rips;
+      const sw = CALM.swell * rq, k1 = 2 * Math.PI / (CALM.wave * SUBX), w1 = this.tq * CALM.swellW, snap = rq > 0.6, rips = this.rips;
       for (let i = rips.length - 1; i >= 0; i--) if (now - rips[i].at > 1.8) rips.splice(i, 1);
-      let lo = BH;
+      let lo = FB;
       for (let x = 0; x < n; x++) {
         let h = src[x]; if (h >= 0.5) { h += sw * (Math.sin(x * k1 - w1) + 0.45 * Math.sin(x * k1 * 0.56 + w1 * 0.7 + 1.7));
           for (const rp of rips) { const age = now - rp.at; if (age < 0) continue; const d = Math.abs((x + 0.5) * subW - rp.x) - 110 * age, e = 1 - age / 1.8; h += CALM.rip * rq * e * Math.sqrt(e) * Math.exp(-d * d / 144); } }
         hB[x] = h; }
       for (let x = 0; x < n; x += SUBX) { let m = 0; if (snap) { for (let j = 0; j < SUBX; j++) m += hB[x + j]; m /= SUBX; }
-        for (let j = 0; j < SUBX; j++) { let sN = Math.round(snap ? m : hB[x + j]); if (snap && sN > 0) { const r = sN & 3; if (r === 0) sN += 1; else if (r === 3) sN -= 1; } sN = sN < 0 ? 0 : sN > BH ? BH : sN;   /* keep the level where a line character can show it */
-          hB[x + j] = BH - sN; if (BH - sN < lo) lo = BH - sN; } }
-      for (let y = 0; y < BH; y++) { const row = y * n; if (y < lo) { mb.fill(0, row, row + n); continue; } for (let x = 0; x < n; x++) { const q = row + x; if (y >= hB[x]) { mb[q] = 1; if (lb[q] < 0.2) lb[q] = 0.2; } else mb[q] = 0; } }
+        for (let j = 0; j < SUBX; j++) { let sN = Math.round(snap ? m : hB[x + j]); if (snap && sN > 0) { const r = sN & 3; if (r === 0) sN += 1; else if (r === 3) sN -= 1; } sN = sN < 0 ? 0 : sN > FB ? FB : sN;   /* keep the level where a line character can show it */
+          hB[x + j] = FB - sN; if (FB - sN < lo) lo = FB - sN; } }
+      for (let y = 0; y < BH; y++) { const row = y * n; if (y < lo || y >= FB) { mb.fill(0, row, row + n); continue; } for (let x = 0; x < n; x++) { const q = row + x; if (y >= hB[x]) { mb[q] = 1; if (lb[q] < 0.2) lb[q] = 0.2; } else mb[q] = 0; } }
     },
     frame(dt) {
       { const q0 = clamp((this.calm - CALM.t0) / (CALM.t1 - CALM.t0), 0, 1); this.qt = q0 * q0 * (3 - 2 * q0); this.pq = this.qt >= this.pq ? this.qt : Math.max(this.qt, this.pq - dt / 0.35); }   /* the settle lets go over a third of a second, so waking is a stir and not a jolt */
@@ -235,18 +248,23 @@
       const N = this.n, px = this.px, py = this.py, vx = this.vx, vy = this.vy, rho = this.rho, lim = this.rho0 * 0.42, rsx = this.sp * 0.78 / subW, asp = subH / subW, rs2 = rsx * rsx;
       for (let i = 0; i < N; i++) { if (rho[i] < lim) continue; const sx = px[i] / subW, sy = py[i] / subH, sp = Math.hypot(vx[i], vy[i]), lum = Math.min(1, 0.2 + (sp > 250 ? (sp - 250) / 700 : 0)), x0 = Math.max(0, Math.floor(sx - rsx)), x1 = Math.min(BW - 1, Math.ceil(sx + rsx)), y0 = Math.max(0, Math.floor(sy - rsx / asp)), y1 = Math.min(BH - 1, Math.ceil(sy + rsx / asp));
         for (let yy = y0; yy <= y1; yy++) { const dy = (yy + 0.5 - sy) * asp; for (let xx = x0; xx <= x1; xx++) { const dx = xx + 0.5 - sx; if (dx * dx + dy * dy < rs2) { const q = yy * BW + xx; mb[q] = 1; if (lum > lb[q]) lb[q] = lum; } } } }
-      { const want = this.qt * clamp((this.gy - 0.8) / 0.13, 0, 1) * (Math.abs(this.gx) < 0.6 ? 1 : 0); this.rq = want >= this.rq ? want : Math.max(want, this.rq - dt / 0.25); if (this.rq > 0.001) this.still(dt); else this.hOn = false; }
+      { const want = this.qt * clamp((this.gy - 0.8) / 0.13, 0, 1) * (Math.abs(this.gx) < 0.6 ? 1 : 0); this.rq = want >= this.rq ? want : Math.max(want, this.rq - dt / 0.25); this.tq = this.rq > 0.9 ? Math.floor(now * 8) / 8 : now; if (this.rq > 0.001) this.still(dt); else this.hOn = false; }   /* tq: when it is calm the slow patterns step 8 times a second; between steps the text is identical and nothing is redrawn */
       for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) { const c = y * cols + x, bx = x * SUBX, by = y * SUBY; let n = 0, s = 0, t = 0, b = 0, l = 0, r = 0;
         for (let j = 0; j < SUBY; j++) { const row = (by + j) * BW + bx; for (let i = 0; i < SUBX; i++) { const q = row + i; if (mb[q]) { n++; s += lb[q]; if (j < 2) t++; else b++; if (i === 0) l++; else r++; } } }
         cN[c] = n; cL[c] = n ? s / n : 0; cQ[c] = t | (b << 3) | (l << 6) | (r << 9); }
+      const off = this.colOff, kr = this.keepRow, tq = this.tq, sinkT = tq * CALM.sink, surfR = this.surf / lh, spanR = Math.max(1, FR - surfR); let thinRow = rows;
+      for (let x = 0; x < cols; x++) off[x] = Math.floor(sinkT * (0.4 + 0.6 * hsh(x, 7)) + hsh(x, 3) * 97);   /* each column sinks at its own pace */
+      for (let y = 0; y < rows; y++) { let k = 1; if (y < FR) { const dz = (y + 0.5 - surfR) / spanR; if (dz > CALM.thin0) { const u = Math.min(1, (dz - CALM.thin0) / (1 - CALM.thin0)); k = 1 - (1 - CALM.thinK) * u * u * (3 - 2 * u); } } else k = CALM.thinK * Math.pow(1 - (y - FR + 0.5) / Math.max(1, rows - FR), 1.4); kr[y] = k; if (k < 1 && y < thinRow) thinRow = y; }
       const RL = RAMP.length - 1, fl = this.flash > 0, rings = this.rings, nr = rings.length, band = narrow ? 9 : 13, mend = this.qt > 0.5;
       for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) { const c = y * cols + x, n = cN[c]; if (!n) continue; let L = cL[c], g, tr, full = n >= 6;
         if (!full && mend && n >= 2 && (y === 0 ? 0 : cN[c - cols]) >= 4 && (y === rows - 1 ? 8 : cN[c + cols]) >= 4 && (x === 0 ? 8 : cN[c - 1]) >= 4 && (x === cols - 1 ? 8 : cN[c + 1]) >= 4) full = true;
-        if (full) { { const cs = Math.sin(x * 0.075 + 1.4 * Math.sin(y * 0.16 + now * 0.13) - now * 0.2); if (cs > 0) L += CALM.glow * cs * cs; } L += 0.06 * Math.sin(x * 0.33 + y * 0.7 - now * CALM.shim) + (fl ? 0.35 : 0); let q = Math.round(Math.pow(clamp(L, 0, 1), 1.05) * RL); if (q < 1) q = 1; if (q > RL) q = RL; g = RAMP.charCodeAt(q); tr = L < 0.3 ? 1 : L < 0.55 ? 2 : 3; }
+        if (full) { if (y >= thinRow && hsh(x, y - off[x]) > kr[y]) continue;
+          { const cs = Math.sin(x * 0.075 + 1.4 * Math.sin(y * 0.16 + tq * 0.13) - tq * 0.2); if (cs > 0) L += CALM.glow * cs * cs; } L += 0.06 * Math.sin(x * 0.33 + y * 0.7 - tq * CALM.shim) + (fl ? 0.35 : 0); let q = Math.round(Math.pow(clamp(L, 0, 1), 1.05) * RL); if (q < 1) q = 1; if (q > RL) q = RL; g = RAMP.charCodeAt(q); tr = L < 0.3 ? 1 : L < 0.55 ? 2 : 3; }
         else { const q = cQ[c], t = q & 7, b = (q >> 3) & 7, l = (q >> 6) & 7, r = (q >> 9) & 7, gx = r - l, gy = b - t, ax = gx < 0 ? -gx : gx, ay = gy < 0 ? -gy : gy;
           if (ay >= 2 * ax) g = gy > 0 ? (n <= 2 ? 95 : 45) : (n <= 2 ? 39 : 45); else if (ax >= 2 * ay) g = 124; else g = gx * gy > 0 ? 47 : 92; tr = L > 0.5 || fl ? 4 : 3; }
         for (let k2 = 0; k2 < nr; k2++) { const rg = rings[k2], dx = (x + 0.5) * cw - rg.x, dy = (y + 0.5) * lh - rg.y, d = Math.sqrt(dx * dx + dy * dy) - rg.r; if (d > -band && d < band) { const core = d > -band * 0.4 && d < band * 0.4; tr = core ? 4 : 3; if (n >= 6) g = core ? 64 : 35; } }
         ch[c] = g; tier[c] = tr; }
+      for (let y = FR; y < rows; y++) { const k = kr[y], deep = (y - FR) / Math.max(1, rows - FR) > 0.4; for (let x = 0; x < cols; x++) { const c = y * cols + x; if (tier[c]) continue; const r = hsh(x, y - off[x]); if (r < k) { ch[c] = r < k * 0.62 ? 46 : r < k * 0.92 ? 58 : 39; tier[c] = deep ? 5 : 1; } } }
       for (let i = 0; i < N; i++) { if (rho[i] >= lim) continue; const x = px[i] / cw | 0, y = py[i] / lh | 0; if (x < 0 || y < 0 || x >= cols || y >= rows) continue; const c = y * cols + x; if (cN[c]) continue; const sp = Math.hypot(vx[i], vy[i]);
         ch[c] = sp > 520 ? 42 : sp > 240 ? 111 : 46; tier[c] = sp > 520 ? 4 : sp > 240 ? 3 : 2;
         const tx = (px[i] - vx[i] * 0.016) / cw | 0, ty = (py[i] - vy[i] * 0.016) / lh | 0; if (tx >= 0 && ty >= 0 && tx < cols && ty < rows && (tx !== x || ty !== y)) { const c2 = ty * cols + tx; if (!tier[c2]) { ch[c2] = sp > 520 ? 39 : 46; tier[c2] = 1; } } }
@@ -259,6 +277,11 @@
           for (let yy = y - 1; yy >= rTop && yy > y - 40; yy--) if ((yy + (now * 20 | 0)) % 3 === 0) set(x, yy, 58, 1);
           mid(x, y, pw > 1.7 ? '((( @ )))' : pw > 1.3 ? '(( @ ))' : '( @ )', pul ? 4 : 3); } }
       if (TILT.live && performance.now() - TILT.since < 4500) mid(narrow ? cols / 2 : cols * 0.675, this.hintRow + 2, 'TILT YOUR PHONE', (now % 1.2) < 0.8 ? 3 : 2);
+      if (CALM.grid) { const gx = CALM.gridX, gy = CALM.gridY, g0 = gx >> 1, hole = this.hole, y0 = narrow ? Math.ceil(rTop / gy) * gy : gy, mx = ptr.inside && ptr.mouse ? ptr.x : -9999, my = ptr.y;
+        for (let y = y0; y < FR; y += gy) { const yp = (y + 0.5) * lh; for (let x = g0; x < cols; x += gx) { const c = y * cols + x; if (tier[c] || cN[c]) continue; if (hole && x >= hole[0] && x <= hole[2] && y >= hole[1] && y <= hole[3]) continue;
+          const xp = (x + 0.5) * cw, dm = (xp - mx) * (xp - mx) + (yp - my) * (yp - my); let tr = dm < 2500 ? 2 : dm < 14400 ? 1 : 5;
+          for (let k2 = 0; k2 < nr; k2++) { const rg = rings[k2], d = Math.abs(Math.hypot(xp - rg.x, yp - rg.y) - rg.r); if (d < 30) tr = d < 12 ? 3 : 2; }
+          ch[c] = ((x - g0) / gx) % 4 === 0 && (y / gy) % 4 === 0 ? 43 : 183; tier[c] = tr; } } }
       const idle = this.strikes === 0 && now - this.born > 1.2; if (idle) mid(narrow ? cols / 2 : cols * 0.675, this.hintRow, touchy ? 'TAP IT' : 'CLICK IT', (now % 1.6) < 1 ? 2 : 1);
     }
   };
@@ -284,10 +307,13 @@
   window.addEventListener('scroll', () => { const y = window.scrollY, d = y - lastY; lastY = y; const t = performance.now(); if (Math.abs(d) > 2 && t - kickT > 70 && onScreen && rafId) { kickT = t; F.kick(d); } }, { passive: true });
 
   /* ================= tilt ================= */
-  /* gravity follows the phone, in every direction. An iPhone only hands over motion after a tap and a yes, so there is one clear button in the hero. */
+  /* gravity follows the phone, in every direction. Android hands motion over without asking. An iPhone hands it over only
+     after a touch and Apple's own prompt, and no site can skip that, so there is no button: the first tap on the hero
+     (which is also a strike) asks, once. A yes and tilt simply works from then on; a no changes nothing. */
   const D2R = Math.PI / 180;
-  const TILT = { x: 0, y: 1, mag: 1, live: false, since: 0, state: 'off', listening: false, ready: false, hideT: 0 };
+  const TILT = { x: 0, y: 1, mag: 1, live: false, since: 0, state: 'off', listening: false, asked: false };
   const touchy = !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches), hasDO = 'DeviceOrientationEvent' in window;
+  const setTilt = st => { TILT.state = st; DIAG.tilt = st; };
   function onTilt(e) {
     if (e.beta == null || e.gamma == null) return;
     /* where "down" points in the plane of the screen: x to the right, y toward the bottom, for a phone held upright */
@@ -297,26 +323,20 @@
     if (m < 0.12) TILT.mag = 0.35; else { TILT.x = x / m; TILT.y = y / m; TILT.mag = clamp(m * 1.5, 0.35, 1); }   /* lying flat: keep the last direction, go light */
     if (!TILT.live) { TILT.live = true; TILT.since = performance.now(); setTilt('on'); }
   }
-  function setTilt(st) {
-    TILT.state = st; DIAG.tilt = st; const able = touchy && hasDO, T = { off: 'Tilt to pour: tap to turn on', asking: 'Asking for motion access', waiting: 'Listening for the phone', denied: 'Motion access was declined', blocked: 'Tilt is not available here' };
-    tiltBtn.hidden = !able || st === 'on' || !TILT.ready; if (T[st]) tiltBtn.textContent = T[st];
-    clearTimeout(TILT.hideT); if (st === 'blocked' || st === 'denied') TILT.hideT = setTimeout(() => { tiltBtn.hidden = true; }, 5000);   /* a refusal steps aside after a few seconds */
-    tiltBtn.disabled = st === 'asking' || st === 'waiting';
-  }
   function listen() { if (!TILT.listening) { TILT.listening = true; window.addEventListener('deviceorientation', onTilt); } }
-  async function askTilt() {
-    if (TILT.live) return;
-    try {
-      const DO = window.DeviceOrientationEvent;
-      /* an instant no is the view refusing, not the person */
-      if (DO && typeof DO.requestPermission === 'function') { setTilt('asking'); const t0 = performance.now(), r = await DO.requestPermission(); if (r !== 'granted') { setTilt(performance.now() - t0 < 350 ? 'blocked' : 'denied'); return; } }
-      listen(); setTilt('waiting'); setTimeout(() => { if (!TILT.live) setTilt('blocked'); }, 1800);
-    } catch (x) { setTilt('blocked'); }
+  function askTilt() {
+    const DO = window.DeviceOrientationEvent; if (TILT.live || TILT.asked || !DO || typeof DO.requestPermission !== 'function') return;
+    TILT.asked = true; setTilt('asking'); const t0 = performance.now();
+    /* an instant no is the view refusing (a page inside another page), not the person */
+    try { DO.requestPermission().then(r => { if (r === 'granted') { listen(); setTilt('waiting'); setTimeout(() => { if (!TILT.live) setTilt('blocked'); }, 1800); } else setTilt(performance.now() - t0 < 350 ? 'blocked' : 'denied'); }, () => setTilt('blocked')); }
+    catch (x) { setTilt('blocked'); }
   }
-  tiltBtn.addEventListener('click', askTilt); setTilt('off');
-  setTimeout(() => { TILT.ready = true; if (TILT.state === 'off') setTilt('off'); }, 700);   /* no flash of the button on phones that hand motion over at once */
-  /* where the browser hands motion over without asking, take it at once; an iPhone refuses this quietly, shows nothing, and waits for the tap */
-  if (touchy && hasDO) { const DO = window.DeviceOrientationEvent; if (typeof DO.requestPermission !== 'function') listen(); else { try { DO.requestPermission().then(r => { if (r === 'granted') listen(); }, () => {}); } catch (x) {} } }
+  if (touchy && hasDO) {
+    const DO = window.DeviceOrientationEvent;
+    /* where the browser hands motion over without asking (or already said yes this session), take it at once; otherwise this is refused quietly and nothing shows */
+    if (typeof DO.requestPermission !== 'function') listen(); else { try { DO.requestPermission().then(r => { if (r === 'granted') listen(); }, () => {}); } catch (x) {} }
+    hero.addEventListener('click', e => { if (!skip(e.target) && !document.body.classList.contains('blueprint')) askTilt(); });
+  }
 
   /* ================= loop, with a governor ================= */
   let onScreen = true, rafId = 0, last = 0, lastFrameAt = 0, err = '', slowT = 0; const cad = { arr: [], base: 0 };
@@ -359,6 +379,7 @@
   let booted = false;
   function boot() {
     if (booted) return; booted = true;
+    if (window.__liquidOpts) Object.assign(CALM, window.__liquidOpts);   /* a page may tune the pool (the design preview does) */
     measure(); { const r = hero.getBoundingClientRect(); lw = r.width; lhh = r.height; }
     DIAG.mode = 'liquid'; start();
     /* if the face lands after the fallback was measured, the character width changes: build again, once */
@@ -366,11 +387,13 @@
   }
   if (document.fonts && document.fonts.load) { document.fonts.load('500 12px "Site Mono"').then(boot, boot); setTimeout(boot, 1500); } else boot();
 
+  window.addEventListener('liquid-opts', e => { if (!booted) return; Object.assign(CALM, e.detail || {}); measure(); start(); });
+
   /* the test rigs ask for this; nothing on the page uses it */
   if (/[?&]lqtest=1/.test(location.search)) window.__liquid = { F: F, TILT: TILT, CALM: CALM,
     grid: () => { let o = ''; for (let y = 0; y < rows; y++) o += String.fromCharCode.apply(null, ch.subarray(y * cols, (y + 1) * cols)) + '\n'; return o; },
-    prof: () => { const o = []; for (let x = 0; x < cols; x++) { let y = rows - 1; while (y >= 0 && cN[y * cols + x] >= 6) y--; o.push(((rows - 1 - y) + (y >= 0 ? cN[y * cols + x] / 8 : 0)) * lh); } return o; },
+    prof: () => { const o = []; for (let x = 0; x < cols; x++) { let y = FR - 1; while (y >= 0 && cN[y * cols + x] >= 6) y--; o.push(((FR - 1 - y) + (y >= 0 ? cN[y * cols + x] / 8 : 0)) * lh); } return o; },
     motion: () => { let sp = 0, loose = 0; const lim = F.rho0 * 0.42; for (let i = 0; i < F.n; i++) { sp += Math.hypot(F.vx[i], F.vy[i]); if (F.rho[i] < lim) loose++; } return { speed: sp / F.n, loose: loose }; },
     strike: (x, y, pw) => F.strike(x == null ? W / 2 : x, y == null ? 0 : y, pw || 1),
-    stats: () => ({ cols: cols, rows: rows, cw: +cw.toFixed(2), lh: lh, W: Math.round(W), H: Math.round(H), n: F.n, qi: F.qi, work: +work.ema.toFixed(2), fps: Math.round(fpsA.v), cadence: Math.round(cad.base * 1000), lite: host.classList.contains('lite'), running: !!rafId, frames: DIAG.frames, tilt: TILT.state, g: [+F.gx.toFixed(2), +F.gy.toFixed(2)], qt: +F.qt.toFixed(2), rq: +F.rq.toFixed(2), surf: Math.round(F.surf), aTop: Math.round(aTop), pBot: Math.round(pBot), narrow: narrow, strikes: F.strikes, rings: F.rings.length, mets: F.mets.length, err: err.slice(0, 300) }) };
+    stats: () => ({ cols: cols, rows: rows, cw: +cw.toFixed(2), lh: lh, W: Math.round(W), H: Math.round(H), n: F.n, qi: F.qi, work: +work.ema.toFixed(2), fps: Math.round(fpsA.v), cadence: Math.round(cad.base * 1000), lite: host.classList.contains('lite'), running: !!rafId, frames: DIAG.frames, tilt: TILT.state, g: [+F.gx.toFixed(2), +F.gy.toFixed(2)], qt: +F.qt.toFixed(2), rq: +F.rq.toFixed(2), surf: Math.round(F.surf), aTop: Math.round(aTop), pBot: Math.round(pBot), ext: EXT, floorRow: FR, narrow: narrow, strikes: F.strikes, rings: F.rings.length, mets: F.mets.length, err: err.slice(0, 300) }) };
 })();

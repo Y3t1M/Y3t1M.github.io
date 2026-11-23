@@ -359,7 +359,7 @@ html.booting .nav-mark { opacity: 0; }
   height: calc(100vh - 120px);
   max-height: 820px;
   border-bottom: 1px solid var(--border);
-  overflow: hidden;
+  /* not clipped: what sinks out of the pool carries on past this edge into the next section */
   z-index: 1;
 }
 /* ── The liquid (liquid-hero.js) ──────────────────────────
@@ -380,9 +380,14 @@ html.booting .nav-mark { opacity: 0; }
   user-select: none;
   --lq-fs: 8px;
   --lq-lh: 9px;
-  /* the pool's floor sinks into the sand below it instead of being cut by the hero's edge */
-  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 64px), transparent);
-  mask-image: linear-gradient(to bottom, #000 calc(100% - 64px), transparent);
+  /* The pool has no floor. The layer runs --lq-ext (set by the script) past the
+     hero's bottom edge, and low in the pool the liquid thins into single
+     characters that sink through that room and fade out over the top of the
+     next section, so there is no line where the first screen ends. */
+  --lq-ext: 0px;
+  bottom: calc(-1 * var(--lq-ext));
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - var(--lq-ext) - 30px), transparent);
+  mask-image: linear-gradient(to bottom, #000 calc(100% - var(--lq-ext) - 30px), transparent);
 }
 .lq-shake { position: absolute; inset: 0; will-change: transform; }
 .lq {
@@ -418,29 +423,6 @@ html.booting .nav-mark { opacity: 0; }
   58% { transform: translateY(0.05em) rotate(1deg); }
   100% { transform: none; }
 }
-/* phones: one button to turn tilt on (an iPhone needs a tap before it shares motion) */
-.lq-tilt {
-  position: absolute;
-  left: 50%;
-  top: 46%;
-  transform: translateX(-50%);
-  z-index: 3;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--text);
-  background: rgba(11, 11, 11, 0.88);
-  border: 1px solid rgba(255, 255, 255, 0.42);
-  border-radius: 999px;
-  min-height: 40px;
-  padding: 0 16px;
-  white-space: nowrap;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-}
-.lq-tilt[hidden] { display: none; }
-.lq-tilt:disabled { opacity: 0.7; }
 @media (pointer: coarse) {
   /* a held finger charges a strike; it should not start selecting the headline */
   .hero { -webkit-user-select: none; user-select: none; }
@@ -586,7 +568,7 @@ body:not(.blueprint) .hero { border-bottom-color: transparent; }
        small viewport unit doesn't change when the URL bar collapses, so the
        pool is never rebuilt mid-scroll. */
     min-height: 92svh;
-    padding: 36px 0 300px;
+    padding: 30px 0 290px;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
@@ -633,6 +615,9 @@ section { position: relative; z-index: 1; }
   margin: 0 auto;
   padding: var(--section-gap) 24px 0;
 }
+
+/* the section under the hero starts inside the tail of the pool, not after a gap */
+.hero + .about-section { padding-top: 76px; }
 
 .section-label {
   font-family: var(--font-mono);
@@ -2508,4 +2493,68 @@ html.fx .project-card, html.fx .about-card {
     bottom: -28px;
     background: linear-gradient(to bottom, rgba(5, 5, 5, 0) 0%, rgba(5, 5, 5, 0.88) 42%, rgba(5, 5, 5, 0.97) 70%);
   }
+}
+
+/* ── Display type (2026-11-22) ────────────────────────────
+   Hudson, looking at the liquid hero: "we dont wanna use inter for the font we
+   want to keep some theming in the top nav bar and the text", then, of a pixel
+   face: "that looks very cheap, remember this is like a resume kinda thing ...
+   this site needs to be professional with a fun element". The site sans
+   (Pretendard) draws Inter's letters, so the headline, the wordmark and the
+   section headings use IBM Plex Sans: a corporate face with its own letters.
+   The theme lives in the small type: the nav links and the hero's supporting
+   lines are set in the pool's own mono. Paragraphs further down keep the sans.
+   Three numbers describe the face: its weight, its tracking, and the width of
+   one character in em (the two hero lines are 18 characters each, so a narrow
+   phone gets whatever size fits 18 of them). */
+@font-face {
+  font-family: 'Site Display';
+  src: url(assets/fonts/site-display-1.woff2) format('woff2');
+  font-weight: 100 700;
+  font-style: normal;
+  font-display: swap;
+}
+:root {
+  --font-display: 'Site Display', 'Site Sans', ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --display-weight: 600;
+  --display-track: -0.02em;
+  --display-ch: 0.5;
+}
+.hero-title,
+.section-title,
+.nav-logo-text {
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  letter-spacing: var(--display-track);
+}
+.hero-panel.hero-open .hero-title {
+  font-size: clamp(34px, 4.5vw, 57px);
+  line-height: 1.12;
+  text-wrap: nowrap;
+}
+.section-title { line-height: 1.15; }
+/* the nav links: small mono capitals, like the labels down the page */
+.nav-link { font-family: var(--font-mono); font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; }
+/* the hero's small type: the pool's own mono */
+.hero-panel.hero-open .hero-subtitle { font-family: var(--font-mono); font-size: 13.5px; line-height: 1.6; letter-spacing: 0; }
+.hero-actions .btn-primary,
+.hero-actions .btn-ghost { font-family: var(--font-mono); font-size: 12.5px; letter-spacing: 0.02em; }
+.hero-actions .btn-primary { font-weight: 600; }
+@media (max-width: 860px) {
+  /* the usual size, unless 18 characters of it would not fit this phone */
+  .hero-panel.hero-open .hero-title { font-size: min(clamp(34px, 4.6vw, 58px), calc((100vw - 40px) / (18 * var(--display-ch)))); margin-bottom: 10px; }
+  .hero-panel.hero-open .hero-subtitle { font-size: 12.5px; margin-bottom: 16px; }
+  .hero-panel.hero-open .hero-now { margin-top: 14px; }
+}
+@media (max-width: 700px) {
+  /* one row when it fits: the two buttons, then the three marks */
+  .hero-social { flex-basis: auto; margin-top: 0; }
+  .hero-actions { gap: 8px; }
+  .hero-actions .btn-primary { padding: 11px 18px; }
+  .hero-actions .btn-ghost { padding: 10px 14px; }
+  .icon-btn { width: 38px; height: 38px; }
+  .icon-btn svg { width: 16px; height: 16px; }
+}
+@media (max-width: 480px) {
+  .nav-link { font-size: 10.5px; letter-spacing: 0.08em; }
 }
