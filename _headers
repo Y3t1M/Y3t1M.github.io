@@ -31,3 +31,8 @@
 
 /games/*
   Cache-Control: public, max-age=86400
+
+# The offline worker (sw.js) must be checked fresh on every visit, or a fix to it waits on a cached copy. The pages also
+# register it with updateViaCache: 'none', which makes browsers skip their cache for it whatever this header says.
+/sw.js
+  Cache-Control: no-cache

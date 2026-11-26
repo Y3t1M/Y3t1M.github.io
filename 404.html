@@ -213,7 +213,7 @@
   <script src="/transitions.js"></script>
   <script src="/nav-fx.js"></script>
   <!-- Offline: sw.js keeps a copy of the site so it still opens without a connection (Hudson, 2026-11-25) -->
-  <script>if ('serviceWorker' in navigator) addEventListener('load', function () { navigator.serviceWorker.register('/sw.js').catch(function () {}); });</script>
+  <script>if ('serviceWorker' in navigator) addEventListener('load', function () { navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' }).catch(function () {}); });</script>
 </body>
 
 </html>
