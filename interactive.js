@@ -582,22 +582,7 @@
   /* blob parallax handled above */
 
 
-  /* ================================================================
-     9. TYPING CURSOR on hero subtitle  –  subtle caret pulse at end
-     ================================================================ */
-  const heroSub = document.querySelector('.hero-subtitle');
-  if (heroSub) {
-    const caret = document.createElement('span');
-    caret.className = 'typing-caret';
-    caret.textContent = '|';
-    heroSub.appendChild(caret);
-    /* auto-remove after 4 s */
-    setTimeout(() => {
-      caret.style.transition = 'opacity 1s';
-      caret.style.opacity = '0';
-      setTimeout(() => caret.remove(), 1000);
-    }, 4000);
-  }
+  /* (9. the typing cursor that used to blink after the hero subtitle is gone: Hudson, 2026-11-25, "the blinking cursor at the end seems off") */
 
 
   /* ================================================================

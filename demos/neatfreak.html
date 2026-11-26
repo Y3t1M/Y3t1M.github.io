@@ -150,7 +150,7 @@
       <div class="nav-links">
         <a href="../index.html" class="nav-link">Home</a>
         <a href="../projects.html" class="nav-link active">Projects</a>
-        <a href="../assets/Hudson-Tinch-Resume.pdf?v=2026-10-11c" target="_blank" rel="noopener" class="nav-link">Resume<span class="nav-ext" aria-hidden="true">PDF</span></a>
+        <a href="../assets/Hudson-Tinch-Resume.pdf?v=2026-10-11c" target="_blank" rel="noopener" class="nav-link">Résumé<span class="nav-ext" aria-hidden="true">PDF</span></a>
       </div>
     </nav>
   </header>
@@ -632,6 +632,8 @@
   </script>
   <script src="../sand.js"></script>
   <script src="../transitions.js"></script>
+  <!-- Offline: sw.js keeps a copy of the site so it still opens without a connection (Hudson, 2026-11-25) -->
+  <script>if ('serviceWorker' in navigator) addEventListener('load', function () { navigator.serviceWorker.register('/sw.js').catch(function () {}); });</script>
 </body>
 
 </html>

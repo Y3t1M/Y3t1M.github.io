@@ -130,7 +130,7 @@
       <div class="nav-links">
         <a href="index.html" aria-current="page" class="nav-link active" data-no-magnet>Home</a>
         <a href="projects.html" class="nav-link" data-no-magnet>Projects</a>
-        <a href="assets/Hudson-Tinch-Resume.pdf?v=2026-10-11c" target="_blank" rel="noopener" class="nav-link" data-no-magnet>Resume<span class="nav-ext" aria-hidden="true">PDF</span></a>
+        <a href="assets/Hudson-Tinch-Resume.pdf?v=2026-10-11c" target="_blank" rel="noopener" class="nav-link" data-no-magnet>Résumé<span class="nav-ext" aria-hidden="true">PDF</span></a>
       </div>
       <canvas class="nav-sand" aria-hidden="true"></canvas>
     </nav>
@@ -145,7 +145,7 @@
       <p class="hero-subtitle">Finance &amp; entrepreneurship at Arkansas Honors, 4.0. Developer at Hollis Bloom.</p>
       <div class="hero-actions">
         <!-- Resume leads — he's recruiting; the resume is the ask (Hudson, 2026-09-01) -->
-        <a href="assets/Hudson-Tinch-Resume.pdf?v=2026-10-11c" target="_blank" rel="noopener" class="btn-primary">Resume</a>
+        <a href="assets/Hudson-Tinch-Resume.pdf?v=2026-10-11c" target="_blank" rel="noopener" class="btn-primary">Résumé</a>
         <a href="projects.html" class="btn-ghost">View projects</a>
         <!-- GitHub / LinkedIn / Email beside the resume (Hudson, 2026-09-01):
              inline SVG marks, no icon library to fail to load -->
@@ -641,6 +641,8 @@
   <script src="interactive.js"></script>
   <script src="features.js"></script>
   <script src="liquid-hero.js"></script>
+  <!-- Offline: sw.js keeps a copy of the site so it still opens without a connection (Hudson, 2026-11-25) -->
+  <script>if ('serviceWorker' in navigator) addEventListener('load', function () { navigator.serviceWorker.register('/sw.js').catch(function () {}); });</script>
 </body>
 
 </html>

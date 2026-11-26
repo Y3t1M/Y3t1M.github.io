@@ -242,7 +242,7 @@
           for (const rp of rips) { const age = now - rp.at; if (age < 0) continue; const d = Math.abs((x + 0.5) * subW - rp.x) - 110 * age, e = 1 - age / 1.8; h += CALM.rip * rq * e * Math.sqrt(e) * Math.exp(-d * d / 144); } }
         hB[x] = h; }
       for (let x = 0; x < n; x += SUBX) { let m = 0; if (snap) { for (let j = 0; j < SUBX; j++) m += hB[x + j]; m /= SUBX; }
-        for (let j = 0; j < SUBX; j++) { let sN = Math.round(snap ? m : hB[x + j]); if (snap && sN > 0) { const r = sN & 3; if (r === 0) sN += 1; else if (r === 3) sN -= 1; } sN = sN < 0 ? 0 : sN > FB ? FB : sN;   /* keep the level where a line character can show it */
+        for (let j = 0; j < SUBX; j++) { let sN = Math.round(snap ? m : hB[x + j]); if (snap && sN > 0) { const f = (4 - ((FB - sN) & 3)) & 3; if (f === 0) sN += 1; else if (f === 3) sN -= 1; } sN = sN < 0 ? 0 : sN > FB ? FB : sN;   /* keep the level where a line character can show it: one or two sub-rows into a cell, counted on the cell grid (the floor is not always on a cell edge) */
           hB[x + j] = FB - sN; if (FB - sN < lo) lo = FB - sN; } }
       for (let y = 0; y < BH; y++) { const row = y * n; if (y < lo || y >= FB) { mb.fill(0, row, row + n); continue; } for (let x = 0; x < n; x++) { const q = row + x; if (y >= hB[x]) { mb[q] = 1; if (lb[q] < 0.2) lb[q] = 0.2; } else mb[q] = 0; } }
     },
@@ -276,7 +276,7 @@
       for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) { const c = y * cols + x, n = cN[c]; if (!n) continue; let L = cL[c], g, tr, full = n >= 6 || y >= FR - 2;   /* at the floor a half-covered cell is body like the rest and thins with it: no outline along the bottom */
         if (!full && mend && n >= 2 && (y === 0 ? 0 : cN[c - cols]) >= 4 && (y === rows - 1 ? 8 : cN[c + cols]) >= 4 && (x === 0 ? 8 : cN[c - 1]) >= 4 && (x === cols - 1 ? 8 : cN[c + 1]) >= 4) full = true;
         if (full) { if (y >= thinRow && hsh(x, y - off[x]) > kr[y]) continue;
-          { const cs = Math.sin(x * 0.075 + 1.4 * Math.sin(y * 0.16 + tq * 0.13) - tq * 0.2); if (cs > 0) L += CALM.glow * cs * cs; } L += 0.06 * Math.sin(x * 0.33 + y * 0.7 - tq * CALM.shim) + (fl ? 0.35 : 0); let q = Math.round(Math.pow(clamp(L, 0, 1), 1.05) * RL); if (q < 1) q = 1; if (q > RL) q = RL; g = RAMP.charCodeAt(q); tr = L < 0.3 ? 1 : L < 0.55 ? 2 : 3; }
+          let lift = 0; { const cs = Math.sin(x * 0.075 + 1.4 * Math.sin(y * 0.16 + tq * 0.13) - tq * 0.2); if (cs > 0) lift = CALM.glow * cs * cs; } if (!narrow) L += lift; L += 0.06 * Math.sin(x * 0.33 + y * 0.7 - tq * CALM.shim) + (fl ? 0.35 : 0); let q = Math.round(Math.pow(clamp(L, 0, 1), 1.05) * RL); if (q < 1) q = 1; if (q > RL) q = RL; g = RAMP.charCodeAt(q); tr = L < 0.3 ? (narrow && lift > 0.05 ? 2 : 1) : L < 0.55 ? 2 : 3; }
         else { const q = cQ[c], t = q & 7, b = (q >> 3) & 7, l = (q >> 6) & 7, r = (q >> 9) & 7, gx = r - l, gy = b - t, ax = gx < 0 ? -gx : gx, ay = gy < 0 ? -gy : gy;
           if (ay >= 2 * ax) g = gy > 0 ? (n <= 2 ? 95 : 45) : (n <= 2 ? 39 : 45); else if (ax >= 2 * ay) g = 124; else g = gx * gy > 0 ? 47 : 92; tr = L > 0.5 || fl ? 4 : 3; }
         for (let k2 = 0; k2 < nr; k2++) { const rg = rings[k2], dx = (x + 0.5) * cw - rg.x, dy = (y + 0.5) * lh - rg.y, d = Math.sqrt(dx * dx + dy * dy) - rg.r; if (d > -band && d < band) { const core = d > -band * 0.4 && d < band * 0.4; tr = core ? 4 : 3; if (n >= 6) g = core ? 64 : 35; } }
